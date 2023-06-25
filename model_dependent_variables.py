@@ -1193,7 +1193,7 @@ def FefO2_ONeill18_terms(run,PT,melt_wf,setup,species):
     FMQ = 8.58 - (25050/T_K) # O'Neill (1987)
     return a, B, FMQ
 
-def FefO2_Borisov18_terms(run,PT,melt_wf,setup,species):
+def FefO2_Borisov18_terms(run,PT,melt_wf,setup,species,models):
     T_K = PT['T']+273.15
     # Borisov et al. (2018) CMP 173
     a = 0.207
@@ -1225,7 +1225,7 @@ def fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models): # converting fO2 to Fe3
         return Fe3Fe2/(Fe3Fe2 + 1.0)
     
     elif model == "Borisov18": # Borisov et al. (2018) CMP 173:
-        a,B = FefO2_Borisov18_terms(run,PT,melt_wf,setup,species)
+        a,B = FefO2_Borisov18_terms(run,PT,melt_wf,setup,species,models)
         Fe3Fe2 = 10.**(a*gp.log10(fO2) + B)
         return Fe3Fe2/(Fe3Fe2 + 1.0)
 
@@ -1290,7 +1290,7 @@ def f_O2(run,PT,melt_wf,setup,species,models):
     
     elif model == "Borisov18": # Borisov et al. (2018) CMP 173
         F = mg.Fe3Fe2(melt_wf)
-        a,B = FefO2_Borisov18_terms(run,PT,melt_wf,setup,species)
+        a,B = FefO2_Borisov18_terms(run,PT,melt_wf,setup,species,models)
         fO2 = 10.**((gp.log10(F) - B)/a)
         return fO2
     
