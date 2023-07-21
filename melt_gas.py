@@ -392,6 +392,11 @@ def Fe3FeT_i(run,PT,melt_wf,setup,species,models):
             D = setup.loc[run,"DFMQ"]
             fO2 = Dbuffer2fO2(PT,D,"FMQ",models)
             return mdv.fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models)
+        elif pd.isnull(setup.loc[run,"S6ST"]) == False:
+            S6T = setup.loc[run,"S6ST"]
+            S62 = overtotal2ratio(S6T)
+            fO2 = S6S2_2_fO2(S62,melt_wf,run,PT,setup,species,models)
+            return mdv.fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models)
         else:
             return ((2.0*setup.loc[run,"Fe2O3"])/species.loc["Fe2O3","M"])/(((2.0*setup.loc[run,"Fe2O3"])/species.loc["Fe2O3","M"]) + (setup.loc[run,"FeO"]/species.loc["FeO","M"]))
         
@@ -614,7 +619,6 @@ def system_density(run,PT,melt_wf,gas_mf,bulk_wf,setup,species,models):
 # normalise melt composition in weight fraction
 def melt_normalise_wf(run,melt_wf,setup,species,volatiles,Fe_speciation):
     if volatiles == "yes": # assumes all H is H2O, all C is CO2, all S is S, all X is X
-        
         H2O = (melt_wf["HT"]/species.loc["H2","M"])*species.loc["H2O","M"]
         CO2 = (melt_wf["CT"]/species.loc["C","M"])*species.loc["CO2","M"]
         S = melt_wf["ST"]
@@ -694,18 +698,18 @@ def melt_mole_fraction(run,melt_wf,setup,species,models,volatiles,Fe_speciation)
 def melt_single_O(run,melt_wf,setup,species,volatiles,Fe_speciation):
     SiO2, TiO2, Al2O3, FeOT, FeO, Fe2O3, MgO, MnO, CaO, Na2O, K2O, P2O5, H2O, CO2, S, X = melt_normalise_wf(run,melt_wf,setup,species,volatiles,Fe_speciation)
     Xmtot = (SiO2/(species.loc["SiO2","M"]/species.loc["SiO2","no_O"])) + (TiO2/(species.loc["TiO2","M"]/species.loc["TiO2","no_O"])) + (Al2O3/(species.loc["Al2O3","M"]/species.loc["Al2O3","no_O"])) + (MnO/(species.loc["MnO","M"]/species.loc["MnO","no_O"])) + (MgO/(species.loc["MgO","M"]/species.loc["MgO","no_O"])) + (CaO/(species.loc["CaO","M"]/species.loc["CaO","no_O"])) + (Na2O/(species.loc["Na2O","M"]/species.loc["Na2O","no_O"])) + (K2O/(species.loc["K2O","M"]/species.loc["K2O","no_O"])) + (P2O5/(species.loc["P2O5","M"]/species.loc["P2O5","no_O"])) + (FeOT/(species.loc["FeO","M"]/species.loc["FeO","no_O"])) + (FeO/(species.loc["FeO","M"]/species.loc["FeO","no_O"])) + (Fe2O3/(species.loc["Fe2O3","M"]/species.loc["Fe2O3","no_O"])) + (H2O/(species.loc["H2O","M"]/species.loc["H2O","no_O"])) + (CO2/(species.loc["CO2","M"]/species.loc["CO2","no_O"]))
-    SiO2 = (SiO2/species.loc["SiO2","M"])/Xmtot
-    TiO2 = (TiO2/species.loc["TiO2","M"])/Xmtot
-    Al2O3 = (Al2O3/species.loc["Al2O3","M"])/Xmtot 
-    FeOT = (FeOT/species.loc["FeO","M"])/Xmtot 
-    FeO = (FeO/species.loc["FeO","M"])/Xmtot
-    Fe2O3 = (Fe2O3/species.loc["Fe2O3","M"])/Xmtot
-    MnO = (MnO/species.loc["MnO","M"])/Xmtot
-    MgO = (MgO/species.loc["MgO","M"])/Xmtot
-    CaO = (CaO/species.loc["CaO","M"])/Xmtot
-    Na2O = (Na2O/species.loc["Na2O","M"])/Xmtot
-    P2O5 = (P2O5/species.loc["P2O5","M"])/Xmtot
-    K2O = (K2O/species.loc["K2O","M"])/Xmtot
+    SiO2 = (SiO2/(species.loc["SiO2","M"]/species.loc["SiO2","no_O"]))/Xmtot
+    TiO2 = (TiO2/(species.loc["TiO2","M"]/species.loc["TiO2","no_O"]))/Xmtot
+    Al2O3 = (Al2O3/(species.loc["Al2O3","M"]/species.loc["Al2O3","no_O"]))/Xmtot 
+    FeOT = (FeOT/(species.loc["FeO","M"]/species.loc["FeO","no_O"]))/Xmtot 
+    FeO = (FeO/(species.loc["FeO","M"]/species.loc["FeO","no_O"]))/Xmtot
+    Fe2O3 = (Fe2O3/(species.loc["Fe2O3","M"]/species.loc["Fe2O3","no_O"]))/Xmtot
+    MnO = (MnO/(species.loc["MnO","M"]/species.loc["MnO","no_O"]))/Xmtot
+    MgO = (MgO/(species.loc["MgO","M"]/species.loc["MgO","no_O"]))/Xmtot
+    CaO = (CaO/(species.loc["CaO","M"]/species.loc["CaO","no_O"]))/Xmtot
+    P2O5 = (P2O5/(species.loc["P2O5","M"]/species.loc["P2O5","no_O"]))/Xmtot
+    Na2O = (Na2O/(species.loc["Na2O","M"]/species.loc["Na2O","no_O"]))/Xmtot
+    K2O = (K2O/(species.loc["K2O","M"]/species.loc["K2O","no_O"]))/Xmtot
     H2O = (H2O/species.loc["H2O","M"])/Xmtot
     CO2 = (CO2/species.loc["CO2","M"])/Xmtot    
     return Xmtot, SiO2, TiO2, Al2O3, FeOT, FeO, Fe2O3, MgO, MnO, CaO, Na2O, K2O, P2O5, H2O, CO2

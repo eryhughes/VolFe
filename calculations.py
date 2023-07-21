@@ -26,7 +26,7 @@ def P_sat(run,PT,melt_wf,setup,species,models,Ptol,nr_step,nr_tol):
     XT = melt_wf["XT"]
     melt_wf1 = {"ST":ST,"CO2":CO2,"H2OT":H2OT,"HT":HT,"CT":CT, "XT":XT} # to work out P_sat
     melt_wf2 = {"ST":ST,"CO2":CO2,"H2OT":H2OT,"HT":HT,"CT":CT, "XT":XT} # to work out sulphur saturation
-    
+
     def Pdiff(guess,run,melt_wf,setup,species,models):
         PT["P"] = guess
         difference = abs(guess - mg.p_tot(run,PT,melt_wf,setup,species,models))
@@ -59,7 +59,7 @@ def P_sat(run,PT,melt_wf,setup,species,models,Ptol,nr_step,nr_tol):
         PT["P"] = guess0
         melt_wf1["Fe3FeT"] = mg.Fe3FeT_i(run,PT,melt_wf,setup,species,models)
         melt_wf2["Fe3FeT"] = mg.Fe3FeT_i(run,PT,melt_wf,setup,species,models)
-        xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S2m_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf1,setup,species,models,nr_step,nr_tol)            
+        xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S2m_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf1,setup,species,models,nr_step,nr_tol)
         melt_wf1["H2OT"] = wm_H2O_
         melt_wf2["H2OT"] = wm_H2O_
         melt_wf1["CO2"] = wm_CO2_
@@ -275,15 +275,15 @@ def fO2_P_VSA(run,PT,melt_wf,setup,species,models,nr_step,nr_tol,Ptol):
     def fO2_S(run,PT,melt_wf,setup,species,models):
         SCSS_ = mdv.SCSS(run,PT,melt_wf,setup,species,models)/1000000.
         SCAS_ = mdv.SCAS(run,PT,melt_wf,setup,species,models)/1000000.
-        CSO4 = mg.C_SO4(run,PT,melt_wf,setup,species,models)/1000000.
-        CS = mg.C_S(run,PT,melt_wf,setup,species,models)/1000000.
+        CSO4 = mdv.C_SO4(run,PT,melt_wf,setup,species,models)/1000000.
+        CS = mdv.C_S(run,PT,melt_wf,setup,species,models)/1000000.
         
         if models.loc["H2S_m","option"] == "no":
             W = CSO4/CS
         elif models.loc["H2S_m","option"] == "yes":
-            CH2S = mg.C_H2S(run,PT,melt_wf,setup,species,models)/1000000.
-            KHS = mg.KHOSg(PT,models)
-            CH2OT = mg.C_H2O(run,PT,melt_wf,setup,species,models)
+            CH2S = mdv.C_H2S(run,PT,melt_wf,setup,species,models)/1000000.
+            KHS = mdv.KHOSg(PT,models)
+            CH2OT = mdv.C_H2O(run,PT,melt_wf,setup,species,models)
             xmH2O = mg.xm_H2OT_so(run,melt_wf,setup,species)
             W = (CSO4/((KHS*CH2S*(xmH2O**2./CH2OT)) + CS))
         fO2 = ((1./W)*(SCAS_/SCSS_))**0.5
@@ -307,7 +307,7 @@ def fO2_P_VSA(run,PT,melt_wf,setup,species,models,nr_step,nr_tol,Ptol):
         PT["P"] = guess0
         fO2_, ST_ = fO2_S(run,PT,melt_wf,setup,species,models)
         melt_wf["ST"] = ST_
-        melt_wf["Fe3FeT"] = mdv.fO22Fe3FeT(fO2_,run,PT,setup,species,models)
+        melt_wf["Fe3FeT"] = mdv.fO22Fe3FeT(fO2_,run,PT,melt_wf,setup,species,models)
         xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S2m_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf,setup,species,models,nr_step,nr_tol)         
         melt_wf["H2OT"] = wm_H2O_
         melt_wf["CO2"] = wm_CO2_
@@ -316,7 +316,7 @@ def fO2_P_VSA(run,PT,melt_wf,setup,species,models,nr_step,nr_tol,Ptol):
         P_sat = guess0
         xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S2m_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf,setup,species,models,nr_step,nr_tol)
         fO2_, ST_ = fO2_S(run,PT,melt_wf,setup,species,models)
-        Fe3_FT = mdv.fO22Fe3FeT(fO2_,run,PT,setup,species,models)
+        Fe3_FT = mdv.fO22Fe3FeT(fO2_,run,PT,melt_wf,setup,species,models)
     return P_sat, wm_H2O_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_S2m_, wm_S6p_, wm_H2S_, H2O_HT, H2_HT, CH4_HT, H2S_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, Fe3_FT
 
 def P_VSA(run,PT,melt_wf,setup,species,models,nr_step,nr_tol,Ptol):
@@ -368,7 +368,117 @@ def P_VSA(run,PT,melt_wf,setup,species,models,nr_step,nr_tol,Ptol):
         melt_wf["Fe3FeT"] = mg.Fe3FeT_i(run,PT,melt_wf,setup,species,models)
         xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S2m_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf,setup,species,models,nr_step,nr_tol)
     return P_sat, wm_H2O_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_S2m_, wm_S6p_, wm_H2S_, H2O_HT, H2_HT, CH4_HT, H2S_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST
+
+# estimated fO2 from sulfur content given you are sulfide saturated and at Pvsat
+def P_sat_sulf_anh(run,PT,melt_wf,setup,species,models,Ptol,nr_step,nr_tol):
+    ST = melt_wf["ST"]
+    H2OT = melt_wf["H2OT"]
+    CO2 = melt_wf["CO2"]
+    HT = melt_wf["HT"]
+    CT = melt_wf["CT"]
+ 
+    def Pdiff(guess,run,melt_wf,setup,species,models):
+        PT["P"] = guess
+        difference = abs(guess - mg.p_tot(run,PT,melt_wf,setup,species,models))
+        return difference
+    
+    def S62_2_Fe3T(run,PT,melt_wf,setup,species,models,sat):
+        ST = melt_wf["ST"]
+        if sat == "sulf":
+            Ssat = mdv.SCSS(run,PT,melt_wf,setup,species,models)/1000000.
+            S2m = Ssat
+            S6p = ST - S2m
+        elif sat == "anh":
+            Ssat = mdv.SCAS(run,PT,melt_wf,setup,species,models)/1000000.
+            S6p = Ssat
+            S2m = ST - S6p
+        S62 = S6p/S2m
+        S6T = S6p/ST
+        if S62 < 0.:
+            return "not possible","","","",Ssat
+        else:
+            fO2 = mg.S6S2_2_fO2(S62,melt_wf,run,PT,setup,species,models)
+            Fe3T = mdv.fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models)
+            DFMQ = mg.fO22Dbuffer(PT,fO2,"FMQ",models)
+            return Fe3T,fO2,S6T,DFMQ,Ssat
         
+    guess0 = 40000. # initial guess for pressure
+    PT["P"] = guess0
+    
+    # assume it is sulfide saturated
+    melt_wf["Fe3FeT"] = 0.1
+    Fe3T_sulf,fO2_sulf,S6T_sulf,DFMQ_sulf,SCSS_ = S62_2_Fe3T(run,PT,melt_wf,setup,species,models,"sulf")
+    if Fe3T_sulf == "not possible":
+        P_sat_sulf = ""
+        Fe3T_sulf = ""
+        sulphide_sat = "no"
+    else: 
+        melt_wf["Fe3FeT"] = Fe3T_sulf
+        xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S2m_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf,setup,species,models,nr_step,nr_tol)
+        melt_wf["H2OT"] = wm_H2O_
+        melt_wf["CO2"] = wm_CO2_
+        melt_wf["S2-"] = wm_S2m_
+        melt_wf["ST"] = ST
+        delta1 = Pdiff(guess0,run,melt_wf,setup,species,models)
+        while delta1 > Ptol :
+            delta1 = Pdiff(guess0,run,melt_wf,setup,species,models)
+            guess0 = mg.p_tot(run,PT,melt_wf,setup,species,models)
+            guess0 = float(guess0)
+            PT["P"] = guess0
+            Fe3T_sulf,fO2_sulf,S6T_sulf,DFMQ_sulf,SCSS_ = S62_2_Fe3T(run,PT,melt_wf,setup,species,models,"sulf")
+            if Fe3T_sulf == "not possible":
+                P_sat_sulf = ""
+                Fe3T_sulf = ""
+                sulphide_sat = "no"
+            else: 
+                melt_wf["Fe3FeT"] = Fe3T_sulf
+                xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S2m_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf,setup,species,models,nr_step,nr_tol)
+                melt_wf["H2OT"] = wm_H2O_
+                melt_wf["CO2"] = wm_CO2_
+                melt_wf["S2-"] = wm_S2m_
+        else:
+            P_sat_sulf = guess0
+            Fe3T_sulf,fO2_sulf,S6T_sulf,DFMQ_sulf,SCSS_ = S62_2_Fe3T(run,PT,melt_wf,setup,species,models,"sulf")
+            sulphide_sat = "yes"
+           
+    # assume it is anhydrite saturated
+    Fe3T_anh,fO2_anh,S6T_anh,DFMQ_anh,SCAS_ = S62_2_Fe3T(run,PT,melt_wf,setup,species,models,"anh")
+    if Fe3T_anh == "not possible":
+        P_sat_anh = ""
+        Fe3T_anh = ""
+        anhydrite_sat = "no"
+    else:  
+        melt_wf["Fe3FeT"] = Fe3T_anh
+        xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S2m_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf,setup,species,models,nr_step,nr_tol)
+        melt_wf["H2OT"] = wm_H2O_
+        melt_wf["CO2"] = wm_CO2_
+        melt_wf["S2-"] = wm_S2m_
+        melt_wf["ST"] = ST
+        delta1 = Pdiff(guess0,run,melt_wf,setup,species,models)
+        while delta1 > Ptol :
+            delta1 = Pdiff(guess0,run,melt_wf,setup,species,models)
+            guess0 = mg.p_tot(run,PT,melt_wf,setup,species,models)
+            guess0 = float(guess0)
+            PT["P"] = guess0
+            Fe3T_anh,fO2_anh,S6T_anh,DFMQ_anh,SCAS_ = S62_2_Fe3T(run,PT,melt_wf,setup,species,models,"anh")
+            if Fe3T_anh == "not possible":
+                P_sat_anh = ""
+                Fe3T_anh = ""
+                anhydrite_sat = "no"
+            else:  
+                melt_wf["Fe3FeT"] = Fe3T_anh
+                xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S2m_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf,setup,species,models,nr_step,nr_tol)
+                melt_wf["H2OT"] = wm_H2O_
+                melt_wf["CO2"] = wm_CO2_
+                melt_wf["S2-"] = wm_S2m_
+        else:
+            P_sat_anh = guess0
+            Fe3T_anh,fO2_anh,S6T_anh,DFMQ_anh,SCAS_ = S62_2_Fe3T(run,PT,melt_wf,setup,species,models,"anh")
+            anhydrite_sat = "yes"
+        
+
+    return P_sat_sulf,P_sat_anh,SCAS_*1000000.,SCSS_*1000000.,sulphide_sat,DFMQ_sulf,fO2_sulf,Fe3T_sulf,S6T_sulf,anhydrite_sat,DFMQ_anh,fO2_anh,Fe3T_anh,S6T_anh
+
 ##########################
 ### graphite satuation ###
 ##########################
@@ -399,7 +509,7 @@ def fO2_range_from_S(run,PT,melt_wf,setup,species,models):
         S6ST_1 = (setup.loc[run,"STppm"] - SCSS_)/setup.loc[run,"STppm"]
         S6S2_1 = mg.overtotal2ratio(S6ST_1)
         fO2_1 = mg.S6S2_2_fO2(S6S2_1,melt_wf,run,PT,setup,species,models)
-        Fe3FeT_1 = mdv.fO22Fe3FeT(fO2_1,run,PT,setup,species,models)
+        Fe3FeT_1 = mdv.fO22Fe3FeT(fO2_1,run,PT,melt_wf,setup,species,models)
         Fe3Fe2_1 = mg.overtotal2ratio(Fe3FeT_1)
         DFMQ_1 = mg.fO22Dbuffer(PT,fO2_1,"FMQ",models)
     else:
@@ -416,7 +526,7 @@ def fO2_range_from_S(run,PT,melt_wf,setup,species,models):
         S6ST_2 = (setup.loc[run,"STppm"] - SCAS_)/setup.loc[run,"STppm"]
         S6S2_2 = mg.overtotal2ratio(S6ST_2)
         fO2_2 = mg.S6S2_2_fO2(S6S2_2,melt_wf,run,PT,setup,species,models)
-        Fe3FeT_2 = mdv.fO22Fe3FeT(fO2_2,run,PT,setup,species,models)
+        Fe3FeT_2 = mdv.fO22Fe3FeT(fO2_2,run,PT,melt_wf,setup,species,models)
         Fe3Fe2_2 = mg.overtotal2ratio(Fe3FeT_2)
         DFMQ_2 = mg.fO22Dbuffer(PT,fO2_2,"FMQ",models)
     else:
@@ -470,9 +580,6 @@ def mf_S_species(melt_wf,gas_mf,species):
     w_OCS = W_OCS/W_total
     mf_S = {"S2-":w_S2m, "SO42-":w_SO4, "SO2":w_SO2, "H2S":w_H2S, "S2": w_S2, "OCS": w_OCS}
     return mf_S
-
-        
-   
         
 ##############################################
 ### fO2 of silm+sulfm+anh at given T and P ###
@@ -669,17 +776,17 @@ def compositions_within_error(run,setup):
     return SiO2,TiO2,Al2O3,FeOT,MnO,MgO,CaO,Na2O,K2O,P2O5,H2O,CO2ppm,STppm, Fe3FeT
 
 
-def calc_isobar_CO2H2O(run,PT,setup,species,models):
+def calc_isobar_CO2H2O(run,PT,melt_wf,setup,species,models):
     M_H2O = species.loc['H2O','M']
     M_CO2 = species.loc['CO2','M']
     M_m_ = mg.M_m_SO(run,melt_wf,setup,species)
 
-    xm_CO2_ = PT["P"]*mg.y_CO2(PT,species,models)*mdv.C_CO3(run,PT,melt_wf,setup,species,models) # pure CO2
+    xm_CO2_ = PT["P"]*mdv.y_CO2(PT,species,models)*mdv.C_CO3(run,PT,melt_wf,setup,species,models) # pure CO2
     Xm_t = xm_CO2_*M_CO2 + (1.-xm_CO2_)*M_m_
     wm_CO2_0 = (xm_CO2_*M_CO2)/Xm_t
             
     if models.loc["Hspeciation","option"] == "none": # fH2O = xmH2OT^2/CH2O
-        xm_H2O_ = (PT["P"]*mg.y_H2O(PT,species,models)*mg.C_H2O(PT,models))**0.5 # pure H2O
+        xm_H2O_ = (PT["P"]*mdv.y_H2O(PT,species,models)*mdv.C_H2O(run,PT,melt_wf,setup,species,models))**0.5 # pure H2O
     else: # regular or ideal: fH2O = xmH2Omol/CH2O
         print("need to sort")
     Xm_t = xm_H2O_*M_H2O + (1.-xm_H2O_)*M_m_
@@ -687,7 +794,6 @@ def calc_isobar_CO2H2O(run,PT,setup,species,models):
     xm_H2O_step = xm_H2O_/20.
             
     results = pd.DataFrame([[PT["P"],0.,wm_CO2_0*1000000.]])
-    results = results.append(results1, ignore_index=True)
             
     for m in range(1,20,1):
         xm_H2O_ = xm_H2O_step*m
@@ -697,7 +803,7 @@ def calc_isobar_CO2H2O(run,PT,setup,species,models):
         melt_wf["CO2"] = 0.
         pH2O = mg.p_H2O(run,PT,melt_wf,setup,species,models)
         pCO2 = PT["P"] - pH2O
-        xm_CO2_ = pCO2*mg.y_CO2(PT,species,models)*mdv.C_CO3(run,PT,melt_wf,setup,species,models)
+        xm_CO2_ = pCO2*mdv.y_CO2(PT,species,models)*mdv.C_CO3(run,PT,melt_wf,setup,species,models)
         Xm_t = xm_CO2_*M_CO2 + xm_H2O_*M_H2O + (1.0-xm_CO2_-xm_H2O_)*M_m_
         wf_CO2 = (xm_CO2_*M_CO2)/Xm_t
         results1 = pd.DataFrame([[PT["P"],melt_wf["H2OT"]*100.,wf_CO2*1000000.]])

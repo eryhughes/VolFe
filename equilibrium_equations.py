@@ -72,7 +72,7 @@ def initial_guesses(run,PT,melt_wf,setup,species,models,system): ### CHECK ###
             guessy = mg.xg_S2(run,PT,melt_wf,setup,species,models)
     elif system == "SCOFe":
         guessz = 0.
-        guessy = 1.0e-9 # xg_S2(P) or xg_CO(P)
+        guessy = mg.xg_CO(run,PT,melt_wf,setup,species,models) 
     elif system == "CHOXFe":
         if starting_P == "set":
             guessy = setup.loc[run,"xg_CO"]
@@ -119,11 +119,11 @@ def mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,species,models,nr_step,nr_tol,gu
         wt_S_, xg_S2_, xg_SO2_, xg_H2S_, xg_OCS_, wm_S_, wm_SO3_, wm_ST_, wm_H2S_, S62, S6T, wt_g_S = 0.,0.,0.,0.,0.,0.,0.,0.,0.,"","",""
     if system in ["HOFe","SOFe","SHOFe"]: # no C
         wt_C_, xg_CO_, xg_CO2_, xg_CH4_, xg_OCS_, xm_CO2_, wm_CO2_, wm_CO_, wm_CH4_, wt_g_C = 0.,0.,0.,0.,0.,0.,0.,0.,0.,""
-    if system in ["COFe","HOFe","SOFe","SHOFe","CHOFe","CHOXFe","SCHOFe"]: # no X
+    if system in ["COFe","HOFe","SOFe","SHOFe","CHOFe","SCOFe","CHOXFe","SCHOFe"]: # no X
         wt_X_, xg_X_, wm_X_, wt_g_X = 0.,0.,0.,""
     if system in ["COFe","SOFe","HOFe"]: # three components
         guessy,guessz,guessw = "","",""
-    if system in ["SHOFe","CHOFe"]: # two components
+    if system in ["SHOFe","CHOFe","SCOFe"]: # two components
         guessz,guessw = "",""
     if system in ["CHOXFe","SCHOFe"]: # three components
         guessw = ""
@@ -136,6 +136,7 @@ def mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,species,models,nr_step,nr_tol,gu
             xg_CO2_, xg_CO_, xm_CO2_, Xm_t, Xg_t, Fe32, Fe3T, wm_CO2_ = A
             diff,wt_g_O,wt_g_C = B
             wt_g, wt_O_, wt_C_ = C
+            wm_CO_, wm_CH4_ = 0.,0.
         elif models.loc["insolubles","option"] == "yes":
             print("Not working yet")
         guessx = xg_O2_
@@ -198,6 +199,14 @@ def mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,species,models,nr_step,nr_tol,gu
         guessx = xg_O2_
         guessy = xg_S2_
         solve_species = "OS"
+    elif system == "SCOFe":
+        if models.loc["insolubles","option"] == "yes":
+            print("Not working yet")
+        elif models.loc["insolubles","option"] == "yes":
+            xg_O2_, xg_CO_, A,B,C, = eq_SCOFe(run,PT,bulk_wf,melt_wf,species,setup,models,nr_step,nr_tol,guessx,guessy)
+            xg_SO2_, xg_CO2_, xg_CO_, xg_OCS_, xm_CO2_, wm_S_, wm_SO3_, Xm_t, Xg_t, Fe32, Fe3T, S62, S6T, wm_CO2_, wm_ST_ = A
+            #= B
+            #= C
     elif system == "SCHOFe":
         if models.loc["insolubles","option"] == "no" and models.loc["H2S_m","option"] == "no":
             A,B,C,D = eq_SCHOFe(run,PT,bulk_wf,melt_wf,species,setup,models,nr_step,nr_tol,guessx,guessy,guessz,solve_species) # SHOFe system
@@ -1447,6 +1456,8 @@ def eq_SHOFe_2(run,PT,bulk_wf,melt_wf,species,setup,models,nr_step,nr_tol,guessx
 ### SCOFe ###
 #############
 
+### not finished ###
+
 def eq_SCOFe(run,PT,bulk_wf,melt_wf,species,setup,models,nr_step,nr_tol,guessx,guessy):
     P = PT["P"]
     wt_O = bulk_wf['O']
@@ -1483,7 +1494,8 @@ def eq_SCOFe(run,PT,bulk_wf,melt_wf,species,setup,models,nr_step,nr_tol,guessx,g
     K3_ = mdv.KOCSg(PT,models)
     K4_ = mdv.C_CO3(run,PT,melt_wf,setup,species,models)
     K5_ = mdv.C_S(run,PT,melt_wf,setup,species,models)/1000000.0
-    K6_ = (mdv.C_SO4(run,PT,melt_wf,setup,species,models)/1000000.0)
+    K6_ = mdv.C_SO4(run,PT,melt_wf,setup,species,models)/1000000.0
+    K7_ = (mdv.C_CO(run,PT,melt_wf,setup,species,models)/1000000.0)
     KD1_, KD2, y = mdv.FefO2_KC91_EqA_terms(run,PT,melt_wf,setup,species,models)
     
     constants = [P, wt_O, wt_S, wt_C_, wt_Fe, K1_, K2_, K3_, K4_, K5_, K6_, KD1_, KD2, y, y_S2_, y_O2_, y_SO2_, y_CO_, y_CO2_, y_OCS_, M_C, M_S, M_O, M_Fe, M_O2, M_CO, M_CO2, M_S2, M_SO2, M_SO3, M_OCS, M_FeO, M_FeO15, M_m_]
@@ -1505,22 +1517,26 @@ def eq_SCOFe(run,PT,bulk_wf,melt_wf,species,setup,models,nr_step,nr_tol,guessx,g
         S62 = (wm_SO3_/M_SO3)/(wm_S_/M_S)
         S6T = S62/(1.0+S62)
         wm_CO2_ = (xm_CO2_*M_CO2)/Xm_t
-        return xg_SO2_, xg_CO2_, xg_CO_, xg_OCS_, xm_CO2_, wm_S_, wm_SO3_, Xm_t, Xg_t, Fe32, Fe3T, S62, S6T, wm_CO2_, wm_ST_
+        if models.loc["insolubles","option"] == "no":
+            wm_CO_ = 0.
+        elif models.loc["insolubles","option"] == "yes":
+            wm_CO_ = wm_CO_ = K7_*y_CO_*xg_CO_*P
+        return xg_SO2_, xg_CO2_, xg_CO_, xg_OCS_, xm_CO2_, wm_S_, wm_SO3_, Xm_t, Xg_t, Fe32, Fe3T, S62, S6T, wm_CO2_, wm_ST_, wm_CO_
     
     def mb_SCOFe(xg_O2_, xg_CO_):
-        xg_SO2_, xg_CO2_, xg_CO_, xg_OCS_, xm_CO2_, wm_S_, wm_SO3_, Xm_t, Xg_t, Fe32, Fe3T, S62, S6T, wm_CO2_, wm_ST_ = mg_SCOFe(xg_O2_, xg_CO_)
-        mbSO, mbSH, wt_g_O, wt_g_S, wt_g_H = f_SCOFe(xg_O2_,xg_CO_)
-        wt_g = (wt_g_O+wt_g_H+wt_g_S)/3.0
-        wt_H_ = 2.0*M_H*((wt_g*(((xg_H2O_+xg_H2_+xg_H2S_)/Xg_t) - (xm_H2O_/Xm_t)))+(xm_H2O_/Xm_t))
-        wt_O_ = M_O*((wt_g*(((2.0*xg_SO2_ + 2.0*xg_O2_ + xg_H2O_)/Xg_t) - (xm_H2O_/Xm_t) - (3.0*wm_SO3_/M_SO3)))+(xm_H2O_/Xm_t) + (3.0*wm_SO3_/M_SO3) + (wt_Fe/M_Fe)*((1.5*Fe32+1.0)/(Fe32+1.0)))
-        wt_S_ = M_S*((wt_g*(((xg_SO2_+2.0*xg_S2_+xg_H2S_)/Xg_t) - (wm_S_/M_S) - (wm_SO3_/M_SO3))) + (wm_S_/M_S) + (wm_SO3_/M_SO3))
-        return wt_g, wt_O_, wt_S_, wt_H_
+        xg_SO2_, xg_CO2_, xg_CO_, xg_OCS_, xm_CO2_, wm_S_, wm_SO3_, Xm_t, Xg_t, Fe32, Fe3T, S62, S6T, wm_CO2_, wm_ST_, wm_CO_ = mg_SCOFe(xg_O2_, xg_CO_)
+        mbSO, mbSH, wt_g_O, wt_g_S, wt_g_C = f_SCOFe(xg_O2_,xg_CO_)
+        wt_g = (wt_g_O+wt_g_C+wt_g_S)/3.
+        wt_C_ = M_C*((wt_g*(((xg_CO2_+xg_CO_+xg_OCS_)/Xg_t) - (xm_CO2_/Xm_t) - (wm_CO_/M_CO)))+(xm_CO2_/Xm_t) + (wm_CO_/M_CO))
+        wt_O_ = M_O*((wt_g*(((2.*xg_SO2_ + 2.*xg_O2_ + 2.*xg_CO2_ + xg_OCS_ + xg_CO_)/Xg_t) - (xm_H2O_/Xm_t) - (3.*wm_SO3_/M_SO3) - (wm_CO_/M_CO)))+(xm_H2O_/Xm_t) + (3.*wm_SO3_/M_SO3) + (wm_CO_/M_CO) + (wt_Fe/M_Fe)*((1.5*Fe32+1.0)/(Fe32+1.0)))
+        wt_S_ = M_S*((wt_g*(((xg_SO2_+2.*xg_S2_+xg_OCS_)/Xg_t) - (wm_S_/M_S) - (wm_SO3_/M_SO3))) + (wm_S_/M_S) + (wm_SO3_/M_SO3))
+        return wt_g, wt_O_, wt_S_, wt_C_
     
     def f_SCOFe(xg_O2_,xg_CO_):
-        xg_SO2_, xg_H2O_, xg_H2_, xg_H2S_, xm_H2O_, wm_S_, wm_SO3_, Xm_t, Xg_t, Fe32, Fe3T, S62, S6T, wm_H2O_, wm_ST_ = mg_SHOFe(xg_O2_, xg_S2_)
-        wt_g_S = ((wt_S/M_S) - (wm_S_/M_S) - (wm_SO3_/M_SO3))/(((xg_SO2_+2.0*xg_S2_+xg_H2S_)/Xg_t) - (wm_S_/M_S) - (wm_SO3_/M_SO3))
-        wt_g_O = ((wt_O/M_O) - (xm_H2O_/Xm_t) - (3.0*wm_SO3_/M_SO3) - (wt_Fe/M_Fe)*((1.5*Fe32+1.0)/(Fe32+1.0)))/(((2.0*xg_SO2_ + 2.0*xg_O2_ + xg_H2O_)/Xg_t) - (xm_H2O_/Xm_t) - (3.0*wm_SO3_/M_SO3))
-        wt_g_H = ((wt_H/(2.0*M_H)) - (xm_H2O_/Xm_t))/(((xg_H2O_+xg_H2_+xg_H2S_)/Xg_t) - (xm_H2O_/Xm_t))
+        xg_SO2_, xg_H2O_, xg_H2_, xg_H2S_, xm_H2O_, wm_S_, wm_SO3_, Xm_t, Xg_t, Fe32, Fe3T, S62, S6T, wm_H2O_, wm_ST_, wm_CO_ = mg_SHOFe(xg_O2_, xg_S2_)
+        wt_g_S = ((wt_S/M_S) - (wm_S_/M_S) - (wm_SO3_/M_SO3))/(((xg_SO2_+2.*xg_S2_+xg_OCS_)/Xg_t) - (wm_S_/M_S) - (wm_SO3_/M_SO3))
+        wt_g_O = ((wt_O/M_O) - (xm_H2O_/Xm_t) - (3.*wm_SO3_/M_SO3) - (wm_CO_/M_CO) - (wt_Fe/M_Fe)*((1.5*Fe32+1.0)/(Fe32+1.0)))/(((2.*xg_SO2_ + 2.*xg_O2_ + 2.*xg_CO2_ + xg_CO_ + xg_OCS)/Xg_t) - (xm_H2O_/Xm_t) - (3.*wm_SO3_/M_SO3) - (wm_CO_/M_CO))
+        wt_g_C = ((wt_H/(2.0*M_H)) - (xm_H2O_/Xm_t))/(((xg_H2O_+xg_H2_+xg_H2S_)/Xg_t) - (xm_H2O_/Xm_t))
         mbSO = (wt_g_S - wt_g_O)
         mbSH = (wt_g_S - wt_g_H)
         return mbSO, mbSH, wt_g_O, wt_g_S, wt_g_H
@@ -1636,7 +1652,6 @@ def eq_CHOFe(run,PT,bulk_wf,melt_wf,species,setup,models,nr_step,nr_tol,guessx,g
     return xg_O2_, xg_CO_, results1, results2, results3
 
 ### insolubles included
-
 def eq_CHOFe_2(run,PT,bulk_wf,melt_wf,species,setup,models,nr_step,nr_tol,guessx,guessy):
     P = PT["P"]
     wt_O = bulk_wf['O']
