@@ -320,7 +320,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             PT["P"] = P
         elif models.loc["T_variation","option"] == "polythermal":
             T = i/dp_step
-            PT["T"] = T
+            PT["T"] = T  
         
         if P_sat_ > PT["P"]:  
             # work out equilibrium partitioning between melt and gas phase
@@ -352,7 +352,6 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         melt_wf["ST"] = wm_ST_
         melt_wf["XT"] = wm_X_
         melt_wf["Fe3FeT"] = Fe3T
-        
         if P_sat_ < PT["P"]:  
             wt_C_, wt_O_, wt_H_, wt_S_, wt_X_, wt_Fe, wt_g_, Wt_ = c.bulk_composition(run,PT,melt_wf,setup,species,models)
     
@@ -406,24 +405,23 @@ models.loc["solve_species","option"],tot_m,tot_v,tot_rho,melt_m,melt_v,melt_rho,
 
         # recalculate bulk composition if needed
         if models.loc["gassing_style","option"] == "open":
-            if P_sat_ > PT["P"]:
-                wm_C_, wm_H_, wm_S_, wm_X_, wm_Fe_, wm_O_ = mg.melt_elements(run,PT,melt_wf,bulk_wf,gas_mf,setup,species,models)
-                if models.loc["gassing_direction","option"] == "degas":
-                    Wt_ = bulk_wf['Wt']
-                    if wm_C_ < 1.e-6:
-                        wm_C_ = 0.
-                    bulk_wf = {"C":wm_C_,"H":wm_H_,"O":wm_O_,"S":wm_S_,"X":wm_S_,"Fe":wm_Fe_,"Wt":(Wt_*(1. - wt_g))}
-                    melt_wf["CT"] = wm_C_
-                    melt_wf["HT"] = wm_H_
-                    melt_wf["ST"] = wm_S_
-                    melt_wf["XT"] = wm_X_
-                elif models.loc["gassing_direction","option"] == "regas":
-                    wt_C, wt_H, wt_S, wt_X, wt_Fe, wt_O, Wt = c.new_bulk_regas_open(run,PT,melt_wf,bulk_wf,gas_mf,dwtg,setup,species,models)
-                    bulk_wf = {"C":wt_C,"H":wt_H,"O":wt_O,"S":wt_S,"X":wt_X,"Fe":wt_Fe,"Wt":Wt}
-                    melt_wf["CT"] = wm_C_
-                    melt_wf["HT"] = wm_H_
-                    melt_wf["ST"] = wm_S_
-                    melt_wf["XT"] = wm_X_
+            wm_C_, wm_H_, wm_S_, wm_Fe_, wm_O_, wm_X_ = mg.melt_elements(run,PT,melt_wf,bulk_wf,gas_mf,setup,species,models)
+            if models.loc["gassing_direction","option"] == "degas":
+                Wt_ = bulk_wf['Wt']
+                #if wm_C_ < 1.e-6:
+                    #wm_C_ = 0.
+                bulk_wf = {"C":wm_C_,"H":wm_H_,"O":wm_O_,"S":wm_S_,"X":wm_X_,"Fe":wm_Fe_,"Wt":(Wt_*(1. - wt_g))}
+                melt_wf["CT"] = wm_C_
+                melt_wf["HT"] = wm_H_
+                melt_wf["ST"] = wm_S_
+                melt_wf["XT"] = wm_X_
+            elif models.loc["gassing_direction","option"] == "regas":
+                wt_C, wt_H, wt_S, wt_X, wt_Fe, wt_O, Wt = c.new_bulk_regas_open(run,PT,melt_wf,bulk_wf,gas_mf,dwtg,setup,species,models)
+                bulk_wf = {"C":wt_C,"H":wt_H,"O":wt_O,"S":wt_S,"X":wt_X,"Fe":wt_Fe,"Wt":Wt}
+                melt_wf["CT"] = wm_C_
+                melt_wf["HT"] = wm_H_
+                melt_wf["ST"] = wm_S_
+                melt_wf["XT"] = wm_X_
         if models.loc["crystallisation","option"] == "yes":
             wt_C_ = bulk_wf["C"]
             wt_H_ = bulk_wf["H"]

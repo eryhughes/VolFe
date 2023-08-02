@@ -242,14 +242,20 @@ def C_CO3(run,PT,melt_wf,setup,species,models): ### C_CO3 = xmCO2/fCO2 ### (mole
     elif model == "test": # for Ptot paper!!!
         P0 = 1.0 # bar
         # "CO2mol"
-        DV1 = 24.2340838328 # cm3/mol
-        A1 = gp.exp(-14.92978383)
-        B1 = (-DV*(P-P0))/(R*T_K)
+        #DV1 = 24.2340838328 # cm3/mol
+        #A1 = gp.exp(-14.92978383)
+        #B1 = (-DV1*(P-P0))/(R*T_K)
         # "CO32-"
-        DV2 = 8.912862511 # cm3/mol
-        A2 =gp.exp(-15.62352479)
+        #DV2 = 8.912862511 # cm3/mol
+        #A2 =gp.exp(])
+        #B2 = (-DV2*(P-P0))/(R*T_K)
+        #C = A1*gp.exp(B1) + A2*gp.exp(B2)
+        # "average"
+        DV2 = 16.57 # cm3/mol
+        A2 =gp.exp(-15.275)
         B2 = (-DV2*(P-P0))/(R*T_K)
-        C = A1*gp.exp(B1) + A2*gp.exp(B2)
+        C = A2*gp.exp(B2)
+
 
     return C
 

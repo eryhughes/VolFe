@@ -492,7 +492,7 @@ def melt_elements(run,PT,melt_wf,bulk_wf,gas_comp,setup,species,models):
     wm_Fe = bulk_wf["Fe"]/(1.-gas_comp["wt_g"])
     Fe32 = overtotal2ratio(melt_wf["Fe3FeT"])
     wm_O = species.loc["O","M"]*((melt_wf["H2OT"]/species.loc["H2O","M"]) + ((2.0*melt_wf["CO2"])/species.loc["CO2","M"]) + (3.0*melt_wf["S6+"]/species.loc["S","M"]) + (melt_wf["CO"]/species.loc["CO","M"]) + (wm_Fe/species.loc["Fe","M"])*((1.5*Fe32+1.0)/(Fe32+1.0)))
-    wm_X = melt_wf["X"]
+    wm_X = melt_wf["XT"]
     return wm_C, wm_H, wm_S, wm_Fe, wm_O, wm_X
 
 
