@@ -52,9 +52,14 @@ def C_H2O(run,PT,melt_wf,setup,species,models):
             C = A*gp.exp(B)
         elif model == "test2": # for Ptot paper
             C = gp.exp(-12.29)
-
-
+        elif model == "carbon":
+            C = 1.5e-9
+        elif model == "test3":
+            C = 6.22885E-09 # like 1000 ppm H2O at 730 bar
     
+    elif models.loc["Hspeciation","option"] == "linear": ### C_H2O = xmH2O/fH2O ### (mole fraction)
+        C = 0.00007925494 # like AllisonDataComp... I think.
+            
     else: ### C_H2O = xmH2Omol/fH2O ### (mole fraction)
         P = PT['P']
         model = models.loc["water","option"]
@@ -239,6 +244,12 @@ def C_CO3(run,PT,melt_wf,setup,species,models): ### C_CO3 = xmCO2/fCO2 ### (mole
         A = gp.exp(-14.2)
         B = (-DV*(P-P0))/(R*(1250.+273.15))
         C = A*gp.exp(B)
+    elif model == "dacite": # Fit to Behrens et al. (2004) using Ptot
+        DV = 36.5 # cm3/mol
+        P0 = 1.0 # bar
+        A = gp.exp(-14.3)
+        B = (-DV*(P-P0))/(R*(1250.+273.15))
+        C = A*gp.exp(B)
     elif model == "test": # for Ptot paper!!!
         P0 = 1.0 # bar
         # "CO2mol"
@@ -255,8 +266,8 @@ def C_CO3(run,PT,melt_wf,setup,species,models): ### C_CO3 = xmCO2/fCO2 ### (mole
         A2 =gp.exp(-15.275)
         B2 = (-DV2*(P-P0))/(R*T_K)
         C = A2*gp.exp(B2)
-
-
+    elif model == "water":
+        C = 27.e-6
     return C
 
 
@@ -449,8 +460,16 @@ def C_X(run,PT,melt_wf,setup,species,models): # C_X = wmX/fX (ppm)
             K = 0.0799 # fitted assuming Ar is an ideal gas... i.e. yAr = 1.
         elif model == "Iacono-Marziano10_Ar_rhyolite": # Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
             K = 0.4400 # fitted assuming Ar is an ideal gas... i.e. yAr = 1.
-        elif model == "test": # seeing about dilution
-            K = 10.
+        elif model == "test": 
+            #K = 40. # similar to H2O
+            #K = 6. # similar to S @ DFMQ+1.25
+            #K = 21. # similar to S @ DFMQ+3
+            #K = 155 # similar to S @ DFMQ0
+            #K = 918005 # similar to S @DFMQ-3
+            K = 10.23 # similar to H2S
+            #K = 0.51 # similar to CO32-
+            #K = 1.37 # degassed at a similar depth to H2OT at 3wt%
+            #K = 100.
     if species == "Ne":
         if model == "Iacono-Marziano10_Ne_basalt": # Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
             K = 0.1504 # fitted assuming Ne is an ideal gas... i.e. yNe = 1.
@@ -732,10 +751,16 @@ def KCOm(run,PT,melt_wf,setup,species,models):
     if Cspeccomp == "andesite": # eqn-8 from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
         a = 8665.0
         b = -5.11
+        value = gp.exp((a/T_K) + b)  
     elif Cspeccomp == "dacite": # from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
         a = 9787.0
         b = -7.69
-    return gp.exp((a/T_K) + b)  
+        value = gp.exp((a/T_K) + b)
+    elif Cspeccomp == "basalt": # all oxidised carbon is CO32-
+        value = "infinite"
+    elif Cspeccomp == "rhyolite": # all oxidised carbon is CO2,mol
+        value = 0.
+    return value
 
 
 ################################################################################################################################# 

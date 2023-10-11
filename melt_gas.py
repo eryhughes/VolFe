@@ -5,7 +5,6 @@ import numpy as np
 import gmpy2 as gp
 import math
 
-
 import model_dependent_variables as mdv
 
 ### TO SORT ###
@@ -30,6 +29,9 @@ def f_H2O(run,PT,melt_wf,setup,species,models):
     if Hspeciation == "none": # fH2O = xmH2OT^2/CH2O
         value = ((xm_H2OT_so(run,melt_wf,setup,species))**2.0)/mdv.C_H2O(run,PT,melt_wf,setup,species,models)
         return value
+    elif Hspeciation == "linear": # fH2O = xmH2OT/CH2O
+        value = xm_H2OT_so(run,melt_wf,setup,species)/mdv.C_H2O(run,PT,melt_wf,setup,species,models)
+        return value        
     else: # regular or ideal: fH2O = xmH2Omol/CH2O
         value = xm_H2Omol_so(run,PT,melt_wf,setup,species,models)/mdv.C_H2O(run,PT,melt_wf,setup,species,models)
         return value
@@ -326,7 +328,7 @@ def S6S2(run,PT,melt_wf,setup,species,models):
     
 def S6ST(run,PT,melt_wf,setup,species,models):
     S6S2_ = S6S2(run,PT,melt_wf,setup,species,models)
-    return S6S2_/(S6S2_+1.0)
+    return S6S2_/(S6S2_+1.)
 
 def wm_S(run,PT,melt_wf,setup,species,models):
     wm_ST = 100.*melt_wf['ST']

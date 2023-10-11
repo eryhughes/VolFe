@@ -812,3 +812,25 @@ def calc_isobar_CO2H2O(run,PT,melt_wf,setup,species,models):
     results1 = pd.DataFrame([[PT["P"],wm_H2O_0*100.,0.]])
     results = results.append(results1, ignore_index=True)
     return results
+
+def calc_pure_solubility(run,PT,melt_wf,setup,species,models):
+    
+    M_H2O = species.loc['H2O','M']
+    M_CO2 = species.loc['CO2','M']
+    M_m_ = mg.M_m_SO(run,melt_wf,setup,species)
+        
+    xm_CO2_ = PT["P"]*mdv.y_CO2(PT,species,models)*mdv.C_CO3(run,PT,melt_wf,setup,species,models) # pure CO2
+    Xm_t = xm_CO2_*M_CO2 + (1.-xm_CO2_)*M_m_
+    wm_CO2 = (xm_CO2_*M_CO2)/Xm_t
+        
+    xm_H2O_ = (PT["P"]*mdv.y_H2O(PT,species,models)*mdv.C_H2O(run,PT,melt_wf,setup,species,models))**0.5 # pure H2O
+    Xm_t = xm_H2O_*M_H2O + (1.-xm_H2O_)*M_m_
+    wm_H2O = (xm_H2O_*M_H2O)/Xm_t
+       
+    results = pd.DataFrame([[PT["P"],wm_H2O*100.,wm_CO2*1000000.]])    
+    
+    return results
+
+###########################################################################
+### P given S content of melt after degassing given conditions of pvsat ### IN PROGRESS
+###########################################################################
