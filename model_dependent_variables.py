@@ -29,67 +29,17 @@ def C_H2O(run,PT,melt_wf,setup,species,models):
     
     if models.loc["Hspeciation","option"] == "none": ### C_H2O = (xmH2O)^2/fH2O ### (mole fraction)
         model = models.loc["water","option"]
-        if model == "ETN-1": # Fitted to ETN-1 and PST-9 Xm_H2OT from Lesne et al. (2011) 162:133-151
-            C = 4.77591e-6
-        elif model == "PST-9": # Fitted to ETN-1 and PST-9 Xm_H2OT from Lesne et al. (2011) 162:133-151
-            C = 4.77591e-6
-        elif model == "VES-9": # Fitted to ETN-1 and PST-9 Xm_H2OT from Lesne et al. (2011) 162:133-151
-            C = 5.46061e-6
-        elif model == "rhyolite": # Fitted to Blank et al. (1993) and Silver et al. (1990) datasets
-            C = 5.13488743E-06 
-        elif model ==  "evo": # Fitted to match EVo
-            C = 2.782e-6
-        elif model == "Lesne11mod": # modified general model from Lesne et al. (2011) 162:133-151
-            C = 5.62316e-6
-        elif model == "AllisonDataComp": # fitted to experimental data compilation from Allison et al. (2022) for H2O < 6 wt%
-            C = 4.6114e-6
-        elif model == "test": #test
-            R_ = 83.144621 # cm3 bar K−1 mol−1
-            DV = 12 # cm3/mol
-            P0 = 1.0 # bar
-            A = 4.6114e-6
-            B = -((DV/(R_*T_K))*(P-P0))
-            C = A*gp.exp(B)
-        elif model == "test2": # for Ptot paper
-            C = gp.exp(-12.29)
-        elif model == "carbon":
-            C = 1.5e-9
-        elif model == "test3":
-            C = 6.22885E-09 # like 1000 ppm H2O at 730 bar
-    
-    elif models.loc["Hspeciation","option"] == "linear": ### C_H2O = xmH2O/fH2O ### (mole fraction)
-        C = 0.00007925494 # like AllisonDataComp... I think.
-            
-    else: ### C_H2O = xmH2Omol/fH2O ### (mole fraction)
-        P = PT['P']
-        model = models.loc["water","option"]
-        P0 = 1.0 # bar
-        R = 83.15 # cm3 etc.
-        T0 = 1473.15 # K
-        if model == "Dixon95": # Dixon et al. (1995) - no compositional dependence
-            DV = 12.
-            A = 3.28e-5
-            C = A*gp.exp((-DV*(P-P0))/(R*T0))
-        elif model == "alkali basalt": # Lesne et al. (2011) 162:133-151 eqn 31 with added RT term otherwise it will not work
-            A = 5.71e-5 # XmH2Om0
-            DV = 26.9 # VH2Om0 in cm3/mol
-            C = A*gp.exp((-DV*(P-P0))/(R*T0)) 
-        elif model == "ETN-1": # Fitted to ETN-1 and VES-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011) 162:133-151
-            C = 3.3989655e-6 
-        elif model == "VES-9": # Fitted to ETN-1 and VES-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011) 162:133-151
-            C = 3.3989655e-6
-        elif model == "PST-9": # Fitted to PST-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011) 162:133-151
-            C = 1.7022269e-6
-    
+        if model == "AllisonDataComp": # fitted to experimental data compilation from Allison et al. (2022) for H2O < 6 wt%
+            C = 4.6114e-6   
     return C
 
         
         
-#########################################
-### Solubility constant for carbonate ###
-#########################################
-def C_CO3(run,PT,melt_wf,setup,species,models): ### C_CO3 = xmCO2/fCO2 ### (mole fraction) ***except Shishkina14 - wmCO2 ppm***
-    model = models.loc["carbonate","option"]
+##############################################
+### Solubility constant for carbon dioxide ###
+##############################################
+def C_CO3(run,PT,melt_wf,setup,species,models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fraction) ***except Shishkina14 - wmCO2 ppm***
+    model = models.loc["carbon dioxide","option"]
 
     P = PT['P']
     T_K = PT['T']+273.15     
@@ -137,10 +87,6 @@ def C_CO3(run,PT,melt_wf,setup,species,models): ### C_CO3 = xmCO2/fCO2 ### (mole
         P0 = 1000.0 # bar
         A = gp.exp(-14.74)
         B = -((DV/(R*T_K))*(P-P0)) + (DH/R)*((1.0/T0) - (1.0/T_K))
-        C = A*gp.exp(B)
-    elif model == "Shishkina14": # modified from Shishkina et al. (2014) Chem. Geol. 388:112-129
-        A = 1.164 # modified by converting P^A to APyCO2 but only including data up to and including 400 MPa
-        B = 6.71*PI_-1.345
         C = A*gp.exp(B)
     elif model == "Sunset Crater": # Sunset Crater from Allison et al. (2022) CMP 177:40
         R_ = 83.144621 # cm3 bar K−1 mol−1
@@ -212,62 +158,12 @@ def C_CO3(run,PT,melt_wf,setup,species,models): ### C_CO3 = xmCO2/fCO2 ### (mole
         A = gp.exp(-14.86)
         B = -((DV/(R_*T_K))*(P-P0))
         C = A*gp.exp(B)
-    elif model == "Allison22mod": # modified from Allison et al. (2022) CMP 177:40
-        P0 = 1000. # bars
-        R_ = 83.144621 # cm3 bar K−1 mol−1
-        DV = -3350.650 + 3375.552*(Si+Na) + 2625.385*Ti + 3105.426*Al + 3628.018*Fe2 + 3323.320*(Mg+Ca) + 3795.115*K + 47.004*(Na/(Na+K)) # cm/mol
-        lnK0 = -128.365 + 114.098*Si + 92.263*(Ti+Al) + 122.644*(Fe2+Ca+Na) + 111.549*Mg + 138.855*K + 2.239*(Na/(Na+K))
-        A = gp.exp(lnK0)
-        B = ((-1.*DV)*(P-P0))/(R_*T_K)
-        C = A*gp.exp(B)
-    elif model == "scaledCsulfate": # O'Neill & Mavrogenes (2022) GCA 334:368-382 eq[12a]
-        # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        lnC = -8.02 + ((21100. + 44000.*Na + 18700.*Mg + 4300.*Al + 44200.*K + 35600.*Ca + 12600.*Mn + 16500.*FeT)/T_K) #CS6+ = [S6+, ppm]/fSO3 
-        Csulphate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
-        lnCsulphate = math.log(Csulphate)
-        lnC=-0.46*lnCsulphate
-        A = gp.exp(lnC)
-        DV = 23.
-        P0 = 1000. # bars
-        R_ = 83.144621 # cm3 bar K−1 mol−1
-        B = ((-1.*DV)*(P-P0))/(R_*T_K)
-        C = A*gp.exp(B)
     elif model == "Blank93": # Blank et al. (1993) - rhyolite - tried for workshop
         DV = 28 # cm3/mol
         P0 = 1.0 # bar
         A = gp.exp(-14.45)
         B = (-DV*(P-P0))/(R*(850.+273.15))
         C = A*gp.exp(B)
-    elif model == "Behrens04fit": # Fit to Behrens et al. (2004) - tried for workshop
-        DV = 41.8 # cm3/mol
-        P0 = 1.0 # bar
-        A = gp.exp(-14.2)
-        B = (-DV*(P-P0))/(R*(1250.+273.15))
-        C = A*gp.exp(B)
-    elif model == "dacite": # Fit to Behrens et al. (2004) using Ptot
-        DV = 36.5 # cm3/mol
-        P0 = 1.0 # bar
-        A = gp.exp(-14.3)
-        B = (-DV*(P-P0))/(R*(1250.+273.15))
-        C = A*gp.exp(B)
-    elif model == "test": # for Ptot paper!!!
-        P0 = 1.0 # bar
-        # "CO2mol"
-        #DV1 = 24.2340838328 # cm3/mol
-        #A1 = gp.exp(-14.92978383)
-        #B1 = (-DV1*(P-P0))/(R*T_K)
-        # "CO32-"
-        #DV2 = 8.912862511 # cm3/mol
-        #A2 =gp.exp(])
-        #B2 = (-DV2*(P-P0))/(R*T_K)
-        #C = A1*gp.exp(B1) + A2*gp.exp(B2)
-        # "average"
-        DV2 = 16.57 # cm3/mol
-        A2 =gp.exp(-15.275)
-        B2 = (-DV2*(P-P0))/(R*T_K)
-        C = A2*gp.exp(B2)
-    elif model == "water":
-        C = 27.e-6
     return C
 
 
@@ -302,9 +198,7 @@ def C_S(run,PT,melt_wf,setup,species,models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### 
         lnCdil = ONeill21(T,Na,K,Mg,Ca,FeT,Mn,Ti,Al,Si)
         lnCH = (H*(6.4 + 12.4*H - 20.3*Si + 73.0*(Na+K)))
         lnC = lnCdil+lnCH
-        
-    elif model == "FR54-S1":
-        lnC = math.log(((1.3e-4)*10000.))
+
 
     C = math.exp(lnC) 
     return C
@@ -334,25 +228,6 @@ def C_SO4(run,PT,melt_wf,setup,species,models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0
         F = 10**(((math.log10(S))-B)/8.)
         fO2 = math.exp(((math.log(0.5*F))-A)/a)
         Csulphate = (S*Csulphide)/(fO2**2)
-    elif model == "S6ST":
-        Csulphide = C_S(run,PT,melt_wf,setup,species,models)
-        fO2 = f_O2(run,PT,melt_wf,setup,species,models)
-        S6ST_ = melt_wf["S6ST"]
-        S = overtotal2ratio(S6ST_)
-        Csulphate = (S*Csulphide)/(fO2**2)
-    elif model == "Hawaii":
-        #Csulphate = gp.exp(30.4) # Using Brounce et al. (2017) dataset at 1200 'C
-        Csulphate = math.exp(slope*(1./T) -48.)
-    elif model == "Etna":
-        Csulphate = math.exp(slope*(1./T) -50.15)
-    elif model == "Fuego":
-        Csulphate = math.exp(slope*(1./T) -48.5)
-    elif model == "Erta Ale":
-        Csulphate = math.exp(slope*(1./T) -45.5)
-    elif model == "FR54-S1":
-        Csulphate = ((67.e6)*10000.)
-    elif model == "JdF": # 1100 'C ONLY
-        Csulphate = 10.**17.
     elif model == "Boulliung22nP": # Boullioung & Wood (2022) GCA 336:150-164 [eq5] - corrected!
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
         tot,Si, Ti, Al, FeT, Fe2, Fe3, Mg, Mn, Ca, Na, K, P, H, C = mg.melt_cation_proportion(run,melt_wf,setup,species,"no","no")
@@ -460,16 +335,6 @@ def C_X(run,PT,melt_wf,setup,species,models): # C_X = wmX/fX (ppm)
             K = 0.0799 # fitted assuming Ar is an ideal gas... i.e. yAr = 1.
         elif model == "Iacono-Marziano10_Ar_rhyolite": # Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
             K = 0.4400 # fitted assuming Ar is an ideal gas... i.e. yAr = 1.
-        elif model == "test": 
-            #K = 40. # similar to H2O
-            #K = 6. # similar to S @ DFMQ+1.25
-            #K = 21. # similar to S @ DFMQ+3
-            #K = 155 # similar to S @ DFMQ0
-            #K = 918005 # similar to S @DFMQ-3
-            K = 10.23 # similar to H2S
-            #K = 0.51 # similar to CO32-
-            #K = 1.37 # degassed at a similar depth to H2OT at 3wt%
-            #K = 100.
     if species == "Ne":
         if model == "Iacono-Marziano10_Ne_basalt": # Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
             K = 0.1504 # fitted assuming Ne is an ideal gas... i.e. yNe = 1.
@@ -604,13 +469,15 @@ def KHOSg(PT,models):
     T_K = PT['T']+273.15
     if models.loc["KHOSg","option"] == "KO97": # Kerrick & Ohmoto (1997)
         K = 10.**((-8117.0/T_K)+0.188*gp.log10(T_K)-0.352)
+    elif models.loc["KHOSg","option"] == "noH2S": # H2S doesn't form in the gas...
+        K = 0.
     return K
 
 # 0.5S2 + O2 = SO2
 # K = fSO2/((fS2^0.5)*fO2)
 def KOSg(PT,models):
     T_K = PT['T']+273.15
-    if models.loc["KHOSg","option"] == "KO97": # Kerrick & Ohmoto (1997)
+    if models.loc["KOSg","option"] == "KO97": # Kerrick & Ohmoto (1997)
         K = 10.**((18929.0/T_K)-3.783)
     return K
 
@@ -745,7 +612,7 @@ def KregH2O(run,PT,melt_wf,setup,species,models):
         C = 10.894
     
 # CO2 + O = CO3
-def KCOm(run,PT,melt_wf,setup,species,models):
+def KCOm(run,PT,melt_wf,setup,species,models): # K = 
     T_K = PT['T']+273.15
     Cspeccomp = models.loc["Cspeccomp","option"]
     if Cspeccomp == "andesite": # eqn-8 from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
@@ -761,7 +628,6 @@ def KCOm(run,PT,melt_wf,setup,species,models):
     elif Cspeccomp == "rhyolite": # all oxidised carbon is CO2,mol
         value = 0.
     return value
-
 
 ################################################################################################################################# 
 ##################################################### FUGACITY COEFFICIENTS #####################################################
@@ -1040,8 +906,8 @@ def y_OCS(PT,species,models):
     return y
 
 def y_X(PT,species,models): # species X fugacity coefficient
-    if models.loc["y_X","option"] == "SORT":
-        y = 1. # SORT NOBLE GAS FUGACITY COEFFICIENT
+    if models.loc["y_X","option"] == "ideal":  # ideal gas
+        y = 1.
     return y
 
 #################################################################################

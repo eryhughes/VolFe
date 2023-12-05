@@ -7,10 +7,6 @@ import math
 
 import model_dependent_variables as mdv
 
-### TO SORT ###
-# species X solubility
-# species X fugacity coefficient
-
 ################
 ### Contents ###
 ################
@@ -37,12 +33,7 @@ def f_H2O(run,PT,melt_wf,setup,species,models):
         return value
     
 def f_CO2(run,PT,melt_wf,setup,species,models):
-    CO3model = models.loc["carbonate","option"]
-    wm_CO2 = 100.*melt_wf['CO2']
-    if CO3model == "Shishkina14": # wtppm CO2 modified from Shishkina et al. (2014) Chem. Geol. 388:112-129
-        f = (wm_CO2*10000.0)/mdv.C_CO3(run,PT,melt_wf,setup,species,models)
-    else: # fCO2 = xmCO2/C_CO3
-        f = xm_CO2_so(run,melt_wf,setup,species)/mdv.C_CO3(run,PT,melt_wf,setup,species,models)
+    f = xm_CO2_so(run,melt_wf,setup,species)/mdv.C_CO3(run,PT,melt_wf,setup,species,models) # fCO2 = xmCO2/C_CO3
     return f
 
 def f_S2(run,PT,melt_wf,setup,species,models): # wtppm S2- NOT mole fraction due to parameterisation by O'Neill (2020)
@@ -301,6 +292,21 @@ def wm_H2Omol_OH(run,PT,melt_wf,setup,species,models):
     wm_OH = 100.*OH/(H2Omol + OH + melt)
     return wm_H2Omol, wm_OH # wt% 
 
+#########################
+### carbon speciation ###
+#########################
+
+def wm_CO32_CO2mol(run,PT,melt_wf,setup,species,models):
+    wm_CO2T = melt_wf["CO2"]
+    if models.loc["Cspeccomp","option"] == "basalt":
+        wm_CO32 = wm_CO2T
+        wm_CO2mol = 0.
+    elif models.loc["Cspeccomp","option"] == "rhyolite":
+        wm_CO32 = 0.
+        wm_CO2mol = wm_CO2T
+        
+    return wm_CO32, wmCO2mol # wt fraction
+
 
 ##########################
 ### sulphur speciation ###
@@ -377,30 +383,26 @@ def Fe3FeT_i(run,PT,melt_wf,setup,species,models):
     model = models.loc["fO2","option"]
     T_K = PT['T']+273.15
     
-    if model == "buffered":
-        fO2 = 10**(setup.loc[run,"logfO2"])
+    if pd.isnull(setup.loc[run,"Fe3FeT"]) == False:
+        return setup.loc[run,"Fe3FeT"]
+    elif pd.isnull(setup.loc[run,"logfO2"]) == False:
+        fO2 = 10.0**(setup.loc[run,"logfO2"])
+        return mdv.fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models)
+    elif pd.isnull(setup.loc[run,"DNNO"]) == False:
+        D = setup.loc[run,"DNNO"]
+        fO2 = Dbuffer2fO2(PT,D,"NNO",models)
+        return mdv.fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models)
+    elif pd.isnull(setup.loc[run,"DFMQ"]) == False:
+        D = setup.loc[run,"DFMQ"]
+        fO2 = Dbuffer2fO2(PT,D,"FMQ",models)
+        return mdv.fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models)
+    elif pd.isnull(setup.loc[run,"S6ST"]) == False:
+        S6T = setup.loc[run,"S6ST"]
+        S62 = overtotal2ratio(S6T)
+        fO2 = S6S2_2_fO2(S62,melt_wf,run,PT,setup,species,models)
         return mdv.fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models)
     else:
-        if pd.isnull(setup.loc[run,"Fe3FeT"]) == False:
-            return setup.loc[run,"Fe3FeT"]
-        elif pd.isnull(setup.loc[run,"logfO2"]) == False:
-            fO2 = 10.0**(setup.loc[run,"logfO2"])
-            return mdv.fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models)
-        elif pd.isnull(setup.loc[run,"DNNO"]) == False:
-            D = setup.loc[run,"DNNO"]
-            fO2 = Dbuffer2fO2(PT,D,"NNO",models)
-            return mdv.fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models)
-        elif pd.isnull(setup.loc[run,"DFMQ"]) == False:
-            D = setup.loc[run,"DFMQ"]
-            fO2 = Dbuffer2fO2(PT,D,"FMQ",models)
-            return mdv.fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models)
-        elif pd.isnull(setup.loc[run,"S6ST"]) == False:
-            S6T = setup.loc[run,"S6ST"]
-            S62 = overtotal2ratio(S6T)
-            fO2 = S6S2_2_fO2(S62,melt_wf,run,PT,setup,species,models)
-            return mdv.fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models)
-        else:
-            return ((2.0*setup.loc[run,"Fe2O3"])/species.loc["Fe2O3","M"])/(((2.0*setup.loc[run,"Fe2O3"])/species.loc["Fe2O3","M"]) + (setup.loc[run,"FeO"]/species.loc["FeO","M"]))
+        return ((2.0*setup.loc[run,"Fe2O3"])/species.loc["Fe2O3","M"])/(((2.0*setup.loc[run,"Fe2O3"])/species.loc["Fe2O3","M"]) + (setup.loc[run,"FeO"]/species.loc["FeO","M"]))
         
         
 
@@ -498,121 +500,6 @@ def melt_elements(run,PT,melt_wf,bulk_wf,gas_comp,setup,species,models):
     return wm_C, wm_H, wm_S, wm_Fe, wm_O, wm_X
 
 
-
-#################################################################################################################################
-###################################################### VOLUME AND DENSITY #######################################################
-#################################################################################################################################
-
-# molar volume of individual gas species (J/mol/bar - *10 for cm3/bar)
-def gas_molar_volume(gas_species,PT,species,models):
-    P = PT['P']
-    T = PT['T']+273.15
-    Pr = P/species.loc[gas_species,"Pcr"]
-    Tr = T/species.loc[gas_species,"Tcr"]
-    PTr = {"P":Pr,"T":Tr}
-    R = 8.3145 # J/mol/K
-    if gas_species == "O2" or "CO2" or "OCS" or "CH4" or "CO":
-        y = mdv.y_SS(PT,species,models)
-    elif gas_species == "SO2":
-        y = mdv.y_SO2(PT,species,models)
-    elif gas_species == "H2S":
-        y = mdv.y_H2S(PT,species,models)
-    elif gas_species == "H2":
-        y = mdv.y_H2(PT,species,models)
-    elif gas_species == "H2O":
-        y = mdv.y_H2O(PT,species,models)
-    Vm = (R*T*y)/P
-    PT = {"P":P,"T":T-273.15}
-    return Vm
-
-def Vm_O2(PT,species,models):
-    gas_species = "O2"
-    Vm = gas_molar_volume(gas_species,PT,species,models)
-    return Vm
-
-def Vm_H2(PT,species,models):
-    gas_species = "H2"
-    Vm = gas_molar_volume(gas_species,PT,species,models)
-    return Vm
-
-def Vm_H2O(PT,species,models):
-    gas_species = "H2O"
-    Vm = gas_molar_volume(gas_species,PT,species,models)
-    return Vm
-
-def Vm_CO2(PT,species,models):
-    gas_species = "CO2"
-    Vm = gas_molar_volume(gas_species,PT,species,models)
-    return Vm
-
-def Vm_CH4(PT,species,models):
-    gas_species = "CH4"
-    Vm = gas_molar_volume(gas_species,PT,species,models)
-    return Vm
-
-def Vm_CO(PT,species,models):
-    gas_species = "CO"
-    Vm = gas_molar_volume(gas_species,PT,species,models)
-    return Vm
-
-def Vm_S2(PT,species,models):
-    gas_species = "S2"
-    Vm = gas_molar_volume(gas_species,PT,species,models)
-    return Vm
-
-def Vm_SO2(PT,species,models):
-    gas_species = "SO2"
-    Vm = gas_molar_volume(gas_species,PT,species,models)
-    return Vm
-
-def Vm_H2S(PT,species,models):
-    gas_species = "H2S"
-    Vm = gas_molar_volume(gas_species,PT,species,models)
-    return Vm
-
-def Vm_OCS(PT,species,models):
-    gas_species = "OCS"
-    Vm = gas_molar_volume(gas_species,PT,species,models)
-    return Vm
-
-# molar volume of the gas in J/bar/mol
-def Vm_gas(gas_mf,PT,species,models):
-    Vm = gas_mf["O2"]*Vm_O2(PT,species,models) + gas_mf["H2"]*Vm_H2(PT,species,models) + gas_mf["H2O"]*Vm_H2O(PT,species,models) + gas_mf["CO2"]*Vm_CO2(PT,species,models) + gas_mf["CO"]*Vm_CO(PT,species,models) + gas_mf["CH4"]*Vm_CH4(PT,species,models) + gas_mf["S2"]*Vm_S2(PT,species,models) + gas_mf["H2S"]*Vm_H2S(PT,species,models) + gas_mf["SO2"]*Vm_SO2(PT,species,models) + gas_mf["OCS"]*Vm_OCS(PT,species,models)
-    return Vm
-
-# volume of the gas in cm3
-def gas_volume(PT,gas_mf,bulk_wf,species,models):
-    Xg_O2, Xg_H2, Xg_H2O, Xg_H2S, Xg_S2, Xg_SO2, Xg_CO2, Xg_CO, Xg_CH4, Xg_OCS, Xt_g = gas_moles(gas_mf,bulk_wf,species)
-    volume = Xt_g*Vm_gas(gas_mf,PT,species,models) # in J/bar
-    volume_cm3 = volume*10.
-    return volume_cm3
-
-# density of the gas in g/cm3
-def gas_density(PT,gas_mf,bulk_wf,species,models):
-    volume = gas_volume(PT,gas_mf,bulk_wf,species,models) # cm3
-    mass = (gas_mf['wt_g']*bulk_wf['Wt']) # g
-    density = mass/volume
-    return density
-
-
-# volume of the melt in cm3
-def melt_volume(run,PT,melt_wf,bulk_wf,gas_mf,setup,species):
-    density = mdv.melt_density(run,PT,melt_wf,setup,species)
-    mass = bulk_wf['Wt']*(1-gas_mf['wt_g'])
-    volume = mass/density
-    return volume
-
-# volume of the system (melt + gas) - could include sulphide and sulphate phases at some point?!
-def system_density(run,PT,melt_wf,gas_mf,bulk_wf,setup,species,models):
-    wt_g_ = gas_mf['wt_g']
-    wt_m_ = 1. - wt_g_
-    density_m = mdv.melt_density(run,PT,melt_wf,setup,species)
-    if wt_g_ > 0.:
-        density_g = gas_density(PT,gas_mf,bulk_wf,species,models)
-    else:
-        density_g = 0.
-    density_sys = density_m*wt_m_ + density_g*wt_g_
-    return density_sys
 
 ##################################################################################################################################
 ######################################################## melt composition ########################################################
