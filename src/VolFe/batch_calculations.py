@@ -15,27 +15,40 @@ import calculations as c
 
 # calculate the saturation pressure for multiple melt compositions in input file
 def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
-    # set up results table
-    results = ([["Sample","Pvsat_bar","T_C","fO2_DNNO","fO2_DFMQ", "SiO2_wtpc", "TiO2_wtpc", "Al2O3_wtpc", "FeOT_wtpc", "MnO_wtpc", "MgO_wtpc", "CaO_wtpc", "Na2O_wtpc", "K2O_wtpc", "P2O5_wtpc",
-                  "H2OT-eq_wtpc","CO2T-eq_ppmw","ST_ppmw","X_ppmw","Fe3+/FeT","CT_ppm","HT_ppm",
-                  "H2OT_wtpc","OH_wtpc","H2Omol_wtpc","H2_ppmw","CH4_ppmw","CO2T_ppmw","CO2mol_ppmw","CO32-_ppmw","CO_ppmw","S2-_ppmw","S6+_ppmw","H2S_ppmw",
-                  "H_H2OT/HT", "H_H2/HT", "H_CH4/HT", "H_H2S/HT", "C_CO2T/CT", "C_CO/CT", "C_CH4/CT", "S2-/ST", "S6+/ST", "H2S/ST",
-                "SCSS_ppm","sulphide saturated","SCAS_ppm","anhydrite saturated","S melt_ppm","graphite saturated",
-                "fO2","fH2","fH2O","fS2","fSO2","fH2S","fCO2","fCO","fCH4","fOCS","fX",
-                "yO2","yH2","yH2O","yS2","ySO2","yH2S","yCO2","yCO","yCH4","yOCS","yX", 
-                "pO2","pH2","pH2O","pS2","pSO2","pH2S","pCO2","pCO","pCH4","pOCS","pX",
-                "xgO2","xgH2","xgH2O","xgS2","xgSO2","xgH2S","xgCO2","xgCO","xgCH4","xgOCS","xgX",
-                "Pvsat (H2O CO2 only)", "xg_H2O (H2O CO2 only)", "xg_CO2 (H2O CO2 only)","f_H2O (H2O CO2 only)", "f_CO2 (H2O CO2 only)","p_H2O (H2O CO2 only)", "p_CO2 (H2O CO2 only)", "Pvsat_diff_bar",
-                "density_gcm3",
-                "insoluble opt","H2S_m opt","species X opt","Hspeciation opt",
-                 "fO2 opt","NNObuffer opt","FMQbuffer opt",
-                 "carbon dioxide opt","water opt","hydrogen opt","sulphide opt","sulphate opt","hydrogen sulfide opt","methane opt","carbon monoxide opt","species X solubility opt","Cspeccomp opt","Hspeccomp opt",
-                 "SCSS opt","SCAS opt","sulphur_saturation opt","sulfur_is_sat opt","graphite_saturation opt","ideal_gas opt",
-                 "y_CO2 opt","y_SO2 opt","y_H2S opt","y_H2 opt","y_O2 opt","y_S2 opt","y_CO opt","y_CH4 opt","y_H2O opt","y_OCS opt","y_X opt",
-                 "KHOg opt","KHOSg opt","KOSg opt","KOSg2 opt","KCOg opt","KCOHg opt","KOCSg opt","KCOs opt","carbonylsulphide opt",
-                 "density opt","Date"]])
-    type(results)
+    
+    """ 
+    Calculates the pressure of vapor saturation for multiple melt compositions given volatile-free melt composition, volatile content, temperature, and an fO2 estimate.
 
+
+    Parameters
+    ----------
+    first_row: float
+        Integer of the first row in the setup file to run (note the first row under the headers is row 0).   
+    last_row: float
+        Integer of the last row in the setup file to run (note the first row under the headers is row 0).
+    p_tol: float
+        Required tolerance for convergence of Pvsat in bars (0.1 bars is normally used).
+    nr_step: float
+        Step size for Newton-Raphson solver for melt speciation (typically 1 is fine, but this can be made smaller if there are problems with convergence.).
+    nr_tol: float
+        Tolerance for the Newton-Raphson solver for melt speciation in weight fraction (typically 1e-9 is sufficient but this can be made larger if there are problems with convergence).
+    setup: pandas.DataFrame
+        Dataframe with melt compositions to be used, requires following headers: Sample, T_C, DNNO or DFMQ or logfO2 or (Fe2O3 and FeO) or Fe3FeT or S6ST, SiO2, TiO2, Al2O3, (Fe2O3T or FeOT unless Fe2O3 and FeO given), MnO, MgO, CaO, Na2O, K2O, P2O5, (H2O and/or CO2ppm and/or STppm and/or Xppm)
+    species: pandas.DataFrame
+        Dataframe of species.csv file.
+    models: pandas.DataFrame
+        Dataframe of models.csv file.
+
+    Returns
+    -------
+    results: pandas.DataFrame
+
+    Outputs
+    -------
+    results_saturation_pressures: csv file (if output csv = yes in models)
+
+    """
+    
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
         PT={"T":setup.loc[run,"T_C"]}
@@ -111,13 +124,37 @@ conc["wm_OH"]*100,conc["wm_H2Omol"]*100,conc["wm_H2"]*1000000.,conc["wm_CH4"]*10
                  models.loc["y_CO2","option"], models.loc["y_SO2","option"], models.loc["y_H2S","option"], models.loc["y_H2","option"], models.loc["y_O2","option"], models.loc["y_S2","option"], models.loc["y_CO","option"], models.loc["y_CH4","option"], models.loc["y_H2O","option"],models.loc["y_OCS","option"], models.loc["y_X","option"],
                  models.loc["KHOg","option"], models.loc["KHOSg","option"], models.loc["KOSg","option"], models.loc["KOSg2","option"], models.loc["KCOg","option"], models.loc["KCOHg","option"],models.loc["KOCSg","option"], models.loc["KCOs","option"],models.loc["carbonylsulphide","option"],
                  models.loc["density","option"],datetime.datetime.now()]])
-                             
-        results = results.append(results1, ignore_index=True)
+
+        if n == first_row:
+            results = results1
+        else:                         
+            results = results.append(results1, ignore_index=True)
         
-        if models.option["print status","option"] == "yes":
+        if models.loc["print status","option"] == "yes":
             print(n, setup.loc[run,"Sample"],PT["P"])
-            
-    results.to_csv('results_saturation_pressures.csv', index=False, header=False)
+
+    results.columns = ["Sample","Pvsat_bar","T_C","fO2_DNNO","fO2_DFMQ", "SiO2_wtpc", "TiO2_wtpc", "Al2O3_wtpc", "FeOT_wtpc", "MnO_wtpc", "MgO_wtpc", "CaO_wtpc", "Na2O_wtpc", "K2O_wtpc", "P2O5_wtpc",
+                  "H2OT-eq_wtpc","CO2T-eq_ppmw","ST_ppmw","X_ppmw","Fe3+/FeT","CT_ppm","HT_ppm",
+                  "H2OT_wtpc","OH_wtpc","H2Omol_wtpc","H2_ppmw","CH4_ppmw","CO2T_ppmw","CO2mol_ppmw","CO32-_ppmw","CO_ppmw","S2-_ppmw","S6+_ppmw","H2S_ppmw",
+                  "H_H2OT/HT", "H_H2/HT", "H_CH4/HT", "H_H2S/HT", "C_CO2T/CT", "C_CO/CT", "C_CH4/CT", "S2-/ST", "S6+/ST", "H2S/ST",
+                "SCSS_ppm","sulphide saturated","SCAS_ppm","anhydrite saturated","S melt_ppm","graphite saturated",
+                "fO2","fH2","fH2O","fS2","fSO2","fH2S","fCO2","fCO","fCH4","fOCS","fX",
+                "yO2","yH2","yH2O","yS2","ySO2","yH2S","yCO2","yCO","yCH4","yOCS","yX", 
+                "pO2","pH2","pH2O","pS2","pSO2","pH2S","pCO2","pCO","pCH4","pOCS","pX",
+                "xgO2","xgH2","xgH2O","xgS2","xgSO2","xgH2S","xgCO2","xgCO","xgCH4","xgOCS","xgX",
+                "Pvsat (H2O CO2 only)", "xg_H2O (H2O CO2 only)", "xg_CO2 (H2O CO2 only)","f_H2O (H2O CO2 only)", "f_CO2 (H2O CO2 only)","p_H2O (H2O CO2 only)", "p_CO2 (H2O CO2 only)", "Pvsat_diff_bar",
+                "density_gcm3",
+                "insoluble opt","H2S_m opt","species X opt","Hspeciation opt",
+                 "fO2 opt","NNObuffer opt","FMQbuffer opt",
+                 "carbon dioxide opt","water opt","hydrogen opt","sulphide opt","sulphate opt","hydrogen sulfide opt","methane opt","carbon monoxide opt","species X solubility opt","Cspeccomp opt","Hspeccomp opt",
+                 "SCSS opt","SCAS opt","sulphur_saturation opt","sulfur_is_sat opt","graphite_saturation opt","ideal_gas opt",
+                 "y_CO2 opt","y_SO2 opt","y_H2S opt","y_H2 opt","y_O2 opt","y_S2 opt","y_CO opt","y_CH4 opt","y_H2O opt","y_OCS opt","y_X opt",
+                 "KHOg opt","KHOSg opt","KOSg opt","KOSg2 opt","KCOg opt","KCOHg opt","KOCSg opt","KCOs opt","carbonylsulphide opt",
+                 "density opt","Date"] 
+      
+    if models.loc["output csv","option"] == "yes":
+        results.to_csv('results_saturation_pressures.csv', index=False, header=True)
+    
     return results
 
         
