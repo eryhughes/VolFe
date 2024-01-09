@@ -696,7 +696,7 @@ def melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol):
         H2S_HT = ((2.*(wm_H2S_/M_H2S))*M_H)/wt_H
         H2S_ST = (M_S*(wm_H2S_/M_H2S))/wt_S      
     
-    conc = {"xm_H2O":xm_H2O_, "wm_H2O":wm_H2O_, "wm_H2Omol":wm_H2Omol_, "wm_OH":wm_OH_, "xm_CO2":xm_CO2_, "wm_CO2":wm_CO2_, "wm_CO2carb":wm_CO2carb_,"wm_CO2mol":wm_CO2mol_,"wm_H2":wm_H2_, "wm_CO":wm_CO_, "wm_CH4":wm_CH4_, "wm_H2S":wm_H2S_, "wm_S2m":wm_S2m_, "wm_S6p":wm_S6p_}
+    conc = {"xm_H2O":xm_H2O_, "wm_H2O":wm_H2O_, "wm_H2Omol":wm_H2Omol_, "wm_OH":wm_OH_, "xm_CO2":xm_CO2_, "wm_CO2":wm_CO2_, "wm_CO2carb":wm_CO2carb_,"wm_CO2mol":wm_CO2mol_,"wm_H2":wm_H2_, "wm_CO":wm_CO_, "wm_CH4":wm_CH4_, "wm_H2S":wm_H2S_, "wm_S2m":wm_S2m_, "wm_S6p":wm_S6p_, "ST": wt_S}
     frac = {"H2O_HT":H2O_HT, "H2_HT":H2_HT, "CH4_HT":CH4_HT, "CO2_CT":CO2_CT, "CO_CT":CO_CT, "CH4_CT":CH4_CT, "S6p_ST":S6p_ST, "S2m_ST":S2m_ST, "H2S_ST":H2S_ST, "H2S_HT":H2S_HT}
     return conc,frac
 
@@ -801,13 +801,13 @@ def newton_raphson(x0,constants,e1,step,eqs,deriv):
     
     results1 = pd.DataFrame([[x0,delta1,step]])
     n = 0.
-    results = results.append(results1, ignore_index=True)
+    results = pd.concat([results, results1], ignore_index=True)
 
     while delta1 > e1:
         while x0 < 0.:
             n = n+1.
             results1 = pd.DataFrame([[x0,delta1,step]]) 
-            results = results.append(results1, ignore_index=True)
+            results = pd.concat([results, results1], ignore_index=True)
             if(i % 50==0):
                 results.to_csv('results_newtraph.csv', index=False, header=False)     
             step = step/10.
@@ -818,7 +818,7 @@ def newton_raphson(x0,constants,e1,step,eqs,deriv):
         x0 = x0 - step*(f_/df_)
         delta1 = dx(x0,eqs)
         results1 = pd.DataFrame([[x0,delta1,step]]) 
-        results = results.append(results1, ignore_index=True)
+        results = pd.concat([results, results1], ignore_index=True)
         if(n % 50==0):
             results.to_csv('results_newtraph.csv', index=False, header=False)     
     return x0        
@@ -831,7 +831,7 @@ def jac_newton(x0,y0,constants,eqs,deriv,step,tol,maxiter=1000):
     results = pd.DataFrame([["guessx","guessy","diff1","diff2","step"]])  
     diff1, diff2, wtg1,wtg2,wtg3 = eqs(x0,y0)
     results1 = pd.DataFrame([[x0,y0,diff1,diff2,step]]) 
-    results = results.append(results1, ignore_index=True)
+    results = pd.concat([results, results1], ignore_index=True)
     n = 0.
 
     def F(eqs,x,y):
@@ -867,7 +867,7 @@ def jac_newton(x0,y0,constants,eqs,deriv,step,tol,maxiter=1000):
         x0 = guessx
         y0 = guessy
         results1 = pd.DataFrame([[guessx, guessy,diff1,diff2,step]])
-        results = results.append(results1, ignore_index=True)
+        results = pd.concat([results, results1], ignore_index=True)
         if(n % 50==0):
             results.to_csv('results_jacnewton2.csv', index=False, header=False) 
 
@@ -877,7 +877,7 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=1000):
     results = pd.DataFrame([["guessx","guessy","guessz","diff1","diff2","diff3","step"]])  
     diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(x0,y0,z0)
     results1 = pd.DataFrame([[x0,y0,z0,diff1,diff2,diff3,step]]) 
-    results = results.append(results1, ignore_index=True)
+    results = pd.concat([results, results1], ignore_index=True)
     n = 0.
 
     def F(eqs,x,y,z):
@@ -918,7 +918,7 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=1000):
         y0 = guessy
         z0 = guessz
         results1 = pd.DataFrame([[guessx, guessy,guessz,diff1,diff2,diff3,step]])
-        results = results.append(results1, ignore_index=True)
+        results = pd.concat([results, results1], ignore_index=True)
         if(n % 50==0):
             results.to_csv('results_jacnewton3.csv', index=False, header=False)
     
@@ -939,7 +939,7 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=1000):
         y0 = guessy
         z0 = guessz
         results1 = pd.DataFrame([[guessx, guessy,guessz,diff1,diff2,diff3,step]])
-        results = results.append(results1, ignore_index=True)
+        results = pd.concat([results, results1], ignore_index=True)
         results.to_csv('results_jacnewton3.csv', index=False, header=False)    
              
 ############        
