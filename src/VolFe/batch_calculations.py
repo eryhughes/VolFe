@@ -35,14 +35,14 @@ def results_table_melt_vol():
     return results_headers
 # outputting model options used in the calculation
 def results_table_model_options(models): 
-    results_headers = pd.DataFrame([["insoluble opt","H2S_m opt","species X opt","Hspeciation opt",
+    results_headers = pd.DataFrame([["setup opt","insoluble opt","H2S_m opt","species X opt","Hspeciation opt",
                  "fO2 opt","NNObuffer opt","FMQbuffer opt",
                  "carbon dioxide opt","water opt","hydrogen opt","sulfide opt","sulfate opt","hydrogen sulfide opt","methane opt","carbon monoxide opt","species X solubility opt","Cspeccomp opt","Hspeccomp opt",
                  "SCSS opt","SCAS opt","sulfur_saturation opt","sulfur_is_sat opt","graphite_saturation opt","ideal_gas opt",
                  "y_CO2 opt","y_SO2 opt","y_H2S opt","y_H2 opt","y_O2 opt","y_S2 opt","y_CO opt","y_CH4 opt","y_H2O opt","y_OCS opt","y_X opt",
                  "KHOg opt","KHOSg opt","KOSg opt","KOSg2 opt","KCOg opt","KCOHg opt","KOCSg opt","KCOs opt","carbonylsulfide opt",
                  "density opt","Date"]])
-    results_values = pd.DataFrame([[models.loc["insolubles","option"], models.loc["H2S_m","option"], models.loc["species X","option"],models.loc["Hspeciation","option"], 
+    results_values = pd.DataFrame([[models.loc["setup","option"],models.loc["insolubles","option"], models.loc["H2S_m","option"], models.loc["species X","option"],models.loc["Hspeciation","option"], 
                 models.loc["fO2","option"], models.loc["NNObuffer","option"], models.loc["FMQbuffer","option"],
                  models.loc["carbon dioxide","option"], models.loc["water","option"], models.loc["hydrogen","option"], models.loc["sulfide","option"], models.loc["sulfate","option"], models.loc["hydrogen sulfide","option"], models.loc["methane","option"], models.loc["carbon monoxide","option"], models.loc["species X solubility","option"], models.loc["Cspeccomp","option"], models.loc["Hspeccomp","option"],
                  models.loc["SCSS","option"], models.loc["SCAS","option"], models.loc["sulfur_saturation","option"], models.loc["sulfur_is_sat","option"], models.loc["graphite_saturation","option"], models.loc["ideal_gas","option"],
@@ -100,6 +100,10 @@ def options_from_setup(run,models,setup):
     results: pandas.DataFrame
 
     """
+    if models.loc["setup","option"] == "no":
+        return models
+    elif models.loc["setup","option"] == "yes":
+        models = pd.read_csv("models.csv", index_col = [0])
     # species
     if models.loc["insolubles","option"] == "setup":
             models.loc["insolubles","option"] = setup.loc[run,"insolubles"]
@@ -129,7 +133,7 @@ def options_from_setup(run,models,setup):
             models.loc["sulfate","option"] = setup.loc[run,"sulfate"]
     if models.loc["hydrogen sulfide","option"] == "setup":
             models.loc["hydrogen sulfide","option"] = setup.loc[run,"hydrogen sulfide"]
-    if models.loc["methane"] == "setup":
+    if models.loc["methane","option"] == "setup":
             models.loc["methane","option"] = setup.loc[run,"methane"]
     if models.loc["carbon monoxide","option"] == "setup":
             models.loc["carbon monoxide","option"] = setup.loc[run,"carbon monoxide"]
@@ -153,50 +157,50 @@ def options_from_setup(run,models,setup):
     # fugacity coefficients
     if models.loc["ideal_gas","option"] == "setup":
             models.loc["ideal_gas","option"] = setup.loc[run,"ideal_gas"]
-    if models.loc["y_CO2"] == "setup":
-            models.loc["y_CO2"] = setup.loc[run,"y_CO2"]
-    if models.loc["y_SO2"] == "setup":
-            models.loc["y_SO2"] = setup.loc[run,"y_SO2"]
-    if models.loc["y_H2S"] == "setup":
-            models.loc["y_H2S"] = setup.loc[run,"y_H2S"]
-    if models.loc["y_H2"] == "setup":
-            models.loc["y_H2"] = setup.loc[run,"y_H2"]
-    if models.loc["y_O2"] == "setup":
-            models.loc["y_O2"] = setup.loc[run,"y_O2"]
-    if models.loc["y_S2"] == "setup":
-            models.loc["y_S2"] = setup.loc[run,"y_S2"]
-    if models.loc["y_CO"] == "setup":
-            models.loc["y_CO"] = setup.loc[run,"y_CO"]
-    if models.loc["y_CH4"] == "setup":
-            models.loc["y_CH4"] = setup.loc[run,"y_CH4"]
-    if models.loc["y_H2O"] == "setup":
-            models.loc["y_H2O"] = setup.loc[run,"y_H2O"]
-    if models.loc["y_OCS"] == "setup":
-            models.loc["y_OCS"] = setup.loc[run,"y_OCS"]
-    if models.loc["y_X"] == "setup":
-            models.loc["y_X"] = setup.loc[run,"y_X"]
+    if models.loc["y_CO2","option"] == "setup":
+            models.loc["y_CO2","option"] = setup.loc[run,"y_CO2","option"]
+    if models.loc["y_SO2","option"] == "setup":
+            models.loc["y_SO2","option"] = setup.loc[run,"y_SO2","option"]
+    if models.loc["y_H2S","option"] == "setup":
+            models.loc["y_H2S","option"] = setup.loc[run,"y_H2S","option"]
+    if models.loc["y_H2","option"] == "setup":
+            models.loc["y_H2","option"] = setup.loc[run,"y_H2","option"]
+    if models.loc["y_O2","option"] == "setup":
+            models.loc["y_O2","option"] = setup.loc[run,"y_O2","option"]
+    if models.loc["y_S2","option"] == "setup":
+            models.loc["y_S2","option"] = setup.loc[run,"y_S2","option"]
+    if models.loc["y_CO","option"] == "setup":
+            models.loc["y_CO","option"] = setup.loc[run,"y_CO","option"]
+    if models.loc["y_CH4","option"] == "setup":
+            models.loc["y_CH4","option"] = setup.loc[run,"y_CH4","option"]
+    if models.loc["y_H2O","option"] == "setup":
+            models.loc["y_H2O","option"] = setup.loc[run,"y_H2O","option"]
+    if models.loc["y_OCS","option"] == "setup":
+            models.loc["y_OCS","option"] = setup.loc[run,"y_OCS","option"]
+    if models.loc["y_X","option"] == "setup":
+            models.loc["y_X","option"] = setup.loc[run,"y_X","option"]
     # equilibrium constants
-    if models.loc["KHOg"] == "setup":
-            models.loc["KHOg"] = setup.loc[run,"KHOg"]
-    if models.loc["KHOSg"] == "setup":
-            models.loc["KHOSg"] = setup.loc[run,"KHOSg"]
-    if models.loc["KOSg"] == "setup":
-            models.loc["KOSg"] = setup.loc[run,"KOSg"]
-    if models.loc["KOSg2"] == "setup":
-            models.loc["KOSg2"] = setup.loc[run,"KOSg2"]
-    if models.loc["KCOg"] == "setup":
-            models.loc["KCOg"] = setup.loc[run,"KCOg"]
-    if models.loc["KCOHg"] == "setup":
-            models.loc["KCOHg"] = setup.loc[run,"KCOHg"]
-    if models.loc["KOCSg"] == "setup":
-            models.loc["KOCSg"] = setup.loc[run,"KOCSg"]
-    if models.loc["KCOs"] == "setup":
-            models.loc["KCOs"] = setup.loc[run,"KCOs"]
-    if models.loc["carbonylsulfide"] == "setup":
-            models.loc["carbonylsulfide"] = setup.loc[run,"carbonylsulfide"]
+    if models.loc["KHOg","option"] == "setup":
+            models.loc["KHOg","option"] = setup.loc[run,"KHOg","option"]
+    if models.loc["KHOSg","option"] == "setup":
+            models.loc["KHOSg","option"] = setup.loc[run,"KHOSg","option"]
+    if models.loc["KOSg","option"] == "setup":
+            models.loc["KOSg","option"], = setup.loc[run,"KOSg","option"]
+    if models.loc["KOSg2","option"] == "setup":
+            models.loc["KOSg2","option"] = setup.loc[run,"KOSg2","option"]
+    if models.loc["KCOg","option"] == "setup":
+            models.loc["KCOg","option"] = setup.loc[run,"KCOg","option"]
+    if models.loc["KCOHg","option"] == "setup":
+            models.loc["KCOHg","option"] = setup.loc[run,"KCOHg","option"]
+    if models.loc["KOCSg","option"] == "setup":
+            models.loc["KOCSg","option"] = setup.loc[run,"KOCSg","option"]
+    if models.loc["KCOs","option"] == "setup":
+            models.loc["KCOs","option"] = setup.loc[run,"KCOs","option"]
+    if models.loc["carbonylsulfide","option"] == "setup":
+            models.loc["carbonylsulfide","option"] = setup.loc[run,"carbonylsulfide","option"]
     # other
-    if models.loc["density"] == "setup":
-            models.loc["density"] = setup.loc[run,"density"]
+    if models.loc["density","option"] == "setup":
+            models.loc["density","option"] = setup.loc[run,"density","option"]
     return models
 
 
