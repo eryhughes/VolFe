@@ -37,17 +37,17 @@ def results_table_melt_vol():
 def results_table_model_options(models): 
     results_headers = pd.DataFrame([["insoluble opt","H2S_m opt","species X opt","Hspeciation opt",
                  "fO2 opt","NNObuffer opt","FMQbuffer opt",
-                 "carbon dioxide opt","water opt","hydrogen opt","sulphide opt","sulphate opt","hydrogen sulfide opt","methane opt","carbon monoxide opt","species X solubility opt","Cspeccomp opt","Hspeccomp opt",
-                 "SCSS opt","SCAS opt","sulphur_saturation opt","sulfur_is_sat opt","graphite_saturation opt","ideal_gas opt",
+                 "carbon dioxide opt","water opt","hydrogen opt","sulfide opt","sulfate opt","hydrogen sulfide opt","methane opt","carbon monoxide opt","species X solubility opt","Cspeccomp opt","Hspeccomp opt",
+                 "SCSS opt","SCAS opt","sulfur_saturation opt","sulfur_is_sat opt","graphite_saturation opt","ideal_gas opt",
                  "y_CO2 opt","y_SO2 opt","y_H2S opt","y_H2 opt","y_O2 opt","y_S2 opt","y_CO opt","y_CH4 opt","y_H2O opt","y_OCS opt","y_X opt",
-                 "KHOg opt","KHOSg opt","KOSg opt","KOSg2 opt","KCOg opt","KCOHg opt","KOCSg opt","KCOs opt","carbonylsulphide opt",
+                 "KHOg opt","KHOSg opt","KOSg opt","KOSg2 opt","KCOg opt","KCOHg opt","KOCSg opt","KCOs opt","carbonylsulfide opt",
                  "density opt","Date"]])
     results_values = pd.DataFrame([[models.loc["insolubles","option"], models.loc["H2S_m","option"], models.loc["species X","option"],models.loc["Hspeciation","option"], 
                 models.loc["fO2","option"], models.loc["NNObuffer","option"], models.loc["FMQbuffer","option"],
-                 models.loc["carbon dioxide","option"], models.loc["water","option"], models.loc["hydrogen","option"], models.loc["sulphide","option"], models.loc["sulphate","option"], models.loc["hydrogen sulfide","option"], models.loc["methane","option"], models.loc["carbon monoxide","option"], models.loc["species X solubility","option"], models.loc["Cspeccomp","option"], models.loc["Hspeccomp","option"],
-                 models.loc["SCSS","option"], models.loc["SCAS","option"], models.loc["sulphur_saturation","option"], models.loc["sulphur_is_sat","option"], models.loc["graphite_saturation","option"], models.loc["ideal_gas","option"],
+                 models.loc["carbon dioxide","option"], models.loc["water","option"], models.loc["hydrogen","option"], models.loc["sulfide","option"], models.loc["sulfate","option"], models.loc["hydrogen sulfide","option"], models.loc["methane","option"], models.loc["carbon monoxide","option"], models.loc["species X solubility","option"], models.loc["Cspeccomp","option"], models.loc["Hspeccomp","option"],
+                 models.loc["SCSS","option"], models.loc["SCAS","option"], models.loc["sulfur_saturation","option"], models.loc["sulfur_is_sat","option"], models.loc["graphite_saturation","option"], models.loc["ideal_gas","option"],
                  models.loc["y_CO2","option"], models.loc["y_SO2","option"], models.loc["y_H2S","option"], models.loc["y_H2","option"], models.loc["y_O2","option"], models.loc["y_S2","option"], models.loc["y_CO","option"], models.loc["y_CH4","option"], models.loc["y_H2O","option"],models.loc["y_OCS","option"], models.loc["y_X","option"],
-                 models.loc["KHOg","option"], models.loc["KHOSg","option"], models.loc["KOSg","option"], models.loc["KOSg2","option"], models.loc["KCOg","option"], models.loc["KCOHg","option"],models.loc["KOCSg","option"], models.loc["KCOs","option"],models.loc["carbonylsulphide","option"],
+                 models.loc["KHOg","option"], models.loc["KHOSg","option"], models.loc["KOSg","option"], models.loc["KOSg2","option"], models.loc["KCOg","option"], models.loc["KCOHg","option"],models.loc["KOCSg","option"], models.loc["KCOs","option"],models.loc["carbonylsulfide","option"],
                  models.loc["density","option"],datetime.datetime.now()]])
     return results_headers, results_values
 # outputting fugacities, partial pressures, gas mole fraction, fugacity coefficients, molecular masses, solubility constants, equilibrium constants, melt density
@@ -77,9 +77,128 @@ def results_table_open_all_gas():
     return results_headers
 # saturation conditions
 def results_table_sat(sulf_sat_result,PT,melt_wf,species,models):
-    results_headers = pd.DataFrame([["SCSS_ppm","sulphide saturated","SCAS_ppm","anhydrite saturated","ST melt if sat","graphite saturated"]])
-    results_values = pd.DataFrame([[sulf_sat_result["SCSS"],sulf_sat_result["sulphide_sat"],sulf_sat_result["SCAS"],sulf_sat_result["sulphate_sat"],sulf_sat_result["ST"],c.graphite_saturation(PT,melt_wf,species,models)]])
+    results_headers = pd.DataFrame([["SCSS_ppm","sulfide saturated","SCAS_ppm","anhydrite saturated","ST melt if sat","graphite saturated"]])
+    results_values = pd.DataFrame([[sulf_sat_result["SCSS"],sulf_sat_result["sulfide_sat"],sulf_sat_result["SCAS"],sulf_sat_result["sulfate_sat"],sulf_sat_result["ST"],c.graphite_saturation(PT,melt_wf,species,models)]])
     return results_headers, results_values
+
+def options_from_setup(run,models,setup):
+    """ 
+    Allows model options to be read from the setup file rather than models file.
+
+
+    Parameters
+    ----------
+    run: float
+        Integer of the row in the setup file to read from (note the first row under the headers is row 0).   
+    setup: pandas.DataFrame
+        Dataframe with melt compositions to be used, require header using the same labels as row labels from models file if you want to use that option.
+    models: pandas.DataFrame
+        Dataframe of models.csv file.
+
+    Returns
+    -------
+    results: pandas.DataFrame
+
+    """
+    # species
+    if models.loc["insolubles","option"] == "setup":
+            models.loc["insolubles","option"] = setup.loc[run,"insolubles"]
+    if models.loc["H2S_m","option"] == "setup":
+            models.loc["H2S_m","option"] = setup.loc[run,"H2S_m"]
+    if models.loc["species X","option"] == "setup":
+            models.loc["species X","option"] = setup.loc[run,"species X"]
+    if models.loc["Hspeciation","option"] == "setup":
+            models.loc["Hspeciation","option"] = setup.loc[run,"Hspeciation"]
+    # oxygen fugacity
+    if models.loc["fO2","option"] == "setup":
+            models.loc["fO2","option"] = setup.loc[run,"fO2"]
+    if models.loc["NNObuffer","option"] == "setup":
+            models.loc["NNObuffer","option"] = setup.loc[run,"NNObuffer"]
+    if models.loc["FMQbuffer","option"] == "setup":
+            models.loc["FMQbuffer","option"] = setup.loc[run,"FMQbuffer"]
+    # solubility constants
+    if models.loc["carbon dioxide","option"] == "setup":
+            models.loc["carbon dioxide","option"] = setup.loc[run,"carbon dioxide"]
+    if models.loc["water","option"] == "setup":
+            models.loc["water","option"] = setup.loc[run,"water"]
+    if models.loc["hydrogen","option"] == "setup":
+            models.loc["hydrogen","option"] = setup.loc[run,"hydrogen"]
+    if models.loc["sulfide","option"] == "setup":
+            models.loc["sulfide","option"] = setup.loc[run,"sulfide"]
+    if models.loc["sulfate","option"] == "setup":
+            models.loc["sulfate","option"] = setup.loc[run,"sulfate"]
+    if models.loc["hydrogen sulfide","option"] == "setup":
+            models.loc["hydrogen sulfide","option"] = setup.loc[run,"hydrogen sulfide"]
+    if models.loc["methane"] == "setup":
+            models.loc["methane","option"] = setup.loc[run,"methane"]
+    if models.loc["carbon monoxide","option"] == "setup":
+            models.loc["carbon monoxide","option"] = setup.loc[run,"carbon monoxide"]
+    if models.loc["species X solubility","option"] == "setup":
+            models.loc["species X solubility","option"] = setup.loc[run,"species X solubility"]
+    if models.loc["Cspeccomp","option"] == "setup":
+            models.loc["Cspeccomp","option"] = setup.loc[run,"Cspeccomp"]
+    if models.loc["Hspeccomp","option"] == "setup":
+            models.loc["Hspeccomp","option"] = setup.loc[run,"Hspeccomp"]
+    # saturation conditions
+    if models.loc["SCSS","option"] == "setup":
+            models.loc["SCSS","option"] = setup.loc[run,"SCSS"]
+    if models.loc["SCAS","option"] == "setup":
+            models.loc["SCAS","option"] = setup.loc[run,"SCAS"]
+    if models.loc["sulfur_saturation","option"] == "setup":
+            models.loc["sulfur_saturation","option"] = setup.loc[run,"sulfur_saturation"]
+    if models.loc["sulfur_is_sat","option"] == "setup":
+            models.loc["sulfur_is_sat","option"] = setup.loc[run,"sulfur_is_sat"]
+    if models.loc["graphite_saturation","option"] == "setup":
+            models.loc["graphite_saturation","option"] = setup.loc[run,"graphite_saturation"]
+    # fugacity coefficients
+    if models.loc["ideal_gas","option"] == "setup":
+            models.loc["ideal_gas","option"] = setup.loc[run,"ideal_gas"]
+    if models.loc["y_CO2"] == "setup":
+            models.loc["y_CO2"] = setup.loc[run,"y_CO2"]
+    if models.loc["y_SO2"] == "setup":
+            models.loc["y_SO2"] = setup.loc[run,"y_SO2"]
+    if models.loc["y_H2S"] == "setup":
+            models.loc["y_H2S"] = setup.loc[run,"y_H2S"]
+    if models.loc["y_H2"] == "setup":
+            models.loc["y_H2"] = setup.loc[run,"y_H2"]
+    if models.loc["y_O2"] == "setup":
+            models.loc["y_O2"] = setup.loc[run,"y_O2"]
+    if models.loc["y_S2"] == "setup":
+            models.loc["y_S2"] = setup.loc[run,"y_S2"]
+    if models.loc["y_CO"] == "setup":
+            models.loc["y_CO"] = setup.loc[run,"y_CO"]
+    if models.loc["y_CH4"] == "setup":
+            models.loc["y_CH4"] = setup.loc[run,"y_CH4"]
+    if models.loc["y_H2O"] == "setup":
+            models.loc["y_H2O"] = setup.loc[run,"y_H2O"]
+    if models.loc["y_OCS"] == "setup":
+            models.loc["y_OCS"] = setup.loc[run,"y_OCS"]
+    if models.loc["y_X"] == "setup":
+            models.loc["y_X"] = setup.loc[run,"y_X"]
+    # equilibrium constants
+    if models.loc["KHOg"] == "setup":
+            models.loc["KHOg"] = setup.loc[run,"KHOg"]
+    if models.loc["KHOSg"] == "setup":
+            models.loc["KHOSg"] = setup.loc[run,"KHOSg"]
+    if models.loc["KOSg"] == "setup":
+            models.loc["KOSg"] = setup.loc[run,"KOSg"]
+    if models.loc["KOSg2"] == "setup":
+            models.loc["KOSg2"] = setup.loc[run,"KOSg2"]
+    if models.loc["KCOg"] == "setup":
+            models.loc["KCOg"] = setup.loc[run,"KCOg"]
+    if models.loc["KCOHg"] == "setup":
+            models.loc["KCOHg"] = setup.loc[run,"KCOHg"]
+    if models.loc["KOCSg"] == "setup":
+            models.loc["KOCSg"] = setup.loc[run,"KOCSg"]
+    if models.loc["KCOs"] == "setup":
+            models.loc["KCOs"] = setup.loc[run,"KCOs"]
+    if models.loc["carbonylsulfide"] == "setup":
+            models.loc["carbonylsulfide"] = setup.loc[run,"carbonylsulfide"]
+    # other
+    if models.loc["density"] == "setup":
+            models.loc["density"] = setup.loc[run,"density"]
+    return models
+
 
 # calculate the saturation pressure for multiple melt compositions in setup file
 def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
@@ -128,6 +247,9 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
         melt_wf=mg.melt_comp(run,setup)
         melt_wf['CO2'] = setup.loc[run,"CO2ppm"]/1000000.
         melt_wf["H2OT"] = setup.loc[run,"H2O"]/100.
+
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
         
         # calculate Pvsat assuming only H2O CO2 in vapour and melt
         if setup.loc[run,"Fe3FeT"] > 0.:
@@ -152,13 +274,13 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
             bulk_wf = {"H":(2.*species.loc["H","M"]*melt_wf["H2OT"])/species.loc["H2O","M"],"C":(species.loc["C","M"]*melt_wf["CO2"])/species.loc["CO2","M"],"S":wm_ST, "X":wm_X}
         else:
             raise TypeError('This is not currently possible')
-        if models.loc["sulphur_is_sat","option"] == "yes":
+        if models.loc["sulfur_is_sat","option"] == "yes":
             if melt_wf["XT"] > 0.:
                 raise TypeError('This is not currently possible')
             P_sat_, conc, frac  = c.fO2_P_VSA(PT,melt_wf,species,models,nr_step,nr_tol,p_tol)
-        elif models.loc["sulphur_saturation","option"] == "no":
+        elif models.loc["sulfur_saturation","option"] == "no":
             P_sat_, conc, frac = c.P_sat(PT,melt_wf,species,models,p_tol,nr_step,nr_tol)
-        elif models.loc["sulphur_saturation","option"] == "yes":
+        elif models.loc["sulfur_saturation","option"] == "yes":
             if melt_wf["XT"] > 0.:
                 raise TypeError('This is not currently possible')
             P_sat_, conc, frac = c.P_VSA(PT,melt_wf,species,models,nr_step,nr_tol,p_tol)
@@ -166,12 +288,12 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
         melt_wf["H2OT"] = conc["wm_H2O"]
         melt_wf["CO2"] = conc["wm_CO2"]
         melt_wf["S2-"] = conc["wm_S2m"]
-        if models.loc["sulphur_is_sat","option"] == "yes":
+        if models.loc["sulfur_is_sat","option"] == "yes":
             melt_wf["Fe3FeT"] = frac["Fe3FeT"]
         else:
             melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)
         
-        sulf_sat_result = c.sulphur_saturation(PT,melt_wf,species,models)
+        sulf_sat_result = c.sulfur_saturation(PT,melt_wf,species,models)
         # gas_mf = {"O2":mg.xg_O2(PT,melt_wf,species,models),"CO":mg.xg_CO(PT,melt_wf,species,models),"CO2":mg.xg_CO2(PT,melt_wf,species,models),"H2":mg.xg_H2(PT,melt_wf,species,models),"H2O":mg.xg_H2O(PT,melt_wf,species,models),"CH4":mg.xg_CH4(PT,melt_wf,species,models),"S2":mg.xg_S2(PT,melt_wf,species,models),"SO2":mg.xg_SO2(PT,melt_wf,species,models),"H2S":mg.xg_H2S(PT,melt_wf,species,models),"OCS":mg.xg_OCS(PT,melt_wf,species,models),"X":mg.xg_X(PT,melt_wf,species,models),"Xg_t":mg.Xg_tot(PT,melt_wf,species,models),"wt_g":0.}     
         melt_comp = mg.melt_normalise_wf(melt_wf,species,"yes","no")  
         
@@ -206,22 +328,27 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
 ### NEEDS CHECKING ###        
 def P_sat_output_fS2(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
     # set up results table
-    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphate solubility","sulphide saturation","ideal gas","carbonylsulphide","mass_volume","insolubles","Saturation calculation","Date"]])
-    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulphide","option"],models.loc["sulphate","option"],models.loc["sulphur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulphide","option"],models.loc["mass_volume","option"],models.loc['insolubles','option'],models.loc['calc_sat','option'],date.today()]])
+    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","sulfide saturation","ideal gas","carbonylsulfide","mass_volume","insolubles","Saturation calculation","Date"]])
+    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["sulfur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["mass_volume","option"],models.loc['insolubles','option'],models.loc['calc_sat','option'],date.today()]])
     results = pd.concat([results, results1], ignore_index=True)
     results1 = ([["Sample","Pressure (bar)","Saturation pressure (bars)","T ('C)","fO2 (DNNO)","fO2 (DFMQ)",
                   "SiO2 (wt%)","TiO2 (wt%)","Al2O3 (wt%)","FeOT (wt%)","MnO (wt%)","MgO (wt%)","CaO (wt%)","Na2O (wt%)","K2O (wt%)","P2O5 (wt%)","ST (ppm)","S6/ST","Fe3/FeT",
-                  "SCSS (ppm)","sulphide saturated","SCAS (ppm)","anhydrite saturated","S melt (ppm)",
+                  "SCSS (ppm)","sulfide saturated","SCAS (ppm)","anhydrite saturated","S melt (ppm)",
                 "f-fO2","f-fS2","f-fSO2","f-pO2","f-pS2","f-pSO2","f-xgO2","f-xgS2","f-xgSO2",
                  "b-fO2","b-fS2","b-fSO2","b-pO2","b-pS2","b-pSO2","b-xgO2","b-xgS2","b-xgSO2","ySO2"]])
     results = pd.concat([results, results1], ignore_index=True)
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
+
         PT={"T":setup.loc[run,"T_C"]}
         melt_wf=mg.melt_comp(run,setup)
         melt_wf['CO2'] = 0.
         melt_wf["H2OT"] = 0.
+
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
+
         P_sat_, wm_ST, fSO2, wm_S2m, wm_S6p, pS2, pO2, pSO2, xgS2, xgO2, xgSO2 = c.P_sat_fO2_fS2(PT,melt_wf,species,models,p_tol)
         if setup.loc[run,"P_bar"] > 0.:
             PT["P"] = setup.loc[run,"P_bar"]
@@ -230,12 +357,12 @@ def P_sat_output_fS2(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,model
         melt_wf["ST"] = wm_ST
         melt_wf["S2-"] = wm_S2m
         melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)
-        SCSS_,sulphide_sat,SCAS_,sulphate_sat, ss_ST = c.sulphur_saturation(PT,melt_wf,species,models)
+        SCSS_,sulfide_sat,SCAS_,sulfate_sat, ss_ST = c.sulfur_saturation(PT,melt_wf,species,models)
         gas_mf = {"O2":mg.xg_O2(PT,melt_wf,species,models),"S2":mg.xg_S2(PT,melt_wf,species,models),"SO2":mg.xg_SO2(PT,melt_wf,species,models)}
         
         ### store results ###
         results2 = pd.DataFrame([[setup.loc[run,"Sample"],PT["P"],P_sat_,
-                setup.loc[run,"T_C"],mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"NNO",models),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"FMQ",models),setup.loc[run,"SiO2"],setup.loc[run,"TiO2"],setup.loc[run,"Al2O3"],mg.Wm_FeOT(melt_wf,species),setup.loc[run,"MnO"],setup.loc[run,"MgO"],setup.loc[run,"CaO"],setup.loc[run,"Na2O"],setup.loc[run,"K2O"],setup.loc[run,"P2O5"],wm_ST,mg.S6ST(PT,melt_wf,species,models),melt_wf["Fe3FeT"],SCSS_,sulphide_sat,SCAS_,sulphate_sat,ss_ST,
+                setup.loc[run,"T_C"],mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"NNO",models),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"FMQ",models),setup.loc[run,"SiO2"],setup.loc[run,"TiO2"],setup.loc[run,"Al2O3"],mg.Wm_FeOT(melt_wf,species),setup.loc[run,"MnO"],setup.loc[run,"MgO"],setup.loc[run,"CaO"],setup.loc[run,"Na2O"],setup.loc[run,"K2O"],setup.loc[run,"P2O5"],wm_ST,mg.S6ST(PT,melt_wf,species,models),melt_wf["Fe3FeT"],SCSS_,sulfide_sat,SCAS_,sulfate_sat,ss_ST,
                 mdv.f_O2(PT,melt_wf,species,models),setup.loc[run,"fS2"],fSO2, pO2,pS2,pSO2, xgO2,xgS2,xgSO2,mdv.f_O2(PT,melt_wf,species,models),mg.f_S2(PT,melt_wf,species,models),mg.f_SO2(PT,melt_wf,species,models), mg.p_O2(PT,melt_wf,species,models),mg.p_S2(PT,melt_wf,species,models),mg.p_SO2(PT,melt_wf,species,models), mg.xg_O2(PT,melt_wf,species,models),mg.xg_S2(PT,melt_wf,species,models),mg.xg_SO2(PT,melt_wf,species,models),mg.y_SO2(PT,species,models)]])
                              
         results = pd.concat([results, results1], ignore_index=True)
@@ -296,7 +423,10 @@ def gassing(run,gassing_inputs,setup,species,models):
 
     if models.loc["print status","option"] == "yes":
         print(setup.loc[run,"Sample"])
-     
+
+    # check if any options need to be read from the setup file rather than the models file
+    models = options_from_setup(run,models,setup)
+
     if models.loc["fO2","option"] != "Kress91A":
         raise TypeError("Change 'fO2' option in models to 'Kress91A' (other fO2 options are not currently supported)")
     if models.loc["gassing_direction","option"] == "regas" and models.loc["starting_P","option"] == "bulk":
@@ -333,7 +463,7 @@ def gassing(run,gassing_inputs,setup,species,models):
     if models.loc["print status","option"] == "yes":
         print(PT["T"],PT["P"],datetime.datetime.now())
 
-    # update melt composition at saturation pressure, check for sulphur saturation, and calculate some things
+    # update melt composition at saturation pressure, check for sulfur saturation, and calculate some things
     melt_wf["H2OT"] = conc["wm_H2O"]
     melt_wf["CO2"] = conc["wm_CO2"]
     melt_wf["CO"] = conc["wm_CO"]
@@ -344,7 +474,7 @@ def gassing(run,gassing_inputs,setup,species,models):
     melt_wf["H2S"] = conc["wm_H2S"]
     melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)
     melt_wf["S6ST"] = mg.S6ST(PT,melt_wf,species,models)
-    sulf_sat_result = c.sulphur_saturation(PT,melt_wf,species,models)    
+    sulf_sat_result = c.sulfur_saturation(PT,melt_wf,species,models)    
     wm_CO2eq, wm_H2Oeq = mg.melt_H2O_CO2_eq(melt_wf,species)
     melt_comp = mg.melt_normalise_wf(melt_wf,species,"yes","no")
     
@@ -382,14 +512,14 @@ def gassing(run,gassing_inputs,setup,species,models):
         a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_ = iso.i2s6_S_alphas(PT)
         results_isotopes1 = pd.DataFrame([["P","T_C","xg_O2","xg_CO","xg_CO2","xg_H2","xg_H2O","xg_CH4","xg_S2","xg_SO2","xg_SO3","xg_H2S","xg_OCS","wt_g",
                         "wm_CO2","wm_H2O","wm_H2","wm_S","wm_SO3","wm_ST","Fe3T","S6T",
-                         "DFMQ","DNNO","SCSS","sulphide sat?","SCAS","sulphate sat?",
+                         "DFMQ","DNNO","SCSS","sulfide sat?","SCAS","sulfate sat?",
                          "RS_S2-","RS_SO42-","RS_H2S","RS_SO2","RS_S2","R_OCS","R_m","R_g",
                          "dS_S2-","dS_SO42-","dS_H2S","dS_SO2","dS_S2","dS_OCS","dS_m","dS_g",
                          "a_H2S_S2-","a_SO42-_S2-","a_S2_S2-","a_SO2_S2-","a_OCS_S2-","a_g_m"]])
         results_isotopes = results_header.append(results_isotopes1, ignore_index=True)
         results1 = pd.DataFrame([[PT["P"],PT["T"],mg.xg_O2(PT,melt_wf,species,models),mg.xg_CO(PT,melt_wf,species,models),mg.xg_CO2(PT,melt_wf,species,models),mg.xg_H2(PT,melt_wf,species,models),mg.xg_H2O(PT,melt_wf,species,models),mg.xg_CH4(PT,melt_wf,species,models),mg.xg_S2(PT,melt_wf,species,models),mg.xg_SO2(PT,melt_wf,species,models),mg.xg_H2S(PT,melt_wf,species,models),mg.xg_OCS(PT,melt_wf,species,models),wt_g_,
 melt_wf["CO2"],melt_wf["H2OT"],0,(mg.wm_S(PT,melt_wf,species,models)/100),(mg.wm_SO3(PT,melt_wf,species,models)/100),melt_wf["ST"],melt_wf["Fe3FeT"],mg.S6ST(PT,melt_wf,species,models),
-mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"FMQ"),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"NNO"),SCSS_,sulphide_sat,SCAS_,sulphate_sat,
+mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"FMQ"),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"NNO"),SCSS_,sulfide_sat,SCAS_,sulfate_sat,
 R_S_S2_,R_S_SO4_,"","","","",R_i["S"],"",ratio2delta("VCDT",R_S_S2_),ratio2delta("VCDT",R_S_SO4_),"","","","",ratio2delta("VCDT",R_i["S"]),"",
 a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         results_isotopes = pd.concat([results_isotopes, results1], ignore_index=True) 
@@ -495,12 +625,12 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         if P_sat_ < PT["P"]:  
             bulk_comp = c.bulk_composition(run,PT,melt_wf,setup,species,models)
     
-        # check for sulphur saturation and display warning in outputs
-        sulf_sat_result = c.sulphur_saturation(PT,melt_wf,species,models)
-        if sulf_sat_result["sulphide_sat"] == "yes":
-            warning = "WARNING: sulphide-saturated"
-        elif sulf_sat_result["sulphate_sat"] == "yes":
-            warning = "WARNING: sulphate-saturated"
+        # check for sulfur saturation and display warning in outputs
+        sulf_sat_result = c.sulfur_saturation(PT,melt_wf,species,models)
+        if sulf_sat_result["sulfide_sat"] == "yes":
+            warning = "WARNING: sulfide-saturated"
+        elif sulf_sat_result["sulfate_sat"] == "yes":
+            warning = "WARNING: sulfate-saturated"
         else:
             warning = ""
         
@@ -541,7 +671,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             xg_SO3_ = 0.
             results2 = pd.DataFrame([[PT["P"],PT["T"],xg_O2_,xg_CO_,xg_CO2_,xg_H2_,xg_H2O_,xg_CH4_,xg_S2_,xg_SO2_,xg_SO3_,xg_H2S_,xg_OCS_,wt_g,
                         wm_CO2_,wm_H2O_,wm_H2_,wm_S_,wm_SO3_,wm_ST_,Fe3T,S6T,
-                        mg.fO22Dbuffer(PT,fO2_,"FMQ"),mg.fO22Dbuffer(PT,fO2_,"NNO"),SCSS_,sulphide_sat,SCAS_,sulphate_sat,
+                        mg.fO22Dbuffer(PT,fO2_,"FMQ"),mg.fO22Dbuffer(PT,fO2_,"NNO"),SCSS_,sulfide_sat,SCAS_,sulfate_sat,
                         RS_Sm, RS_SO4, RS_H2S, RS_SO2, RS_S2, RS_OCS, RS_m, RS_g, ratio2delta("VCDT",RS_Sm),ratio2delta("VCDT",RS_SO4),ratio2delta("VCDT",RS_H2S),ratio2delta("VCDT",RS_SO2),ratio2delta("VCDT",RS_S2),ratio2delta("VCDT",RS_OCS),ratio2delta("VCDT",RS_m),ratio2delta("VCDT",RS_g),a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,RS_g/RS_m]])
             results_isotopes = pd.concat([results_isotopes, results2], ignore_index=True)
             if models.loc["output csv","option"] == "yes":
@@ -624,6 +754,9 @@ def calc_isobar(run,setup,species,models,initial_P,final_P,step_P):
     if models.loc["insolubles","option"] == "H2O-CO2 only":
         PT={"T":setup.loc[run,"T_C"]}
         
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
+
         # set up results table
         results = pd.DataFrame([["P (bar)","H2O (wt%)","CO2 (ppm)"]])
     
@@ -649,7 +782,10 @@ def calc_pure_solubility(run,setup,species,models,initial_P):
     if models.loc["print status","option"] == "yes":
         print(setup.loc[run,"Sample"],initial_P)
     PT={"T":setup.loc[run,"T_C"]}
-        
+
+    # check if any options need to be read from the setup file rather than the models file
+    models = options_from_setup(run,models,setup)
+
     # set up results table
     results = pd.DataFrame([["P (bar)","H2O (wt%)","CO2 (ppm)"]])
     
@@ -667,24 +803,28 @@ def calc_pure_solubility(run,setup,species,models,initial_P):
 
     return results
 
-    
-    
+        
 #########################
-### Sulphate capacity ###
+### Sulfate capacity ###
 #########################
 
-# calculate the Csulphate for multiple melt compositions in input file
-def Csulphate_output(first_row,last_row,setup,species,models):
+# calculate the Csulfate for multiple melt compositions in input file
+def Csulfate_output(first_row,last_row,setup,species,models):
+    
     # set up results table
-    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphate solubility","sulphide saturation","ideal gas","carbonylsulphide","mass_volume","Date"]])
-    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulphide","option"],models.loc["sulphate","option"],models.loc["sulphur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulphide","option"],models.loc["mass_volume","option"],date.today()]])
+    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","sulfide saturation","ideal gas","carbonylsulfide","mass_volume","Date"]])
+    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["sulfur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["mass_volume","option"],date.today()]])
     results = pd.concat([results, results1], ignore_index=True)
     results1 = ([["Sample","Pressure (bar)","T ('C)","SiO2","TiO2","Al2O3","FeOT","MnO","MgO","CaO","Na2O","K2O","P2O5",
-                "H2O","CO2 (ppm)","ST (ppm)","S6/ST","Fe3/FeT","ln[Csulphide]","ln[Csulphate]","fO2","DNNO","DFMQ"]])
+                "H2O","CO2 (ppm)","ST (ppm)","S6/ST","Fe3/FeT","ln[Csulfide]","ln[Csulfate]","fO2","DNNO","DFMQ"]])
     results = pd.concat([results, results1], ignore_index=True)
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
+        
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
+
         PT={"T":setup.loc[run,"T_C"]}
         melt_wf=mg.melt_comp(run,setup)
         melt_wf['CO2'] = setup.loc[run,"CO2ppm"]/1000000.
@@ -696,15 +836,15 @@ def Csulphate_output(first_row,last_row,setup,species,models):
             melt_wf["S6ST"] = setup.loc[run,"S6ST"]
         else:
             melt_wf["S6ST"] = ""
-        Csulphate_ = mdv.C_SO4(PT,melt_wf,species,models)
+        Csulfate_ = mdv.C_SO4(PT,melt_wf,species,models)
                 
         ### store results ###
-        results2 = pd.DataFrame([[setup.loc[run,"Sample"],setup.loc[run,"P_bar"],setup.loc[run,"T_C"],setup.loc[run,"SiO2"],setup.loc[run,"TiO2"],setup.loc[run,"Al2O3"],mg.Wm_FeOT(run,setup,species),setup.loc[run,"MnO"],setup.loc[run,"MgO"],setup.loc[run,"CaO"],setup.loc[run,"Na2O"],setup.loc[run,"K2O"],setup.loc[run,"P2O5"],setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],setup.loc[run,"STppm"],melt_wf["S6ST"],melt_wf["Fe3FeT"],gp.log(mg.C_S(PT,melt_wf,species,models)),gp.log(Csulphate_),mdv.f_O2(PT,melt_wf,species,models),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"NNO"),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"FMQ")]])
+        results2 = pd.DataFrame([[setup.loc[run,"Sample"],setup.loc[run,"P_bar"],setup.loc[run,"T_C"],setup.loc[run,"SiO2"],setup.loc[run,"TiO2"],setup.loc[run,"Al2O3"],mg.Wm_FeOT(run,setup,species),setup.loc[run,"MnO"],setup.loc[run,"MgO"],setup.loc[run,"CaO"],setup.loc[run,"Na2O"],setup.loc[run,"K2O"],setup.loc[run,"P2O5"],setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],setup.loc[run,"STppm"],melt_wf["S6ST"],melt_wf["Fe3FeT"],gp.log(mg.C_S(PT,melt_wf,species,models)),gp.log(Csulfate_),mdv.f_O2(PT,melt_wf,species,models),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"NNO"),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"FMQ")]])
         results = pd.concat([results, results2], ignore_index=True)                     
         if models.loc["output csv","option"] == "yes":
-            results.to_csv('Csulphate.csv', index=False, header=False)
+            results.to_csv('Csulfate.csv', index=False, header=False)
         if models.loc["print status","option"] == "yes":
-            print(n, setup.loc[run,"Sample"],gp.log(Csulphate_),gp.log(mg.C_S(PT,melt_wf,species,models)))
+            print(n, setup.loc[run,"Sample"],gp.log(Csulfate_),gp.log(mg.C_S(PT,melt_wf,species,models)))
         return results
 
 ##################
@@ -714,8 +854,8 @@ def Csulphate_output(first_row,last_row,setup,species,models):
 # print capacities for multiple melt compositions in input file
 def capacities_output(first_row,last_row,setup,species,models):
     # set up results table
-    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphate solubility","sulphide saturation","ideal gas","carbonylsulphide","mass_volume","Date"]])
-    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulphide","option"],models.loc["sulphate","option"],models.loc["sulphur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulphide","option"],models.loc["mass_volume","option"],date.today()]])
+    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","sulfide saturation","ideal gas","carbonylsulfide","mass_volume","Date"]])
+    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["sulfur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["mass_volume","option"],date.today()]])
     results = pd.concat([results, results1], ignore_index=True)
     results1 = ([["Sample","Pressure (bar)","T ('C)","SiO2","TiO2","Al2O3","FeOT","MnO","MgO","CaO","Na2O","K2O","P2O5",
                 "H2O","CO2 (ppm)","ST (ppm)","Fe3+/FeT","fO2 DFMQ","ln[C_CO32-]","ln[C_H2OT]","ln[C_S2-]","ln[C_S6+]","ln[C_H2S]","ln[C_H2]","ln[C_CO]","ln[C_CH4]","ln[C_X]","M_m_SO",]])
@@ -723,6 +863,10 @@ def capacities_output(first_row,last_row,setup,species,models):
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
+        
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
+
         PT={"T":setup.loc[run,"T_C"]}
         melt_wf=mg.melt_comp(run,setup)
         CO2 = setup.loc[run,"CO2ppm"]/1000000.
@@ -762,8 +906,8 @@ def capacities_output(first_row,last_row,setup,species,models):
 
 def Fe3Fe2_output(first_row,last_row,setup,species,models):
     # set up results table
-    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphate solubility","sulphide saturation","ideal gas","carbonylsulphide","mass_volume","insolubles","Date"]])
-    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulphide","option"],models.loc["sulphate","option"],models.loc["sulphur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulphide","option"],models.loc["mass_volume","option"],models.loc['insolubles','option'],date.today()]])
+    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","sulfide saturation","ideal gas","carbonylsulfide","mass_volume","insolubles","Date"]])
+    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["sulfur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["mass_volume","option"],models.loc['insolubles','option'],date.today()]])
     results = pd.concat([results, results1], ignore_index=True)
     results1 = ([["Sample","Pressure (bar)","T ('C)","fO2 (DNNO)","fO2 (DFMQ)",
                   "SiO2 (wt%)","TiO2 (wt%)","Al2O3 (wt%)","FeOT (wt%)","MnO (wt%)","MgO (wt%)","CaO (wt%)","Na2O (wt%)","K2O (wt%)","P2O5 (wt%)","Fe3/FeT"]])
@@ -771,6 +915,10 @@ def Fe3Fe2_output(first_row,last_row,setup,species,models):
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
+        
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
+
         PT={"T":setup.loc[run,"T_C"]}
         PT["P"] = setup.loc[run,"P_bar"]
         melt_wf=mg.melt_comp(run,setup)
@@ -792,14 +940,18 @@ def Fe3Fe2_output(first_row,last_row,setup,species,models):
 
 def fugacity_coefficients(first_row,last_row,setup,species,models):
     # set up results table
-    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphate solubility","sulphide saturation","ideal gas","carbonylsulphide","mass_volume","insolubles","Date"]])
-    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulphide","option"],models.loc["sulphate","option"],models.loc["sulphur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulphide","option"],models.loc["mass_volume","option"],models.loc['insolubles','option'],date.today()]])
+    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","sulfide saturation","ideal gas","carbonylsulfide","mass_volume","insolubles","Date"]])
+    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["sulfur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["mass_volume","option"],models.loc['insolubles','option'],date.today()]])
     results = pd.concat([results, results1], ignore_index=True)
     results1 = ([["Sample","Pressure (bar)","T ('C)","yH2O","yCO2","yH2","yCO","yO2","yCH4","yS2","ySO2","yH2S","yOCS"]])
     results = pd.concat([results, results1], ignore_index=True)
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
+        
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
+
         PT={"T":setup.loc[run,"T_C"]}
         PT["P"] = setup.loc[run,"P_bar"]
         
@@ -813,16 +965,16 @@ def fugacity_coefficients(first_row,last_row,setup,species,models):
         return results
 
 ######################################                
-### fO2 range from sulphur content ###
+### fO2 range from sulfur content ###
 ######################################        
         
 def fO2_range_from_S_output(first_row,last_row,setup,species,models,p_tol,nr_step,nr_tol):
 
     # set up results table
-    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphate solubility","SCSS","SCAS","ideal gas","carbonylsulphide","insolubles","H2S","species X","species X solubility","Date"]])
-    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulphide","option"],models.loc["sulphate","option"],models.loc["SCSS","option"],models.loc["SCAS","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulphide","option"],models.loc['insolubles','option'],models.loc["H2S_m","option"],models.loc['species X','option'],models.loc['species X solubility','option'],date.today()]])
+    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","SCSS","SCAS","ideal gas","carbonylsulfide","insolubles","H2S","species X","species X solubility","Date"]])
+    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["SCSS","option"],models.loc["SCAS","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc['insolubles','option'],models.loc["H2S_m","option"],models.loc['species X','option'],models.loc['species X solubility','option'],date.today()]])
     results = pd.concat([results, results1], ignore_index=True)
-    results1 = pd.DataFrame([["Sample","T ('C)","wm_STppm","wm_H2OT","wm_CO2ppm","P (bar) sulf","S2- SCSS","sulphide saturated?","DFMQ-sulphide","fO2-sulphide","Fe3FeT-sulphide","S6ST-sulphide","P (bar) anh","S6+ SCAS","sulphate saturated?","DFMQ-sulphate","fO2-sulphate","Fe3FeT-sulphate","S6ST-sulphate"]])
+    results1 = pd.DataFrame([["Sample","T ('C)","wm_STppm","wm_H2OT","wm_CO2ppm","P (bar) sulf","S2- SCSS","sulfide saturated?","DFMQ-sulfide","fO2-sulfide","Fe3FeT-sulfide","S6ST-sulfide","P (bar) anh","S6+ SCAS","sulfate saturated?","DFMQ-sulfate","fO2-sulfate","Fe3FeT-sulfate","S6ST-sulfate"]])
     results = pd.concat([results, results1], ignore_index=True)
 
     # run over rows in file
@@ -830,6 +982,10 @@ def fO2_range_from_S_output(first_row,last_row,setup,species,models,p_tol,nr_ste
    
         # Select run conditions
         run = n # row number
+        
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
+
         PT = {"T":setup.loc[run,"T_C"]}
         melt_wf=mg.melt_comp(run,setup)
         melt_wf["H2OT"] = (setup.loc[run, "H2O"]/100.)
@@ -839,15 +995,15 @@ def fO2_range_from_S_output(first_row,last_row,setup,species,models,p_tol,nr_ste
             PT["P"] = setup.loc[run,"P_bar"]
             P_sat_sulf, P_sat_anh = setup.loc[run,"P_bar"],setup.loc[run,"P_bar"]
             melt_wf["Fe3FeT"] = setup.loc[run, "Fe3FeT"]
-            SCAS_,SCSS_,sulphide_sat,DFMQ_1,fO2_1,Fe3FeT_1,S6ST_1,sulphate_sat,DFMQ_2,fO2_2,Fe3FeT_2,S6ST_2 = c.fO2_range_from_S(PT,melt_wf,species,models)
+            SCAS_,SCSS_,sulfide_sat,DFMQ_1,fO2_1,Fe3FeT_1,S6ST_1,sulfate_sat,DFMQ_2,fO2_2,Fe3FeT_2,S6ST_2 = c.fO2_range_from_S(PT,melt_wf,species,models)
         else:
             melt_wf["ST"] = setup.loc[run, "STppm"]/1000000.
             melt_wf["XT"] = setup.loc[run, "Xppm"]/1000000.
             melt_wf["CT"] = ((setup.loc[run, "CO2ppm"]/1000000.)/species.loc["CO2","M"])*species.loc["C","M"]
-            P_sat_sulf,P_sat_anh,SCAS_,SCSS_,sulphide_sat,DFMQ_1,fO2_1,Fe3FeT_1,S6ST_1,sulphate_sat,DFMQ_2,fO2_2,Fe3FeT_2,S6ST_2 = c.P_sat_sulf_anh(PT,melt_wf,species,models,p_tol,nr_step,nr_tol)
+            P_sat_sulf,P_sat_anh,SCAS_,SCSS_,sulfide_sat,DFMQ_1,fO2_1,Fe3FeT_1,S6ST_1,sulfate_sat,DFMQ_2,fO2_2,Fe3FeT_2,S6ST_2 = c.P_sat_sulf_anh(PT,melt_wf,species,models,p_tol,nr_step,nr_tol)
 
         # store results
-        results1 = pd.DataFrame([[setup.loc[run,"Sample"],PT["T"],setup.loc[run,"STppm"],setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],P_sat_sulf,SCSS_,sulphide_sat,DFMQ_1,fO2_1,Fe3FeT_1,S6ST_1,P_sat_anh,SCAS_,sulphate_sat,DFMQ_2,fO2_2,Fe3FeT_2,S6ST_2]])
+        results1 = pd.DataFrame([[setup.loc[run,"Sample"],PT["T"],setup.loc[run,"STppm"],setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],P_sat_sulf,SCSS_,sulfide_sat,DFMQ_1,fO2_1,Fe3FeT_1,S6ST_1,P_sat_anh,SCAS_,sulfate_sat,DFMQ_2,fO2_2,Fe3FeT_2,S6ST_2]])
         results = pd.concat([results, results1], ignore_index=True)
         if models.loc["output csv","option"] == "yes":
             results.to_csv('fO2_range_from_S.csv', index=False, header=False)
@@ -893,25 +1049,25 @@ def eq_given_fO2(inputs,setup,species,models): # only S atm
         start = inputs["first row"]
         end = inputs["last row"]
 
-    # update Fe3+/FeT and water speciation at saturation pressure and check for sulphur saturation
+    # update Fe3+/FeT and water speciation at saturation pressure and check for sulfur saturation
     #melt_wf["Fe3FeT"] = mg.fO22Fe3FeT(10.**initial,run,PT,setup,species,models)
     #melt_wf["Fe3FeT"] = mg.Fe3FeT_i(run,PT,melt_wf,setup,species,models)
     #melt_wf["S6ST"] = mg.S6ST(run,PT,melt_wf,setup,species,models)
     #melt_wf["H2Omol"] = 0. #mg.wm_H2Omol(run,PT,melt_wf,setup,species,models)
     #melt_wf["OH"] = 0., #mg.wm_OH(run,PT,melt_wf,setup,species,models)
-    #SCSS_,sulphide_sat,SCAS_,sulphate_sat,ST_ = sulphur_saturation(run,PT,melt_wf,setup,species,models)
+    #SCSS_,sulfide_sat,SCAS_,sulfate_sat,ST_ = sulfur_saturation(run,PT,melt_wf,setup,species,models)
 
         
     # create results table
-    results_header1 = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphur speciation","ideal gas","carbonylsulphide","bulk composition","equilibrate Fe","starting pressure","gassing direction","gassing style","mass_volume","crystallisation","isotopes","Date"]])
+    results_header1 = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfur speciation","ideal gas","carbonylsulfide","bulk composition","equilibrate Fe","starting pressure","gassing direction","gassing style","mass_volume","crystallisation","isotopes","Date"]])
     results_header2 = pd.DataFrame([[
-models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulphide","option"],models.loc["sulphate","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulphide","option"],models.loc["bulk_composition","option"],models.loc["eq_Fe","option"],models.loc["starting_P","option"],models.loc["gassing_direction","option"],models.loc["gassing_style","option"],models.loc["mass_volume","option"],models.loc["crystallisation","option"],models.loc["isotopes","option"],date.today()]])
+models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["bulk_composition","option"],models.loc["eq_Fe","option"],models.loc["starting_P","option"],models.loc["gassing_direction","option"],models.loc["gassing_style","option"],models.loc["mass_volume","option"],models.loc["crystallisation","option"],models.loc["isotopes","option"],date.today()]])
     results_header = pd.concat([results_header1, results_header2], ignore_index=True)
     results_chemistry1 = pd.DataFrame([["P","T('C)","System","run","Sample","H2O (mwf)","CO2 (mwf)","ST (mwf)","Fe3FeT","S6ST","O (twf)","C (twf)","H (wtf)","S (twf)","Fe (twf)",
 "SiO2 (wt%)","TiO2 (wt%)","Al2O3 (wt%)","FeOT (wt%)","MnO (wt%)","MgO (wt%)","CaO (wt%)","Na2O (wt%)","K2O (wt%)","P2O5 (wt%)","xg_O2","xg_CO","xg_CO2","xg_H2","xg_H2O","xg_CH4","xg_S2","xg_SO2","xg_SO3","xg_H2S","xg_OCS","Xg_t",
                "xm_CO2","xm_H2O","xm_H2Omol","xm_OH","xm_H2","Xm_t_SO","Xm_t_ox",
                "wm_CO2","wm_H2O","wm_H2Omol","wm_OH","wm_H2","wm_S","wm_SO3","wm_ST","Fe3T","S6T",
-               "DFMQ","DNNO","SCSS","sulphide sat?","SCAS","sulphate sat?","wt_g","wt_O","wt_C","wt_H","wt_S",
+               "DFMQ","DNNO","SCSS","sulfide sat?","SCAS","sulfate sat?","wt_g","wt_O","wt_C","wt_H","wt_S",
                "fO2","fH2","fH2O","fS2","fSO2","fSO3","fH2S","fCO2","fCO","fCH4","fOCS",
                "yO2","yH2","yH2O","yS2","ySO2","ySO3","yH2S","yCO2","yCO","yCH4","yOCS",
                "M_m_SO","M_m_ox","C_H2O","C_H2","C_CO3","C_S","C_SO4",
@@ -961,12 +1117,12 @@ models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Csp
         # set melt composition for forward calculation
         melt_wf = {"CO2":wm_CO2_,"H2OT":wm_H2O_,"ST":wm_ST_,"S6ST":S6T,"Fe3FeT":Fe3T,"H2":wm_H2_,"H2Omol":wm_H2Omol_,"OH":wm_OH_,"S2-":wm_S_}
     
-        # check for sulphur saturation and display warning in outputs
-        SCSS_,sulphide_sat,SCAS_,sulphate_sat, ST_ = sulphur_saturation(PT,melt_wf,species,models)
-        if sulphide_sat == "yes":
-            warning = "WARNING: sulphide-saturated"
-        elif sulphate_sat == "yes":
-            warning = "WARNING: sulphate-saturated"
+        # check for sulfur saturation and display warning in outputs
+        SCSS_,sulfide_sat,SCAS_,sulfate_sat, ST_ = sulfur_saturation(PT,melt_wf,species,models)
+        if sulfide_sat == "yes":
+            warning = "WARNING: sulfide-saturated"
+        elif sulfate_sat == "yes":
+            warning = "WARNING: sulfate-saturated"
         else:
             warning = ""
 
@@ -976,7 +1132,7 @@ models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Csp
 setup.loc[run,"SiO2"],setup.loc[run,"TiO2"],setup.loc[run,"Al2O3"],mg.Wm_FeOT(melt_wf,species),setup.loc[run,"MnO"],setup.loc[run,"MgO"],setup.loc[run,"CaO"],setup.loc[run,"Na2O"],setup.loc[run,"K2O"],setup.loc[run,"P2O5"],xg_O2_,xg_CO_,xg_CO2_,xg_H2_,xg_H2O_,xg_CH4_,xg_S2_,xg_SO2_,xg_SO3_,xg_H2S_,xg_OCS_,Xg_t,
                xm_CO2_,xm_H2O_,xm_H2Omol_,xm_OH_,xm_H2_,Xm_t,Xm_t_ox,
                wm_CO2_,wm_H2O_,wm_H2Omol_,wm_OH_,wm_H2_,wm_S_,wm_SO3_,wm_ST_,Fe3T,S6T,
-               mg.fO22Dbuffer(PT,fO2_,"FMQ"),mg.fO22Dbuffer(PT,fO2_,"NNO"),SCSS_,sulphide_sat,SCAS_,sulphate_sat,
+               mg.fO22Dbuffer(PT,fO2_,"FMQ"),mg.fO22Dbuffer(PT,fO2_,"NNO"),SCSS_,sulfide_sat,SCAS_,sulfate_sat,
                wt_g,"SORT",wt_C,wt_H,wt_S,
 fO2_,mg.f_H2(PT,melt_wf,species,models),mg.f_H2O(PT,melt_wf,species,models),mg.f_S2(PT,melt_wf,species,models),mg.f_SO2(PT,melt_wf,species,models),mg.f_SO3(PT,melt_wf,species,models),mg.f_H2S(PT,melt_wf,species,models),mg.f_CO2(PT,melt_wf,species,models),mg.f_CO(PT,melt_wf,species,models),mg.f_CH4(PT,melt_wf,species,models),mg.f_OCS(PT,melt_wf,species,models),
 mg.y_O2(PT,species,models),mg.y_H2(PT,species,models),mg.y_H2O(PT,species,models),mg.y_S2(PT,species,models),mg.y_SO2(PT,species,models),mg.y_SO3(PT,species,models),mdv.y_H2S(PT,species,models),mg.y_CO2(PT,species,models),mg.y_CO(PT,species,models),mg.y_CH4(PT,species,models),mg.y_OCS(PT,species,models),
@@ -999,6 +1155,10 @@ def fO2_SSA_output(first_row,last_row,setup,species,models):
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
+        
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
+
         PT={"T":setup.loc[run,"T_C"], "P":setup.loc[run,"P_bar"]}
         melt_wf = {'CO2':setup.loc[run,"CO2ppm"]/1000000.,"H2OT":setup.loc[run,"H2O"]/100.,"Fe3FeT":0.}
         
@@ -1038,6 +1198,10 @@ def S_given_T_P_fO2_C_H_output(first_row,last_row,setup,species,models,nr_step,n
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
+        
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
+
         PT={"T":setup.loc[run,"T_C"], "P":setup.loc[run,"P_bar"]}
         melt_wf = {'CO2':setup.loc[run,"CO2ppm"]/1000000.,"H2OT":setup.loc[run,"H2O"]/100.}
         melt_wf["CT"] = (melt_wf["CO2"]*species.loc['C','M'])/species.loc['CO2','M']
@@ -1109,6 +1273,9 @@ def cooling(run,cooling_inputs,setup,species,models):
     if models.loc["print status","option"] == "yes":
         print(setup.loc[run,"Sample"])
     
+    # check if any options need to be read from the setup file rather than the models file
+    models = options_from_setup(run,models,setup)
+
     # set T, volatile composition of the melt, and tolerances
     PT={"P":setup.loc[run,"P_bar"]}
     PT["T"]=setup.loc[run,"T_C"]
@@ -1120,7 +1287,7 @@ def cooling(run,cooling_inputs,setup,species,models):
     dt_step = cooling_inputs["dt_step"]
     psat_tol = cooling_inputs["psat_tol"]
         
-    # Calculate S and Fe composition at initial T and check for sulphur saturation
+    # Calculate S and Fe composition at initial T and check for sulfur saturation
     melt_wf["Fe3FeT"] = mg.Fe3FeT_i(run,PT,melt_wf,setup,species,models)
     Fe3Fe2_ = mg.Fe3Fe2(melt_wf)
     melt_wf["CO"] = 0.
@@ -1138,7 +1305,7 @@ def cooling(run,cooling_inputs,setup,species,models):
         melt_wf["S2-"] = 0.
         melt_wf["S6+"] = 0.
     
-    SCSS_,sulphide_sat,SCAS_,sulphate_sat,ST_ = c.sulphur_saturation(run,PT,melt_wf,setup,species,models)
+    SCSS_,sulfide_sat,SCAS_,sulfate_sat,ST_ = c.sulfur_saturation(run,PT,melt_wf,setup,species,models)
     wm_S2m_ = melt_wf["S2-"]
     wm_S6p_ = melt_wf["S6+"]
     wm_SO3_ = (wm_S6p_/(species.loc["S","M"]))*(species.loc["S","M"] + 3.*species.loc["O","M"])
@@ -1171,15 +1338,15 @@ def cooling(run,cooling_inputs,setup,species,models):
     # create results table
     results_header1 = pd.DataFrame([["System","run","Sample","H2O (mwf)","CO2 (mwf)","ST (mwf)","Fe3FeT","S6ST","O (twf)","C (twf)","H (wtf)","S (twf)","Fe (twf)",
 "SiO2 (wt%)","TiO2 (wt%)","Al2O3 (wt%)","FeOT (wt%)","MnO (wt%)","MgO (wt%)","CaO (wt%)","Na2O (wt%)","K2O (wt%)","P2O5 (wt%)",
-"oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphate solubility","ideal gas","carbonylsulphide","bulk composition","equilibrate Fe","starting pressure","gassing direction","gassing style","mass_volume","crystallisation","isotopes","Date"]])
+"oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","ideal gas","carbonylsulfide","bulk composition","equilibrate Fe","starting pressure","gassing direction","gassing style","mass_volume","crystallisation","isotopes","Date"]])
     results_header2 = pd.DataFrame([[system,run,setup.loc[run,"Sample"],melt_wf["H2OT"],melt_wf["CO2"],melt_wf["ST"],melt_wf["Fe3FeT"],"SORT",bulk_wf["O"],bulk_wf["C"],bulk_wf["H"],bulk_wf["S"],bulk_wf["Fe"],
 setup.loc[run,"SiO2"],setup.loc[run,"TiO2"],setup.loc[run,"Al2O3"],mg.Wm_FeOT(run,setup,species),setup.loc[run,"MnO"],setup.loc[run,"MgO"],setup.loc[run,"CaO"],setup.loc[run,"Na2O"],setup.loc[run,"K2O"],setup.loc[run,"P2O5"],
-models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulphide","option"],models.loc["sulphate","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulphide","option"],models.loc["bulk_composition","option"],models.loc["eq_Fe","option"],models.loc["starting_P","option"],models.loc["gassing_direction","option"],models.loc["gassing_style","option"],models.loc["mass_volume","option"],models.loc["crystallisation","option"],models.loc["isotopes","option"],date.today()]])
+models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["bulk_composition","option"],models.loc["eq_Fe","option"],models.loc["starting_P","option"],models.loc["gassing_direction","option"],models.loc["gassing_style","option"],models.loc["mass_volume","option"],models.loc["crystallisation","option"],models.loc["isotopes","option"],date.today()]])
     results_header = pd.concat([results_header1, results_header2], ignore_index=True)
     results_chemistry1 = pd.DataFrame([["P","T('C)","xg_O2","xg_CO","xg_CO2","xg_H2","xg_H2O","xg_CH4","xg_S2","xg_SO2","xg_H2S","xg_OCS","Xg_t",
                "xm_CO2","xm_H2O","Xm_t_SO","Xm_t_ox",
                "wm_CO2","wm_H2O","wm_H2","wm_CO","wm_CH4","wm_S","wm_SO3","wm_H2S","wm_ST","Fe32","Fe3T","S62","S6T",
-               "DFMQ","DNNO","SCSS","sulphide sat?","SCAS","sulphate sat?","wt_g","wt_g_O","wt_g_C","wt_g_H","wt_g_S","wt_O","wt_C","wt_H","wt_S",
+               "DFMQ","DNNO","SCSS","sulfide sat?","SCAS","sulfate sat?","wt_g","wt_g_O","wt_g_C","wt_g_H","wt_g_S","wt_O","wt_C","wt_H","wt_S",
                "fO2","fH2","fH2O","fS2","fSO2","fH2S","fCO2","fCO","fCH4","fOCS",
                "yO2","yH2","yH2O","yS2","ySO2","yH2S","yCO2","yCO","yCH4","yOCS",
                "M_m_SO","M_m_ox","C_H2O","C_H2","C_CO3","C_CO","C_CH4","C_S","C_SO4","C_H2S",
@@ -1188,7 +1355,7 @@ models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Csp
     results1 = pd.DataFrame([[PT["P"],PT["T"],mg.xg_O2(run,PT,melt_wf,setup,species,models),mg.xg_CO(run,PT,melt_wf,setup,species,models),mg.xg_CO2(run,PT,melt_wf,setup,species,models),mg.xg_H2(run,PT,melt_wf,setup,species,models),mg.xg_H2O(run,PT,melt_wf,setup,species,models),mg.xg_CH4(run,PT,melt_wf,setup,species,models),mg.xg_S2(run,PT,melt_wf,setup,species,models),mg.xg_SO2(run,PT,melt_wf,setup,species,models),mg.xg_H2S(run,PT,melt_wf,setup,species,models),mg.xg_OCS(run,PT,melt_wf,setup,species,models),mg.Xg_tot(run,PT,melt_wf,setup,species,models),
 mg.xm_CO2_so(run,melt_wf,setup,species),mg.xm_H2OT_so(run,melt_wf,setup,species),mg.Xm_t_so(run,melt_wf,setup,species),mg.Xm_t_ox(run,melt_wf,setup,species),
 melt_wf["CO2"],melt_wf["H2OT"],wm_H2_,wm_CO_,wm_CH4_,wm_S2m_,wm_SO3_,wm_H2S_,melt_wf["ST"],mg.Fe3Fe2(melt_wf),melt_wf["Fe3FeT"],mg.S6S2(run,PT,melt_wf,setup,species,models),mg.S6ST(run,PT,melt_wf,setup,species,models),
-mg.fO22Dbuffer(PT,mdv.f_O2(run,PT,melt_wf,setup,species,models),"FMQ",models),mg.fO22Dbuffer(PT,mdv.f_O2(run,PT,melt_wf,setup,species,models),"NNO",models),SCSS_,sulphide_sat,SCAS_,sulphate_sat,wt_g_,"","","","",
+mg.fO22Dbuffer(PT,mdv.f_O2(run,PT,melt_wf,setup,species,models),"FMQ",models),mg.fO22Dbuffer(PT,mdv.f_O2(run,PT,melt_wf,setup,species,models),"NNO",models),SCSS_,sulfide_sat,SCAS_,sulfate_sat,wt_g_,"","","","",
 bulk_wf["O"],bulk_wf["C"],bulk_wf["H"],bulk_wf["S"],
 mdv.f_O2(run,PT,melt_wf,setup,species,models),mg.f_H2(run,PT,melt_wf,setup,species,models),mg.f_H2O(run,PT,melt_wf,setup,species,models),mg.f_S2(run,PT,melt_wf,setup,species,models),mg.f_SO2(run,PT,melt_wf,setup,species,models),mg.f_H2S(run,PT,melt_wf,setup,species,models),mg.f_CO2(run,PT,melt_wf,setup,species,models),mg.f_CO(run,PT,melt_wf,setup,species,models),mg.f_CH4(run,PT,melt_wf,setup,species,models),mg.f_OCS(run,PT,melt_wf,setup,species,models),
 mdv.y_O2(PT,species,models),mdv.y_H2(PT,species,models),mdv.y_H2O(PT,species,models),mdv.y_S2(PT,species,models),mdv.y_SO2(PT,species,models),mdv.y_SO3(PT,species,models),mdv.y_H2S(PT,species,models),mdv.y_CO2(PT,species,models),mdv.y_CO(PT,species,models),mdv.y_CH4(PT,species,models),mdv.y_OCS(PT,species,models),
@@ -1241,12 +1408,12 @@ mg.KD1(run,PT,setup,species,models),mdv.KHOg(PT,models),mdv.KHOm(run,PT,melt_wf,
         wm_S_ = wt_S*(1.-S6T)
         wm_SO3_ = ((wt_S*S6T)/species.loc["S","M"])*species.loc["SO3","M"]
     
-        # check for sulphur saturation and display warning in outputs
-        SCSS_,sulphide_sat,SCAS_,sulphate_sat, ST_ = sulphur_saturation(run,PT,melt_wf,setup,species,models)
-        if sulphide_sat == "yes":
-            warning = "WARNING: sulphide-saturated"
-        elif sulphate_sat == "yes":
-            warning = "WARNING: sulphate-saturated"
+        # check for sulfur saturation and display warning in outputs
+        SCSS_,sulfide_sat,SCAS_,sulfate_sat, ST_ = sulfur_saturation(run,PT,melt_wf,setup,species,models)
+        if sulfide_sat == "yes":
+            warning = "WARNING: sulfide-saturated"
+        elif sulfate_sat == "yes":
+            warning = "WARNING: sulfate-saturated"
         else:
             warning = ""
         
@@ -1271,7 +1438,7 @@ mg.KD1(run,PT,setup,species,models),mdv.KHOg(PT,models),mdv.KHOm(run,PT,melt_wf,
         results2 = pd.DataFrame([[PT["P"],PT["T"],xg_O2_,xg_CO_,xg_CO2_,xg_H2_,xg_H2O_,xg_CH4_,xg_S2_,xg_SO2_,xg_H2S_,xg_OCS_,Xg_t,
                "","","","",
                wm_CO2_,wm_H2O_,wm_H2_,wm_CO_,wm_CH4_,wm_S_,wm_SO3_,wm_H2S_,wm_ST_,Fe32,Fe3T,S62,S6T,
-               mg.fO22Dbuffer(PT,fO2_,"FMQ",models),mg.fO22Dbuffer(PT,fO2_,"NNO",models),SCSS_,sulphide_sat,SCAS_,sulphate_sat,
+               mg.fO22Dbuffer(PT,fO2_,"FMQ",models),mg.fO22Dbuffer(PT,fO2_,"NNO",models),SCSS_,sulfide_sat,SCAS_,sulfate_sat,
                wt_g,wt_g_O,wt_g_C,wt_g_H,wt_g_S,wt_O_,wt_C_,wt_H_,wt_S_,
 fO2_,mg.f_H2(run,PT,melt_wf,setup,species,models),mg.f_H2O(run,PT,melt_wf,setup,species,models),mg.f_S2(run,PT,melt_wf,setup,species,models),mg.f_SO2(run,PT,melt_wf,setup,species,models),mg.f_SO3(run,PT,melt_wf,setup,species,models),mg.f_H2S(run,PT,melt_wf,setup,species,models),mg.f_CO2(run,PT,melt_wf,setup,species,models),mg.f_CO(run,PT,melt_wf,setup,species,models),mg.f_CH4(run,PT,melt_wf,setup,species,models),mg.f_OCS(run,PT,melt_wf,setup,species,models),
 mg.y_O2(PT,species,models),mg.y_H2(PT,species,models),mg.y_H2O(PT,species,models),mg.y_S2(PT,species,models),mg.y_SO2(PT,species,models),mg.y_SO3(PT,species,models),mdv.y_H2S(PT,species,models),mg.y_CO2(PT,species,models),mg.y_CO(PT,species,models),mg.y_CH4(PT,species,models),mg.y_OCS(PT,species,models),
@@ -1287,6 +1454,9 @@ def titratingS(run,cooling_inputs,setup,species,models):
     if models.loc["print status","option"] == "yes":
         print(setup.loc[run,"Sample"])
     
+    # check if any options need to be read from the setup file rather than the models file
+    models = options_from_setup(run,models,setup)
+
     # set T, volatile composition of the melt, and tolerances
     PT={"P":setup.loc[run,"P_bar"]}
     PT["T"]=setup.loc[run,"T_C"]
@@ -1298,7 +1468,7 @@ def titratingS(run,cooling_inputs,setup,species,models):
     dt_step = cooling_inputs["dt_step"]
     psat_tol = cooling_inputs["psat_tol"]
         
-    # Calculate S and Fe composition at initial T and check for sulphur saturation
+    # Calculate S and Fe composition at initial T and check for sulfur saturation
     melt_wf["Fe3FeT"] = mg.Fe3FeT_i(run,PT,melt_wf,setup,species,models)
     Fe3Fe2_ = mg.Fe3Fe2(melt_wf)
     melt_wf["CO"] = 0.
@@ -1309,7 +1479,7 @@ def titratingS(run,cooling_inputs,setup,species,models):
     melt_wf["S2-"] = 0.
     melt_wf["S6+"] = 0.
     
-    SCSS_,sulphide_sat,SCAS_,sulphate_sat,ST_ = sulphur_saturation(run,PT,melt_wf,setup,species,models)
+    SCSS_,sulfide_sat,SCAS_,sulfate_sat,ST_ = sulfur_saturation(run,PT,melt_wf,setup,species,models)
     wm_S2m_ = melt_wf["S2-"]
     wm_S6p_ = melt_wf["S6+"]
     wm_SO3_ = (wm_S6p_/(species.loc["S","M"]))*(species.loc["S","M"] + 3.*species.loc["O","M"])
@@ -1353,15 +1523,15 @@ def titratingS(run,cooling_inputs,setup,species,models):
     # create results table
     results_header1 = pd.DataFrame([["System","run","Sample","H2O (mwf)","CO2 (mwf)","ST (mwf)","Fe3FeT","S6ST","O (twf)","C (twf)","H (wtf)","S (twf)","Fe (twf)",
 "SiO2 (wt%)","TiO2 (wt%)","Al2O3 (wt%)","FeOT (wt%)","MnO (wt%)","MgO (wt%)","CaO (wt%)","Na2O (wt%)","K2O (wt%)","P2O5 (wt%)",
-"oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphate solubility","ideal gas","carbonylsulphide","bulk composition","equilibrate Fe","starting pressure","gassing direction","gassing style","mass_volume","crystallisation","isotopes","Date"]])
+"oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","ideal gas","carbonylsulfide","bulk composition","equilibrate Fe","starting pressure","gassing direction","gassing style","mass_volume","crystallisation","isotopes","Date"]])
     results_header2 = pd.DataFrame([[system,run,setup.loc[run,"Sample"],melt_wf["H2OT"],melt_wf["CO2"],melt_wf["ST"],melt_wf["Fe3FeT"],"SORT",bulk_wf["O"],bulk_wf["C"],bulk_wf["H"],bulk_wf["S"],bulk_wf["Fe"],
 setup.loc[run,"SiO2"],setup.loc[run,"TiO2"],setup.loc[run,"Al2O3"],mg.Wm_FeOT(run,setup,species),setup.loc[run,"MnO"],setup.loc[run,"MgO"],setup.loc[run,"CaO"],setup.loc[run,"Na2O"],setup.loc[run,"K2O"],setup.loc[run,"P2O5"],
-models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulphide","option"],models.loc["sulphate","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulphide","option"],models.loc["bulk_composition","option"],models.loc["eq_Fe","option"],models.loc["starting_P","option"],models.loc["gassing_direction","option"],models.loc["gassing_style","option"],models.loc["mass_volume","option"],models.loc["crystallisation","option"],models.loc["isotopes","option"],date.today()]])
+models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["bulk_composition","option"],models.loc["eq_Fe","option"],models.loc["starting_P","option"],models.loc["gassing_direction","option"],models.loc["gassing_style","option"],models.loc["mass_volume","option"],models.loc["crystallisation","option"],models.loc["isotopes","option"],date.today()]])
     results_header = pd.concat([results_header1, results_header2], ignore_index=True)
     results_chemistry1 = pd.DataFrame([["P","T('C)","xg_O2","xg_CO","xg_CO2","xg_H2","xg_H2O","xg_CH4","xg_S2","xg_SO2","xg_H2S","xg_OCS","Xg_t",
                "xm_CO2","xm_H2O","Xm_t_SO","Xm_t_ox",
                "wm_CO2","wm_H2O","wm_H2","wm_CO","wm_CH4","wm_S","wm_SO3","wm_H2S","wm_ST","Fe32","Fe3T","S62","S6T",
-               "DFMQ","DNNO","SCSS","sulphide sat?","SCAS","sulphate sat?","wt_g","wt_g_O","wt_g_C","wt_g_H","wt_g_S","wt_O","wt_C","wt_H","wt_S",
+               "DFMQ","DNNO","SCSS","sulfide sat?","SCAS","sulfate sat?","wt_g","wt_g_O","wt_g_C","wt_g_H","wt_g_S","wt_O","wt_C","wt_H","wt_S",
                "fO2","fH2","fH2O","fS2","fSO2","fSO3","fH2S","fCO2","fCO","fCH4","fOCS",
                "yO2","yH2","yH2O","yS2","ySO2","ySO3","yH2S","yCO2","yCO","yCH4","yOCS",
                "M_m_SO","M_m_ox","C_H2O","C_H2","C_CO3","C_CO","C_CH4","C_S","C_SO4","C_H2S",
@@ -1370,7 +1540,7 @@ models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Csp
     results1 = pd.DataFrame([[PT["P"],PT["T"],mg.xg_O2(run,PT,melt_wf,setup,species,models),mg.xg_CO(run,PT,melt_wf,setup,species,models),mg.xg_CO2(run,PT,melt_wf,setup,species,models),mg.xg_H2(run,PT,melt_wf,setup,species,models),mg.xg_H2O(run,PT,melt_wf,setup,species,models),mg.xg_CH4(run,PT,melt_wf,setup,species,models),mg.xg_S2(run,PT,melt_wf,setup,species,models),mg.xg_SO2(run,PT,melt_wf,setup,species,models),mg.xg_H2S(run,PT,melt_wf,setup,species,models),mg.xg_OCS(run,PT,melt_wf,setup,species,models),mg.Xg_tot(run,PT,melt_wf,setup,species,models),
 mg.xm_CO2_so(run,melt_wf,setup,species),mg.xm_H2OT_so(run,melt_wf,setup,species),mg.Xm_t_so(run,melt_wf,setup,species),mg.Xm_t_ox(run,melt_wf,setup,species),
 melt_wf["CO2"],melt_wf["H2OT"],wm_H2_,wm_CO_,wm_CH4_,wm_S2m_,wm_SO3_,wm_H2S_,melt_wf["ST"],mg.Fe3Fe2(melt_wf),melt_wf["Fe3FeT"],mg.S6S2(run,PT,melt_wf,setup,species,models),mg.S6ST(run,PT,melt_wf,setup,species,models),
-mg.fO22Dbuffer(PT,mdv.f_O2(run,PT,melt_wf,setup,species,models),"FMQ",models),mg.fO22Dbuffer(PT,mdv.f_O2(run,PT,melt_wf,setup,species,models),"NNO",models),SCSS_,sulphide_sat,SCAS_,sulphate_sat,wt_g_,"","","","",
+mg.fO22Dbuffer(PT,mdv.f_O2(run,PT,melt_wf,setup,species,models),"FMQ",models),mg.fO22Dbuffer(PT,mdv.f_O2(run,PT,melt_wf,setup,species,models),"NNO",models),SCSS_,sulfide_sat,SCAS_,sulfate_sat,wt_g_,"","","","",
 bulk_wf["O"],bulk_wf["C"],bulk_wf["H"],bulk_wf["S"],
 mdv.f_O2(run,PT,melt_wf,setup,species,models),mg.f_H2(run,PT,melt_wf,setup,species,models),mg.f_H2O(run,PT,melt_wf,setup,species,models),mg.f_S2(run,PT,melt_wf,setup,species,models),mg.f_SO2(run,PT,melt_wf,setup,species,models),mg.f_SO3(run,PT,melt_wf,setup,species,models),mg.f_H2S(run,PT,melt_wf,setup,species,models),mg.f_CO2(run,PT,melt_wf,setup,species,models),mg.f_CO(run,PT,melt_wf,setup,species,models),mg.f_CH4(run,PT,melt_wf,setup,species,models),mg.f_OCS(run,PT,melt_wf,setup,species,models),
 mg.y_O2(PT,species,models),mg.y_H2(PT,species,models),mg.y_H2O(PT,species,models),mg.y_S2(PT,species,models),mg.y_SO2(PT,species,models),mg.y_SO3(PT,species,models),mdv.y_H2S(PT,species,models),mg.y_CO2(PT,species,models),mg.y_CO(PT,species,models),mg.y_CH4(PT,species,models),mg.y_OCS(PT,species,models),
@@ -1416,12 +1586,12 @@ mg.KD1(run,PT,setup,species,models),mg.KHOg(PT,models),mg.KHOm(run,PT,melt_wf,se
             xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, Xg_t, xm_H2O_, xm_CO2_, Xm_t, Xm_t_ox, wm_H2O_, wm_H2_, wm_CO2_, wm_CO_, wm_CH4_, wm_S_, wm_SO3_, wm_H2S_, wm_ST_, Fe32, Fe3T, S62, S6T, wt_g_O, wt_g_C, wt_g_H, wt_g_S, wt_g, wt_O_, wt_C_, wt_H_, wt_S_, guessx, guessy, guessz, guessw = eq.mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,species,models,nr_step,nr_tol,guessx,guessy,guessz,guessw)
             melt_wf["Fe3FeT"] = Fe3T
         
-        # check for sulphur saturation and display warning in outputs
-        SCSS_,sulphide_sat,SCAS_,sulphate_sat, ST_ = sulphur_saturation(run,PT,melt_wf,setup,species,models)
-        if sulphide_sat == "yes":
-            warning = "WARNING: sulphide-saturated"
-        elif sulphate_sat == "yes":
-            warning = "WARNING: sulphate-saturated"
+        # check for sulfur saturation and display warning in outputs
+        SCSS_,sulfide_sat,SCAS_,sulfate_sat, ST_ = sulfur_saturation(run,PT,melt_wf,setup,species,models)
+        if sulfide_sat == "yes":
+            warning = "WARNING: sulfide-saturated"
+        elif sulfate_sat == "yes":
+            warning = "WARNING: sulfate-saturated"
         else:
             warning = ""
         
@@ -1441,7 +1611,7 @@ mg.KD1(run,PT,setup,species,models),mg.KHOg(PT,models),mg.KHOm(run,PT,melt_wf,se
         results2 = pd.DataFrame([[PT["P"],PT["T"],xg_O2_,xg_CO_,xg_CO2_,xg_H2_,xg_H2O_,xg_CH4_,xg_S2_,xg_SO2_,xg_H2S_,xg_OCS_,Xg_t,
                "","","","",
                wm_CO2_,wm_H2O_,wm_H2_,wm_CO_,wm_CH4_,wm_S_,wm_SO3_,wm_H2S_,wm_ST_,Fe32,Fe3T,S62,S6T,
-               mg.fO22Dbuffer(PT,fO2_,"FMQ",models),mg.fO22Dbuffer(PT,fO2_,"NNO",models),SCSS_,sulphide_sat,SCAS_,sulphate_sat,
+               mg.fO22Dbuffer(PT,fO2_,"FMQ",models),mg.fO22Dbuffer(PT,fO2_,"NNO",models),SCSS_,sulfide_sat,SCAS_,sulfate_sat,
                wt_g,wt_g_O,wt_g_C,wt_g_H,wt_g_S,wt_O_,wt_C_,wt_H_,wt_S_,
 fO2_,mg.f_H2(run,PT,melt_wf,setup,species,models),mg.f_H2O(run,PT,melt_wf,setup,species,models),mg.f_S2(run,PT,melt_wf,setup,species,models),mg.f_SO2(run,PT,melt_wf,setup,species,models),mg.f_SO3(run,PT,melt_wf,setup,species,models),mg.f_H2S(run,PT,melt_wf,setup,species,models),mg.f_CO2(run,PT,melt_wf,setup,species,models),mg.f_CO(run,PT,melt_wf,setup,species,models),mg.f_CH4(run,PT,melt_wf,setup,species,models),mg.f_OCS(run,PT,melt_wf,setup,species,models),
 mg.y_O2(PT,species,models),mg.y_H2(PT,species,models),mg.y_H2O(PT,species,models),mg.y_S2(PT,species,models),mg.y_SO2(PT,species,models),mg.y_SO3(PT,species,models),mdv.y_H2S(PT,species,models),mg.y_CO2(PT,species,models),mg.y_CO(PT,species,models),mg.y_CH4(PT,species,models),mg.y_OCS(PT,species,models),
@@ -1470,8 +1640,8 @@ def Xpc_S_degassed(first_row,last_row,inputs,setup,species,models):
     dp_step = inputs["dp_step"]
     
     # create results table
-    results_header1 = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphate solubility","ideal gas","carbonylsulphide","bulk composition","equilibrate Fe","starting pressure","gassing direction","gassing style","mass_volume","crystallisation","isotopes","Date"]])
-    results_header2 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulphide","option"],models.loc["sulphate","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulphide","option"],models.loc["bulk_composition","option"],models.loc["eq_Fe","option"],models.loc["starting_P","option"],models.loc["gassing_direction","option"],models.loc["gassing_style","option"],models.loc["mass_volume","option"],models.loc["crystallisation","option"],models.loc["isotopes","option"],date.today()]])
+    results_header1 = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","ideal gas","carbonylsulfide","bulk composition","equilibrate Fe","starting pressure","gassing direction","gassing style","mass_volume","crystallisation","isotopes","Date"]])
+    results_header2 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["bulk_composition","option"],models.loc["eq_Fe","option"],models.loc["starting_P","option"],models.loc["gassing_direction","option"],models.loc["gassing_style","option"],models.loc["mass_volume","option"],models.loc["crystallisation","option"],models.loc["isotopes","option"],date.today()]])
     results_header = pd.concat([results_header1, results_header2], ignore_index=True)
     results_chemistry1 = pd.DataFrame([["run","Sample","% S degassed","initial fO2 (DFMQ)","H2O (wt%)","CO2 (ppm)","ST (ppm)","X (ppm)","Fe3FeT","S6ST","O (twf)","C (twf)","H (wtf)","S (twf)","Fe (twf)","Saturation P (bars)",
 "SiO2 (wt%)","TiO2 (wt%)","Al2O3 (wt%)","FeOT (wt%)","MnO (wt%)","MgO (wt%)","CaO (wt%)","Na2O (wt%)","K2O (wt%)","P2O5 (wt%)","P","T('C)","xg_O2","xg_CO","xg_CO2","xg_H2","xg_H2O","xg_CH4","xg_S2","xg_SO2","xg_H2S","xg_OCS","xg_X","Xg_t","xg_CS",
@@ -1483,6 +1653,10 @@ def Xpc_S_degassed(first_row,last_row,inputs,setup,species,models):
     
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
+        
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
+
         # set T, volatile composition of the melt, and tolerances
         PT={"T":setup.loc[run,"T_C"]}
         melt_wf = {'CO2':setup.loc[run,"CO2ppm"]/1000000.,"H2OT":setup.loc[run,"H2O"]/100.,"ST":setup.loc[run,"STppm"]/1000000.,"H2":0.,"XT":setup.loc[run,"Xppm"]/1000000.}
@@ -1498,7 +1672,7 @@ def Xpc_S_degassed(first_row,last_row,inputs,setup,species,models):
         wm_SO3_ = (wm_S6p_*species.loc["SO3","M"])/species.loc["S","M"]
         PT["P"] = P_sat_
 
-        # update melt composition at saturation pressure and check for sulphur saturation
+        # update melt composition at saturation pressure and check for sulfur saturation
         melt_wf["H2OT"] = wm_H2O_
         melt_wf["CO2"] = wm_CO2_
         melt_wf["CO"] = wm_CO_
@@ -1617,12 +1791,12 @@ def Xpc_S_degassed(first_row,last_row,inputs,setup,species,models):
         if P_sat_ < PT["P"]:  
             wt_C_, wt_O_, wt_H_, wt_S_, wt_X_, wt_Fe, wt_g_, Wt_ = c.bulk_composition(run,PT,melt_wf,setup,species,models)
     
-        # check for sulphur saturation and display warning in outputs
-        SCSS_,sulphide_sat,SCAS_,sulphate_sat, ST_ = c.sulphur_saturation(run,PT,melt_wf,setup,species,models)
-        if sulphide_sat == "yes":
-            warning = "WARNING: sulphide-saturated"
-        elif sulphate_sat == "yes":
-            warning = "WARNING: sulphate-saturated"
+        # check for sulfur saturation and display warning in outputs
+        SCSS_,sulfide_sat,SCAS_,sulfate_sat, ST_ = c.sulfur_saturation(run,PT,melt_wf,setup,species,models)
+        if sulfide_sat == "yes":
+            warning = "WARNING: sulfide-saturated"
+        elif sulfate_sat == "yes":
+            warning = "WARNING: sulfate-saturated"
         else:
             warning = ""
         
@@ -1670,8 +1844,8 @@ def fO2_at_1bar(first_row,last_row,inputs,setup,species,models):
     dp_step = inputs["dp_step"]
     
     # create results table
-    results_header1 = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphate solubility","ideal gas","carbonylsulphide","bulk composition","equilibrate Fe","starting pressure","gassing direction","gassing style","mass_volume","crystallisation","isotopes","Date"]])
-    results_header2 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulphide","option"],models.loc["sulphate","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulphide","option"],models.loc["bulk_composition","option"],models.loc["eq_Fe","option"],models.loc["starting_P","option"],models.loc["gassing_direction","option"],models.loc["gassing_style","option"],models.loc["mass_volume","option"],models.loc["crystallisation","option"],models.loc["isotopes","option"],date.today()]])
+    results_header1 = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","ideal gas","carbonylsulfide","bulk composition","equilibrate Fe","starting pressure","gassing direction","gassing style","mass_volume","crystallisation","isotopes","Date"]])
+    results_header2 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["bulk_composition","option"],models.loc["eq_Fe","option"],models.loc["starting_P","option"],models.loc["gassing_direction","option"],models.loc["gassing_style","option"],models.loc["mass_volume","option"],models.loc["crystallisation","option"],models.loc["isotopes","option"],date.today()]])
     results_header = pd.concat([results_header1, results_header2], ignore_index=True)
     results_chemistry1 = pd.DataFrame([["run","Sample","initial fO2 (DFMQ)","H2O (wt%)","CO2 (ppm)","ST (ppm)","X (ppm)","Fe3FeT","S6ST","O (twf)","C (twf)","H (wtf)","S (twf)","Fe (twf)","Saturation P (bars)",
 "SiO2 (wt%)","TiO2 (wt%)","Al2O3 (wt%)","FeOT (wt%)","MnO (wt%)","MgO (wt%)","CaO (wt%)","Na2O (wt%)","K2O (wt%)","P2O5 (wt%)","P","T('C)","xg_O2","xg_CO","xg_CO2","xg_H2","xg_H2O","xg_CH4","xg_S2","xg_SO2","xg_H2S","xg_OCS","xg_X","Xg_t","xg_CS",
@@ -1685,6 +1859,10 @@ def fO2_at_1bar(first_row,last_row,inputs,setup,species,models):
     
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
+        
+        # check if any options need to be read from the setup file rather than the models file
+        models = options_from_setup(run,models,setup)
+
         # set T, volatile composition of the melt, and tolerances
         PT={"T":setup.loc[run,"T_C"]}
         melt_wf = {'CO2':setup.loc[run,"CO2ppm"]/1000000.,"H2OT":setup.loc[run,"H2O"]/100.,"ST":setup.loc[run,"STppm"]/1000000.,"H2":0.,"XT":setup.loc[run,"Xppm"]/1000000.}
@@ -1700,7 +1878,7 @@ def fO2_at_1bar(first_row,last_row,inputs,setup,species,models):
         wm_SO3_ = (wm_S6p_*species.loc["SO3","M"])/species.loc["S","M"]
         PT["P"] = P_sat_
 
-        # update melt composition at saturation pressure and check for sulphur saturation
+        # update melt composition at saturation pressure and check for sulfur saturation
         melt_wf["H2OT"] = wm_H2O_
         melt_wf["CO2"] = wm_CO2_
         melt_wf["CO"] = wm_CO_
@@ -1795,12 +1973,12 @@ def fO2_at_1bar(first_row,last_row,inputs,setup,species,models):
                 if P_sat_ < PT["P"]:  
                     wt_C_, wt_O_, wt_H_, wt_S_, wt_X_, wt_Fe, wt_g_, Wt_ = c.bulk_composition(run,PT,melt_wf,setup,species,models)
     
-                # check for sulphur saturation and display warning in outputs
-                SCSS_,sulphide_sat,SCAS_,sulphate_sat, ST_ = c.sulphur_saturation(run,PT,melt_wf,setup,species,models)
-                if sulphide_sat == "yes":
-                    warning = "WARNING: sulphide-saturated"
-                elif sulphate_sat == "yes":
-                    warning = "WARNING: sulphate-saturated"
+                # check for sulfur saturation and display warning in outputs
+                SCSS_,sulfide_sat,SCAS_,sulfate_sat, ST_ = c.sulfur_saturation(run,PT,melt_wf,setup,species,models)
+                if sulfide_sat == "yes":
+                    warning = "WARNING: sulfide-saturated"
+                elif sulfate_sat == "yes":
+                    warning = "WARNING: sulfate-saturated"
                 else:
                     warning = ""
         
