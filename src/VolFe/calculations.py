@@ -39,7 +39,8 @@ def P_sat(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
     melt_wf2["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)
     #wt_C, wt_O, wt_H, wt_S, wt_Fe, wt_g, Wt = bulk_composition(run,PT,melt_wf1,setup,species,models)
     #bulk_wf = {"H":wt_H,"C":wt_C,"S":wt_S}
-    ms_conc,_ms_frac= eq.melt_speciation(PT,melt_wf1,species,models,nr_step,nr_tol)
+    ms_conc = eq.melt_speciation(PT,melt_wf1,species,models,nr_step,nr_tol)
+    ms_frac = melt_species_ratios(ms_conc,species)
     melt_wf1["H2OT"] = ms_conc["wm_H2O"]
     melt_wf2["H2OT"] = ms_conc["wm_H2O"]
     melt_wf1["CO2"] = ms_conc["wm_CO2"]
@@ -60,7 +61,8 @@ def P_sat(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
         PT["P"] = guess0
         melt_wf1["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)
         melt_wf2["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)
-        ms_conc,ms_frac = eq.melt_speciation(PT,melt_wf1,species,models,nr_step,nr_tol)
+        ms_conc = eq.melt_speciation(PT,melt_wf1,species,models,nr_step,nr_tol)
+        ms_frac = melt_species_ratios(ms_conc,species)
         melt_wf1["H2OT"] = ms_conc["wm_H2O"]
         melt_wf2["H2OT"] = ms_conc["wm_H2O"]
         melt_wf1["CO2"] = ms_conc["wm_CO2"]
@@ -73,7 +75,8 @@ def P_sat(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
             melt_wf2["ST"] = ST
     else:
         P_sat = guess0
-        ms_conc,ms_frac = eq.melt_speciation(PT,melt_wf1,species,models,nr_step,nr_tol)
+        ms_conc = eq.melt_speciation(PT,melt_wf1,species,models,nr_step,nr_tol)
+        ms_frac = melt_species_ratios(ms_conc,species)
         
     melt_wf["ST"] = ST
     return P_sat, ms_conc, ms_frac
@@ -239,6 +242,79 @@ def new_bulk_regas_open(PT,melt_wf,bulk_wf,gas_mf,dwtg,species,models):
     result = {"wt_C":wt_C, "wt_H":wt_H, "wt_S":wt_S, "wt_Fe":wt_Fe, "wt_O":wt_O, "wt_X":wt_X, "Wt":Wt}
     return result
 
+# calculate mole fraction of species in the cumulated gas from open-system degassing
+def gas_comp_all_open(xg,xg_all,models,species):
+    species_X = models.loc["species X","option"]
+    wt_g_before = xg_all["wt_g"]
+    wt_g_inst = xg["wt_g"]*(1.-wt_g_before)
+    wt_g_new = wt_g_before + wt_g_inst
+    f_before = wt_g_before/wt_g_new
+    f_inst = wt_g_inst/wt_g_new
+    wf_before = mg.gas_wf(xg_all,species,models)
+    wf_inst = mg.gas_wf(xg,species,models)
+    gas_wf_all_new = {"O2":wf_inst["wg_O2"]*f_inst+wf_before["wg_O2"]*f_before}
+    gas_wf_all_new["CO"] = wf_inst["wg_CO"]*f_inst+wf_before["wg_CO"]*f_before
+    gas_wf_all_new["S2"] = wf_inst["wg_S2"]*f_inst+wf_before["wg_S2"]*f_before
+    gas_wf_all_new["CO2"] = wf_inst["wg_CO2"]*f_inst+wf_before["wg_CO2"]*f_before
+    gas_wf_all_new["H2O"] = wf_inst["wg_H2O"]*f_inst+wf_before["wg_H2O"]*f_before
+    gas_wf_all_new["H2"] = wf_inst["wg_H2"]*f_inst+wf_before["wg_H2"]*f_before
+    gas_wf_all_new["CH4"] = wf_inst["wg_CH4"]*f_inst+wf_before["wg_CH4"]*f_before
+    gas_wf_all_new["SO2"] = wf_inst["wg_SO2"]*f_inst+wf_before["wg_SO2"]*f_before
+    gas_wf_all_new["H2S"] = wf_inst["wg_H2S"]*f_inst+wf_before["wg_H2S"]*f_before
+    gas_wf_all_new["OCS"] = wf_inst["wg_OCS"]*f_inst+wf_before["wg_OCS"]*f_before
+    gas_wf_all_new["X"] = wf_inst["wg_X"]*f_inst+wf_before["wg_X"]*f_before
+    tot = (gas_wf_all_new["X"]/species.loc[species_X,"M"]) + (gas_wf_all_new["OCS"]/species.loc["OCS","M"]) + (gas_wf_all_new["H2S"]/species.loc["H2S","M"]) + (gas_wf_all_new["SO2"]/species.loc["SO2","M"]) + (gas_wf_all_new["CH4"]/species.loc["CH4","M"]) + (gas_wf_all_new["H2"]/species.loc["H2","M"]) + (gas_wf_all_new["H2O"]/species.loc["H2O","M"]) + (gas_wf_all_new["CO2"]/species.loc["CO2","M"]) + (gas_wf_all_new["O2"]/species.loc["O2","M"]) + (gas_wf_all_new["CO"]/species.loc["CO","M"]) + (gas_wf_all_new["S2"]/species.loc["S2","M"])
+    gas_mf_all_new = {"O2":(gas_wf_all_new["O2"]/species.loc["O2","M"])/tot}
+    gas_mf_all_new["CO"] = (gas_wf_all_new["CO"]/species.loc["CO","M"])/tot
+    gas_mf_all_new["S2"] = (gas_wf_all_new["S2"]/species.loc["S2","M"])/tot
+    gas_mf_all_new["CO2"] = (gas_wf_all_new["CO2"]/species.loc["CO2","M"])/tot
+    gas_mf_all_new["H2O"] = (gas_wf_all_new["H2O"]/species.loc["H2O","M"])/tot
+    gas_mf_all_new["H2"] = (gas_wf_all_new["H2"]/species.loc["H2","M"])/tot
+    gas_mf_all_new["CH4"] = (gas_wf_all_new["CH4"]/species.loc["CH4","M"])/tot
+    gas_mf_all_new["SO2"] = (gas_wf_all_new["SO2"]/species.loc["SO2","M"])/tot
+    gas_mf_all_new["H2S"] = (gas_wf_all_new["H2S"]/species.loc["H2S","M"])/tot
+    gas_mf_all_new["OCS"] = (gas_wf_all_new["OCS"]/species.loc["OCS","M"])/tot
+    gas_mf_all_new["X"] = (gas_wf_all_new["X"]/species.loc[species_X,"M"])/tot
+    gas_mf_all_new["Xg_t"] = gas_mf_all_new["CO2"]*species.loc["CO2","M"] + gas_mf_all_new["CO"]*species.loc["CO","M"] + gas_mf_all_new["O2"]*species.loc["O2","M"] + gas_mf_all_new["H2O"]*species.loc["H2O","M"] + gas_mf_all_new["H2"]*species.loc["H2","M"] + gas_mf_all_new["CH4"]*species.loc["CH4","M"] + gas_mf_all_new["SO2"]*species.loc["SO2","M"] + gas_mf_all_new["S2"]*species.loc["S2","M"] + gas_mf_all_new["H2S"]*species.loc["H2S","M"] + gas_mf_all_new["OCS"]*species.loc["OCS","M"] + gas_mf_all_new["X"]*species.loc[species_X,"M"]
+    gas_mf_all_new["wt_g"] = wt_g_new
+    return gas_mf_all_new
+
+# calculate ratios of volatile species in the melt
+def melt_species_ratios(conc,species):
+    
+    M_H = species.loc['H','M']
+    M_S = species.loc['S','M']
+    M_C = species.loc['C','M']
+    M_CO = species.loc['CO','M']
+    M_H2O = species.loc['H2O','M']
+    M_H2 = species.loc['H2','M']
+    M_CO2 = species.loc['CO2','M']
+    M_CH4 = species.loc['CH4','M']
+    M_H2S = species.loc['H2S','M']
+
+    wt_H = conc["wm_H2"] + ((2.*(conc["wm_H2O"]/M_H2O))*M_H) + ((4.*(conc["wm_CH4"]/M_CH4))*M_H) + ((2.*(conc["wm_H2S"]/M_H2S))*M_H)
+    if wt_H > 0.: # contains H
+        H2_HT = conc["wm_H2"]/wt_H
+        H2O_HT = ((2.*(conc["wm_H2O"]/M_H2O))*M_H)/wt_H
+        CH4_HT = ((4.*(conc["wm_CH4"]/M_CH4))*M_H)/wt_H
+        H2S_HT = ((2.*(conc["wm_H2S"]/M_H2S))*M_H)/wt_H
+    
+    wt_C = ((conc["wm_CO"]/M_CO)*M_C) + ((conc["wm_CO2"]/M_CO2)*M_C) + ((conc["wm_CH4"]/M_CH4)*M_C)
+    if wt_C > 0.: # contains C
+        CO_CT = ((conc["wm_CO"]/M_CO)*M_C)/wt_C
+        CO2_CT = ((conc["wm_CO2"]/M_CO2)*M_C)/wt_C
+        CH4_CT = ((conc["wm_CH4"]/M_CH4)*M_C)/wt_C
+
+    wt_S = conc["wm_S2m"] + conc["wm_S6p"] + (M_S*(conc["wm_H2S"]/M_H2S))
+    if wt_S > 0.: # contains S
+        S2m_ST = conc["wm_S2m"]/wt_S
+        S6p_ST = conc["wm_S6p"]/wt_S
+        H2S_ST = (M_S*(conc["wm_H2S"]/M_H2S))/wt_S
+
+    frac = {"H2O_HT":H2O_HT, "H2_HT":H2_HT, "CH4_HT":CH4_HT, "CO2_CT":CO2_CT, "CO_CT":CO_CT, "CH4_CT":CH4_CT, "S6p_ST":S6p_ST, "S2m_ST":S2m_ST, "H2S_ST":H2S_ST, "H2S_HT":H2S_HT}
+    
+    return frac
+
 
 #########################
 ### sulphur satuation ###
@@ -308,7 +384,8 @@ def fO2_P_VSA(PT,melt_wf,species,models,nr_step,nr_tol,Ptol):
     fO2_, ST_ = fO2_S(PT,melt_wf,species,models)
     melt_wf["ST"] = ST_
     melt_wf["Fe3FeT"] = mdv.fO22Fe3FeT(fO2_,PT,melt_wf,species,models)
-    ms_conc,ms_frac = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+    ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+    ms_frac = melt_species_ratios(ms_conc,species)
     melt_wf["H2OT"] = ms_cont["wm_H2O"]
     melt_wf["CO2"] = ms_cont["wm_CO2"]
     melt_wf["S2-"] = ms_cont["wm_S2m"]
@@ -321,13 +398,15 @@ def fO2_P_VSA(PT,melt_wf,species,models,nr_step,nr_tol,Ptol):
         fO2_, ST_ = fO2_S(PT,melt_wf,species,models)
         melt_wf["ST"] = ST_
         melt_wf["Fe3FeT"] = mdv.fO22Fe3FeT(fO2_,PT,melt_wf,species,models)
-        ms_conc,ms_frac = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)         
+        ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+        ms_frac = melt_species_ratios(ms_conc,species)        
         melt_wf["H2OT"] = ms_conc["wm_H2O"]
         melt_wf["CO2"] = ms_conc["wm_CO2"]
         melt_wf["S2-"] = ms_conc["wm_S2m"]
     else:
         P_sat = guess0
-        ms_conc,ms_frac = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+        ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+        ms_frac = melt_species_ratios(ms_conc,species)
         fO2_, ST_ = fO2_S(PT,melt_wf,species,models)
         Fe3_FT = mdv.fO22Fe3FeT(fO2_,PT,melt_wf,species,models)
 
@@ -356,7 +435,8 @@ def P_VSA(PT,melt_wf,species,models,nr_step,nr_tol,Ptol):
         S6T = mg.S6ST(PT,melt_wf,species,models)
         ST_ = SCAS_/S6T
     melt_wf["ST"] = ST_
-    ms_conc,ms_frac = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+    ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+    ms_frac = melt_species_ratios(ms_conc,species)
     melt_wf["H2OT"] = ms_conc["wm_H2O"]
     melt_wf["CO2"] = ms_conc["wm_CO2"]
     melt_wf["S2-"] = ms_conc["wm_S2m"]
@@ -376,14 +456,16 @@ def P_VSA(PT,melt_wf,species,models,nr_step,nr_tol,Ptol):
             S6T = mg.S6ST(PT,melt_wf,species,models)
             ST_ = SCAS_/S6T
         melt_wf["ST"] = ST_
-        ms_conc,ms_frac = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)         
+        ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+        ms_frac = melt_species_ratios(ms_conc,species)    
         melt_wf["H2OT"] = ms_conc["wm_H2O"]
         melt_wf["CO2"] = ms_conc["wm_CO2"]
         melt_wf["S2-"] = ms_conc["wm_S2m"]
     else:
         P_sat = guess0
         melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)
-        ms_comp,ms_frac = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)  
+        ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+        ms_frac = melt_species_ratios(ms_conc,species)
     
     return P_sat,ms_conc,ms_frac
 
@@ -432,7 +514,8 @@ def P_sat_sulf_anh(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
         sulphide_sat = "no"
     else: 
         melt_wf["Fe3FeT"] = Fe3T_sulf
-        ms_conc,ms_frac = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+        ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+        ms_frac = melt_species_ratios(ms_conc,species)
         melt_wf["H2OT"] = ms_conc["wm_H2O"]
         melt_wf["CO2"] = ms_conc["wm_CO2"]
         melt_wf["S2-"] = ms_conc["wm_S2m"]
@@ -450,7 +533,8 @@ def P_sat_sulf_anh(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
                 sulphide_sat = "no"
             else: 
                 melt_wf["Fe3FeT"] = Fe3T_sulf
-                ms_conc,ms_frac = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+                ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+                ms_frac = melt_species_ratios(ms_conc,species)
                 melt_wf["H2OT"] = ms_conc["wm_H2O"]
                 melt_wf["CO2"] = ms_conc["wm_CO2"]
                 melt_wf["S2-"] = ms_conc["wm_S2m"]
@@ -467,7 +551,8 @@ def P_sat_sulf_anh(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
         anhydrite_sat = "no"
     else:  
         melt_wf["Fe3FeT"] = Fe3T_anh
-        ms_conc,ms_frac = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+        ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+        ms_frac = melt_species_ratios(ms_conc,species)
         melt_wf["H2OT"] = ms_conc["wm_H2O"]
         melt_wf["CO2"] = ms_conc["wm_CO2"]
         melt_wf["S2-"] = ms_conc["wm_S2m"]
@@ -485,7 +570,8 @@ def P_sat_sulf_anh(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
                 anhydrite_sat = "no"
             else:  
                 melt_wf["Fe3FeT"] = Fe3T_anh
-                ms_conc,ms_frac = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+                ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+                ms_frac = melt_species_ratios(ms_conc,species)
                 melt_wf["H2OT"] = ms_conc["wm_H2O"]
                 melt_wf["CO2"] = ms_conc["wm_CO2"]
                 melt_wf["S2-"] = ms_conc["wm_S2m"]
