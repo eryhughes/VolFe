@@ -27,13 +27,39 @@ import melt_gas as mg
 ###################################
 def C_H2O(PT,melt_wf,species,models):
     
+    """ 
+    Solubility constant for disolving H2O in the melt.
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions:
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+        
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition, not used but kept in case dependence on melt composition is required.
+        
+    species: pandas.DataFrame
+        Dataframe of species.csv file.
+    
+    models: pandas.DataFrame
+        Typically dataframe of models.csv file
+        Minimum requirement is dataframe with row labels of "Hspeciation" and "water" and column label of "option"
+        See models.csv for available options
+
+    Returns
+    -------
+    Solubility constant for H2O as <class 'mpfr'>
+
+    """
+
     if models.loc["Hspeciation","option"] == "none": ### C_H2O = (xmH2O)^2/fH2O ### (mole fraction)
         model = models.loc["water","option"]
-        if model == "ETN-1": # Fitted to ETN-1 and PST-9 Xm_H2OT from Lesne et al. (2011) 162:133-151
+        if model == "ETN-1" or model == "PST-9": # Fitted to ETN-1 and PST-9 from Lesne et al. (2011) 162:133-151
             C = 4.77591e-6
-        elif model == "PST-9": # Fitted to ETN-1 and PST-9 Xm_H2OT from Lesne et al. (2011) 162:133-151
-            C = 4.77591e-6
-        elif model == "VES-9": # Fitted to ETN-1 and PST-9 Xm_H2OT from Lesne et al. (2011) 162:133-151
+        elif model == "VES-9": # Fitted to VES-9 from Lesne et al. (2011) 162:133-151
             C = 5.46061e-6
         elif model == "rhyolite": # Fitted to Blank et al. (1993) and Silver et al. (1990) datasets
             C = 5.13488743E-06 
@@ -89,6 +115,36 @@ def C_H2O(PT,melt_wf,species,models):
 ### Solubility constant for carbon dioxide ###
 ##############################################
 def C_CO3(PT,melt_wf,species,models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fraction) ***except Shishkina14 - wmCO2 ppm***
+    
+    """ 
+    Solubility constant for disolving CO2 in the melt: C_CO2,T = xmCO2,T/fCO2 [all oxidised carbon - i.e., CO2mol and CO32- - as CO2,T]
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+        
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        Not normally required unless "carbon dioxide" option requires melt composition.
+        
+    species: pandas.DataFrame
+        Dataframe of species.csv file.
+    
+    models: pandas.DataFrame
+        Typically dataframe of models.csv file
+        Minimum requirement is dataframe with row label of "carbon dioxide" and column label of "option"
+        See models.csv for available options
+
+    Returns
+    -------
+    Solubility constant for CO2 as <class 'mpfr'>
+
+    """
+
     model = models.loc["carbon dioxide","option"]
 
     P = PT['P']
@@ -223,9 +279,9 @@ def C_CO3(PT,melt_wf,species,models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fract
     elif model == "scaledCsulfate": # O'Neill & Mavrogenes (2022) GCA 334:368-382 eq[12a]
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
         lnC = -8.02 + ((21100. + 44000.*Na + 18700.*Mg + 4300.*Al + 44200.*K + 35600.*Ca + 12600.*Mn + 16500.*FeT)/T_K) #CS6+ = [S6+, ppm]/fSO3 
-        Csulphate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
-        lnCsulphate = math.log(Csulphate)
-        lnC=-0.46*lnCsulphate
+        Csulfate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
+        lnCsulfate = math.log(Csulfate)
+        lnC=-0.46*lnCsulfate
         A = gp.exp(lnC)
         DV = 23.
         P0 = 1000. # bars
@@ -272,11 +328,39 @@ def C_CO3(PT,melt_wf,species,models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fract
 
 
 ########################################
-### solubility constant for sulphide ###
+### solubility constant for sulfide ###
 ########################################
 def C_S(PT,melt_wf,species,models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (weight ppm)
     
-    model = models.loc["sulphide","option"]
+    """ 
+    Solubility constant for disolving S in the melt as S2- in ppmw: C_S = wmS2-*(fO2/fS2)^0.5
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+        
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        
+    species: pandas.DataFrame
+        Dataframe of species.csv file.
+    
+    models: pandas.DataFrame
+        Typically dataframe of models.csv file
+        Minimum requirement is dataframe with row label of "sulfide" and column label of "option"
+        See models.csv for available options
+
+    Returns
+    -------
+    Solubility constant for CO2 as <class 'mpfr'>
+
+    """
+
+    model = models.loc["sulfide","option"]
     
     T = PT['T'] + 273.15 # T in K
     
@@ -312,61 +396,61 @@ def C_S(PT,melt_wf,species,models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (weight pp
 
 
 ########################################
-### solubility constant for sulphate ###
+### solubility constant for sulfate ###
 ########################################
 def C_SO4(PT,melt_wf,species,models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 ### (weight ppm)
-    model = models.loc["sulphate","option"]
+    model = models.loc["sulfate","option"]
     T = PT['T'] + 273.15 # T in Kelvin
     P = PT['P'] # P in bars
     slope = 115619.707 # slope for T-dependence for melt inclusion fits
     
     if model == "Nash19": # Nash et al. (2019) EPSL 507:187-198
         S = 1. # S6+/S2- ratio of S6+/S2- of 0.5
-        Csulphide = C_S(PT,melt_wf,species,models)
+        Csulfide = C_S(PT,melt_wf,species,models)
         A = PT_KCterm(PT,melt_wf,species,models) # P, T, compositional term from Kress & Carmicheal (1991)
         B = (8743600/T**2) - (27703/T) + 20.273 # temperature dependence from Nash et al. (2019)
         a = 0.196 # alnfO2 from Kress & Carmicheal (1991)
         F = 10**(((math.log10(S))-B)/8.)
         fO2 = math.exp(((math.log(0.5*F))-A)/a)
-        Csulphate = (S*Csulphide)/(fO2**2)
+        Csulfate = (S*Csulfide)/(fO2**2)
     elif model == "S6ST":
-        Csulphide = C_S(PT,melt_wf,species,models)
+        Csulfide = C_S(PT,melt_wf,species,models)
         fO2 = f_O2(PT,melt_wf,species,models)
         S6ST_ = melt_wf["S6ST"]
         S = overtotal2ratio(S6ST_)
-        Csulphate = (S*Csulphide)/(fO2**2)
+        Csulfate = (S*Csulfide)/(fO2**2)
     elif model == "Hawaii":
-        #Csulphate = gp.exp(30.4) # Using Brounce et al. (2017) dataset at 1200 'C
-        Csulphate = math.exp(slope*(1./T) -48.)
+        #Csulfate = gp.exp(30.4) # Using Brounce et al. (2017) dataset at 1200 'C
+        Csulfate = math.exp(slope*(1./T) -48.)
     elif model == "Etna":
-        Csulphate = math.exp(slope*(1./T) -50.15)
+        Csulfate = math.exp(slope*(1./T) -50.15)
     elif model == "Fuego":
-        Csulphate = math.exp(slope*(1./T) -48.5)
+        Csulfate = math.exp(slope*(1./T) -48.5)
     elif model == "Erta Ale":
-        Csulphate = math.exp(slope*(1./T) -45.5)
+        Csulfate = math.exp(slope*(1./T) -45.5)
     elif model == "FR54-S1":
-        Csulphate = ((67.e6)*10000.)
+        Csulfate = ((67.e6)*10000.)
     elif model == "JdF": # 1100 'C ONLY
-        Csulphate = 10.**17.
+        Csulfate = 10.**17.
     elif model == "Boulliung22nP": # Boullioung & Wood (2022) GCA 336:150-164 [eq5] - corrected!
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
         melt_comp = mg.melt_cation_proportion(melt_wf,species,"no","no")
         logCS6 = -12.948 + ((15602.*melt_comp["Ca"] + 28649.*melt_comp["Na"] - 9596.*melt_comp["Mg"] + 4194.*melt_comp["Al"] +16016.*melt_comp["Mn"] + 29244.)/T) # wt% S
-        Csulphate = (10.**logCS6)*10000. # ppm S
+        Csulfate = (10.**logCS6)*10000. # ppm S
     elif model == "Boulliung22wP": # Boullioung & Wood (2022) GCA 336:150-164 [eq5] - corrected!
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
         melt_comp = mg.melt_cation_proportion(melt_wf,species,"no","no")
         logCS6 = -12.659 + ((3692.*melt_comp["Ca"] - 7592.*melt_comp["Si"] - 13736.*melt_comp["Ti"] + 3762.*melt_comp["Al"] + 34483)/T) - (0.1*P*1.5237)/T # wt% S
-        Csulphate = (10.**logCS6)*10000. # ppm S
+        Csulfate = (10.**logCS6)*10000. # ppm S
     elif model in ["ONeill22","ONeill22dil"]: 
         if model == "ONeill22": # O'Neill & Mavrogenes (2022) GCA 334:368-382 eq[12a]
             melt_comp = mg.melt_cation_proportion(melt_wf,species,"no","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) no volatiles   
         elif model == "ONeill22dil": # O'Neill & Mavrogenes (2022) GCA 334:368-382 eq[12a]
             melt_comp = mg.melt_cation_proportion(melt_wf,species,"water","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) includes water
         lnC = -8.02 + ((21100. + 44000.*melt_comp["Na"] + 18700.*melt_comp["Mg"] + 4300.*melt_comp["Al"] + 44200.*melt_comp["K"] + 35600.*melt_comp["Ca"] + 12600.*melt_comp["Mn"] + 16500.*melt_comp["Fe2"])/T) #CS6+ = [S6+, ppm]/fSO3
-        Csulphate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
+        Csulfate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
         
-    return Csulphate
+    return Csulfate
 
 
 
@@ -479,7 +563,7 @@ def C_X(PT,melt_wf,species,models): # C_X = wmX/fX (ppm)
 #################################################################################################################################
 
 ################################################
-### sulphate content at anhydrite saturation ###
+### sulfate content at anhydrite saturation ###
 ################################################
 def SCAS(PT,melt_wf,species,models): 
     model = models.loc["SCAS","option"]
@@ -488,7 +572,7 @@ def SCAS(PT,melt_wf,species,models):
     comp = mg.melt_pysulfsat(melt_wf,species)
     
     
-    if model == "Chowdhury18": # sulphate content (ppm) at anhydrite saturation from Chowdhury & Dasgupta (2018) [T in K]
+    if model == "Chowdhury18": # sulfate content (ppm) at anhydrite saturation from Chowdhury & Dasgupta (2018) [T in K]
         # mole fraction melt composition including water but all Fe as FeOT
         melt_comp = mg.melt_mole_fraction(melt_wf,species,models,"water","no")
         tot = 100.*melt_comp["mol_tot"]
@@ -546,9 +630,9 @@ def SCAS(PT,melt_wf,species,models):
     return S6CAS
 
 ###############################################
-### sulphide content at sulphide saturation ###
+### sulfide content at sulfide saturation ###
 ###############################################
-def SCSS(PT,melt_wf,species,models): # sulphide content (ppm) at sulphide saturation from O'Neill (2020) [P in bar,T in K]
+def SCSS(PT,melt_wf,species,models): # sulfide content (ppm) at sulfide saturation from O'Neill (2020) [P in bar,T in K]
     model = models.loc["SCSS","option"]
     P_bar = PT['P']
     T = PT['T'] + 273.15
@@ -559,7 +643,7 @@ def SCSS(PT,melt_wf,species,models): # sulphide content (ppm) at sulphide satura
         R = 8.31441
         P = (1.0e-4)*P_bar # pressure in GPa
         D = (137778.0 - 91.66*T + 8.474*T*gp.log(T)) # J/mol
-        sulphide_comp = 1.0 # assumes the sulphide is pure FeS (no Ni, Cu, etc.)
+        sulfide_comp = 1.0 # assumes the sulfide is pure FeS (no Ni, Cu, etc.)
         if model == "ONeill21":
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) no volatiles
             melt_comp = mg.melt_cation_proportion(melt_wf,species,"no","yes")
@@ -569,7 +653,7 @@ def SCSS(PT,melt_wf,species,models): # sulphide content (ppm) at sulphide satura
         elif model == "ONeill21hyd":
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) and water
             melt_comp = mg.melt_cation_proportion(melt_wf,species,"water","yes")
-        lnaFeS = gp.log((1.0 - melt_comp["Fe2"])*sulphide_comp)
+        lnaFeS = gp.log((1.0 - melt_comp["Fe2"])*sulfide_comp)
         lnyFe2 = (((1.0-melt_comp["Fe2"])**2.0)*(28870.0 - 14710.0*melt_comp["Mg"] + 1960.0*melt_comp["Ca"] + 43300.0*melt_comp["Na"] + 95380.0*melt_comp["K"] - 76880.0*melt_comp["Ti"]) + (1.0-melt_comp["Fe2"])*(-62190.0*melt_comp["Si"] + 31520.0*melt_comp["Si"]**2.0))/(R*T)
         lnS = D/(R*T) + gp.log(C_S(PT,melt_wf,species,models)) - gp.log(melt_comp["Fe2"]) - lnyFe2 + lnaFeS + (-291.0*P + 351.0*gp.erf(P))/T
         SCSS = gp.exp(lnS)  
@@ -670,13 +754,13 @@ def KCOHg(PT,models):
 
 def KOCSg(PT,models): # OCS - depends on system
     T = PT['T']+273.15
-    if models.loc["carbonylsulphide","option"] == "COHS":
+    if models.loc["carbonylsulfide","option"] == "COHS":
     # OCS + H2O = CO2 + H2S
     # K = (fCO2*fH2S)/(fOCS*fH2O)
         if models.loc["KOCSg","option"] == "EVo": 
             K = gp.exp(0.482 + (16.166e-2/T) + 0.081e-3*T - (5.715e-3/T**2) - 2.224e-1*gp.log(T))
             return K
-    if models.loc["carbonylsulphide","option"] == "COS":
+    if models.loc["carbonylsulfide","option"] == "COS":
     # 2CO2 + OCS = 3CO + SO2 - 
     # K = (fCO^3*fSO2)/(fCO2^2*fOCS)    
         if models.loc["KOCSg","option"] == "Moussallam19": # Moussallam et al. (2019) EPSL 520:260-267
