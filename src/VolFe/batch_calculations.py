@@ -13,17 +13,6 @@ import isotopes as iso
 import model_dependent_variables as mdv
 import calculations as c
 
-#   results = ([[
-#                  "H2OT-eq_wtpc","CO2T-eq_ppmw","ST_ppmw","X_ppmw",
-#                  "wt_g",
-#                   "xm_CO2","xm_H2O","Xm_t_SO","Xm_t_ox",
-#              "Xg_t","xgC_S",
-#                "wt_g_O","wt_g_C","wt_g_H","wt_g_S","wt_g_X","wt_O","wt_C","wt_H","wt_S","wt_X",
-#                "Solving species",
-#                )
-
- 
-
 # building results tables
 # outputing sample name
 def results_table_sample_name(setup,run):
@@ -38,7 +27,7 @@ def results_table_melt_comp_etc(PT,melt_comp,conc,frac,melt_wf):
         "H_H2OT/HT", "H_H2/HT", "H_CH4/HT", "H_H2S/HT", "C_CO2T/CT", "C_CO/CT", "C_CH4/CT", "S2-/ST", "S6+/ST", "H2S/ST", "Fe3+/FeT"]])
     results_values = pd.DataFrame([[PT["T"],PT["P"],
                 melt_comp["SiO2"]*100., melt_comp["TiO2"]*100., melt_comp["Al2O3"]*100., melt_comp["FeOT"]*100., melt_comp["MnO"]*100., melt_comp["MgO"]*100., melt_comp["CaO"]*100., melt_comp["Na2O"]*100., melt_comp["K2O"]*100., melt_comp["P2O5"]*100.,
-                conc["wm_H2O"]*100.,conc["wm_OH"]*100,conc["wm_H2Omol"]*100,conc["wm_H2"]*1000000.,conc["wm_CH4"]*1000000.,conc["wm_CO2"]*1000000.,conc["wm_CO2mol"]*1000000,conc["wm_CO2carb"]*1000000,conc["wm_CO"]*1000000.,conc["wm_S2m"]*1000000.,conc["wm_S6p"]*1000000.,conc["wm_H2S"]*1000000.,
+                conc["wm_H2O"]*100.,conc["wm_OH"]*100,conc["wm_H2Omol"]*100.,conc["wm_H2"]*1000000.,conc["wm_CH4"]*1000000.,conc["wm_CO2"]*1000000.,conc["wm_CO2mol"]*1000000,conc["wm_CO2carb"]*1000000,conc["wm_CO"]*1000000.,conc["wm_S2m"]*1000000.,conc["wm_S6p"]*1000000.,conc["wm_H2S"]*1000000.,
                 frac["H2O_HT"], frac["H2_HT"], frac["CH4_HT"], frac["H2S_HT"], frac["CO2_CT"], frac["CO_CT"], frac["CH4_CT"], frac["S2m_ST"], frac["S6p_ST"], frac["H2S_ST"],melt_wf["Fe3FeT"]]])
     return results_headers, results_values
 def results_table_melt_vol():
@@ -64,31 +53,35 @@ def results_table_model_options(models):
 # outputting fugacities, partial pressures, gas mole fraction, fugacity coefficients, molecular masses, solubility constants, equilibrium constants, melt density
 def results_table_f_p_xg_y_M_C_K_d(PT,melt_wf,species,models): 
     results_headers = pd.DataFrame([["fO2_DNNO","fO2_DFMQ",
-                "fO2","fH2","fH2O","fS2","fSO2","fH2S","fCO2","fCO","fCH4","fOCS","fX",
-                "pO2","pH2","pH2O","pS2","pSO2","pH2S","pCO2","pCO","pCH4","pOCS","pX",
-                "xgO2","xgH2","xgH2O","xgS2","xgSO2","xgH2S","xgCO2","xgCO","xgCH4","xgOCS","xgX",
+                "fO2_bar","fH2_bar","fH2O_bar","fS2_bar","fSO2_bar","fH2S_bar","fCO2_bar","fCO_bar","fCH4_bar","fOCS_bar","fX_bar",
+                "pO2_bar","pH2_bar","pH2O_bar","pS2_bar","pSO2_bar","pH2S_bar","pCO2_bar","pCO_bar","pCH4_bar","pOCS_bar","pX_bar",
+                "xgO2_mf","xgH2_mf","xgH2O_mf","xgS2_mf","xgSO2_mf","xgH2S_mf","xgCO2_mf","xgCO_mf","xgCH4_mf","xgOCS_mf","xgX_mf","xgC_S_mf",
                 "yO2","yH2","yH2O","yS2","ySO2","yH2S","yCO2","yCO","yCH4","yOCS","yX",
                 "M_m_SO","M_m_ox",
-                "C_H2O","C_H2","C_CO3","C_CO","C_CH4","C_S","C_SO4","C_H2S","C_X",
+                "C_H2O_mf_bar","C_H2_ppm_bar","C_CO2T_mf_bar","C_CO_ppm_bar","C_CH4_ppm_bar","C_S_ppm","C_SO4_ppm_bar","C_H2S_ppm_bar","C_X_ppm_bar",
                 "KHOg","KHOSg","KCOg","KCOHg","KOCSg","KSOg","KSOg2","KHOm","KCOm","KCOs",
                 "density_gcm3"]])
     results_values = pd.DataFrame([[mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"NNO",models),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"FMQ",models),
                 mdv.f_O2(PT,melt_wf,species,models),mg.f_H2(PT,melt_wf,species,models),mg.f_H2O(PT,melt_wf,species,models),mg.f_S2(PT,melt_wf,species,models),mg.f_SO2(PT,melt_wf,species,models),mg.f_H2S(PT,melt_wf,species,models),mg.f_CO2(PT,melt_wf,species,models),mg.f_CO(PT,melt_wf,species,models),mg.f_CH4(PT,melt_wf,species,models),mg.f_OCS(PT,melt_wf,species,models),mg.f_X(PT,melt_wf,species,models),
                 mg.p_O2(PT,melt_wf,species,models),mg.p_H2(PT,melt_wf,species,models),mg.p_H2O(PT,melt_wf,species,models),mg.p_S2(PT,melt_wf,species,models),mg.p_SO2(PT,melt_wf,species,models),mg.p_H2S(PT,melt_wf,species,models),mg.p_CO2(PT,melt_wf,species,models),mg.p_CO(PT,melt_wf,species,models),mg.p_CH4(PT,melt_wf,species,models),mg.p_OCS(PT,melt_wf,species,models),mg.p_X(PT,melt_wf,species,models),
-                mg.xg_O2(PT,melt_wf,species,models),mg.xg_H2(PT,melt_wf,species,models),mg.xg_H2O(PT,melt_wf,species,models),mg.xg_S2(PT,melt_wf,species,models),mg.xg_SO2(PT,melt_wf,species,models),mg.xg_H2S(PT,melt_wf,species,models),mg.xg_CO2(PT,melt_wf,species,models),mg.xg_CO(PT,melt_wf,species,models),mg.xg_CH4(PT,melt_wf,species,models),mg.xg_OCS(PT,melt_wf,species,models),mg.xg_X(PT,melt_wf,species,models),
+                mg.xg_O2(PT,melt_wf,species,models),mg.xg_H2(PT,melt_wf,species,models),mg.xg_H2O(PT,melt_wf,species,models),mg.xg_S2(PT,melt_wf,species,models),mg.xg_SO2(PT,melt_wf,species,models),mg.xg_H2S(PT,melt_wf,species,models),mg.xg_CO2(PT,melt_wf,species,models),mg.xg_CO(PT,melt_wf,species,models),mg.xg_CH4(PT,melt_wf,species,models),mg.xg_OCS(PT,melt_wf,species,models),mg.xg_X(PT,melt_wf,species,models),mg.gas_CS(PT,melt_wf,species,models),
                 mdv.y_O2(PT,species,models),mdv.y_H2(PT,species,models),mdv.y_H2O(PT,species,models),mdv.y_S2(PT,species,models),mdv.y_SO2(PT,species,models),mdv.y_H2S(PT,species,models),mdv.y_CO2(PT,species,models),mdv.y_CO(PT,species,models),mdv.y_CH4(PT,species,models),mdv.y_OCS(PT,species,models),mdv.y_X(PT,species,models),
                 mg.M_m_SO(melt_wf,species),mg.M_m_ox(melt_wf,species,models),
                 mdv.C_H2O(PT,melt_wf,species,models),mdv.C_H2(PT,melt_wf,species,models),mdv.C_CO3(PT,melt_wf,species,models),mdv.C_CO(PT,melt_wf,species,models),mdv.C_CH4(PT,melt_wf,species,models),mdv.C_S(PT,melt_wf,species,models),mdv.C_SO4(PT,melt_wf,species,models),mdv.C_H2S(PT,melt_wf,species,models),mdv.C_X(PT,melt_wf,species,models),
                 mdv.KHOg(PT,models),mdv.KHOSg(PT,models),mdv.KCOg(PT,models),mdv.KCOHg(PT,models),mdv.KOCSg(PT,models),mdv.KOSg(PT,models),mdv.KOSg2(PT,models),mdv.KHOm(PT,melt_wf,species,models),mdv.KCOm(PT,melt_wf,species,models),mdv.KCOs(PT,models),
                 mdv.melt_density(PT,melt_wf,species,models)]])
     return results_headers, results_values
+# headers for open system degassing all gas
+def results_table_open_all_gas():
+    results_headers = pd.DataFrame([["xgO2_all_mf","xgH2_all_mf","xgH2O_all_mf","xgS2_all_mf","xgSO2_all_mf","xgH2S_all_mf","xgCO2_all_mf","xgCO_all_mf","xgCH4_all_mf","xgOCS_all_mf","xgX_all_mf","xgC_S_all_mf"]])
+    return results_headers
 # saturation conditions
 def results_table_sat(sulf_sat_result,PT,melt_wf,species,models):
-    results_headers = pd.DataFrame([["SCSS_ppm","sulphide saturated","SCAS_ppm","anhydrite saturated","ST melt","graphite saturated"]])
+    results_headers = pd.DataFrame([["SCSS_ppm","sulphide saturated","SCAS_ppm","anhydrite saturated","ST melt if sat","graphite saturated"]])
     results_values = pd.DataFrame([[sulf_sat_result["SCSS"],sulf_sat_result["sulphide_sat"],sulf_sat_result["SCAS"],sulf_sat_result["sulphate_sat"],sulf_sat_result["ST"],c.graphite_saturation(PT,melt_wf,species,models)]])
     return results_headers, results_values
 
-# calculate the saturation pressure for multiple melt compositions in input file
+# calculate the saturation pressure for multiple melt compositions in setup file
 def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
     
     """ 
@@ -108,7 +101,12 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
     nr_tol: float
         Tolerance for the Newton-Raphson solver for melt speciation in weight fraction (typically 1e-9 is sufficient but this can be made larger if there are problems with convergence).
     setup: pandas.DataFrame
-        Dataframe with melt compositions to be used, requires following headers: Sample, T_C, DNNO or DFMQ or logfO2 or (Fe2O3 and FeO) or Fe3FeT or S6ST, SiO2, TiO2, Al2O3, (Fe2O3T or FeOT unless Fe2O3 and FeO given), MnO, MgO, CaO, Na2O, K2O, P2O5, (H2O and/or CO2ppm and/or STppm and/or Xppm)
+        Dataframe with melt compositions to be used, requires following headers): 
+        Sample, T_C, 
+        DNNO or DFMQ or logfO2 or (Fe2O3 and FeO) or Fe3FeT or S6ST
+        SiO2, TiO2, Al2O3, (Fe2O3T or FeOT unless Fe2O3 and FeO given), MnO, MgO, CaO, Na2O, K2O, P2O5, 
+        H2O and/or CO2ppm and/or STppm and/or Xppm
+        Note: concentrations (unless otherwise stated) are in wt%
     species: pandas.DataFrame
         Dataframe of species.csv file.
     models: pandas.DataFrame
@@ -174,7 +172,7 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
             melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)
         
         sulf_sat_result = c.sulphur_saturation(PT,melt_wf,species,models)
-        gas_mf = {"O2":mg.xg_O2(PT,melt_wf,species,models),"CO":mg.xg_CO(PT,melt_wf,species,models),"CO2":mg.xg_CO2(PT,melt_wf,species,models),"H2":mg.xg_H2(PT,melt_wf,species,models),"H2O":mg.xg_H2O(PT,melt_wf,species,models),"CH4":mg.xg_CH4(PT,melt_wf,species,models),"S2":mg.xg_S2(PT,melt_wf,species,models),"SO2":mg.xg_SO2(PT,melt_wf,species,models),"H2S":mg.xg_H2S(PT,melt_wf,species,models),"OCS":mg.xg_OCS(PT,melt_wf,species,models),"X":mg.xg_X(PT,melt_wf,species,models),"Xg_t":mg.Xg_tot(PT,melt_wf,species,models),"wt_g":0.}     
+        # gas_mf = {"O2":mg.xg_O2(PT,melt_wf,species,models),"CO":mg.xg_CO(PT,melt_wf,species,models),"CO2":mg.xg_CO2(PT,melt_wf,species,models),"H2":mg.xg_H2(PT,melt_wf,species,models),"H2O":mg.xg_H2O(PT,melt_wf,species,models),"CH4":mg.xg_CH4(PT,melt_wf,species,models),"S2":mg.xg_S2(PT,melt_wf,species,models),"SO2":mg.xg_SO2(PT,melt_wf,species,models),"H2S":mg.xg_H2S(PT,melt_wf,species,models),"OCS":mg.xg_OCS(PT,melt_wf,species,models),"X":mg.xg_X(PT,melt_wf,species,models),"Xg_t":mg.Xg_tot(PT,melt_wf,species,models),"wt_g":0.}     
         melt_comp = mg.melt_normalise_wf(melt_wf,species,"yes","no")  
         
         # create results
@@ -205,7 +203,7 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
     
     return results
 
-        
+### NEEDS CHECKING ###        
 def P_sat_output_fS2(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
     # set up results table
     results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulphide solubility","sulphate solubility","sulphide saturation","ideal gas","carbonylsulphide","mass_volume","insolubles","Saturation calculation","Date"]])
@@ -249,13 +247,56 @@ def P_sat_output_fS2(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,model
 ###############
 
 def gassing(run,gassing_inputs,setup,species,models):
-    
+     
+    """ 
+    Calculates the pressure of vapor saturation for multiple melt compositions given volatile-free melt composition, volatile content, temperature, and an fO2 estimate.
+
+
+    Parameters
+    ----------
+    run: float
+        Integer of the row in the setup file to run (note the first row under the headers is row 0).
+    gassing_inputs: pandas.DataFrame
+        Dataframe containing the following:
+        dp_step: Pressure step size for gassing calculation in bars
+        nr_step: Step size for Newton-Raphson solver for melt speciation (typically 1 is fine, but this can be made smaller if there are problems with convergence).
+        nr_tol: Tolerance for the Newton-Raphson solver for melt speciation in weight fraction (typically 1e-6 is sufficient but this can be made larger if there are problems with convergence).
+        psat_tol: Required tolerance for convergence of Pvsat in bars (0.1 bars is normally used).
+        dwtg: Amount of gas to add at each step if regassing in an open-system in wt fraction total system
+        i_nr_step = Step-size for newton-raphson convergence for isotopes (typically 1e-1 is fine, but this can be made smaller if there are problems with convergence).
+        i_nr_tol = Tolerance for newton-raphson convergence for isotopes (typically 1e-9 is sufficient but this can be made larger if there are problems with convergence).
+    setup: pandas.DataFrame
+        Dataframe with melt composition to be used, requires following headers (notes in [] are not part of the headers): 
+        Sample, T_C, 
+        DNNO or DFMQ or logfO2 or (Fe2O3 and FeO) or Fe3FeT or S6ST, [at initial pressure]
+        SiO2, TiO2, Al2O3, (Fe2O3T or FeOT unless Fe2O3 and FeO given), MnO, MgO, CaO, Na2O, K2O, P2O5, [concentrations are in wt%]
+        (H2O and/or CO2ppm and/or STppm and/or Xppm) [concentration of H2O in wt%]
+        P_bar [IF starting from a given pressure]
+        final_P [IF regassing, pressure calculation stops at in bars]
+        wt_g [IF starting from given pressure and gas is present, can specifiy the gas present in wt%]
+        initial_CO2wtpc [IF starting from given pressure and gas is present, can specifiy initial composition using initial CO2 dissolved in the melt in wt%]
+        xg_O2, xg_CO, xg_H2, xg_S2, xg_X [IF starting from a given pressure, need initial guesses for mole fraction of gas species]
+    species: pandas.DataFrame
+        Dataframe of species.csv file.
+    models: pandas.DataFrame
+        Dataframe of models.csv file.
+
+    Returns
+    -------
+    results: pandas.DataFrame
+
+    Outputs
+    -------
+    If output csv = yes in models
+    results_gassing_chemistry: csv file
+
+    """
+
     if models.loc["print status","option"] == "yes":
         print(setup.loc[run,"Sample"])
      
     if models.loc["fO2","option"] != "Kress91A":
         raise TypeError("Change 'fO2' option in models to 'Kress91A' (other fO2 options are not currently supported)")
-        return
     if models.loc["gassing_direction","option"] == "regas" and models.loc["starting_P","option"] == "bulk":
         raise TypeError("gassing_direction = regas and starting_P = bulk in models are not compatible")
 
@@ -271,20 +312,21 @@ def gassing(run,gassing_inputs,setup,species,models):
     melt_wf["HT"] = (2.*melt_wf["H2OT"]/species.loc["H2O","M"])*species.loc["H","M"]
     melt_wf["ST"] = melt_wf["ST"]
     if setup.loc[run,"S6ST"] > 0.:
-            melt_wf["S6ST"] = setup.loc[run,"S6ST"]
+        melt_wf["S6ST"] = setup.loc[run,"S6ST"]
     nr_step = gassing_inputs["nr_step"]
     nr_tol = gassing_inputs["nr_tol"]
     dp_step = gassing_inputs["dp_step"]
     psat_tol = gassing_inputs["psat_tol"]
-    dwtg = gassing_inputs["dwtg"]
+    if models.loc["gassing_style","option"] == "open":
+        dwtg = gassing_inputs["dwtg"]
 
-    # Calculate saturation pressure for composition given in inputs file
+    # Calculate saturation pressure for composition given in setup file
     if models.loc["insolubles","option"] == "H2O-CO2 only":  
-        P_sat_, xg_H2O_, xg_CO2_, f_H2O_, f_CO2_, p_H2O_, p_CO2_, wm_H2O_, wm_CO2_ = c.P_sat_H2O_CO2(PT,melt_wf,species,models,psat_tol,nr_step,nr_tol)
-        wm_H2_, wm_CO_, wm_CH4_, wm_S2m_, wm_S6p_, wm_H2S_, H2O_HT, H2_HT, CH4_HT, H2S_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, wm_SO3_, wm_X = 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0.
+        P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(PT,melt_wf,species,models,psat_tol,nr_step,nr_tol)
+        conc = {"wm_H2O":P_sat_H2O_CO2_result["wm_H2O"], "wm_CO2":P_sat_H2O_CO2_result["wm_CO2"], "wm_H2":0., "wm_CO":0., "wm_CH4":0., "wm_H2S":0., "wm_S2m":0., "wm_S6p":0., "ST": 0.}
+        frac = c.melt_species_ratios(conc,species)
     else:
         P_sat_, conc, frac = c.P_sat(PT,melt_wf,species,models,psat_tol,nr_step,nr_tol)
-        wm_SO3_ = (conc["wm_S6p"]*species.loc["SO3","M"])/species.loc["S","M"]
     PT["P"] = P_sat_
     if models.loc["print status","option"] == "yes":
         print(PT["T"],PT["P"],datetime.datetime.now())
@@ -301,78 +343,40 @@ def gassing(run,gassing_inputs,setup,species,models):
     melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)
     melt_wf["S6ST"] = mg.S6ST(PT,melt_wf,species,models)
     sulf_sat_result = c.sulphur_saturation(PT,melt_wf,species,models)    
-    xg_CS = mg.gas_CS(PT,melt_wf,species,models)
     wm_CO2eq, wm_H2Oeq = mg.melt_H2O_CO2_eq(melt_wf,species)
-    melt_rho = mdv.melt_density(PT,melt_wf,species,models)
     melt_comp = mg.melt_normalise_wf(melt_wf,species,"yes","no")
     
     # Set bulk composition
     bulk_comp = c.bulk_composition(run,PT,melt_wf,setup,species,models)
     bulk_wf = {"C":bulk_comp["wt_C"],"H":bulk_comp["wt_H"],"O":bulk_comp["wt_O"],"S":bulk_comp["wt_S"],"Fe":bulk_comp["wt_Fe"],"Wt":bulk_comp["Wt"],"X":bulk_comp["wt_X"]}
-        
+
     # set system and initial guesses
     system = eq.set_system(melt_wf,models)
     guesses = eq.initial_guesses(run,PT,melt_wf,setup,species,models,system)    
-        
-    # create results table
-    results = ([["Sample","P_bar","T_C","fO2_DNNO","fO2_DFMQ",
-                  "SiO2_wtpc","TiO2_wtpc","Al2O3_wtpc","FeOT_wtpc","MnO_wtpc","MgO_wtpc","CaO_wtpc","Na2O_wtpc","K2O_wtpc","P2O5_wtpc",
-                  "H2OT-eq_wtpc","CO2T-eq_ppmw","ST_ppmw","X_ppmw","wt_g",
-                  "H2OT_wtpc","OH_wtpc","H2Omol_wtpc","H2_ppmw","CH4_ppmw","CO2T_ppmw","CO2mol_ppmw","CO32-_ppmw","CO_ppmw","S2-_ppmw","S6+_ppmw","H2S_ppmw",
-                   "xm_CO2","xm_H2O","Xm_t_SO","Xm_t_ox",
-                  "Fe3+/FeT_m","H_H2OT/HT_m", "H_H2/HT_m", "H_CH4/HT_m", "H_H2S/HT_m", "C_CO2T/CT_m", "C_CO/CT_m", "C_CH4/CT_m", "S2-/ST_m", "S6+/ST_m", "H2S/ST_m",
-                "SCSS_ppm","sulphide saturated","SCAS_ppm","anhydrite saturated","graphite saturated",
-                "wt_g_O","wt_g_C","wt_g_H","wt_g_S","wt_g_X","wt_O","wt_C","wt_H","wt_S","wt_X",
-                "fO2","fH2","fH2O","fS2","fSO2","fH2S","fCO2","fCO","fCH4","fOCS","fX",
-                "pO2","pH2","pH2O","pS2","pSO2","pH2S","pCO2","pCO","pCH4","pOCS","pX",
-                "xgO2","xgH2","xgH2O","xgS2","xgSO2","xgH2S","xgCO2","xgCO","xgCH4","xgOCS","xgX","Xg_t","xgC_S",
-                "yO2","yH2","yH2O","yS2","ySO2","yH2S","yCO2","yCO","yCH4","yOCS","yX",
-                "M_m_SO","M_m_ox","C_H2O","C_H2","C_CO3","C_CO","C_CH4","C_S","C_SO4","C_H2S","C_X",
-                "KHOg","KHOSg","KCOg","KCOHg","KOCSg","KSOg","KSOg2","KD1","KHOm","KCOm","KCOs",
-                "density_gcm3","Solving species",
-                "insoluble opt","H2S_m opt","species X opt","Hspeciation opt",
-                 "fO2 opt","NNObuffer opt","FMQbuffer opt",
-                 "carbon dioxide opt","water opt","hydrogen opt","sulphide opt","sulphate opt","hydrogen sulfide opt","methane opt","carbon monoxide opt","species X solubility opt","Cspeccomp opt","Hspeccomp opt",
-                 "SCSS opt","SCAS opt","sulphur_saturation opt","sulfur_is_sat opt","graphite_saturation opt","ideal_gas opt",
-                 "y_CO2 opt","y_SO2 opt","y_H2S opt","y_H2 opt","y_O2 opt","y_S2 opt","y_CO opt","y_CH4 opt","y_H2O opt","y_OCS opt","y_X opt",
-                 "KHOg opt","KHOSg opt","KOSg opt","KOSg2 opt","KCOg opt","KCOHg opt","KOCSg opt","KCOs opt",
-                 "density opt","Date"]])
 
-    results1 = pd.DataFrame([[setup.loc[run,"Sample"], PT["P"], PT["T"], mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"NNO",models), mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,species,models),"FMQ",models), melt_comp["SiO2"]*100., melt_comp["TiO2"]*100., melt_comp["Al2O3"]*100., melt_comp["FeOT"]*100., melt_comp["MnO"]*100., melt_comp["MgO"]*100., melt_comp["CaO"]*100., melt_comp["Na2O"]*100., melt_comp["K2O"]*100., melt_comp["P2O5"]*100.,
-                wm_H2Oeq*100., wm_CO2eq*1000000., conc["ST"]*1000000.,melt_wf["XT"]*1000000.,melt_wf["Fe3FeT"],melt_wf['CT']*1000000.,melt_wf['HT']*1000000.,conc["wm_H2O"]*100.,conc["wm_OH"]*100.,conc["wm_H2Omol"]*100.,conc["wm_H2"]*1000000.,conc["wm_CH4"]*1000000.,conc["wm_CO2"]*1000000.,conc["wm_CO2mol"]*1000000,conc["wm_CO2carb"]*1000000,conc["wm_CO"]*1000000.,conc["wm_S2m"]*1000000.,conc["wm_S6p"]*1000000.,conc["wm_H2S"]*1000000.,
-                frac["H2O_HT"], frac["H2_HT"], frac["CH4_HT"], frac["H2S_HT"], frac["CO2_CT"], frac["CO_CT"], frac["CH4_CT"], frac["S2m_ST"], frac["S6p_ST"], frac["H2S_ST"],
-                sulf_sat_result["SCSS"],sulf_sat_result["sulphide_sat"],sulf_sat_result["SCAS"],sulf_sat_result["sulphate_sat"],sulf_sat_result["ST"],c.graphite_saturation, 
-                mdv.f_O2(PT,melt_wf,species,models),mg.f_H2(PT,melt_wf,species,models),mg.f_H2O(PT,melt_wf,species,models),mg.f_S2(PT,melt_wf,species,models),mg.f_SO2(PT,melt_wf,species,models),mg.f_H2S(PT,melt_wf,species,models),mg.f_CO2(PT,melt_wf,species,models),mg.f_CO(PT,melt_wf,species,models),mg.f_CH4(PT,melt_wf,species,models),mg.f_OCS(PT,melt_wf,species,models),mg.f_X(PT,melt_wf,species,models),
-                mdv.y_O2(PT,species,models),mdv.y_H2(PT,species,models),mdv.y_H2O(PT,species,models),mdv.y_S2(PT,species,models),mdv.y_SO2(PT,species,models),mdv.y_H2S(PT,species,models),mdv.y_CO2(PT,species,models),mdv.y_CO(PT,species,models),mdv.y_CH4(PT,species,models),mdv.y_OCS(PT,species,models),mdv.y_X(PT,species,models),
-                mg.p_O2(PT,melt_wf,species,models),mg.p_H2(PT,melt_wf,species,models),mg.p_H2O(PT,melt_wf,species,models),mg.p_S2(PT,melt_wf,species,models),mg.p_SO2(PT,melt_wf,species,models),mg.p_H2S(PT,melt_wf,species,models),mg.p_CO2(PT,melt_wf,species,models),mg.p_CO(PT,melt_wf,species,models),mg.p_CH4(PT,melt_wf,species,models),mg.p_OCS(PT,melt_wf,species,models),mg.p_X(PT,melt_wf,species,models),
-                mg.xg_O2(PT,melt_wf,species,models),mg.xg_H2(PT,melt_wf,species,models),mg.xg_H2O(PT,melt_wf,species,models),mg.xg_S2(PT,melt_wf,species,models),mg.xg_SO2(PT,melt_wf,species,models),mg.xg_H2S(PT,melt_wf,species,models),mg.xg_CO2(PT,melt_wf,species,models),mg.xg_CO(PT,melt_wf,species,models),mg.xg_CH4(PT,melt_wf,species,models),mg.xg_OCS(PT,melt_wf,species,models),mg.xg_X(PT,melt_wf,species,models),
-                 P_sat_H2O_CO2_only, P_sat_H2O_CO2_result["xg_H2O"], P_sat_H2O_CO2_result["xg_CO2"], P_sat_H2O_CO2_result["f_H2O"], P_sat_H2O_CO2_result["f_CO2"], P_sat_H2O_CO2_result["p_H2O"], P_sat_H2O_CO2_result["p_CO2"], P_sat_H2O_CO2_only-PT["P"],
-                  melt_density(PT,melt_wf,species,models),
-                 models.loc["insoluble","option"], models.loc["H2S_m","option"], models.loc["species X","option"],models.loc["Hspeciation","option"], models.loc["fO2","option"], models.loc["NNObuffer","option"], models.loc["FMQbuffer","option"],
-                 models.loc["carbon dioxide","option"], models.loc["water","option"], models.loc["hydrogen","option"], models.loc["sulphide","option"], models.loc["sulphate","option"], models.loc["hydrogen sulfide","option"], models.loc["methane","option"], models.loc["carbon monoxide","option"], models.loc["species X solubility","option"], models.loc["Cspeccomp","option"], models.loc["Hspeccomp","option"],
-                 models.loc["SCSS","option"], models.loc["SCAS","option"], models.loc["sulphur_saturation","option"], models.loc["sulfur_is_sat","option"], models.loc["graphite_saturation","option"], models.loc["ideal_gas","option"],
-                 models.loc["y_CO2","option"], models.loc["y_SO2","option"], models.loc["y_H2S","option"], models.loc["y_H2","option"], models.loc["y_O2","option"], models.loc["y_S2","option"], models.loc["y_CO","option"], models.loc["y_CH4","option"], models.loc["y_H2O","option"],models.loc["y_OCS","option"], models.loc["y_X","option"],
-                 models.loc["KHOg","option"], models.loc["KHOSg","option"], models.loc["KOSg","option"], models.loc["KOSg2","option"], models.loc["KCOg","option"], models.loc["KCOHg","option"],models.loc["KOCSg","option"], models.loc["KCOs","option"],
-                 models.loc["density","option"],datetime.datetime.now()]])
-                             
-    results = pd.concat([results, results1], ignore_index=True)
-    
-        
-    results_chemistry = results_header.append(results_chemistry1, ignore_index=True)
-    results1 = pd.DataFrame([[wm_CO2eq*1000000.,wm_H2Oeq*100.,melt_wf["ST"]*1000000.,melt_wf["XT"]*1000000.,mg.xg_O2(PT,melt_wf,species,models),mg.xg_CO(PT,melt_wf,species,models),mg.xg_CO2(PT,melt_wf,species,models),mg.xg_H2(PT,melt_wf,species,models),mg.xg_H2O(PT,melt_wf,species,models),mg.xg_CH4(PT,melt_wf,species,models),mg.xg_S2(PT,melt_wf,species,models),mg.xg_SO2(PT,melt_wf,species,models),mg.xg_H2S(PT,melt_wf,species,models),mg.xg_OCS(PT,melt_wf,species,models),mg.xg_X(PT,melt_wf,species,models),mg.Xg_tot(PT,melt_wf,species,models),xg_CS,
-mg.xm_CO2_so(melt_wf,species),mg.xm_H2OT_so(melt_wf,species),mg.Xm_t_so(melt_wf,species),"",
-melt_wf["CO2"],melt_wf["H2OT"],wm_H2_,wm_CO_,wm_CH4_,wm_S2m_,wm_SO3_,wm_H2S_,melt_wf["ST"],melt_wf["XT"],mg.Fe3Fe2(melt_wf),melt_wf["Fe3FeT"],mg.S6S2(PT,melt_wf,species,models),mg.S6ST(PT,melt_wf,species,models),
-SCSS_,sulphide_sat,SCAS_,sulphate_sat,wt_g_,"","","","","",
-bulk_wf["O"],bulk_wf["C"],bulk_wf["H"],bulk_wf["S"],bulk_wf["X"],
-mdv.f_O2(PT,melt_wf,species,models),mg.f_H2(PT,melt_wf,species,models),mg.f_H2O(PT,melt_wf,species,models),mg.f_S2(PT,melt_wf,species,models),mg.f_SO2(PT,melt_wf,species,models),mg.f_H2S(PT,melt_wf,species,models),mg.f_CO2(PT,melt_wf,species,models),mg.f_CO(PT,melt_wf,species,models),mg.f_CH4(PT,melt_wf,species,models),mg.f_OCS(PT,melt_wf,species,models),mg.f_X(PT,melt_wf,species,models),
-mdv.y_O2(PT,species,models),mdv.y_H2(PT,species,models),mdv.y_H2O(PT,species,models),mdv.y_S2(PT,species,models),mdv.y_SO2(PT,species,models),mdv.y_H2S(PT,species,models),mdv.y_CO2(PT,species,models),mdv.y_CO(PT,species,models),mdv.y_CH4(PT,species,models),mdv.y_OCS(PT,species,models),mdv.y_X(PT,species,models),
-mg.M_m_SO(melt_wf,species),mg.M_m_ox(melt_wf,species,models),mdv.C_H2O(PT,melt_wf,species,models),mdv.C_H2(PT,melt_wf,species,models),mdv.C_CO3(PT,melt_wf,species,models),mdv.C_CO(PT,melt_wf,species,models),mdv.C_CH4(PT,melt_wf,species,models),mdv.C_S(PT,melt_wf,species,models),mdv.C_SO4(PT,melt_wf,species,models),mdv.C_H2S(PT,melt_wf,species,models),mdv.C_X(PT,melt_wf,species,models),
-"",mdv.KHOg(PT,models),mdv.KHOm(PT,melt_wf,species,models),mdv.KHOSg(PT,models),mdv.KCOg(PT,models),mdv.KCOHg(PT,models),mdv.KOCSg(PT,models),mdv.KOSg(PT,models),mdv.KOSg2(PT,models),"na",melt_rho]])
-    results_chemistry = results_chemistry.append(results1, ignore_index=True)
-    results_chemistry.to_csv('results_gassing_chemistry.csv', index=False, header=False)
+    # create results
+    results_headers_table_sample_name, results_values_table_sample_name = results_table_sample_name(setup,run)
+    results_headers_table_melt_comp_etc, results_values_table_melt_comp_etc = results_table_melt_comp_etc(PT,melt_comp,conc,frac,melt_wf)
+    results_headers_table_model_options, results_values_table_model_options = results_table_model_options(models)    
+    results_headers_table_f_p_xg_y_M_C_K_d, results_values_table_f_p_xg_y_M_C_K_d = results_table_f_p_xg_y_M_C_K_d(PT,melt_wf,species,models)
+    results_headers_table_sat, results_values_table_sat = results_table_sat(sulf_sat_result,PT,melt_wf,species,models)
+    results_headers_table_melt_vol = results_table_melt_vol() # "H2OT-eq_wtpc","CO2T-eq_ppmw","ST_ppmw","X_ppmw"
+    results_values_table_melt_vol = pd.DataFrame([[wm_H2Oeq*100.,wm_CO2eq*1000000.,conc["ST"]*1000000.,melt_wf["XT"]*1000000.]])
+    results_headers_table_wtg_etc = pd.DataFrame([["wt_g_wtpc","wt_g_O_wtf","wt_g_C_wtf","wt_g_H_wtf","wt_g_S_wtf","wt_g_X_wtf","wt_O_wtpc","wt_C_wtpc","wt_H_wtpc","wt_S_wtpc","wt_X_wtpc","Solving species"]])
+    results_values_table_wtg_etc = pd.DataFrame([[bulk_comp["wt_g"]*100.,"","","","","",bulk_wf["O"]*100.,bulk_wf["C"]*100.,bulk_wf["H"]*100.,bulk_wf["S"]*100.,bulk_wf["X"]*100.,""]])
+    if models.loc["gassing_style","option"] == "open" and models.loc["gassing_direction","option"] == "degas":
+        results_headers_table_open_all_gas = results_table_open_all_gas()
+        results_values_table_open_all_gas = pd.DataFrame([[mg.xg_O2(PT,melt_wf,species,models),mg.xg_H2(PT,melt_wf,species,models),mg.xg_H2O(PT,melt_wf,species,models),mg.xg_S2(PT,melt_wf,species,models),mg.xg_SO2(PT,melt_wf,species,models),mg.xg_H2S(PT,melt_wf,species,models),mg.xg_CO2(PT,melt_wf,species,models),mg.xg_CO(PT,melt_wf,species,models),mg.xg_CH4(PT,melt_wf,species,models),mg.xg_OCS(PT,melt_wf,species,models),mg.xg_X(PT,melt_wf,species,models),mg.gas_CS(PT,melt_wf,species,models)]])
+        results_headers = pd.concat([results_headers_table_sample_name,results_headers_table_melt_comp_etc,results_headers_table_melt_vol,results_headers_table_sat,results_headers_table_f_p_xg_y_M_C_K_d,results_headers_table_wtg_etc,results_headers_table_open_all_gas,results_headers_table_model_options],axis=1)
+        results1 = pd.concat([results_values_table_sample_name,results_values_table_melt_comp_etc,results_values_table_melt_vol,results_values_table_sat,results_values_table_f_p_xg_y_M_C_K_d,results_values_table_wtg_etc,results_values_table_open_all_gas,results_values_table_model_options],axis=1)
+    else:    
+        results_headers = pd.concat([results_headers_table_sample_name,results_headers_table_melt_comp_etc,results_headers_table_melt_vol,results_headers_table_sat,results_headers_table_f_p_xg_y_M_C_K_d,results_headers_table_wtg_etc,results_headers_table_model_options],axis=1)
+        results1 = pd.concat([results_values_table_sample_name,results_values_table_melt_comp_etc,results_values_table_melt_vol,results_values_table_sat,results_values_table_f_p_xg_y_M_C_K_d,results_values_table_wtg_etc,results_values_table_model_options],axis=1)
+    results = pd.concat([results_headers, results1])
     
     # results for isotope calculations...
     if models.loc["isotopes","option"] == "yes":
+        raise TypeError("This is not currently supported")
         a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_ = iso.i2s6_S_alphas(PT)
         results_isotopes1 = pd.DataFrame([["P","T_C","xg_O2","xg_CO","xg_CO2","xg_H2","xg_H2O","xg_CH4","xg_S2","xg_SO2","xg_SO3","xg_H2S","xg_OCS","wt_g",
                         "wm_CO2","wm_H2O","wm_H2","wm_S","wm_SO3","wm_ST","Fe3T","S6T",
@@ -394,7 +398,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         starting_P = models.loc["starting_P","option"]
         if starting_P == "bulk":
             if models.loc["bulk_composition","option"] != "yes":
-                print("not that if starting_P = bulk and bulk_composition != yes, Pvsat calculated is not for bulk system")
+                raise warning("not that if starting_P = bulk and bulk_composition != yes, Pvsat calculated is not for bulk system")
         if starting_P == "set":
             initial = int(setup.loc[run,"P_bar"])
         else:
@@ -403,7 +407,10 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                 answer = round(answer)
                 initial = round(answer*dp_step)
             elif models.loc["gassing_direction","option"] == "regas":
-                initial = round(PT["P"])+1 
+                answer = PT["P"]/dp_step
+                answer = round(answer)
+                answer = round(answer*dp_step)
+                initial = round(answer+dp_step)
         if models.loc["gassing_direction","option"] == "degas":
             step = int(-1*dp_step) # pressure step in bars
             final = 0
@@ -434,11 +441,11 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         
         if models.loc["gassing_style","option"] == "open": # check melt is still vapor-saturated
             if models.loc["insolubles","option"] == "H2O-CO2 only":  
-                P_sat_, xg_H2O_, xg_CO2_, f_H2O_, f_CO2_, p_H2O_, p_CO2_, wm_H2O_, wm_CO2_ = c.P_sat_H2O_CO2(PT,melt_wf,species,models,psat_tol,nr_step,nr_tol)
-                wm_H2_, wm_CO_, wm_CH4_, wm_S2m_, wm_S6p_, wm_H2S_, H2O_HT, H2_HT, CH4_HT, H2S_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST, wm_SO3_ = 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.
+                P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(PT,melt_wf,species,models,psat_tol,nr_step,nr_tol)
+                conc = {"wm_H2O":P_sat_H2O_CO2_result["wm_H2O"], "wm_CO2":P_sat_H2O_CO2_result["wm_CO2"], "wm_H2":0., "wm_CO":0., "wm_CH4":0., "wm_H2S":0., "wm_S2m":0., "wm_S6p":0., "ST": 0.}
+                frac = c.melt_species_ratios(conc,species)
             else:
-                P_sat_, wm_H2O_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_S2m_, wm_S6p_, wm_H2S_, H2O_HT, H2_HT, CH4_HT, H2S_HT, CO2_CT, CO_CT, CH4_CT, S6p_ST, S2m_ST, H2S_ST = c.P_sat(PT,melt_wf,species,models,psat_tol,nr_step,nr_tol)
-                wm_SO3_ = (wm_S6p_*species.loc["SO3","M"])/species.loc["S","M"]
+                P_sat_, conc, frac = c.P_sat(PT,melt_wf,species,models,psat_tol,nr_step,nr_tol)
         if models.loc["P_variation","option"] == "polybaric": 
             P = i - dp_step
             if P < dp_step:
@@ -449,42 +456,47 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             PT["T"] = T
         if P_sat_ > PT["P"]:  
             # work out equilibrium partitioning between melt and gas phase
-            xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, xg_X_, Xg_t, xm_H2O_, xm_CO2_, Xm_t, wm_H2O_, wm_H2_, wm_CO2_, wm_CO_, wm_CH4_, wm_S_, wm_SO3_, wm_H2S_, wm_ST_, wm_X_, Fe32, Fe3T, S62, S6T, wt_g_O, wt_g_C, wt_g_H, wt_g_S, wt_g_X, wt_g, wt_O_, wt_C_, wt_H_, wt_S_, wt_X_, guessx, guessy, guessz, guessw = eq.mg_equilibrium(PT,melt_wf,bulk_wf,species,models,nr_step,nr_tol,guessx,guessy,guessz,guessw)
+            xg, conc, melt_and_gas, guesses = eq.mg_equilibrium(PT,melt_wf,bulk_wf,species,models,nr_step,nr_tol,guesses)
             # gas composition
-            gas_mf = {"O2":xg_O2_,"CO":xg_CO_,"S2":xg_S2_,"CO2":xg_CO2_,"H2O":xg_H2O_,"H2":xg_H2_,"CH4":xg_CH4_,"SO2":xg_SO2_,"H2S":xg_H2S_,"OCS":xg_OCS_,"X":xg_X_,"Xg_t":Xg_t,"wt_g":wt_g}
-            
+            gas_mf = {"O2":xg["xg_O2"],"CO":xg["xg_CO"],"S2":xg["xg_S2"],"CO2":xg["xg_CO2"],"H2O":xg["xg_H2O"],"H2":xg["xg_H2"],"CH4":xg["xg_CH4"],"SO2":xg["xg_SO2"],"H2S":xg["xg_H2S"],"OCS":xg["xg_OCS"],"X":xg["xg_X"],"Xg_t":xg["Xg_t"],"wt_g":melt_and_gas["wt_g"]}
+            if models.loc["gassing_style","option"] == "open" and models.loc["gassing_direction","option"] == "degas": 
+                if i == initial:
+                    gas_mf_all = gas_mf
+                else:
+                    gas_mf_all = c.gas_comp_all_open(gas_mf,gas_mf_all,models,species)
             if models.loc["insolubles","option"] == "H2O-CO2 only":
                 Fe3T = melt_wf["Fe3FeT"]
                 Fe32 = mg.overtotal2ratio(Fe3T)
-        else:
-            xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6T, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
-            wm_ST_ = wm_S_ + wm_S6p_
-            S62 = S6T/S2m_ST
-            Fe3T = melt_wf["Fe3FeT"]
-            Fe32 = mg.overtotal2ratio(Fe3T)
+        else: # NEEDS SORTING ###
+            conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+            frac = c.melt_species_ratios(conc,species)
+            #wm_ST_ = wm_S_ + wm_S6p_
+            #S62 = S6T/S2m_ST
+            #Fe3T = melt_wf["Fe3FeT"]
+            #Fe32 = mg.overtotal2ratio(Fe3T)
             xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, xg_X, Xg_t, Xm_t, Xm_t_ox, wt_g_O, wt_g_C, wt_g_H, wt_g_S, wt_g = "","","","","","","","","","","","","","",0.,0.,0.,0.,0.
-            guessx, guessy, guessz, guessw = eq.initial_guesses(run,PT,melt_wf,setup,species,models,system)
+            guesses = eq.initial_guesses(run,PT,melt_wf,setup,species,models,system)
 
         # set melt composition for forward calculation
-        melt_wf["CO2"] = wm_CO2_
-        melt_wf["H2OT"] = wm_H2O_
-        melt_wf["H2"] = wm_H2_
-        melt_wf["CO"] = wm_CO_
-        melt_wf["CH4"] = wm_CH4_
-        melt_wf["H2S"] = wm_H2S_
-        melt_wf["S6+"] = wm_S6p_
-        melt_wf["S2-"] = wm_S_
-        melt_wf["ST"] = wm_ST_
-        melt_wf["XT"] = wm_X_
-        melt_wf["Fe3FeT"] = Fe3T
+        melt_wf["CO2"] = conc["wm_CO2"]
+        melt_wf["H2OT"] = conc["wm_H2O"]
+        melt_wf["H2"] = conc["wm_H2"]
+        melt_wf["CO"] = conc["wm_CO"]
+        melt_wf["CH4"] = conc["wm_CH4"]
+        melt_wf["H2S"] = conc["wm_H2S"]
+        melt_wf["S6+"] = (conc["wm_SO3"]/species.loc["SO3","M"])*species.loc["S","M"]
+        melt_wf["S2-"] = conc["wm_S"]
+        melt_wf["ST"] = conc["wm_ST"]
+        melt_wf["XT"] = conc["wm_X"]
+        melt_wf["Fe3FeT"] = conc["Fe3T"]
         if P_sat_ < PT["P"]:  
-            wt_C_, wt_O_, wt_H_, wt_S_, wt_X_, wt_Fe, wt_g_, Wt_ = c.bulk_composition(run,PT,melt_wf,setup,species,models)
+            bulk_comp = c.bulk_composition(run,PT,melt_wf,setup,species,models)
     
         # check for sulphur saturation and display warning in outputs
-        SCSS_,sulphide_sat,SCAS_,sulphate_sat, ST_ = c.sulphur_saturation(PT,melt_wf,species,models)
-        if sulphide_sat == "yes":
+        sulf_sat_result = c.sulphur_saturation(PT,melt_wf,species,models)
+        if sulf_sat_result["sulphide_sat"] == "yes":
             warning = "WARNING: sulphide-saturated"
-        elif sulphate_sat == "yes":
+        elif sulf_sat_result["sulphate_sat"] == "yes":
             warning = "WARNING: sulphate-saturated"
         else:
             warning = ""
@@ -495,29 +507,28 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         elif eq_Fe == "no":
             fO2_ = (xg_O2_*mdv.y_O2(PT,models)*PT["P"])
         
-        melt_rho = mdv.melt_density(PT,melt_wf,species,models)
-        if system in ["SCHOFe"]:
-            xg_CS = mg.gas_CS(PT,melt_wf,species,models)
-        else:
-            xg_CS = ""
         wm_CO2eq, wm_H2Oeq = mg.melt_H2O_CO2_eq(melt_wf,species)
-    
+        melt_comp = mg.melt_normalise_wf(melt_wf,species,"yes","no")
+        frac = c.melt_species_ratios(conc,species)
+
         # store results
-        results2 = pd.DataFrame([[PT["P"],PT["T"],wm_CO2eq*1000000.,wm_H2Oeq*100.,wm_ST_*1000000.,wm_X_*1000000.,xg_O2_,xg_CO_,xg_CO2_,xg_H2_,xg_H2O_,xg_CH4_,xg_S2_,xg_SO2_,xg_H2S_,xg_OCS_,xg_X_,Xg_t,xg_CS,
-               xm_CO2_,xm_H2O_,Xm_t,"",
-               wm_CO2_,wm_H2O_,wm_H2_,wm_CO_,wm_CH4_,wm_S_,wm_SO3_,wm_H2S_,wm_ST_,wm_X_,Fe32,Fe3T,S62,S6T,
-               mg.fO22Dbuffer(PT,fO2_,"FMQ",models),mg.fO22Dbuffer(PT,fO2_,"NNO",models),SCSS_,sulphide_sat,SCAS_,sulphate_sat,
-               wt_g,wt_g_O,wt_g_C,wt_g_H,wt_g_S,wt_g_X,wt_O_,wt_C_,wt_H_,wt_S_,wt_X_,
-fO2_,mg.f_H2(PT,melt_wf,species,models),mg.f_H2O(PT,melt_wf,species,models),mg.f_S2(PT,melt_wf,species,models),mg.f_SO2(PT,melt_wf,species,models),mg.f_H2S(PT,melt_wf,species,models),mg.f_CO2(PT,melt_wf,species,models),mg.f_CO(PT,melt_wf,species,models),mg.f_CH4(PT,melt_wf,species,models),mg.f_OCS(PT,melt_wf,species,models),mg.f_X(PT,melt_wf,species,models),
-mdv.y_O2(PT,species,models),mdv.y_H2(PT,species,models),mdv.y_H2O(PT,species,models),mdv.y_S2(PT,species,models),mdv.y_SO2(PT,species,models),mdv.y_H2S(PT,species,models),mdv.y_CO2(PT,species,models),mdv.y_CO(PT,species,models),mdv.y_CH4(PT,species,models),mdv.y_OCS(PT,species,models),mdv.y_X(PT,species,models),
-mg.M_m_SO(melt_wf,species),mg.M_m_ox(melt_wf,species,models),mdv.C_H2O(PT,melt_wf,species,models),mdv.C_H2(PT,melt_wf,species,models),mdv.C_CO3(PT,melt_wf,species,models),mdv.C_CO(PT,melt_wf,species,models),mdv.C_CH4(PT,melt_wf,species,models),mdv.C_S(PT,melt_wf,species,models),mdv.C_SO4(PT,melt_wf,species,models),mdv.C_H2S(PT,melt_wf,species,models),mdv.C_X(PT,melt_wf,species,models),
-"",mdv.KHOg(PT,models),mdv.KHOm(PT,melt_wf,species,models),mdv.KHOSg(PT,models),mdv.KCOg(PT,models),mdv.KCOHg(PT,models),mdv.KOCSg(PT,models),mdv.KOSg(PT,models),mdv.KOSg2(PT,models),
-models.loc["solve_species","option"],melt_rho]])
-        results_chemistry = pd.concat([results_chemistry, results2], ignore_index=True)
-        results_chemistry.to_csv('results_gassing_chemistry.csv', index=False, header=False)
+        results_headers_table_sample_name, results_values_table_sample_name = results_table_sample_name(setup,run)
+        results_headers_table_melt_comp_etc, results_values_table_melt_comp_etc = results_table_melt_comp_etc(PT,melt_comp,conc,frac,melt_wf)
+        results_headers_table_model_options, results_values_table_model_options = results_table_model_options(models)    
+        results_headers_table_f_p_xg_y_M_C_K_d, results_values_table_f_p_xg_y_M_C_K_d = results_table_f_p_xg_y_M_C_K_d(PT,melt_wf,species,models)
+        results_headers_table_sat, results_values_table_sat = results_table_sat(sulf_sat_result,PT,melt_wf,species,models)
+        results_values_table_melt_vol = pd.DataFrame([[wm_H2Oeq*100.,wm_CO2eq*1000000.,conc["wm_ST"]*1000000.,melt_wf["XT"]*1000000.]])
+        results_values_table_wtg_etc = pd.DataFrame([[melt_and_gas["wt_g"]*100.,melt_and_gas["wt_g_O"],melt_and_gas["wt_g_C"],melt_and_gas["wt_g_H"],melt_and_gas["wt_g_S"],melt_and_gas["wt_g_X"],melt_and_gas["wt_O"]*100.,melt_and_gas["wt_C"]*100.,melt_and_gas["wt_H"]*100.,melt_and_gas["wt_S"]*100.,melt_and_gas["wt_X"]*100.,models.loc["solve_species","option"]]])
+        if models.loc["gassing_style","option"] == "open" and models.loc["gassing_direction","option"] == "degas":
+            results_values_table_open_all_gas = pd.DataFrame([[gas_mf_all["O2"],gas_mf_all["H2"],gas_mf_all["H2O"],gas_mf_all["S2"],gas_mf_all["SO2"],gas_mf_all["H2S"],gas_mf_all["CO2"],gas_mf_all["CO"],gas_mf_all["CH4"],gas_mf_all["OCS"],gas_mf_all["X"],mg.gas_CS_alt(gas_mf_all)]])
+            results1 = pd.concat([results_values_table_sample_name,results_values_table_melt_comp_etc,results_values_table_melt_vol,results_values_table_sat,results_values_table_f_p_xg_y_M_C_K_d,results_values_table_wtg_etc,results_values_table_open_all_gas,results_values_table_model_options],axis=1)
+        else:
+            results1 = pd.concat([results_values_table_sample_name,results_values_table_melt_comp_etc,results_values_table_melt_vol,results_values_table_sat,results_values_table_f_p_xg_y_M_C_K_d,results_values_table_wtg_etc,results_values_table_model_options],axis=1)
+        results = pd.concat([results, results1])
         
         # equilibrium isotope fractionation
         if models.loc["isotopes", "option"] == "yes":
+            raise TypeError("This is not currently supported")
             if models.loc["H2S","option"] == "yes":
                 print("not currently possible")
             A, B = iso.i2s6("S",PT,R_i,melt_wf,gas_mf,species,i_nr_step,i_nr_tol,guessx)
@@ -532,28 +543,29 @@ models.loc["solve_species","option"],melt_rho]])
             results_isotopes = pd.concat([results_isotopes, results2], ignore_index=True)
             results_isotopes.to_csv('results_gassing_isotopes.csv', index=False, header=False)
         
-        if(number_of_step % 100==0):
-            print(PT["T"],PT["P"],mg.fO22Dbuffer(PT,fO2_,"FMQ",models),warning,datetime.datetime.now())
+        if models.loc["print status","option"] == "yes":
+            if(number_of_step % 100==0):
+                print(PT["T"],PT["P"],mg.fO22Dbuffer(PT,fO2_,"FMQ",models),warning,datetime.datetime.now())
 
         # recalculate bulk composition if needed
         if models.loc["gassing_style","option"] == "open":
-            wm_C_, wm_H_, wm_S_, wm_Fe_, wm_O_, wm_X_ = mg.melt_elements(PT,melt_wf,bulk_wf,gas_mf,species,models)
+            results_me = mg.melt_elements(PT,melt_wf,bulk_wf,gas_mf,species,models)
             if models.loc["gassing_direction","option"] == "degas":
                 Wt_ = bulk_wf['Wt']
-                #if wm_C_ < 1.e-6:
-                    #wm_C_ = 0.
-                bulk_wf = {"C":wm_C_,"H":wm_H_,"O":wm_O_,"S":wm_S_,"X":wm_X_,"Fe":wm_Fe_,"Wt":(Wt_*(1. - wt_g))}
-                melt_wf["CT"] = wm_C_
-                melt_wf["HT"] = wm_H_
-                melt_wf["ST"] = wm_S_
-                melt_wf["XT"] = wm_X_
+                if results_me["wm_C"] < 1.e-6:
+                    results_me["wm_C"] = 0.
+                bulk_wf = {"C":results_me["wm_C"],"H":results_me["wm_H"],"O":results_me["wm_O"],"S":results_me["wm_S"],"X":results_me["wm_X"],"Fe":results_me["wm_Fe"],"Wt":(Wt_*(1. - melt_and_gas["wt_g"]))}
+                melt_wf["CT"] = results_me["wm_C"]
+                melt_wf["HT"] = results_me["wm_H"]
+                melt_wf["ST"] = results_me["wm_S"]
+                melt_wf["XT"] = results_me["wm_X"]
             elif models.loc["gassing_direction","option"] == "regas":
-                wt_C, wt_H, wt_S, wt_X, wt_Fe, wt_O, Wt = c.new_bulk_regas_open(PT,melt_wf,bulk_wf,gas_mf,dwtg,species,models)
-                bulk_wf = {"C":wt_C,"H":wt_H,"O":wt_O,"S":wt_S,"X":wt_X,"Fe":wt_Fe,"Wt":Wt}
-                melt_wf["CT"] = wm_C_
-                melt_wf["HT"] = wm_H_
-                melt_wf["ST"] = wm_S_
-                melt_wf["XT"] = wm_X_
+                results_nbro = c.new_bulk_regas_open(PT,melt_wf,bulk_wf,gas_mf,dwtg,species,models)
+                bulk_wf = {"C":results_nbro["wt_C"],"H":results_nbro["wt_H"],"O":results_nbro["wt_O"],"S":results_nbro["wt_S"],"X":results_nbro["wt_X"],"Fe":results_nbro["wt_Fe"],"Wt":results_nbro["Wt"]}
+                melt_wf["CT"] = results_nbro["wm_C"]
+                melt_wf["HT"] = results_nbro["wm_H"]
+                melt_wf["ST"] = results_nbro["wm_S"]
+                melt_wf["XT"] = results_nbro["wm_X"]
         if models.loc["crystallisation","option"] == "yes":
             wt_C_ = bulk_wf["C"]
             wt_H_ = bulk_wf["H"]
@@ -565,8 +577,16 @@ models.loc["solve_species","option"],melt_rho]])
             Xst = setup.loc[run,"crystallisation_pc"]/100.
             bulk_wf = {"C":wt_C_*(1./(1.-Xst)),"H":wt_H_*(1./(1.-Xst)),"O":wt_O_*(1./(1.-Xst)),"S":wt_S_*(1./(1.-Xst)),"X":wt_X_*(1./(1.-Xst)),"Fe":wt_Fe_*(1./(1.-Xst)),"Wt":wt_*(1.-Xst)}
     
+    results.columns = results.iloc[0]
+    results = results[1:]  
+    if models.loc["output csv","option"] == "yes":
+        results.to_csv('results_gassing_chemistry.csv', index=False, header=True)
+    
     if models.loc["print status","option"] == "yes":
         print("done", datetime.datetime.now())
+
+    return results
+
 
 ################
 ### isotopes ###
@@ -1490,7 +1510,8 @@ def Xpc_S_degassed(first_row,last_row,inputs,setup,species,models):
                 gas_mf = {"O2":xg_O2_,"CO":xg_CO_,"S2":xg_S2_,"CO2":xg_CO2_,"H2O":xg_H2O_,"H2":xg_H2_,"CH4":xg_CH4_,"SO2":xg_SO2_,"H2S":xg_H2S_,"OCS":xg_OCS_,"X":xg_X_,"Xg_t":Xg_t,"wt_g":wt_g}
             
             else:
-                xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6T, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf,setup,species,models,nr_step,nr_tol)
+                conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+                frac = c.melt_species_ratios(conc,species)
                 wm_ST_ = wm_S_ + wm_S6p_
                 S62 = S6T/S2m_ST
                 Fe3T = melt_wf["Fe3FeT"]
@@ -1515,7 +1536,8 @@ def Xpc_S_degassed(first_row,last_row,inputs,setup,species,models):
                 gas_mf = {"O2":xg_O2_,"CO":xg_CO_,"S2":xg_S2_,"CO2":xg_CO2_,"H2O":xg_H2O_,"H2":xg_H2_,"CH4":xg_CH4_,"SO2":xg_SO2_,"H2S":xg_H2S_,"OCS":xg_OCS_,"X":xg_X_,"Xg_t":Xg_t,"wt_g":wt_g}
             
             else:
-                xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6T, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf,setup,species,models,nr_step,nr_tol)
+                conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+                frac = c.melt_species_ratios(conc,species)
                 wm_ST_ = wm_S_ + wm_S6p_
                 S62 = S6T/S2m_ST
                 Fe3T = melt_wf["Fe3FeT"]
@@ -1689,7 +1711,8 @@ def fO2_at_1bar(first_row,last_row,inputs,setup,species,models):
                 gas_mf = {"O2":xg_O2_,"CO":xg_CO_,"S2":xg_S2_,"CO2":xg_CO2_,"H2O":xg_H2O_,"H2":xg_H2_,"CH4":xg_CH4_,"SO2":xg_SO2_,"H2S":xg_H2S_,"OCS":xg_OCS_,"X":xg_X_,"Xg_t":Xg_t,"wt_g":wt_g}
             
             else:
-                xm_H2O_, wm_H2O_, xm_CO2_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_H2S_, wm_S_, wm_S6p_, H2O_HT, H2_HT, CH4_HT, CO2_CT, CO_CT, CH4_CT, S6T, S2m_ST, H2S_ST, H2S_HT = eq.melt_speciation(run,PT,melt_wf,setup,species,models,nr_step,nr_tol)
+                conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
+                frac = c.melt_species_ratios(conc,species)
                 wm_ST_ = wm_S_ + wm_S6p_
                 S62 = S6T/S2m_ST
                 Fe3T = melt_wf["Fe3FeT"]
