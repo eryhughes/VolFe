@@ -318,13 +318,14 @@ def xm_H2Omol_so(PT,melt_wf,species,models):
     Z = xm_H2OT_so(melt_wf,species)
     return Z - 0.5*xm_OH_so(PT,melt_wf,species,models)
 
-def wm_H2Omol_OH(PT,melt_wf,species,models):
+def wm_H2Omol_OH(PT,melt_wf,species,models): # wt fraction
     H2Omol = xm_H2Omol_so(PT,melt_wf,species,models)*species.loc["H2O","M"]
     OH = xm_OH_so(PT,melt_wf,species,models)*species.loc["OH","M"]
     melt = xm_melt_so(melt_wf,species)*M_m_SO(melt_wf,species)
-    wm_H2Omol = 100.*H2Omol/(H2Omol + OH + melt)
-    wm_OH = 100.*OH/(H2Omol + OH + melt)
-    return wm_H2Omol, wm_OH # wt% 
+    CO2T = xm_CO2_so(melt_wf,species)
+    wm_H2Omol = H2Omol/(H2Omol + OH + melt + CO2T)
+    wm_OH = OH/(H2Omol + OH + melt + CO2T)
+    return wm_H2Omol, wm_OH
 
 #########################
 ### carbon speciation ###
@@ -341,7 +342,7 @@ def xm_CO32_CO2mol(PT,melt_wf,species,models): # mole fraction
         xm_CO2mol = xm_CO2T
     else: 
         K = mdv.KCOm(PT,melt_wf,species,models)
-        xm_CO32 = (K*xm_CO2T*(1.-xm_CO2T-xm_H2OT))/(2.-xm_CO2T-xm_H2OT)
+        xm_CO32 = (K*xm_CO2T*(1.-xm_CO2T-xm_H2OT))/(1.+ K*(1.-xm_CO2T-xm_H2OT))
         xm_CO2mol = xm_CO2T - xm_CO32
     return xm_CO32, xm_CO2mol
 
@@ -462,7 +463,19 @@ def Fe3FeT_i(PT,melt_wf,species,models):
 
 # C/S ratio of the vapor
 def gas_CS(PT,melt_wf,species,models):
-    xgCS = (xg_CO(PT,melt_wf,species,models)+xg_CO2(PT,melt_wf,species,models)+xg_OCS(PT,melt_wf,species,models)+xg_CH4(PT,melt_wf,species,models))/((2.*xg_S2(PT,melt_wf,species,models))+xg_SO2(PT,melt_wf,species,models)+xg_OCS(PT,melt_wf,species,models)+xg_H2S(PT,melt_wf,species,models))
+    S_values = ((2.*xg_S2(PT,melt_wf,species,models))+xg_SO2(PT,melt_wf,species,models)+xg_OCS(PT,melt_wf,species,models)+xg_H2S(PT,melt_wf,species,models))
+    if S_values > 0:
+        xgCS = (xg_CO(PT,melt_wf,species,models)+xg_CO2(PT,melt_wf,species,models)+xg_OCS(PT,melt_wf,species,models)+xg_CH4(PT,melt_wf,species,models))/S_values
+    else:
+        xgCS = ""
+    return xgCS
+
+def gas_CS_alt(xg):
+    S_values = ((2.*xg["S2"])+xg["SO2"]+xg["OCS"]+xg["H2S"])
+    if S_values > 0:
+        xgCS = (xg["CO"]+xg["CO2"]+xg["OCS"]+xg["CH4"])/S_values
+    else:
+        xgCS = ""
     return xgCS
 
 # all carbon as CO2 and all hydrogen as H2O
@@ -472,7 +485,7 @@ def melt_H2O_CO2_eq(melt_wf,species):
     return wmCO2eq, wmH2Oeq
 
 # calculate weight fraction of species in the gas
-def gas_wf(gas_mf,species):
+def gas_wf(gas_mf,species,models):
     wg_O2 = (species.loc["O2","M"]*gas_mf["O2"])/gas_mf["Xg_t"]
     wg_H2 = (species.loc["H2","M"]*gas_mf["H2"])/gas_mf["Xg_t"]
     wg_H2O = (species.loc["H2O","M"]*gas_mf["H2O"])/gas_mf["Xg_t"]
@@ -490,7 +503,7 @@ def gas_wf(gas_mf,species):
 
 # calculate weight fraction of species in the gas relative to total system
 def gas_wft(gas_mf,species):
-    gaswf = gas_wf(gas_mf,species)
+    gaswf = gas_wf(gas_mf,species,models)
     wgt_O2 = gaswf["wg_O2"]*gas_mf['wt_g']
     wgt_H2 = gaswf["wg_H2"]*gas_mf['wt_g']
     wgt_H2O = gaswf["wg_H2O"]*gas_mf['wt_g']
@@ -522,7 +535,7 @@ def gas_weight(gas_mf,bulk_wf,species):
     result = {"Wg_O2":Wg_O2, "Wg_H2":Wg_H2, "Wg_H2O":Wg_H2O, "Wg_H2S":Wg_H2S, "Wg_S2":Wg_S2, "Wg_SO2":Wg_SO2, "Wg_CO2":Wg_CO2, "Wg_CO":Wg_CO, "Wg_CH4":Wg_CH4, "Wg_OCS":Wg_OCS, "Wg_X":Wg_X,"Wg_t":Wg_t}
     return result
 
-def gas_moles(gas_mf,bulk_wf,species):
+def gas_moles(gas_mf,bulk_wf,species,models):
     gasw = gas_weight(gas_mf,bulk_wf,species)
     Xg_O2 = gasw["Wg_O2"]/species.loc["O2","M"]
     Xg_H2O = gasw["Wg_H2O"]/species.loc["H2O","M"]
@@ -533,7 +546,7 @@ def gas_moles(gas_mf,bulk_wf,species):
     Xg_CO2 = gasw["Wg_CO2"]/species.loc["CO2","M"]
     Xg_CO = gasw["Wg_CO"]/species.loc["CO","M"]
     Xg_CH4 = gasw["Wg_CH4"]/species.loc["CH4","M"]
-    Xg_OCS = Wgasw["g_OCS"]/species.loc["OCS","M"]
+    Xg_OCS = gasw["g_OCS"]/species.loc["OCS","M"]
     species_X = models.loc["species X","option"]
     Xg_X = gasw["Wg_X"]/species.loc[species_X,"M"]
     Xt_g = Xg_O2 + Xg_H2 + Xg_H2O + Xg_H2S + Xg_S2 + Xg_SO2 + Xg_CO2 + Xg_CO + Xg_CH4 + Xg_OCS + Xg_X
