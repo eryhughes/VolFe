@@ -100,7 +100,7 @@ def f_CH4(PT,melt_wf,species,models):
     return (f_CO2(PT,melt_wf,species,models)*f_H2O(PT,melt_wf,species,models)**2.0)/(K*mdv.f_O2(PT,melt_wf,species,models)**2.0)
 
 def f_OCS(PT,melt_wf,species,models):
-    OCSmodel = models.loc["carbonylsulphide","option"]
+    OCSmodel = models.loc["carbonylsulfide","option"]
     K = mdv.KOCSg(PT,models)
     if OCSmodel == "COHS":
         if f_H2O(PT,melt_wf,species,models) > 0.0:
@@ -357,12 +357,12 @@ def wm_CO32_CO2mol(PT,melt_wf,species,models): # wt fraction
     return wm_CO2carb, wm_CO2mol 
 
 ##########################
-### sulphur speciation ###
+### sulfur speciation ###
 ##########################
 
 def S6S2(PT,melt_wf,species,models):
     T_K = PT['T']+273.15
-    model = models.loc["sulphate","option"]
+    model = models.loc["sulfate","option"]
     if model == "Nash19":
         A, B = mdv.S_Nash19_terms(PT)
         result = 10.**(A*math.log10(Fe3Fe2(melt_wf)) + B)
