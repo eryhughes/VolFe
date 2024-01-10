@@ -24,9 +24,9 @@ def P_sat(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
     #CT = melt_wf["CT"]
     #XT = melt_wf["XT"]
     #melt_wf1 = {"ST":ST,"CO2":CO2,"H2OT":H2OT,"HT":HT,"CT":CT, "XT":XT} # to work out P_sat
-    #melt_wf2 = {"ST":ST,"CO2":CO2,"H2OT":H2OT,"HT":HT,"CT":CT, "XT":XT} # to work out sulphur saturation
+    #melt_wf2 = {"ST":ST,"CO2":CO2,"H2OT":H2OT,"HT":HT,"CT":CT, "XT":XT} # to work out sulfur saturation
     melt_wf1 = {'SiO2': melt_wf["SiO2"], 'TiO2': melt_wf["TiO2"], 'Al2O3': melt_wf["Al2O3"], 'FeOT': melt_wf["FeOT"], 'Fe2O3T': melt_wf["Fe2O3T"], 'FeO': melt_wf["FeO"], 'Fe2O3': melt_wf["Fe2O3"], 'MgO': melt_wf["MgO"], 'MnO': melt_wf["MnO"], 'CaO': melt_wf["CaO"], 'Na2O': melt_wf["Na2O"], 'K2O': melt_wf["K2O"], 'P2O5': melt_wf["P2O5"], 'logfO2_i': melt_wf["logfO2_i"], 'Fe3FeT_i': melt_wf["Fe3FeT_i"], 'DNNO': melt_wf["DNNO"], 'DFMQ': melt_wf["DFMQ"], 'S6ST_i': melt_wf["S6ST_i"], "ST":melt_wf["ST"],"CO2":melt_wf["CO2"],"H2OT":melt_wf["H2OT"],"HT":melt_wf["HT"],"CT":melt_wf["CT"], "XT":melt_wf["XT"]} # to work out P_sat
-    melt_wf2 = {'SiO2': melt_wf["SiO2"], 'TiO2': melt_wf["TiO2"], 'Al2O3': melt_wf["Al2O3"], 'FeOT': melt_wf["FeOT"], 'Fe2O3T': melt_wf["Fe2O3T"], 'FeO': melt_wf["FeO"], 'Fe2O3': melt_wf["Fe2O3"], 'MgO': melt_wf["MgO"], 'MnO': melt_wf["MnO"], 'CaO': melt_wf["CaO"], 'Na2O': melt_wf["Na2O"], 'K2O': melt_wf["K2O"], 'P2O5': melt_wf["P2O5"], 'logfO2_i': melt_wf["logfO2_i"], 'Fe3FeT_i': melt_wf["Fe3FeT_i"], 'DNNO': melt_wf["DNNO"], 'DFMQ': melt_wf["DFMQ"], 'S6ST_i': melt_wf["S6ST_i"], "ST":melt_wf["ST"],"CO2":melt_wf["CO2"],"H2OT":melt_wf["H2OT"],"HT":melt_wf["HT"],"CT":melt_wf["CT"], "XT":melt_wf["XT"]} # to work out sulphur saturation
+    melt_wf2 = {'SiO2': melt_wf["SiO2"], 'TiO2': melt_wf["TiO2"], 'Al2O3': melt_wf["Al2O3"], 'FeOT': melt_wf["FeOT"], 'Fe2O3T': melt_wf["Fe2O3T"], 'FeO': melt_wf["FeO"], 'Fe2O3': melt_wf["Fe2O3"], 'MgO': melt_wf["MgO"], 'MnO': melt_wf["MnO"], 'CaO': melt_wf["CaO"], 'Na2O': melt_wf["Na2O"], 'K2O': melt_wf["K2O"], 'P2O5': melt_wf["P2O5"], 'logfO2_i': melt_wf["logfO2_i"], 'Fe3FeT_i': melt_wf["Fe3FeT_i"], 'DNNO': melt_wf["DNNO"], 'DFMQ': melt_wf["DFMQ"], 'S6ST_i': melt_wf["S6ST_i"], "ST":melt_wf["ST"],"CO2":melt_wf["CO2"],"H2OT":melt_wf["H2OT"],"HT":melt_wf["HT"],"CT":melt_wf["CT"], "XT":melt_wf["XT"]} # to work out sulfur saturation
     
     def Pdiff(guess,melt_wf,species,models):
         PT["P"] = guess
@@ -49,8 +49,8 @@ def P_sat(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
     melt_wf2["S2-"] = ms_conc["wm_S2m"]
     melt_wf1["ST"] = ST
     melt_wf2["ST"] = ST
-    if models.loc["sulphur_saturation","option"] == "yes": # must incorporate H2S concentration into S2- for SCSS
-        sulfsat = sulphur_saturation(PT,melt_wf2,species,models)
+    if models.loc["sulfur_saturation","option"] == "yes": # must incorporate H2S concentration into S2- for SCSS
+        sulfsat = sulfur_saturation(PT,melt_wf2,species,models)
         melt_wf1["ST"] = sulfsat["ST"]/1000000.
         melt_wf2["ST"] = ST
     delta1 = Pdiff(guess0,melt_wf1,species,models)
@@ -69,8 +69,8 @@ def P_sat(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
         melt_wf2["CO2"] = ms_conc["wm_CO2"]
         melt_wf1["S2-"] = ms_conc["wm_S2m"]
         melt_wf2["S2-"] = ms_conc["wm_S2m"]
-        if models.loc["sulphur_saturation","option"] == "yes":
-            sulfsat = sulphur_saturation(PT,melt_wf2,species,models)
+        if models.loc["sulfur_saturation","option"] == "yes":
+            sulfsat = sulfur_saturation(PT,melt_wf2,species,models)
             melt_wf1["ST"] = sulfsat["ST"]/1000000.
             melt_wf2["ST"] = ST
     else:
@@ -172,7 +172,7 @@ def bulk_composition(run,PT,melt_wf,setup,species,models):
     Fe3FeT = melt_wf["Fe3FeT"]
     Fe3Fe2_ = mg.Fe3Fe2(melt_wf)
     S6ST_ = mg.S6ST(PT,melt_wf,species,models)
-    #SCSS_,sulphide_sat,SCAS_,sulphate_sat = sulphur_saturation(wm_ST/100.0,S6ST_)
+    #SCSS_,sulfide_sat,SCAS_,sulfate_sat = sulfur_saturation(wm_ST/100.0,S6ST_)
     #print(P, S6ST_)
 
     if bulk_composition == "yes":
@@ -317,11 +317,11 @@ def melt_species_ratios(conc,species):
 
 
 #########################
-### sulphur satuation ###
+### sulfur satuation ###
 #########################
 
-# check solid/immiscible liquid sulphur saturation
-def sulphur_saturation(PT,melt_wf,species,models): # melt weight fraction of ST and S6/ST
+# check solid/immiscible liquid sulfur saturation
+def sulfur_saturation(PT,melt_wf,species,models): # melt weight fraction of ST and S6/ST
     wmST = melt_wf['ST']
     S6T = mg.S6ST(PT,melt_wf,species,models)
     wmS2 = wmST*100.0*10000.0*(1.0-S6T)
@@ -331,26 +331,26 @@ def sulphur_saturation(PT,melt_wf,species,models): # melt weight fraction of ST 
     StCSS = SCSS_/(1.-S6T)
     StCAS = SCAS_/S6T
     if wmS2 < SCSS_ and wmS6 < SCAS_:
-        sulphide_sat = "no"
-        sulphate_sat = "no"
+        sulfide_sat = "no"
+        sulfate_sat = "no"
         ST = wmST*1000000.
     elif wmS2 >= SCSS_ and wmS6 >= SCAS_:
-        sulphide_sat = "yes"
-        sulphate_sat = "yes"
+        sulfide_sat = "yes"
+        sulfate_sat = "yes"
         ST = min(StCSS,StCAS)
     elif wmS2 >= SCSS_ and wmS6 < SCAS_:
-        sulphide_sat = "yes"
-        sulphate_sat = "no"
+        sulfide_sat = "yes"
+        sulfate_sat = "no"
         ST = StCSS
     elif wmS2 < SCSS_ and wmS6 >= SCAS_:
-        sulphide_sat = "no"
-        sulphate_sat = "yes"
+        sulfide_sat = "no"
+        sulfate_sat = "yes"
         ST = StCAS
     else:
-        sulphide_sat = "nan"
-        sulphate_sat = "nan"
+        sulfide_sat = "nan"
+        sulfate_sat = "nan"
         ST = wmST*1000000.
-    result = {"SCSS":SCSS_, "sulphide_sat":sulphide_sat, "SCAS":SCAS_, "sulphate_sat":sulphate_sat, "ST":ST}
+    result = {"SCSS":SCSS_, "sulfide_sat":sulfide_sat, "SCAS":SCAS_, "sulfate_sat":sulfate_sat, "ST":ST}
     return result
 
 # fO2 and P of v+sulf+anh saturation
@@ -511,7 +511,7 @@ def P_sat_sulf_anh(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
     if Fe3T_sulf == "not possible":
         P_sat_sulf = ""
         Fe3T_sulf = ""
-        sulphide_sat = "no"
+        sulfide_sat = "no"
     else: 
         melt_wf["Fe3FeT"] = Fe3T_sulf
         ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
@@ -530,7 +530,7 @@ def P_sat_sulf_anh(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
             if Fe3T_sulf == "not possible":
                 P_sat_sulf = ""
                 Fe3T_sulf = ""
-                sulphide_sat = "no"
+                sulfide_sat = "no"
             else: 
                 melt_wf["Fe3FeT"] = Fe3T_sulf
                 ms_conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
@@ -541,7 +541,7 @@ def P_sat_sulf_anh(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
         else:
             P_sat_sulf = guess0
             Fe3T_sulf,fO2_sulf,S6T_sulf,DFMQ_sulf,SCSS_ = S62_2_Fe3T(PT,melt_wf,species,models,"sulf")
-            sulphide_sat = "yes"
+            sulfide_sat = "yes"
            
     # assume it is anhydrite saturated
     Fe3T_anh,fO2_anh,S6T_anh,DFMQ_anh,SCAS_ = S62_2_Fe3T(PT,melt_wf,species,models,"anh")
@@ -580,7 +580,7 @@ def P_sat_sulf_anh(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
             Fe3T_anh,fO2_anh,S6T_anh,DFMQ_anh,SCAS_ = S62_2_Fe3T(PT,melt_wf,species,models,"anh")
             anhydrite_sat = "yes"
     
-    result = {"P_sat_sulf":P_sat_sulf,"P_sat_anh":P_sat_anh,"SCAS":SCAS_*1000000.,"SCSS":SCSS_*1000000.,"sulf_sat":sulphide_sat,"DFMQ_sulf":DFMQ_sulf,"fO2_sulf":fO2_sulf,"Fe3T_sulf":Fe3T_sulf,"S6T_sulf":S6T_sulf,"anh_sat":anhydrite_sat,"DFMQ_anh":DFMQ_anh,"fO2_anh":fO2_anh,"Fe3T_anh":Fe3T_anh,"S6T_anh":S6T_anh}          
+    result = {"P_sat_sulf":P_sat_sulf,"P_sat_anh":P_sat_anh,"SCAS":SCAS_*1000000.,"SCSS":SCSS_*1000000.,"sulf_sat":sulfide_sat,"DFMQ_sulf":DFMQ_sulf,"fO2_sulf":fO2_sulf,"Fe3T_sulf":Fe3T_sulf,"S6T_sulf":S6T_sulf,"anh_sat":anhydrite_sat,"DFMQ_anh":DFMQ_anh,"fO2_anh":fO2_anh,"Fe3T_anh":Fe3T_anh,"S6T_anh":S6T_anh}          
 
     return result
 
@@ -602,7 +602,7 @@ def graphite_saturation(PT,melt_wf,species,models): # needs finishing
 
                 
 ######################################                
-### fO2 range from sulphur content ###
+### fO2 range from sulfur content ###
 ######################################
                 
 def fO2_range_from_S(PT,melt_wf,species,models):
@@ -610,7 +610,7 @@ def fO2_range_from_S(PT,melt_wf,species,models):
     SCAS_ = mdv.SCAS(PT,melt_wf,species,models)
 
     if melt_wf["ST"]*1000000. > SCSS_:
-        sulphide_sat = "possible"
+        sulfide_sat = "possible"
         S6ST_1 = (melt_wf["ST"]*1000000. - SCSS_)/(melt_wf["ST"]*1000000.)
         S6S2_1 = mg.overtotal2ratio(S6ST_1)
         fO2_1 = mg.S6S2_2_fO2(S6S2_1,melt_wf,PT,species,models)
@@ -618,7 +618,7 @@ def fO2_range_from_S(PT,melt_wf,species,models):
         Fe3Fe2_1 = mg.overtotal2ratio(Fe3FeT_1)
         DFMQ_1 = mg.fO22Dbuffer(PT,fO2_1,"FMQ",models)
     else:
-        sulphide_sat = "no"
+        sulfide_sat = "no"
         S6ST_1 = ""
         S6S2_1 = ""
         Fe3Fe2_1 = ""
@@ -643,7 +643,7 @@ def fO2_range_from_S(PT,melt_wf,species,models):
         fO2_2 = ""
         DFMQ_2 = ""
                                  
-    result = {"SCAS":SCAS_, "SCSS":SCSS_, "sulf_sat":sulphide_sat, "DFMQ_sulf":DFMQ_1, "fO2_sulf":fO2_1, "Fe3FeT_sulf":Fe3FeT_1, "S6ST_sulf":S6ST_1, "anh_sat":anhydrite_sat, "DFMQ_anh":DFMQ_2, "fO2_anh":fO2_2, "Fe3FeT_anh":Fe3FeT_2, "S6ST_anh":S6ST_2}
+    result = {"SCAS":SCAS_, "SCSS":SCSS_, "sulf_sat":sulfide_sat, "DFMQ_sulf":DFMQ_1, "fO2_sulf":fO2_1, "Fe3FeT_sulf":Fe3FeT_1, "S6ST_sulf":S6ST_1, "anh_sat":anhydrite_sat, "DFMQ_anh":DFMQ_2, "fO2_anh":fO2_2, "Fe3FeT_anh":Fe3FeT_2, "S6ST_anh":S6ST_2}
 
     return result
     
@@ -671,7 +671,7 @@ def mass_vol_rho(PT,melt_wf,gas_mf,bulk_wf,species,models):
 ######################################################
 
 def mf_S_species(melt_wf,gas_mf,species):
-    # weight of S in each sulphur-bearing species
+    # weight of S in each sulfur-bearing species
     W_S2m = melt_wf["ST"]*(1.-gas_mf["wt_g"])*(1.-melt_wf["S6ST"])
     W_SO4 = melt_wf["ST"]*(1.-gas_mf["wt_g"])*melt_wf["S6ST"]
     W_H2S = ((gas_mf["H2S"]*species.loc["S","M"])/(gas_mf["Xg_t"]))*gas_mf["wt_g"]
@@ -679,7 +679,7 @@ def mf_S_species(melt_wf,gas_mf,species):
     W_S2 = ((gas_mf["S2"]*species.loc["S2","M"])/(gas_mf["Xg_t"]))*gas_mf["wt_g"]
     W_OCS = ((gas_mf["OCS"]*species.loc["S","M"])/(gas_mf["Xg_t"]))*gas_mf["wt_g"]
     W_total = W_S2m + W_SO4 + W_H2S + W_SO2 + W_S2 + W_OCS
-    # weight and mole fraction of S in each sulphur-bearing species compared to total S
+    # weight and mole fraction of S in each sulfur-bearing species compared to total S
     w_S2m = W_S2m/W_total
     w_SO4 = W_SO4/W_total
     w_SO2 = W_SO2/W_total
