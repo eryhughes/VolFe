@@ -291,8 +291,10 @@ def mg_equilibrium(PT,melt_wf,bulk_wf,species,models,nr_step,nr_tol,guesses): ##
     if system in ["COFe","COXFe","CHOFe","CHOXFe","SCHOFe","SCHOXFe"]: # contains C
         wm_CO2carb_, wm_CO2mol_ = mg.wm_CO32_CO2mol(PT,melt_wf,species,models)
     
+    wm_S6p_ = (wm_SO3_/species.loc["SO3","M"])*species.loc["S","M"]
+
     xg = {"xg_O2":xg_O2_, "xg_H2":xg_H2_, "xg_S2":xg_S2_, "xg_H2O":xg_H2O_, "xg_CO":xg_CO_, "xg_CO2":xg_CO2_, "xg_SO2":xg_SO2_, "xg_CH4":xg_CH4_, "xg_H2S":xg_H2S_, "xg_OCS":xg_OCS_, "xg_X":xg_X_, "Xg_t":Xg_t}
-    melt = {"xm_H2O":xm_H2O_, "xm_CO2":xm_CO2_, "Xm_t":Xm_t, "wm_H2O":wm_H2O_, "wmH2Omol":wm_H2Omol_, "wm_OH":wm_OH_,"wm_H2":wm_H2_, "wm_CO2":wm_CO2_, "wm_CO2carb":wm_CO2carb_, "wm_CO2mol":wm_CO2mol_, "wm_CO":wm_CO_, "wm_CH4":wm_CH4_, "wm_S":wm_S_, "wm_SO3":wm_SO3_, "wm_H2S":wm_H2S_, "wm_ST":wm_ST_, "wm_X":wm_X_, "Fe32":Fe32, "Fe3T":Fe3T, "S62":S62, "S6T":S6T}
+    melt = {"xm_H2O":xm_H2O_, "xm_CO2":xm_CO2_, "Xm_t":Xm_t, "wm_H2O":wm_H2O_, "wm_H2Omol":wm_H2Omol_, "wm_OH":wm_OH_,"wm_H2":wm_H2_, "wm_CO2":wm_CO2_, "wm_CO2carb":wm_CO2carb_, "wm_CO2mol":wm_CO2mol_, "wm_CO":wm_CO_, "wm_CH4":wm_CH4_, "wm_S":wm_S_,"wm_S2m":wm_S_, "wm_SO3":wm_SO3_,"wm_S6p":wm_S6p_, "wm_H2S":wm_H2S_, "wm_ST":wm_ST_, "wm_X":wm_X_, "Fe32":Fe32, "Fe3T":Fe3T, "S62":S62, "S6T":S6T}
     melt_and_gas = {"wt_g_O":wt_g_O, "wt_g_C":wt_g_C, "wt_g_H":wt_g_H, "wt_g_S":wt_g_S, "wt_g_X":wt_g_X, "wt_g":wt_g, "wt_O":wt_O_, "wt_C":wt_C_, "wt_H":wt_H_, "wt_S":wt_S_, "wt_X":wt_X_,}
     guesses["guessx"] = guessx
     guesses["guessy"] = guessy
@@ -630,13 +632,10 @@ def melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol):
     
     if system in ["COFe","COXFe","SOFe","SCOFe"]: # no H
         wm_CH4_, wm_H2S_, xm_H2O_, wm_H2O_, wm_H2_ = 0.,0.,0.,0.,0.
-        CH4_CT, H2O_HT, H2_HT, CH4_HT, H2S_HT = 0.,0.,0.,0.,0.
     if system in ["HOFe","HOXFe","SOFe","SHOFe"]: # no C
         wm_CH4_, xm_CO2_, wm_CO2_, wm_CO_ = 0.,0.,0.,0.
-        CH4_HT,CO2_CT,CO_CT,CH4_CT = 0.,0.,0.,0.
     if system in ["COFe","COXFe","HOFe","HOXFe","CHOFe","CHOXFe"]: # no S
         wm_H2S_, wm_S2m_, wm_S6p_ = 0.,0.,0.
-        H2S_HT,S2m_ST,S6p_ST,H2S_ST = 0.,0.,0.,0.
     if system in ["COFe","SOFe","SCOFe","HOFe","CHOFe","SHOFe"]: # no X
         wm_X_ = 0.
     
@@ -679,26 +678,14 @@ def melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol):
         Xm_t, wm_H2O_, wm_H2_, wm_CO2_, wm_CO_, wm_CH4_, wm_S2m_, wm_S6p_, wm_H2S_ = A
     
     if system in ["HOFe","HOFe","CHOFe","CHOXFe","SHOFe","SCHOFe","SCHOXFe"]: # contains H
-        H2_HT = wm_H2_/wt_H
-        H2O_HT = ((2.*(wm_H2O_/M_H2O))*M_H)/wt_H
         wm_H2Omol_, wm_OH_ = mg.wm_H2Omol_OH(PT,melt_wf,species,models)
     if system in ["COFe","COXFe","CHOFe","CHOXFe","SCHOFe","SCHOXFe"]: # contains C
-        CO_CT = ((wm_CO_/M_CO)*M_C)/wt_C
-        CO2_CT = ((wm_CO2_/M_CO2)*M_C)/wt_C
         wm_CO2carb_, wm_CO2mol_ = mg.wm_CO32_CO2mol(PT,melt_wf,species,models)
-    if system in ["SHOFe","SCHOFe","SCHOXFe"]: # contains S
-        S2m_ST = wm_S2m_/wt_S
-        S6p_ST = wm_S6p_/wt_S
-    if system in ["CHOFe","CHOXFe","SCHOFe","SCHOXFe"]: # contains H and C
-        CH4_CT = ((wm_CH4_/M_CH4)*M_C)/wt_C
-        CH4_HT = ((4.*(wm_CH4_/M_CH4))*M_H)/wt_H
-    if system in ["SHOFe","SCHOFe","SCHOXFe"]: # contains H and S
-        H2S_HT = ((2.*(wm_H2S_/M_H2S))*M_H)/wt_H
-        H2S_ST = (M_S*(wm_H2S_/M_H2S))/wt_S      
     
-    conc = {"xm_H2O":xm_H2O_, "wm_H2O":wm_H2O_, "wm_H2Omol":wm_H2Omol_, "wm_OH":wm_OH_, "xm_CO2":xm_CO2_, "wm_CO2":wm_CO2_, "wm_CO2carb":wm_CO2carb_,"wm_CO2mol":wm_CO2mol_,"wm_H2":wm_H2_, "wm_CO":wm_CO_, "wm_CH4":wm_CH4_, "wm_H2S":wm_H2S_, "wm_S2m":wm_S2m_, "wm_S6p":wm_S6p_, "ST": wt_S}
-    frac = {"H2O_HT":H2O_HT, "H2_HT":H2_HT, "CH4_HT":CH4_HT, "CO2_CT":CO2_CT, "CO_CT":CO_CT, "CH4_CT":CH4_CT, "S6p_ST":S6p_ST, "S2m_ST":S2m_ST, "H2S_ST":H2S_ST, "H2S_HT":H2S_HT}
-    return conc,frac
+    wm_SO3_ = (wm_S6p_*species.loc["SO3","M"])/species.loc["S","M"]
+
+    conc = {"xm_H2O":xm_H2O_, "wm_H2O":wm_H2O_, "wm_H2Omol":wm_H2Omol_, "wm_OH":wm_OH_, "xm_CO2":xm_CO2_, "wm_CO2":wm_CO2_, "wm_CO2carb":wm_CO2carb_,"wm_CO2mol":wm_CO2mol_,"wm_H2":wm_H2_, "wm_CO":wm_CO_, "wm_CH4":wm_CH4_, "wm_H2S":wm_H2S_, "wm_S2m":wm_S2m_, "wm_S6p":wm_S6p_, "wm_SO3":wm_SO3_,"ST": wt_S}
+    return conc
 
 def eq_SOFe_melt(PT,bulk_wf,melt_wf,species,models,nr_step,nr_tol,guesses): # equilibrium between S and Fe in the melt
     P = PT["P"]
