@@ -10,58 +10,30 @@ import calculations as c
 ### delta notation ###
 ######################
 
-def ratio2delta(standard,ratio):
-    if standard == "VCDT":
-        reference = 4.50045e-3 # 34S/32S
+def delta_standards(standard,isotope,element):
+    if element == "S":
+        if standard == "VCDT":
+            if isotope == 34:
+                reference = 1/22.6436 # 34S/32S Ding et al. (2001)
+    elif element == "C":
+        if standard = "VPBD":
+            if isotope == 13:
+                reference = 0.01123720 # 13C/12C International Atomic Energy Agency (1995)
+    elif element == "H":
+        if standard == "VSMOW":
+            if isotope = 2:
+                reference = 155.76/1.e6 # 2H/1H Hagemann et al. (1970)
+    return reference
+ 
+def ratio2delta(standard,isotope,ratio,element):
+    reference = delta_standard(standard,isotope,element)
     d = ((ratio - reference)/reference)*1000.
     return d
 
-def delta2ratio(standard,d):
-    if standard == "VCDT":
-        reference = 4.50045e-3 # 34S/32S
+def delta2ratio(standard,isotope,d):
+    reference = delta_standard(standard,isotope,element)
     ratio = ((d/1000.)*reference) + reference
     return ratio
-
-
-#################################################################################################################################
-################################################# ISOTOPE FRACTIONATION FACTORS #################################################
-#################################################################################################################################
-
-# beta factors from Richet et al. (1977) fitted to quadratic equation for 600 < T'C < 1300
-
-def beta_gas(PT,element,species):
-    t = 1./(PT["T"]+273.15)
-    if element == "S":
-        if species == "SO2":
-            a, b, c = 4872.56428, 0.76400, 0.99975
-        elif species == "S2":
-            a, b, c = 1708.22425, -0.76202, 1.00031
-        elif species == "OCS":
-            a, b, c = 980.75175, 1.74954, 0.99930 
-        elif species == "H2S":
-            a, b, c = 935.84901, 1.29355, 0.99969
-    value = a*t**2 + b*t + c
-    return value
-
-def alpha_gas(element,A,B,PT):
-    beta_A = beta_gas(PT,element,A)
-    beta_B = beta_gas(PT,element,B) 
-    result = beta_A/beta_B
-    return result
-
-def alpha_H2S_S(PT): # Fiege et al. (2015) Chemical Geology equation 8 - H2S fluid and S2- melt
-    T_K = PT["T"] + 273.15
-    lna103 = (10.84*((1000./T_K)**2)) - 2.5
-    a = gp.exp(lna103/1000.)
-    return a
-
-def alpha_SO2_SO4(PT): # Fiege et al. (2015) Chemical Geology equation 9 - SO2 fluid and SO4 melt
-    T_K = PT["T"] + 273.15
-    lna103 = (-0.42*((1000./T_K)**3)) - (2.133*((1000./T_K)**3)) - (0.105*(1000./T_K)) - 0.41
-    a = gp.exp(lna103/1000.)
-    return a
-
-
 
 # newton raphson solver
 def newton_raphson(x0,constants,e1,step,eqs,deriv,maxiter=1000):

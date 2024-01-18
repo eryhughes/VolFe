@@ -17,6 +17,7 @@ import melt_gas as mg
 # Equilibrium constants
 # Fugacity coefficients
 # Speciation 
+# Isotope fractionation factors
 
 #################################################################################################################################
 ##################################################### SOLUBILITY CONSTANTS ######################################################
@@ -1483,3 +1484,48 @@ def melt_density(PT,melt_wf,species,models):
         output = dx.Density(melt_dx)
         density = output.loc[0,"Density_g_per_cm3"]
     return density
+
+#################################################################################################################################
+################################################# ISOTOPE FRACTIONATION FACTORS #################################################
+#################################################################################################################################
+
+# beta factors from Richet et al. (1977) fitted to quadratic equation for 600 < T'C < 1300
+
+def beta_gas(PT,element,species):
+    t = 1./(PT["T"]+273.15)
+    if element == "S":
+        if species == "SO2":
+            a, b, c = 4872.56428, 0.76400, 0.99975
+        elif species == "S2":
+            a, b, c = 1708.22425, -0.76202, 1.00031
+        elif species == "OCS":
+            a, b, c = 980.75175, 1.74954, 0.99930 
+        elif species == "H2S":
+            a, b, c = 935.84901, 1.29355, 0.99969
+    if models.loc["beta_factors","option"] == "Richet77"
+    value = a*t**2 + b*t + c
+    return value
+
+def alpha_gas(element,A,B,PT):
+    beta_A = beta_gas(PT,element,A)
+    beta_B = beta_gas(PT,element,B) 
+    result = beta_A/beta_B
+    return result
+
+def alpha_H2S_S(PT,models): # Fiege et al. (2015) Chemical Geology equation 8 - H2S fluid and S2- melt
+    if models.loc["alpha_H2S_S","option"] == "Fiege15":
+        T_K = PT["T"] + 273.15
+        lna103 = (10.84*((1000./T_K)**2)) - 2.5
+        a = gp.exp(lna103/1000.)
+    return a
+
+def alpha_SO2_SO4(PT,models): # Fiege et al. (2015) Chemical Geology equation 9 - SO2 fluid and SO4 melt
+    if models.loc["alpha_SO2_SO4","option"] == "Fiege15":
+        T_K = PT["T"] + 273.15
+        lna103 = (-0.42*((1000./T_K)**3)) - (2.133*((1000./T_K)**3)) - (0.105*(1000./T_K)) - 0.41
+        a = gp.exp(lna103/1000.)
+    return a
+
+def alpha_A_B(element,A,B,PT,models):
+    if A == "SO2" and B == "H2S":
+        a = alpha_gas(element,A,B,PT)
