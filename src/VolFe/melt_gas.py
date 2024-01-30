@@ -5,7 +5,8 @@ import numpy as np
 import gmpy2 as gp
 import math
 
-import model_dependent_variables as mdv
+#import model_dependent_variables as mdv
+import VolFe.model_dependent_variables as mdv
 
 ### TO SORT ###
 # species X solubility

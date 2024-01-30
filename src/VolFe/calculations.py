@@ -5,10 +5,11 @@ from datetime import date
 import numpy as np
 import datetime
 
-import melt_gas as mg
-import equilibrium_equations as eq
-import isotopes as iso
-import model_dependent_variables as mdv
+import VolFe.melt_gas as mg
+import VolFe.equilibrium_equations as eq
+import VolFe.isotopes as iso
+import VolFe.model_dependent_variables as mdv
+
 
 
 ###########################

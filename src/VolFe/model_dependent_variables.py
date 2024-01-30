@@ -7,7 +7,10 @@ import math
 import densityx as dx
 import PySulfSat as ss
 
-import melt_gas as mg
+#import VolFe.melt_gas as mg
+
+#from VolFe.melt_gas import *
+import VolFe.melt_gas as mg
 
 ################
 ### Contents ###
@@ -1502,8 +1505,8 @@ def beta_gas(PT,element,species):
             a, b, c = 980.75175, 1.74954, 0.99930 
         elif species == "H2S":
             a, b, c = 935.84901, 1.29355, 0.99969
-    if models.loc["beta_factors","option"] == "Richet77"
-    value = a*t**2 + b*t + c
+    if models.loc["beta_factors","option"] == "Richet77":
+        value = a*t**2 + b*t + c
     return value
 
 def alpha_gas(element,A,B,PT):

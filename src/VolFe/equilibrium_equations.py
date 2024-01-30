@@ -4,9 +4,13 @@ import pandas as pd
 import numpy as np
 from scipy import optimize
 
-import differential_equations as de
-import melt_gas as mg
-import model_dependent_variables as mdv
+import VolFe.differential_equations as de
+#import differential_equations as de
+import VolFe.melt_gas as mg
+#import melt_gas as mg
+import VolFe.model_dependent_variables as mdv
+#import model_dependent_variables as mdv
+
 
 def set_system(melt_wf,models):
     xenia = models.loc["xenia","option"]

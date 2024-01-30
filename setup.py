@@ -19,7 +19,7 @@ setup(
     #long_description=long_description,
     #long_description_content_type="text/markdown",
     url="https://github.com/eryhughes/VolFe",
-    #package_dir={'': 'src'},  # Optional
+    package_dir={'': 'src'},  # Optional
     packages=find_packages(where='src'),  # Required
 
     #package_data={
@@ -31,9 +31,8 @@ setup(
             'numpy',
             'datetime',
             'gmpy2',
-            'math',
             'scipy',
-            'densityx'
+            'densityx',
             'PySulfSat'
             ],
     classifiers=[
