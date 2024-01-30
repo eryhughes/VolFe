@@ -281,7 +281,7 @@ def gas_comp_all_open(xg,xg_all,models,species):
 
 # calculate ratios of volatile species in the melt
 def melt_species_ratios(conc,species):
-    
+
     M_H = species.loc['H','M']
     M_S = species.loc['S','M']
     M_C = species.loc['C','M']
@@ -709,54 +709,55 @@ def fO2_silm_sulf_anh(PT,melt_wf,species,models):
 ##############################################
 
 def S_given_T_P_fO2_C_H(PT,melt_wf,species,models,nr_step,nr_tol): # no dissolved H2S  
-    guessx = melt_wf["H2OT"]
-    guessy = melt_wf["CO2"]
     P = PT["P"]
     
-    xm_CO2_,xm_H2O_, A, B = eq.eq_CH_melt(PT,melt_wf,species,models,nr_step,nr_tol,guessx,guessy)
-    Xm_t, wm_H2O_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_ = A 
-    mbC, mbH, wt_m_C, wt_m_H, other = B
+    conc = eq.melt_speciation(PT,melt_wf,species,models,nr_step,nr_tol)
     
-    melt_wf["H2OT"] = wm_H2O_
-    melt_wf["CO2"] = wm_CO2_
+    melt_wf["H2OT"] = conc["wm_H2O"]
+    melt_wf["CO2"] = conc["wm_CO2"]
   
     xg_O2_ = mg.p_O2(PT,melt_wf,species,models)/P
     xg_CO2_ = mg.p_CO2(PT,melt_wf,species,models)/P
     xg_CO_ = mg.p_CO(PT,melt_wf,species,models)/P
-    xg_H2_ = mg.p_H2(rT,melt_wf,species,models)/P
+    xg_H2_ = mg.p_H2(PT,melt_wf,species,models)/P
     xg_H2O_ = mg.p_H2O(PT,melt_wf,species,models)/P
     xg_CH4_ = mg.p_CH4(PT,melt_wf,species,models)/P
-    
-    fH2O = xg_H2O_*P*mdv.y_H2O(PT,species,models)
     
     K6_ = mdv.KOSg(PT,models)
     K7_ = mdv.KHOSg(PT,models)
     K8_ = mdv.C_S(PT,melt_wf,species,models)/1000000.0
-    K9_ = (mdv.C_SO4(PT,melt_wf,species,models)/1000000.0)                                                  
+    K9_ = (mdv.C_SO4(PT,melt_wf,species,models)/1000000.0)
+    K10_ = mdv.KOCSg(PT,models)                                           
     y_S2_ = mdv.y_S2(PT,species,models)
     y_SO2_ = mdv.y_SO2(PT,species,models)
     y_H2S_ = mdv.y_H2S(PT,species,models)
     y_O2_ = mdv.y_O2(PT,species,models)
+    y_H2O_ = mdv.y_H2O(PT,species,models)
+    y_CO2_ = mdv.y_CO2(PT,species,models)
+    y_CO_ = mdv.y_CO(PT,species,models)
+    y_OCS_ = mdv.y_OCS(PT,species,models)
     M_S = species.loc['S','M']
     M_SO3 = species.loc['SO3','M']
-                                                               
-    fO2 = mdv.KC91(PT,melt_wf,species,models)
     
     a = 1.
-    b = (K6_*fO2)/(y_SO2_*P*(y_S2_*P)**0.5) + (K7_*fH2O)/(y_H2S_*P*fO2**0.5*(y_S2_*P)**0.5)
+    b = ((K6_*(y_S2_*P)**0.5*(xg_O2_*y_O2_))/y_SO2_) + ((K7_*xg_H2O_*y_H2O_*y_S2_**0.5)/((xg_O2_*y_O2_)**0.5*y_H2S_)) + ((K6_*(y_S2_*P)**0.5*xg_O2_*y_O2_*(xg_CO_*y_CO_)**3.*P)/(K10_*(xg_CO2_*y_CO2_)**2.*y_OCS_))
     c = (xg_O2_ + xg_H2O_ + xg_H2_ + xg_CO_ + xg_CO2_ + xg_CH4_) - 1.
     x = (-b + (b**2 - 4.*a*c)**0.5)/(2.*a)
-    xg_S2_ = x**2
+    xg_S2_ = x**2.
     xg_SO2_ = (K6_*(xg_S2_*P*y_S2_)**0.5*(xg_O2_*P*y_O2_))/(y_SO2_*P)
     wm_S_ = K8_*((y_S2_*xg_S2_)/(y_O2_*xg_O2_))**0.5
-    wm_SO3_ = (K9_*(y_S2_*xg_S2_*P)**0.5*(y_O2_*xg_O2_*P)**1.5)*(M_SO3/M_S)
-    wm_ST_ = wm_S_ + ((M_S*wm_SO3_)/M_SO3)
-    S62 = (wm_SO3_/M_SO3)/(wm_S_/M_S)
-    S6T = S62/(1+S62)
+    wm_S6p_ = (K9_*(y_S2_*xg_S2_*P)**0.5*(y_O2_*xg_O2_*P)**1.5)
+    wm_SO3_ = wm_S6p_*(M_SO3/M_S)
+    wm_ST_ = wm_S_ + wm_S6p_
     
-    result = {"wm_H2O":wm_H2O_, "wm_CO2":wm_CO2_, "wm_H2":wm_H2_, "wm_CO":wm_CO_, "wm_CH4":wm_CH4_, "wm_ST":wm_ST_, "wm_S":wm_S_, "wm_SO3":wm_SO3_, "S6T":S6T, "S62":S62}                            
+    conc["wm_ST"] = wm_ST_
+    conc["wm_S2m"] = wm_S_
+    conc["wm_S6p"] = wm_S6p_
+    conc["wm_SO3"] = wm_SO3_ 
+    conc["wm_H2S"] = 0.
+    frac = melt_species_ratios(conc,species)                                                     
                                  
-    return result           
+    return conc, frac           
 
 
 ###################################
