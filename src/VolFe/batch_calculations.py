@@ -7,11 +7,14 @@ import numpy as np
 import datetime
 import math as math
 
-import melt_gas as mg
-import equilibrium_equations as eq
-import isotopes as iso
-import model_dependent_variables as mdv
-import calculations as c
+import VolFe.melt_gas as mg
+import VolFe.equilibrium_equations as eq
+import VolFe.isotopes as iso
+
+import VolFe.model_dependent_variables as mdv
+import VolFe.calculations as c
+
+
 
 # building results tables
 # outputing sample name

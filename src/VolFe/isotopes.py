@@ -3,8 +3,8 @@
 import pandas as pd
 import numpy as np
 
-import melt_gas as mg
-import calculations as c
+import VolFe.melt_gas as mg
+import VolFe.calculations as c
 
 ######################
 ### delta notation ###
@@ -16,12 +16,12 @@ def delta_standards(standard,isotope,element):
             if isotope == 34:
                 reference = 1/22.6436 # 34S/32S Ding et al. (2001)
     elif element == "C":
-        if standard = "VPBD":
+        if standard == "VPBD":
             if isotope == 13:
                 reference = 0.01123720 # 13C/12C International Atomic Energy Agency (1995)
     elif element == "H":
         if standard == "VSMOW":
-            if isotope = 2:
+            if isotope == 2:
                 reference = 155.76/1.e6 # 2H/1H Hagemann et al. (1970)
     return reference
  
