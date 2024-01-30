@@ -1,0 +1,16 @@
+setup.py
+src/VolFe/__init__.py
+src/VolFe/_version.py
+src/VolFe/batch_calculations.py
+src/VolFe/calculations.py
+src/VolFe/differential_equations.py
+src/VolFe/equilibrium_equations.py
+src/VolFe/import_files.py
+src/VolFe/isotopes.py
+src/VolFe/melt_gas.py
+src/VolFe/model_dependent_variables.py
+src/VolFe.egg-info/PKG-INFO
+src/VolFe.egg-info/SOURCES.txt
+src/VolFe.egg-info/dependency_links.txt
+src/VolFe.egg-info/requires.txt
+src/VolFe.egg-info/top_level.txt

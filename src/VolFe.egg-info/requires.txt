@@ -1,0 +1,7 @@
+pandas
+numpy
+datetime
+gmpy2
+scipy
+densityx
+PySulfSat
