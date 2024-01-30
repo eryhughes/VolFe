@@ -1192,11 +1192,7 @@ def fO2_SSA_output(first_row,last_row,setup,species,models):
 ##############################################
             
 def S_given_T_P_fO2_C_H_output(first_row,last_row,setup,species,models,nr_step,nr_tol):
-    # set up results table
-    results = pd.DataFrame([["Sample","P (bar)","T ('C)","fO2 (DFMQ)",
-                  "SiO2 (wt%)","TiO2 (wt%)","Al2O3 (wt%)","FeOT (wt%)","MnO (wt%)","MgO (wt%)","CaO (wt%)","Na2O (wt%)","K2O (wt%)","P2O5 (wt%)",
-                "H2OT-eq (wt%)","CO2-eq (ppm)","ST-eq (ppm)","H2OT (wt%)", "CO2 (ppm)", "H2 (ppm)","CO (ppm)","CH4 (ppm)","S2- (ppm)","S6+ (ppm)","H2S (ppm)", "S6+/ST","Fe3+/FeT"]])
-                      
+                
     if models.loc["H2S_m","option"] != "no":
         raise TypeError("This calculation assumes H2S is insoluble in the melt")
 
@@ -1207,30 +1203,44 @@ def S_given_T_P_fO2_C_H_output(first_row,last_row,setup,species,models,nr_step,n
         models = options_from_setup(run,models,setup)
 
         PT={"T":setup.loc[run,"T_C"], "P":setup.loc[run,"P_bar"]}
-        melt_wf = {'CO2':setup.loc[run,"CO2ppm"]/1000000.,"H2OT":setup.loc[run,"H2O"]/100.}
+        melt_wf=mg.melt_comp(run,setup)
+        melt_wf['CO2']= setup.loc[run,"CO2ppm"]/1000000.
+        melt_wf["H2OT"] = setup.loc[run,"H2O"]/100.
+        melt_wf["XT"] = setup.loc[run,"Xppm"]/1000000.
+        melt_wf["ST"] = 0.
         melt_wf["CT"] = (melt_wf["CO2"]*species.loc['C','M'])/species.loc['CO2','M']
         melt_wf["HT"] = (melt_wf["H2OT"]*species.loc['H','M'])/species.loc['H2O','M']
-        melt_wf["Fe3FeT"] = mg.Fe3FeT_i(run,PT,melt_wf,setup,species,models)                                              
+        melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)                                              
         
-        wm_H2O_, wm_CO2_, wm_H2_, wm_CO_, wm_CH4_, wm_ST_, wm_S_, wm_SO3_, S6T, S62 = c.S_given_T_P_fO2_C_H(run,PT,melt_wf,setup,species,models,nr_step,nr_tol)
-       
-        ### store results ###
-        results2 = pd.DataFrame([[setup.loc[run,"Sample"],PT["P"],setup.loc[run,"T_C"],setup.loc[run,"DFMQ"],setup.loc[run,"SiO2"],setup.loc[run,"TiO2"],setup.loc[run,"Al2O3"],mg.Wm_FeOT(run,setup,species),setup.loc[run,"MnO"],setup.loc[run,"MgO"],setup.loc[run,"CaO"],setup.loc[run,"Na2O"],setup.loc[run,"K2O"],setup.loc[run,"P2O5"],
-                setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],wm_ST_*1000000., wm_H2O_*100., wm_CO2_*1000000., wm_H2_*1000000., wm_CO_*1000000.,wm_CH4_*1000000.,wm_S_*1000000.,((wm_SO3_*species.loc['S','M'])/species.loc['SO3','M'])*1000000.,0.,S6T,melt_wf["Fe3FeT"]]])
-        results = pd.concat([results, results2], ignore_index=True)                     
-        if models.loc["output csv","option"] == "yes":
-            results.to_csv('S_given_T_P_fO2_C_H.csv', index=False, header=False)
+        conc, frac = c.S_given_T_P_fO2_C_H(PT,melt_wf,species,models,nr_step,nr_tol)
+        melt_wf["ST"] = conc["wm_ST"]
+        melt_wf["S2-"] = conc["wm_S2m"]
+        melt_comp = mg.melt_normalise_wf(melt_wf,species,"yes","no")
+        sulf_sat_result = c.sulfur_saturation(PT,melt_wf,species,models)
+
+        # create results
+        results_headers_table_sample_name, results_values_table_sample_name = results_table_sample_name(setup,run)
+        results_headers_table_melt_comp_etc, results_values_table_melt_comp_etc = results_table_melt_comp_etc(PT,melt_comp,conc,frac,melt_wf)
+        results_headers_table_model_options, results_values_table_model_options = results_table_model_options(models)    
+        results_headers_table_f_p_xg_y_M_C_K_d, results_values_table_f_p_xg_y_M_C_K_d = results_table_f_p_xg_y_M_C_K_d(PT,melt_wf,species,models)
+        results_headers_table_sat, results_values_table_sat = results_table_sat(sulf_sat_result,PT,melt_wf,species,models)
+        results_headers_table_melt_vol = results_table_melt_vol() # "H2OT-eq_wtpc","CO2T-eq_ppmw","ST_ppmw","X_ppmw"
+        results_values_table_melt_vol = pd.DataFrame([[setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],conc["wm_ST"]*1000000.,setup.loc[run,"Xppm"]]])
+        results_headers = pd.concat([results_headers_table_sample_name,results_headers_table_melt_comp_etc,results_headers_table_melt_vol,results_headers_table_sat,results_headers_table_f_p_xg_y_M_C_K_d,results_headers_table_model_options],axis=1)
+        results1 = pd.concat([results_values_table_sample_name,results_values_table_melt_comp_etc,results_values_table_melt_vol,results_values_table_sat,results_values_table_f_p_xg_y_M_C_K_d,results_values_table_model_options],axis=1)
+    
+        if n == first_row:
+            results = pd.concat([results_headers, results1])
+        else:                         
+            results = pd.concat([results, results1])
+        
         if models.loc["print status","option"] == "yes":
             print(n, setup.loc[run,"Sample"],PT["P"])
-            
-        ### store results ###
-        results2 = pd.DataFrame([[setup.loc[run,"Sample"],PT["P"],setup.loc[run,"T_C"],DFMQ,setup.loc[run,"SiO2"],setup.loc[run,"TiO2"],setup.loc[run,"Al2O3"],mg.Wm_FeOT(run,setup,species),setup.loc[run,"MnO"],setup.loc[run,"MgO"],setup.loc[run,"CaO"],setup.loc[run,"Na2O"],setup.loc[run,"K2O"],setup.loc[run,"P2O5"],
-                setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],wmST, S2, S6, S6ST, melt_wf["Fe3FeT"]]])
-        results = pd.concat([results, results2], ignore_index=True)                     
-        if models.loc["output csv","option"] == "yes":
-            results.to_csv('fO2_silm_sulf_anh.csv', index=False, header=False)
-        if models.loc["print status","option"] == "yes":
-            print(n, setup.loc[run,"Sample"],PT["P"])
+    
+    results.columns = results.iloc[0]
+    results = results[1:]  
+    if models.loc["output csv","option"] == "yes":
+        results.to_csv('results_S_given_T_P_fO2_C_H.csv', index=False, header=True)
 
     return results
         
