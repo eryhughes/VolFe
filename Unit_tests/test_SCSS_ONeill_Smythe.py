@@ -9,7 +9,7 @@ import VolFe as vf
 class test_mantlemelt(unittest.TestCase):
     def test_Simple_mantle_Cu(self):
         self.assertAlmostEqual(2+2, 4,
-decimalPlace, "Inst Cu doesnt match test value")
+4, "Inst Cu doesnt match test value")
 
 
 
