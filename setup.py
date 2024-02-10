@@ -28,7 +28,7 @@ setup(
     #},
     install_requires=[
             'pandas',
-            'numpy',
+            'numpy<2',
             'datetime',
             'gmpy2',
             'scipy',
