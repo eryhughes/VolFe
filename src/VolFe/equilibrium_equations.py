@@ -13,16 +13,12 @@ import VolFe.model_dependent_variables as mdv
 
 
 def set_system(melt_wf,models):
-    xenia = models.loc["xenia","option"]
     wt_H = melt_wf["HT"]
     wt_C = melt_wf["CT"]
     wt_S = melt_wf["ST"]
     wt_X = melt_wf["XT"]
     if wt_H > 0. and wt_C == 0. and wt_S == 0. and wt_X == 0.:
-        if xenia == "no":
-            sys = "HOFe"
-        elif xenia == "yes":
-            sys == "HOFe_xenia"
+        sys = "HOFe"
     elif wt_H == 0. and wt_C > 0. and wt_S == 0. and wt_X == 0.:
         sys = "COFe"
     elif wt_H == 0. and wt_C == 0. and wt_S > 0. and wt_X == 0.:
