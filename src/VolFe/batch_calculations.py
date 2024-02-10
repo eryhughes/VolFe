@@ -208,7 +208,7 @@ def options_from_setup(run,models,setup):
 
 
 # calculate the saturation pressure for multiple melt compositions in setup file
-def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
+def P_sat_output(setup,species,models,first_row=0,last_row=None,p_tol=1.e-1,nr_step=1.,nr_tol=1.e-9):
     
     """ 
     Calculates the pressure of vapor saturation for multiple melt compositions given volatile-free melt composition, volatile content, temperature, and an fO2 estimate.
@@ -216,16 +216,6 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
 
     Parameters
     ----------
-    first_row: float
-        Integer of the first row in the setup file to run (note the first row under the headers is row 0).   
-    last_row: float
-        Integer of the last row in the setup file to run (note the first row under the headers is row 0).
-    p_tol: float
-        Required tolerance for convergence of Pvsat in bars (0.1 bars is normally used).
-    nr_step: float
-        Step size for Newton-Raphson solver for melt speciation (typically 1 is fine, but this can be made smaller if there are problems with convergence.).
-    nr_tol: float
-        Tolerance for the Newton-Raphson solver for melt speciation in weight fraction (typically 1e-9 is sufficient but this can be made larger if there are problems with convergence).
     setup: pandas.DataFrame
         Dataframe with melt compositions to be used, requires following headers): 
         Sample, T_C, 
@@ -237,6 +227,18 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
         Dataframe of species.csv file.
     models: pandas.DataFrame
         Dataframe of models.csv file.
+    
+    Optional:
+    first_row: float
+        Integer of the first row in the setup file to run (note the first row under the headers is row 0). Default = 0  
+    last_row: float
+        Integer of the last row in the setup file to run (note the first row under the headers is row 0). Default = length of setup
+    p_tol: float
+        Required tolerance for convergence of Pvsat in bars. Default = 1.e-1
+    nr_step: float
+        Step size for Newton-Raphson solver for melt speciation (this can be made smaller if there are problems with convergence.). Default = 1
+    nr_tol: float
+        Tolerance for the Newton-Raphson solver for melt speciation in weight fraction (this can be made larger if there are problems with convergence). Default = 1.e-9
 
     Returns
     -------
@@ -247,7 +249,9 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
     results_saturation_pressures: csv file (if output csv = yes in models)
 
     """
-    
+    if last_row == None:
+        last_row = len(setup)
+
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
         PT={"T":setup.loc[run,"T_C"]}
@@ -264,7 +268,7 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
         else:
             melt_wf['Fe3FeT'] = 0.
         P_sat_H2O_CO2_only, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(PT,melt_wf,species,models,p_tol,nr_step,nr_tol)
-        
+
         if models.loc["calc_sat","option"] == "fO2_fX":
             P_sat_fO2_fS2_result = c.P_sat_fO2_fS2(PT,melt_wf,species,models,p_tol)
             PT["P"] = P_sat_fO2_fS2_result["P_tot"]
@@ -275,8 +279,6 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
         melt_wf['HT'] = (melt_wf['H2OT']/species.loc['H2O','M'])*(2.*species.loc['H','M'])
         wm_X = setup.loc[run,"Xppm"]/1000000.
         melt_wf['XT'] = wm_X
-        if setup.loc[run,"S6ST"] > 0.:
-            melt_wf["S6ST"] = setup.loc[run,"S6ST"]
         if models.loc["bulk_composition","option"] == "yes":
             bulk_wf = {"H":(2.*species.loc["H","M"]*melt_wf["H2OT"])/species.loc["H2O","M"],"C":(species.loc["C","M"]*melt_wf["CO2"])/species.loc["CO2","M"],"S":wm_ST, "X":wm_X}
         else:
@@ -287,6 +289,7 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
             P_sat_, conc, frac  = c.fO2_P_VSA(PT,melt_wf,species,models,nr_step,nr_tol,p_tol)
         elif models.loc["sulfur_saturation","option"] == "no":
             P_sat_, conc, frac = c.P_sat(PT,melt_wf,species,models,p_tol,nr_step,nr_tol)
+            print(P_sat_, conc, frac)
         elif models.loc["sulfur_saturation","option"] == "yes":
             if melt_wf["XT"] > 0.:
                 raise TypeError('This is not currently possible')
@@ -333,7 +336,7 @@ def P_sat_output(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
     return results
 
 ### NEEDS CHECKING ###        
-def P_sat_output_fS2(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,models):
+def P_sat_output_fS2(setup,species,models,first_row=0,last_row=None,p_tol=1.e-1,nr_step=1.,nr_tol=1.e-9):
     # set up results table
     results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","sulfide saturation","ideal gas","carbonylsulfide","mass_volume","insolubles","Saturation calculation","Date"]])
     results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["sulfur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["mass_volume","option"],models.loc['insolubles','option'],models.loc['calc_sat','option'],date.today()]])
@@ -344,6 +347,9 @@ def P_sat_output_fS2(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,model
                 "f-fO2","f-fS2","f-fSO2","f-pO2","f-pS2","f-pSO2","f-xgO2","f-xgS2","f-xgSO2",
                  "b-fO2","b-fS2","b-fSO2","b-pO2","b-pS2","b-pSO2","b-xgO2","b-xgS2","b-xgSO2","ySO2"]])
     results = pd.concat([results, results1], ignore_index=True)
+    
+    if last_row == None:
+        last_row = len(setup)
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
@@ -382,7 +388,7 @@ def P_sat_output_fS2(first_row,last_row,p_tol,nr_step,nr_tol,setup,species,model
 ### gassing ###
 ###############
 
-def gassing(run,gassing_inputs,setup,species,models):
+def gassing(setup,species,models,run=0,nr_step=1.,nr_tol=1.e-9,dp_step=10.,psat_tol=0.1,dwtg=1.e-7,i_nr_step=1.e-1,i_nr_tol=1.-9):
      
     """ 
     Calculates the pressure of vapor saturation for multiple melt compositions given volatile-free melt composition, volatile content, temperature, and an fO2 estimate.
@@ -390,17 +396,6 @@ def gassing(run,gassing_inputs,setup,species,models):
 
     Parameters
     ----------
-    run: float
-        Integer of the row in the setup file to run (note the first row under the headers is row 0).
-    gassing_inputs: pandas.DataFrame
-        Dataframe containing the following:
-        dp_step: Pressure step size for gassing calculation in bars
-        nr_step: Step size for Newton-Raphson solver for melt speciation (typically 1 is fine, but this can be made smaller if there are problems with convergence).
-        nr_tol: Tolerance for the Newton-Raphson solver for melt speciation in weight fraction (typically 1e-6 is sufficient but this can be made larger if there are problems with convergence).
-        psat_tol: Required tolerance for convergence of Pvsat in bars (0.1 bars is normally used).
-        dwtg: Amount of gas to add at each step if regassing in an open-system in wt fraction total system
-        i_nr_step = Step-size for newton-raphson convergence for isotopes (typically 1e-1 is fine, but this can be made smaller if there are problems with convergence).
-        i_nr_tol = Tolerance for newton-raphson convergence for isotopes (typically 1e-9 is sufficient but this can be made larger if there are problems with convergence).
     setup: pandas.DataFrame
         Dataframe with melt composition to be used, requires following headers (notes in [] are not part of the headers): 
         Sample, T_C, 
@@ -416,6 +411,24 @@ def gassing(run,gassing_inputs,setup,species,models):
         Dataframe of species.csv file.
     models: pandas.DataFrame
         Dataframe of models.csv file.
+
+    Optional:
+    run: float
+        Integer of the row in the setup file to run (note the first row under the headers is row 0). Default = 0
+    nr_step: float
+        Step size for Newton-Raphson solver for melt speciation (typically 1 is fine, but this can be made smaller if there are problems with convergence).
+    nr_tol: float
+        Tolerance for the Newton-Raphson solver for melt speciation in weight fraction (can be increased if there are problems with convergence). Default = 1.e-6
+    dp_step: float
+        Pressure step size for gassing calculation in bars. Default = 10    
+    psat_tol: float
+        Required tolerance for convergence of Pvsat in bars. Default = 0.1
+    dwtg: float
+        Amount of gas to add at each step if regassing in an open-system in wt fraction total system. Default = 1.e-7
+    i_nr_step: float
+        Step-size for newton-raphson convergence for isotopes (can be increased if there are problems with convergence). Default = 1e.-1
+    i_nr_tol: float
+        Tolerance for newton-raphson convergence for isotopes (can be increased if there are problems with convergence). Default = 1.e-9
 
     Returns
     -------
@@ -452,12 +465,6 @@ def gassing(run,gassing_inputs,setup,species,models):
     melt_wf["ST"] = melt_wf["ST"]
     if setup.loc[run,"S6ST"] > 0.:
         melt_wf["S6ST"] = setup.loc[run,"S6ST"]
-    nr_step = gassing_inputs["nr_step"]
-    nr_tol = gassing_inputs["nr_tol"]
-    dp_step = gassing_inputs["dp_step"]
-    psat_tol = gassing_inputs["psat_tol"]
-    if models.loc["gassing_style","option"] == "open":
-        dwtg = gassing_inputs["dwtg"]
 
     # Calculate saturation pressure for composition given in setup file
     if models.loc["insolubles","option"] == "H2O-CO2 only":  
