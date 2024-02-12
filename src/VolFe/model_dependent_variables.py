@@ -22,6 +22,105 @@ import VolFe.melt_gas as mg
 # Speciation 
 # Isotope fractionation factors
 
+def check_default_options(models):
+    
+    def return_options(default,name,models):
+        if models == "default_options":
+            variable = default
+        elif name in models.index:
+            variable = models.loc[name,'option']
+            if variable == "default":
+                variable = default
+        else:
+            variable = default
+        return variable
+
+    # species
+    insolubles = return_options('yes','insolubles',models)
+    H2S_m = return_options('yes','H2S_m',models)
+    species_X = return_options('Ar','species X',models)
+    Hspeciation = return_options('none','Hspeciation',models)
+    # oxygen fugacity
+    fO2 = return_options('Kress91A','fO2',models)
+    NNObuffer = return_options('Frost91','NNObuffer',models)
+    FMQbuffer = return_options('Frost91','FMQbuffer',models)
+    # solubility constants
+    CO2 = return_options('Dixon95','carbon dioxide',models)
+    H2O = return_options('AllisonDataComp','water',models)
+    H2 = return_options('basalt','hydrogen',models)
+    S2m = return_options('ONeill21dil','sulfide',models)
+    S6p = return_options('ONeill22dil','sulfate',models)
+    H2S = return_options('basalt','hydrogen sulfide',models)
+    CH4 = return_options('Ardia13','methane',models)
+    CO = return_options('basalt','carbon monoxide',models)
+    X = return_options('Iacono-Marziano10_Ar_basalt','species X solubility',models)
+    Cspec = return_options('basalt','Cspeccomp',models)
+    Hspec = return_options('MORB','Hspeccomp',models)
+    # saturation conditions
+    SCSS = return_options('ONeill21hyd','SCSS',models)
+    SCAS = return_options('Zajacz19','SCAS',models)
+    sulfur_saturation = return_options('no','sulfur_saturation',models)
+    sulfur_is_sat = return_options('no','sulfur_is_sat',models)
+    graphite_saturation = return_options('no','graphite_saturation',models)
+    # fugacity coefficients
+    ideal_gas = return_options('no','ideal_gas',models)
+    yCO2 = return_options('SS92','y_CO2',models)
+    ySO2 = return_options('SS92_modified','y_SO2',models)
+    yH2S = return_options('SS92_modified','y_H2S',models)
+    yH2 = return_options('SW64','y_H2',models)
+    yO2 = return_options('SS92','y_O2',models)
+    yS2 = return_options('SS92','y_S2',models)
+    yCO = return_options('SS92','y_CO',models)
+    yCH4 = return_options('SS92','y_CH4',models)
+    yH2O = return_options('HP91','y_H2O',models)
+    yOCS = return_options('SS92','y_OCS',models)
+    yX = return_options('ideal','y_X',models)
+    # equilibrium constants
+    KHOg = return_options('KO97','KOHg',models)
+    KHOSg = return_options('KO97','KHOSg',models)
+    KOSg = return_options('KO97','KOSg',models)
+    KOSg2 = return_options('OM22','KOSg2',models)
+    KCOg = return_options('KO97','KCOg',models)
+    KCOHg = return_options('KO97','KCOHg',models)
+    KOCSg = return_options('Moussallam19','KOCSg',models)
+    KCOs = return_options('Holloway92','KCOs',models)
+    OCS = return_options('COS','carbonlysulfide',models)
+    # degassing calculation
+    bulk_composition = return_options('yes','bulk_composition',models)
+    starting_P = return_options('bulk','starting_P',models)
+    gassing_style = return_options('closed','gassing_style',models)
+    gassing_direction = return_options('degas','gassing_direction',models)
+    P_variation = return_options('polybaric','P_variation',models)
+    eq_Fe = return_options('yes','eq_Fe',models)
+    solve_species = return_options('OCS','solve_species',models)
+    # other
+    density = return_options('DensityX','density',models)
+    isotopes = return_options('no','isotopes',models)
+    T_variation = return_options('isothermal','T_variation',models)
+    crystallisation = return_options('no','cystallisation',models)
+    mass_volume = return_options('mass','mass_volume',models)
+    calc_sat = return_options('fO2_melt','calc_sat',models)
+    bulk_O = return_options('exc S','bulk_O',models)
+    error = return_options(0.1,'error',models)
+    print_status = return_options('yes','print status',models)
+    output_csv = return_options('yes','output csv',models)
+    setup = return_options('no','setup',models)
+
+    models = [['insolubles',insolubles],['H2S_m',H2S_m],['species X',species_X],['Hspeciation',Hspeciation],
+              ['fO2',fO2],['NNObuffer',NNObuffer],['FMQbuffer',FMQbuffer],
+              ['carbon dioxide',CO2],['water',H2O],['hydrogen',H2],['sulfide',S2m],['sulfate',S6p],['hydrogen sulfide',H2S],['methane',CH4],['carbon monoxide',CO],['species X solubility',X],['Cspeccomp',Cspec],['Hspeccomp',Hspec],
+              ['SCSS',SCSS],['SCAS',SCAS],['sulfur_saturation',sulfur_saturation],['sulfur_is_sat',sulfur_is_sat],['graphite_saturation',graphite_saturation],
+              ['ideal_gas',ideal_gas],['y_CO2',yCO2],['y_SO2',ySO2],['y_H2S',yH2S],['y_H2',yH2],['y_O2',yO2],['y_S2',yS2],['y_CO',yCO],['y_CH4',yCH4],['y_H2O',yH2O],['y_OCS',yOCS],['y_X',yX],
+              ['KHOg',KHOg],['KHOSg',KHOSg],['KOSg',KOSg],['KOSg2',KOSg2], ['KCOg',KCOg],['KCOHg',KCOHg],['KOCSg',KOCSg],['KCOs',KCOs],['carbonylsulfide',OCS],
+              ['bulk_composition',bulk_composition],['starting_P',starting_P],['gassing_style',gassing_style],['gassing_direction',gassing_direction],['P_variation',P_variation],['eq_Fe',eq_Fe],['solve_species',solve_species],
+              ['density',density],['isotopes',isotopes],['T_variation',T_variation],['crystallisation',crystallisation],['mass_volume',mass_volume],['calc_sat',calc_sat],['bulk_O',bulk_O],['error',error],
+              ['print status',print_status],['output csv',output_csv],['setup',setup]]
+    
+    # Create the pandas DataFrame
+    models = pd.DataFrame(models, columns=['type', 'option'])
+    models = models.set_index('type')
+    return models
+
 #################################################################################################################################
 ##################################################### SOLUBILITY CONSTANTS ######################################################
 #################################################################################################################################
@@ -58,57 +157,57 @@ def C_H2O(PT,melt_wf,species,models):
     Solubility constant for H2O as <class 'mpfr'>
 
     """
+    model_speciation = models.loc["Hspeciation","option"]
+    model_solubility = models.loc["water","option"]
 
-    if models.loc["Hspeciation","option"] == "none": ### C_H2O = (xmH2O)^2/fH2O ### (mole fraction)
-        model = models.loc["water","option"]
-        if model == "ETN-1" or model == "PST-9": # Fitted to ETN-1 and PST-9 from Lesne et al. (2011) 162:133-151
+    if model_speciation == "none": ### C_H2O = (xmH2O)^2/fH2O ### (mole fraction)
+        if model_solubility == "ETN-1" or model_solubility == "PST-9": # Fitted to ETN-1 and PST-9 from Lesne et al. (2011) 162:133-151
             C = 4.77591e-6
-        elif model == "VES-9": # Fitted to VES-9 from Lesne et al. (2011) 162:133-151
+        elif model_solubility == "VES-9": # Fitted to VES-9 from Lesne et al. (2011) 162:133-151
             C = 5.46061e-6
-        elif model == "rhyolite": # Fitted to Blank et al. (1993) and Silver et al. (1990) datasets
+        elif model_solubility == "rhyolite": # Fitted to Blank et al. (1993) and Silver et al. (1990) datasets
             C = 5.13488743E-06 
-        elif model ==  "evo": # Fitted to match EVo
+        elif model_solubility ==  "evo": # Fitted to match EVo
             C = 2.782e-6
-        elif model == "Lesne11mod": # modified general model from Lesne et al. (2011) 162:133-151
+        elif model_solubility == "Lesne11mod": # modified general model from Lesne et al. (2011) 162:133-151
             C = 5.62316e-6
-        elif model == "AllisonDataComp": # fitted to experimental data compilation from Allison et al. (2022) for H2O < 6 wt%
+        elif model_solubility == "AllisonDataComp": # fitted to experimental data compilation from Allison et al. (2022) for H2O < 6 wt%
             C = 4.6114e-6
-        elif model == "test": #test
+        elif model_solubility == "test": #test
             R_ = 83.144621 # cm3 bar K−1 mol−1
             DV = 12 # cm3/mol
             P0 = 1.0 # bar
             A = 4.6114e-6
             B = -((DV/(R_*T_K))*(P-P0))
             C = A*gp.exp(B)
-        elif model == "test2": # for Ptot paper
+        elif model_solubility == "test2": # for Ptot paper
             C = gp.exp(-12.29)
-        elif model == "carbon":
+        elif model_solubility == "carbon":
             C = 1.5e-9
-        elif model == "test3":
+        elif model_solubility == "test3":
             C = 6.22885E-09 # like 1000 ppm H2O at 730 bar
     
-    elif models.loc["Hspeciation","option"] == "linear": ### C_H2O = xmH2O/fH2O ### (mole fraction)
+    elif model_speciation == "linear": ### C_H2O = xmH2O/fH2O ### (mole fraction)
         C = 0.00007925494 # like AllisonDataComp... I think.
             
     else: ### C_H2O = xmH2Omol/fH2O ### (mole fraction)
         P = PT['P']
-        model = models.loc["water","option"]
         P0 = 1.0 # bar
         R = 83.15 # cm3 etc.
         T0 = 1473.15 # K
-        if model == "Dixon95": # Dixon et al. (1995) - no compositional dependence
+        if model_solubility == "Dixon95": # Dixon et al. (1995) - no compositional dependence
             DV = 12.
             A = 3.28e-5
             C = A*gp.exp((-DV*(P-P0))/(R*T0))
-        elif model == "alkali basalt": # Lesne et al. (2011) 162:133-151 eqn 31 with added RT term otherwise it will not work
+        elif model_solubility == "alkali basalt": # Lesne et al. (2011) 162:133-151 eqn 31 with added RT term otherwise it will not work
             A = 5.71e-5 # XmH2Om0
             DV = 26.9 # VH2Om0 in cm3/mol
             C = A*gp.exp((-DV*(P-P0))/(R*T0)) 
-        elif model == "ETN-1": # Fitted to ETN-1 and VES-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011) 162:133-151
+        elif model_solubility == "ETN-1": # Fitted to ETN-1 and VES-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011) 162:133-151
             C = 3.3989655e-6 
-        elif model == "VES-9": # Fitted to ETN-1 and VES-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011) 162:133-151
+        elif model_solubility == "VES-9": # Fitted to ETN-1 and VES-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011) 162:133-151
             C = 3.3989655e-6
-        elif model == "PST-9": # Fitted to PST-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011) 162:133-151
+        elif model_solubility == "PST-9": # Fitted to PST-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011) 162:133-151
             C = 1.7022269e-6
     
     return C
@@ -148,7 +247,6 @@ def C_CO3(PT,melt_wf,species,models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fract
     Solubility constant for CO2 as <class 'mpfr'>
 
     """
-
     model = models.loc["carbon dioxide","option"]
 
     P = PT['P']
@@ -363,7 +461,6 @@ def C_S(PT,melt_wf,species,models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (weight pp
     Solubility constant for CO2 as <class 'mpfr'>
 
     """
-
     model = models.loc["sulfide","option"]
     
     T = PT['T'] + 273.15 # T in K
@@ -404,6 +501,7 @@ def C_S(PT,melt_wf,species,models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (weight pp
 ########################################
 def C_SO4(PT,melt_wf,species,models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 ### (weight ppm)
     model = models.loc["sulfate","option"]
+
     T = PT['T'] + 273.15 # T in Kelvin
     P = PT['P'] # P in bars
     slope = 115619.707 # slope for T-dependence for melt inclusion fits
@@ -475,8 +573,9 @@ def C_H2S(PT,melt_wf,species,models): # C_H2S = wmH2S/fH2S (ppm H2S, fH2S bar)
 ### solubility constant for hydrogen ###
 ########################################
 def C_H2(PT,melt_wf,species,models): # C_H2 = wmH2/fH2 (wtppm)
-    # Hirchmann et al. (2012) EPSL 345-348:38-48
     model = models.loc["hydrogen","option"] 
+    
+    # Hirchmann et al. (2012) EPSL 345-348:38-48
     R = 83.144598 # bar cm3 /mol /K
     P = PT['P'] # pressure in bars
     T = PT['T'] + 273.15 # T in Kelvin SHOULD BE T0
@@ -500,6 +599,7 @@ def C_H2(PT,melt_wf,species,models): # C_H2 = wmH2/fH2 (wtppm)
 ######################################
 def C_CH4(PT,melt_wf,species,models): # C_CH4 = wmCH4/fCH4 (ppm)
     model = models.loc["methane","option"]
+
     if model == "Ardia13": # Ardia et al. (2013) GCA 114:52-71
         R = 83.144598 # bar cm3 /mol /K 
         P = PT['P'] # pressure in bars
@@ -520,6 +620,7 @@ def C_CH4(PT,melt_wf,species,models): # C_CH4 = wmCH4/fCH4 (ppm)
 #################################
 def C_CO(PT,melt_wf,species,models): # C_CO = wmCO/fCO (ppm)
     model = models.loc["carbon monoxide","option"]
+
     if model == "basalt": # from fitting Armstrong et al. (2015) GCA 171:283-302; Stanley+2014, and Wetzel+13 thermodynamically
         R = 83.144598 # bar cm3 /mol /K 
         P = PT['P'] # pressure in bars
@@ -538,6 +639,7 @@ def C_CO(PT,melt_wf,species,models): # C_CO = wmCO/fCO (ppm)
 def C_X(PT,melt_wf,species,models): # C_X = wmX/fX (ppm)
     species = models.loc["species X","option"]
     model = models.loc["species X solubility","option"]
+        
     if species == "Ar":
         if model == "Iacono-Marziano10_Ar_basalt": # Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
             K = 0.0799 # fitted assuming Ar is an ideal gas... i.e. yAr = 1.
@@ -571,11 +673,11 @@ def C_X(PT,melt_wf,species,models): # C_X = wmX/fX (ppm)
 ################################################
 def SCAS(PT,melt_wf,species,models): 
     model = models.loc["SCAS","option"]
+    
     T = PT['T'] +273.15
     
     comp = mg.melt_pysulfsat(melt_wf,species)
-    
-    
+ 
     if model == "Chowdhury18": # sulfate content (ppm) at anhydrite saturation from Chowdhury & Dasgupta (2018) [T in K]
         # mole fraction melt composition including water but all Fe as FeOT
         melt_comp = mg.melt_mole_fraction(melt_wf,species,models,"water","no")
@@ -638,6 +740,7 @@ def SCAS(PT,melt_wf,species,models):
 ###############################################
 def SCSS(PT,melt_wf,species,models): # sulfide content (ppm) at sulfide saturation from O'Neill (2020) [P in bar,T in K]
     model = models.loc["SCSS","option"]
+
     P_bar = PT['P']
     T = PT['T'] + 273.15
     Fe3FeT = melt_wf["Fe3FeT"]
@@ -708,34 +811,42 @@ Ni_Liq=None, Cu_Liq=None, Fe_Sulf=None, Cu_Sulf=None, Ni_Sulf=None, Ni_Sulf_init
 # H2 + 0.5O2 = H2O
 # K = fH2O/(fH2*(fO2)^0.5)
 def KHOg(PT,models):
+    model = models.loc["KHOg","option"]
+
     T_K = PT['T']+273.15
-    if models.loc["KHOg","option"] == "KO97":
+    if model == "KO97":
         K = 10.**((12510.0/T_K)-0.979*(gp.log10(T_K))+0.483)
     return K
 
 # H2O + 0.5S2 = H2S + 0.5O2
 # K = (fH2S*(fO2)^0.5)/((fS2^0.5)*fH2O)
 def KHOSg(PT,models):
+    model = models.loc["KHOSg","option"]
+
     T_K = PT['T']+273.15
-    if models.loc["KHOSg","option"] == "KO97": # Kerrick & Ohmoto (1997)
+    if model == "KO97": # Kerrick & Ohmoto (1997)
         K = 10.**((-8117.0/T_K)+0.188*gp.log10(T_K)-0.352)
-    elif models.loc["KHOSg","option"] == "noH2S": # H2S doesn't form in the gas...
+    elif model == "noH2S": # H2S doesn't form in the gas...
         K = 0.
     return K
 
 # 0.5S2 + O2 = SO2
 # K = fSO2/((fS2^0.5)*fO2)
 def KOSg(PT,models):
+    model = models.loc["KOSg","option"]
+
     T_K = PT['T']+273.15
-    if models.loc["KOSg","option"] == "KO97": # Kerrick & Ohmoto (1997)
+    if model == "KO97": # Kerrick & Ohmoto (1997)
         K = 10.**((18929.0/T_K)-3.783)
     return K
 
 # 0.5S2 + 1.5O2 = SO3
 # K = fSO3/((fS2^0.5)*(fO2^1.5)
 def KOSg2(PT,models):
+    model = models.loc["KOSg2","option"]
+
     T_K = PT['T']+273.15
-    if models.loc["KOSg2","option"] == "OM22": # O'Neill+Mavrogenes2022 from JANF 
+    if model == "OM22": # O'Neill+Mavrogenes2022 from JANF 
         lnK = (55921./T_K) - 25.07 + 0.6465*gp.log(T_K)
         K = gp.exp(lnK) 
     return K
@@ -743,39 +854,48 @@ def KOSg2(PT,models):
 # CO + 0.5O = CO2
 # K = fCO2/(fCO*(fO2^0.5))
 def KCOg(PT,models):
+    model = models.loc["KCOg","option"]
+
     T_K = PT['T']+273.15
-    if models.loc["KCOg","option"] == "KO97": # Kerrick & Ohmoto (1997)
+    if model == "KO97": # Kerrick & Ohmoto (1997)
         K = 10.**((14751.0/T_K)-4.535)
     return K
 
 # CH4 + 2O2 = CO2 + 2H2O
 # K = (fCO2*(fH2O^2))/(fCH4*(fO2^2))
 def KCOHg(PT,models): 
+    model = models.loc["KCOHg","option"]
+
     T_K = PT['T']+273.15
-    if models.loc["KCOHg","option"] == "KO97": # Kerrick & Ohmoto (1997)
+    if model == "KO97": # Kerrick & Ohmoto (1997)
         K = 10.**((41997.0/T_K)+0.719*gp.log10(T_K)-2.404)
     return K
 
 def KOCSg(PT,models): # OCS - depends on system
+    reaction = models.loc["carbonylsulfide","option"]
+    model = models.loc["KOCSg","option"]
+
     T = PT['T']+273.15
-    if models.loc["carbonylsulfide","option"] == "COHS":
+    if reaction == "COHS":
     # OCS + H2O = CO2 + H2S
     # K = (fCO2*fH2S)/(fOCS*fH2O)
-        if models.loc["KOCSg","option"] == "EVo": 
+        if models == "EVo": 
             K = gp.exp(0.482 + (16.166e-2/T) + 0.081e-3*T - (5.715e-3/T**2) - 2.224e-1*gp.log(T))
             return K
-    if models.loc["carbonylsulfide","option"] == "COS":
+    if reaction == "COS":
     # 2CO2 + OCS = 3CO + SO2 - 
     # K = (fCO^3*fSO2)/(fCO2^2*fOCS)    
-        if models.loc["KOCSg","option"] == "Moussallam19": # Moussallam et al. (2019) EPSL 520:260-267
+        if model == "Moussallam19": # Moussallam et al. (2019) EPSL 520:260-267
             K = 10.**(9.24403 - (15386.45/T)) # P and f in bars, T in K 
         return K
 
 # Cgraphite + O2 = CO2
 def KCOs(PT,models): 
+    model = models.loc["KCOs","option"]
+
     T_K = PT['T']+273.15
     P = PT['P']
-    if models.loc["KCOs","option"] == "Holloway92": # Holloway et al. (1992) Eur J. Mineral. 4:105-114 equation (3) KI
+    if model == "Holloway92": # Holloway et al. (1992) Eur J. Mineral. 4:105-114 equation (3) KI
         a = 40.07639
         b = -2.5392e-2
         c = 5.27096e-6
@@ -792,6 +912,7 @@ def KCOs(PT,models):
 # K = xOH*2/(xH2Omol*xO)
 def KHOm(PT,melt_wf,species,models):
     Hspeccomp = models.loc["Hspeccomp","option"]
+    
     T_K = PT['T']+273.15
     
     if Hspeccomp == "rhyolite": # Zhang (1999) Reviews in Geophysics 37(4):493-516
@@ -827,6 +948,8 @@ def KHOm(PT,melt_wf,species,models):
     return K
 
 def KregH2O(PT,melt_wf,species,models):
+    Hspeccomp = models.loc["Hspeccomp","option"]
+
     if Hspeccomp == "MORB": # Dixon et al. (1995)
         A = 0.403
         B = 15.333
@@ -863,8 +986,10 @@ def KregH2O(PT,melt_wf,species,models):
     
 # CO2 + O = CO3
 def KCOm(PT,melt_wf,species,models): # K = 
-    T_K = PT['T']+273.15
     Cspeccomp = models.loc["Cspeccomp","option"]
+
+    T_K = PT['T']+273.15
+    
     if Cspeccomp == "andesite": # eqn-8 from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
         a = 8665.0
         b = -5.11
@@ -1007,7 +1132,9 @@ def Q_SS(PT,Tr,Pcr):
 def y_SS(gas_species,PT,species,models):
     P = PT['P']
     T_K = PT['T']+273.15
+    
     ideal_gas = models.loc["ideal_gas","option"]
+
     if ideal_gas == "yes":
         return 1.0
     elif P < 1.: # ideal gas below 1 bar
@@ -1024,19 +1151,22 @@ def y_SS(gas_species,PT,species,models):
 def y_H2(PT,species,models):
     P = PT['P']
     T_K = PT['T']+273.15
+
     ideal_gas = models.loc["ideal_gas","option"]
-    if ideal_gas == "yes":
+    model = models.loc["y_H2","option"]
+
+    if ideal_gas == "yes" or model == "ideal":
         return 1.0
     elif P < 1.: # ideal gas below 1 bar
         return 1.
-    elif models.loc["y_H2","option"] == "SW64": # Shaw & Wones (1964)
+    elif model == "SW64": # Shaw & Wones (1964)
         SW1 = gp.exp(-3.8402*pow(T_K,0.125)+0.5410)
         SW2 = gp.exp(-0.1263*pow(T_K,0.5)-15.980)
         SW3 = 300*gp.exp((-0.011901*T_K)-5.941) # NB used a value of -0.011901 instead of -0.11901 as reported to match data in Table 2
         P_atm = 0.986923*P
         ln_y = SW1*P_atm - SW2*pow(P_atm,2.0) + SW3*gp.exp((-P_atm/300.0)-1.0)
         return gp.exp(ln_y)
-    elif models.loc["y_H2","option"] == "SS92": # Shi & Saxena (1992) NOT WORKING
+    elif model == "SS92": # Shi & Saxena (1992) NOT WORKING
         Tcr = 33.25 # critical temperature in K 
         Pcr = 12.9696 # critical temperature in bar
         Tr = T_K/Tcr
@@ -1088,14 +1218,17 @@ def y_H2(PT,species,models):
         return gp.exp(integral + integral0)/P
 
 def y_H2O(PT,species,models):
+    ideal_gas = models.loc["ideal_gas","option"]
+    model = models.loc["y_H2O","option"]
+
     P = PT['P']
     T_K = PT['T']+273.15
-    ideal_gas = models.loc["ideal_gas","option"]
-    if ideal_gas == "yes":
+
+    if ideal_gas == "yes" or model == "ideal":
         return 1.
     elif P < 1.: # ideal gas below 1 bar
         return 1.
-    if models.loc["y_H2O","option"] == "HP91": 
+    if model == "HP91": 
     # (T > 673 K only) - using Holland & Powell (1991) CORK
         p0 = 2.00 # in kb
         a = 1113.4 + -0.22291*(T_K - 673.0) + -3.8022e-4*pow((T_K-673.0),2.0) + 1.7791e-7*pow((T_K-673.0),3.0)
@@ -1106,58 +1239,83 @@ def y_H2O(PT,species,models):
         return y
 
 def y_CO2(PT,species,models):
+    ideal_gas = models.loc["ideal_gas","option"]
+    model = models.loc["y_CO2","option"]
+
     P = PT['P']
     T_K = PT['T']+273.15
-    ideal_gas = models.loc["ideal_gas","option"]
-    if ideal_gas == "yes":
+
+    if ideal_gas == "yes" or model == "ideal":
         return 1.0
     elif P < 1.: # ideal gas below 1 bar
         return 1.
     else:
-        if models.loc["y_CO2","option"] == "HP91": # use Holland & Powell (1991)
+        if model == "HP91": # use Holland & Powell (1991)
             p0 = 5.00 # in kb
             a = 741.2 + -0.10891*(T_K) + -3.4203e-4*pow(T_K,2.0)
             b = 3.057
             c = -2.26924e-1 + -7.73793e-5*T_K
             d = 1.33790e-2 + -1.1740e-5*T_K
             y = CORK(PT,p0,a,b,c,d)
-        elif models.loc["y_CO2","option"] == "SS92": # use Shi & Saxena (1992)
+        elif model == "SS92": # use Shi & Saxena (1992)
             gas_species = "CO2"
             y = y_SS(gas_species,PT,species,models)
         return y
     
 def y_O2(PT,species,models):
-    if models.loc["y_O2","option"] == "SS92":
+    model = models.loc["y_O2","option"]
+
+    if model == "SS92":
         gas_species = "O2"
         y = y_SS(gas_species,PT,species,models)
+    elif model == "ideal":
+        y = 1.
     return y
     
 def y_S2(PT,species,models):
-    if models.loc["y_S2","option"] == "SS92":
+    model = models.loc["y_S2","option"]
+
+    if model == "SS92":
         gas_species = "S2"
         y = y_SS(gas_species,PT,species,models)
+    elif model == "ideal":
+        y = 1.
     return y
 
 def y_CO(PT,species,models):
-    if models.loc["y_CO","option"] == "SS92":
+    model = models.loc["y_CO","option"]
+
+    if model == "SS92":
         gas_species = "CO"
         y = y_SS(gas_species,PT,species,models)
+    elif model == "ideal":
+        y = 1.
     return y
     
 def y_CH4(PT,species,models):
-    if models.loc["y_CH4","option"] == "SS92":
+    model = models.loc["y_CH4","option"]
+
+    if model == "SS92":
         gas_species = "CH4"
         y = y_SS(gas_species,PT,species,models)
+    elif model == "ideal":
+        y = 1.
     return y
     
 def y_OCS(PT,species,models):
-    if models.loc["y_OCS","option"] == "SS92":
+    model = models.loc["y_OCS","option"]
+
+    if model == "SS92":
         gas_species = "OCS"
         y = y_SS(gas_species,PT,species,models)
+    elif model == "ideal":
+        y = 1.
     return y
 
 def y_X(PT,species,models): # species X fugacity coefficient
-    if models.loc["y_X","option"] == "ideal":  # ideal gas
+    model = models.loc["y_X","option"]
+
+    if model == "ideal":  # ideal gas
         y = 1.
     return y
 
@@ -1166,11 +1324,14 @@ def y_X(PT,species,models): # species X fugacity coefficient
 #################################################################################
 
 def y_SO2(PT,species,models):
+    ideal_gas = models.loc["ideal_gas","option"]
+    model = models.loc["y_SO2","option"]
+
     P = PT['P']
     T_K = PT['T']+273.15
-    ideal_gas = models.loc["ideal_gas","option"]
+
     gas_species = "SO2"
-    if ideal_gas == "yes":
+    if ideal_gas == "yes" or model == "ideal":
         return 1.
     elif P < 1.: # ideal gas below 1 bar
         return 1.
@@ -1203,11 +1364,14 @@ def y_SO2(PT,species,models):
         return y       
             
 def y_H2S(PT,species,models):
+    ideal_gas = models.loc["ideal_gas","option"]
+    model = models.loc["y_H2S","option"]
+
     P = PT['P']
     T_K = PT['T']+273.15
-    ideal_gas = models.loc["ideal_gas","option"]
+
     gas_species = "H2S"
-    if ideal_gas == "yes":
+    if ideal_gas == "yes" or model == "ideal":
         return 1.0
     elif ideal_gas == "no":
         Tcr = species.loc[gas_species,"Tcr"] # critical temperature in K 
@@ -1283,18 +1447,22 @@ def y_SO3(PT,species,models):
 
 # buffers
 def NNO(PT,models):
+    model = models.loc["NNObuffer","option"]
+
     P = PT['P']
     T_K = PT["T"]+273.15
-    if models.loc["NNObuffer","option"] == "Frost91":
+    if model == "Frost91":
         buffer = (-24930/T_K + 9.36 + 0.046*(P-1.0)/T_K) # Frost (1991)
     return buffer
 
 def FMQ(PT,models):
+    model = models.loc["FMQbuffer","option"]
+
     P = PT['P']
     T_K = PT["T"]+273.15
-    if models.loc["FMQbuffer","option"] == "Frost91":
+    if model == "Frost91":
         buffer = (-25096.3/T_K + 8.735 + 0.11*(P-1.0)/T_K) # Frost (1991)
-    elif models.loc["FMQbuffer","option"] == "ONeill87":
+    elif model == "ONeill87":
         buffer = (8.58 - (25050/T_K)) # O'Neill (1987)
     return buffer
 
@@ -1380,6 +1548,7 @@ def FefO2_Borisov18_terms(PT,melt_wf,species,models):
 
 def fO22Fe3FeT(fO2,PT,melt_wf,species,models): # converting fO2 to Fe3/FeT
     model = models.loc["fO2","option"]
+
     T_K = PT['T']+273.15
     
     if model == "Kress91":
@@ -1406,7 +1575,6 @@ def fO22Fe3FeT(fO2,PT,melt_wf,species,models): # converting fO2 to Fe3/FeT
         return Fe3Fe2/(Fe3Fe2 + 1.0)
 
 def f_O2(PT,melt_wf,species,models):
-    
     model = models.loc["fO2","option"]
     
     def KC91(PT,melt_wf,species,models):
@@ -1516,14 +1684,18 @@ def alpha_gas(element,A,B,PT):
     return result
 
 def alpha_H2S_S(PT,models): # Fiege et al. (2015) Chemical Geology equation 8 - H2S fluid and S2- melt
-    if models.loc["alpha_H2S_S","option"] == "Fiege15":
+    model = models.loc["alpha_H2S_S","option"]
+
+    if model == "Fiege15":
         T_K = PT["T"] + 273.15
         lna103 = (10.84*((1000./T_K)**2)) - 2.5
         a = gp.exp(lna103/1000.)
     return a
 
 def alpha_SO2_SO4(PT,models): # Fiege et al. (2015) Chemical Geology equation 9 - SO2 fluid and SO4 melt
-    if models.loc["alpha_SO2_SO4","option"] == "Fiege15":
+    model = models.loc["alpha_SO2_SO4","option"]
+
+    if model == "Fiege15":
         T_K = PT["T"] + 273.15
         lna103 = (-0.42*((1000./T_K)**3)) - (2.133*((1000./T_K)**3)) - (0.105*(1000./T_K)) - 0.41
         a = gp.exp(lna103/1000.)
