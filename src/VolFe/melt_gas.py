@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import gmpy2 as gp
 import math
+import warnings as w
 
 #import model_dependent_variables as mdv
 import VolFe.model_dependent_variables as mdv
@@ -437,19 +438,29 @@ def Fe3FeT_i(PT,melt_wf,species,models):
         return mdv.fO22Fe3FeT(fO2,PT,melt_wf,species,models)
     else:
         if pd.isnull(melt_wf["Fe3FeT_i"]) == False:
+            if pd.isnull(melt_wf["logfO2_i"]) == False or pd.isnull(melt_wf["DNNO"]) == False or pd.isnull(melt_wf["DFMQ"]) == False or pd.isnull(melt_wf["S6ST_i"]) == False or pd.isnull(melt_wf["Fe2O3"]) == False or pd.isnull(melt_wf["FeO"]) == False:
+                w.warn('you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered Fe3+/FeT')
             return melt_wf["Fe3FeT_i"]
         elif pd.isnull(melt_wf["logfO2_i"]) == False:
+            if pd.isnull(melt_wf["DNNO"]) == False or pd.isnull(melt_wf["DFMQ"]) == False or pd.isnull(melt_wf["S6ST_i"]) == False or pd.isnull(melt_wf["Fe2O3"]) == False or pd.isnull(melt_wf["FeO"]) == False:
+                w.warn('you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered log(fO2)')
             fO2 = 10.0**(melt_wf["logfO2_i"])
             return mdv.fO22Fe3FeT(fO2,PT,melt_wf,species,models)
         elif pd.isnull(melt_wf["DNNO"]) == False:
+            if pd.isnull(melt_wf["DFMQ"]) == False or pd.isnull(melt_wf["S6ST_i"]) == False or pd.isnull(melt_wf["Fe2O3"]) == False or pd.isnull(melt_wf["FeO"]) == False:
+                w.warn('you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered DNNO')
             D = melt_wf["DNNO"]
             fO2 = Dbuffer2fO2(PT,D,"NNO",models)
             return mdv.fO22Fe3FeT(fO2,PT,melt_wf,species,models)
         elif pd.isnull(melt_wf["DFMQ"]) == False:
+            if pd.isnull(melt_wf["S6ST_i"]) == False or pd.isnull(melt_wf["Fe2O3"]) == False or pd.isnull(melt_wf["FeO"]) == False:
+                w.warn('you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered DFMQ')
             D = melt_wf["DFMQ"]
             fO2 = Dbuffer2fO2(PT,D,"FMQ",models)
             return mdv.fO22Fe3FeT(fO2,PT,melt_wf,species,models)
         elif pd.isnull(melt_wf["S6ST_i"]) == False:
+            if pd.isnull(melt_wf["Fe2O3"]) == False or pd.isnull(melt_wf["FeO"]) == False:
+                w.warn('you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered S6+/ST')
             S6T = melt_wf["S6ST_i"]
             S62 = overtotal2ratio(S6T)
             fO2 = S6S2_2_fO2(S62,melt_wf,PT,species,models)
@@ -699,7 +710,80 @@ def system_density(run,PT,melt_wf,gas_mf,bulk_wf,setup,species,models):
 ##################################################################################################################################
 
 def melt_comp(run,setup):
-    melt_wf = {'SiO2':setup.loc[run,"SiO2"],'TiO2':setup.loc[run,"TiO2"],'Al2O3':setup.loc[run,"Al2O3"],'FeOT':setup.loc[run,"FeOT"],'Fe2O3T':setup.loc[run,"Fe2O3T"],'FeO':setup.loc[run,"FeO"],'Fe2O3':setup.loc[run,"Fe2O3"],'MgO':setup.loc[run,"MgO"],'MnO':setup.loc[run,"MnO"],'CaO':setup.loc[run,"CaO"],'Na2O':setup.loc[run,"Na2O"],'K2O':setup.loc[run,"K2O"],'P2O5':setup.loc[run,"P2O5"],"logfO2_i":setup.loc[run,"logfO2"],"Fe3FeT_i":setup.loc[run,"Fe3FeT"],"DNNO":setup.loc[run,"DNNO"],"DFMQ":setup.loc[run,"DFMQ"],"S6ST_i":setup.loc[run,"S6ST"]}
+    oxides = setup.columns.tolist()
+    if "SiO2" in oxides:
+        SiO2 = setup.loc[run,"SiO2"]
+    else:
+        SiO2 = 0.
+    if "TiO2" in oxides:
+        TiO2 = setup.loc[run,"TiO2"]
+    else:
+        TiO2 = 0.
+    if "Al2O3" in oxides:    
+        Al2O3 = setup.loc[run,"Al2O3"]
+    else:
+        Al2O3 = 0.
+    if "FeOT" in oxides:
+        FeOT = setup.loc[run,"FeOT"]
+    else:
+        FeOT = float('NaN')
+    if "Fe2O3T" in oxides:        
+        Fe2O3T = setup.loc[run,"Fe2O3T"]
+    else:
+        Fe2O3T = float('NaN')
+    if "FeO" in oxides:
+        FeO = setup.loc[run,"FeO"]
+    else:
+        FeO = float('NaN')
+    if "Fe2O3" in oxides:
+        Fe2O3 = setup.loc[run,"Fe2O3"]
+    else:
+        Fe2O3 = float('NaN')
+    if "MgO" in oxides:
+        MgO = setup.loc[run,"MgO"]
+    else:
+        MgO = 0.
+    if "MnO" in oxides:
+        MnO = setup.loc[run,"MnO"]
+    else:
+        MnO = 0.
+    if "CaO" in oxides:
+        CaO = setup.loc[run,"CaO"]
+    else:
+        CaO = 0.
+    if "Na2O" in oxides:
+        Na2O = setup.loc[run,"Na2O"]
+    else:
+        Na2O = 0.
+    if "K2O" in oxides:
+        K2O = setup.loc[run,"K2O"]
+    else:
+        K2O = 0.
+    if "P2O5" in oxides:
+        P2O5 = setup.loc[run,"P2O5"]
+    else:
+        P2O5 = 0.
+    if "logfO2" in oxides:        
+        logfO2 = setup.loc[run,"logfO2"]
+    else:
+        logfO2 = float('NaN')
+    if "Fe3FeT" in oxides:        
+        Fe3FeT = setup.loc[run,"Fe3FeT"]
+    else:
+        Fe3FeT = float('NaN')
+    if "DNNO" in oxides:    
+        DNNO = setup.loc[run,"DNNO"]
+    else:
+        DNNO = float('NaN')
+    if "DFMQ" in oxides:
+        DFMQ = setup.loc[run,"DFMQ"]
+    else:
+        DFMQ = float('NaN')
+    if "S6ST" in oxides:
+        S6ST = setup.loc[run,"S6ST"]    
+    else:
+        S6ST = float('NaN')
+    melt_wf = {'SiO2':SiO2,'TiO2':TiO2,'Al2O3':Al2O3,'FeOT':FeOT,'Fe2O3T':Fe2O3T,'FeO':FeO,'Fe2O3':Fe2O3,'MgO':MgO,'MnO':MnO,'CaO':CaO,'Na2O':Na2O,'K2O':K2O,'P2O5':P2O5,"logfO2_i":logfO2,"Fe3FeT_i":Fe3FeT,"DNNO":DNNO,"DFMQ":DFMQ,"S6ST_i":S6ST}
     return melt_wf
 
 # normalise melt composition in weight fraction
