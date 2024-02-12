@@ -37,6 +37,7 @@ def P_sat(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
     guess0 = 40000. # initial guess for pressure
     PT["P"] = guess0
     melt_wf1["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)
+    
     melt_wf2["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,species,models)
     #wt_C, wt_O, wt_H, wt_S, wt_Fe, wt_g, Wt = bulk_composition(run,PT,melt_wf1,setup,species,models)
     #bulk_wf = {"H":wt_H,"C":wt_C,"S":wt_S}
@@ -53,7 +54,7 @@ def P_sat(PT,melt_wf,species,models,Ptol,nr_step,nr_tol):
     if models.loc["sulfur_saturation","option"] == "yes": # must incorporate H2S concentration into S2- for SCSS
         sulfsat = sulfur_saturation(PT,melt_wf2,species,models)
         melt_wf1["ST"] = sulfsat["ST"]/1000000.
-        melt_wf2["ST"] = ST
+        melt_wf2["ST"] = ST  
     delta1 = Pdiff(guess0,melt_wf1,species,models)
     while delta1 > Ptol :
         delta1 = Pdiff(guess0,melt_wf1,species,models)
