@@ -208,7 +208,7 @@ def options_from_setup(run,models,setup):
 
 
 # calculate the saturation pressure for multiple melt compositions in setup file
-def P_sat_output(setup,species,models,first_row=0,last_row=None,p_tol=1.e-1,nr_step=1.,nr_tol=1.e-9):
+def P_sat_output(setup,species,models="default",first_row=0,last_row=None,p_tol=1.e-1,nr_step=1.,nr_tol=1.e-9):
     
     """ 
     Calculates the pressure of vapor saturation for multiple melt compositions given volatile-free melt composition, volatile content, temperature, and an fO2 estimate.
@@ -252,6 +252,11 @@ def P_sat_output(setup,species,models,first_row=0,last_row=None,p_tol=1.e-1,nr_s
     if last_row == None:
         last_row = len(setup)
 
+    if type(models) != "dataframe":
+         models = "default_options"
+
+    models = mdv.check_default_options(models)     
+
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
         PT={"T":setup.loc[run,"T_C"]}
@@ -263,10 +268,10 @@ def P_sat_output(setup,species,models,first_row=0,last_row=None,p_tol=1.e-1,nr_s
         models = options_from_setup(run,models,setup)
         
         # calculate Pvsat assuming only H2O CO2 in vapour and melt
-        if setup.loc[run,"Fe3FeT"] > 0.:
-            melt_wf['Fe3FeT'] = setup.loc[run,"Fe3FeT"]
-        else:
-            melt_wf['Fe3FeT'] = 0.
+        #if setup.loc[run,"Fe3FeT"] > 0.:
+        #    melt_wf['Fe3FeT'] = setup.loc[run,"Fe3FeT"]
+        #else:
+        #    melt_wf['Fe3FeT'] = 0.
         P_sat_H2O_CO2_only, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(PT,melt_wf,species,models,p_tol,nr_step,nr_tol)
 
         if models.loc["calc_sat","option"] == "fO2_fX":
@@ -289,7 +294,6 @@ def P_sat_output(setup,species,models,first_row=0,last_row=None,p_tol=1.e-1,nr_s
             P_sat_, conc, frac  = c.fO2_P_VSA(PT,melt_wf,species,models,nr_step,nr_tol,p_tol)
         elif models.loc["sulfur_saturation","option"] == "no":
             P_sat_, conc, frac = c.P_sat(PT,melt_wf,species,models,p_tol,nr_step,nr_tol)
-            print(P_sat_, conc, frac)
         elif models.loc["sulfur_saturation","option"] == "yes":
             if melt_wf["XT"] > 0.:
                 raise TypeError('This is not currently possible')
