@@ -107,11 +107,11 @@ def i2s6_S_alphas(PT): # all alphas against S2- in the melt
     a_f = mg.alpha_H2S_S(PT)*mg.alpha_gas("S","OCS","H2S",PT) # OCS-S
     return a_b, a_c, a_d, a_e, a_f
 
-def i2s6(element,PT,R,melt_wf,gas_mf,species,nr_step,nr_tol,guessx): # species distribution is mole fraction of S in each species
+def i2s6(element,PT,R,melt_wf,gas_mf,nr_step,nr_tol,guessx): # species distribution is mole fraction of S in each species
     
     if element == "S":
         a_b, a_c, a_d, a_e, a_f = i2s6_S_alphas(PT)
-        species_distribution = c.mf_S_species(melt_wf,gas_mf,species)
+        species_distribution = c.mf_S_species(melt_wf,gas_mf)
         T_a = species_distribution["S2-"]
         T_b = species_distribution["H2S"]
         T_c = species_distribution["SO42-"]

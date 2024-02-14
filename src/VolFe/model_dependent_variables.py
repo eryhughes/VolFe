@@ -128,7 +128,7 @@ def check_default_options(models):
 ###################################
 ### Solubility constant for H2O ###
 ###################################
-def C_H2O(PT,melt_wf,species,models):
+def C_H2O(PT,melt_wf,models):
     
     """ 
     Solubility constant for disolving H2O in the melt.
@@ -217,7 +217,7 @@ def C_H2O(PT,melt_wf,species,models):
 ##############################################
 ### Solubility constant for carbon dioxide ###
 ##############################################
-def C_CO3(PT,melt_wf,species,models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fraction) ***except Shishkina14 - wmCO2 ppm***
+def C_CO3(PT,melt_wf,models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fraction) ***except Shishkina14 - wmCO2 ppm***
     
     """ 
     Solubility constant for disolving CO2 in the melt: C_CO2,T = xmCO2,T/fCO2 [all oxidised carbon - i.e., CO2mol and CO32- - as CO2,T]
@@ -252,7 +252,7 @@ def C_CO3(PT,melt_wf,species,models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fract
     P = PT['P']
     T_K = PT['T']+273.15     
     # Calculate cation proportions with no volatiles but correct Fe speciation if available (a la Dixon 1997)
-    melt_comp = mg.melt_cation_proportion(melt_wf,species,"no","no")
+    melt_comp = mg.melt_cation_proportion(melt_wf,"no","no")
 
     R = 83.15
     T0 = 1473.15 # K
@@ -432,7 +432,7 @@ def C_CO3(PT,melt_wf,species,models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fract
 ########################################
 ### solubility constant for sulfide ###
 ########################################
-def C_S(PT,melt_wf,species,models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (weight ppm)
+def C_S(PT,melt_wf,models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (weight ppm)
     
     """ 
     Solubility constant for disolving S in the melt as S2- in ppmw: C_S = wmS2-*(fO2/fS2)^0.5
@@ -471,19 +471,19 @@ def C_S(PT,melt_wf,species,models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (weight pp
     
     if model == "ONeill21":
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        melt_comp = mg.melt_cation_proportion(melt_wf,species,"no","no")
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","no")
         lnC = ONeill21(T,melt_comp)
      
     if model == "ONeill21dil":
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        melt_comp = mg.melt_cation_proportion(melt_wf,species,"water","no")        
+        melt_comp = mg.melt_cation_proportion(melt_wf,"water","no")        
         lnC = ONeill21(T,melt_comp)
 
     if model == "ONeill21hyd":
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        melt_comp = mg.melt_cation_proportion(melt_wf,species,"no","no")
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","no")
         lnC_nondil = ONeill21(T,melt_comp)
-        melt_comp = mg.melt_cation_proportion(melt_wf,species,"water","no")
+        melt_comp = mg.melt_cation_proportion(melt_wf,"water","no")
         lnCdil = ONeill21(T,melt_comp)
         lnCH = (melt_comp["H"]*(6.4 + 12.4*melt_comp["H"] - 20.3*melt_comp["Si"] + 73.0*(melt_comp["Na"]+melt_comp["K"])))
         lnC = lnCdil+lnCH
@@ -499,7 +499,7 @@ def C_S(PT,melt_wf,species,models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (weight pp
 ########################################
 ### solubility constant for sulfate ###
 ########################################
-def C_SO4(PT,melt_wf,species,models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 ### (weight ppm)
+def C_SO4(PT,melt_wf,models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 ### (weight ppm)
     model = models.loc["sulfate","option"]
 
     T = PT['T'] + 273.15 # T in Kelvin
@@ -508,16 +508,16 @@ def C_SO4(PT,melt_wf,species,models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 ### (we
     
     if model == "Nash19": # Nash et al. (2019) EPSL 507:187-198
         S = 1. # S6+/S2- ratio of S6+/S2- of 0.5
-        Csulfide = C_S(PT,melt_wf,species,models)
-        A = PT_KCterm(PT,melt_wf,species,models) # P, T, compositional term from Kress & Carmicheal (1991)
+        Csulfide = C_S(PT,melt_wf,models)
+        A = PT_KCterm(PT,melt_wf,models) # P, T, compositional term from Kress & Carmicheal (1991)
         B = (8743600/T**2) - (27703/T) + 20.273 # temperature dependence from Nash et al. (2019)
         a = 0.196 # alnfO2 from Kress & Carmicheal (1991)
         F = 10**(((math.log10(S))-B)/8.)
         fO2 = math.exp(((math.log(0.5*F))-A)/a)
         Csulfate = (S*Csulfide)/(fO2**2)
     elif model == "S6ST":
-        Csulfide = C_S(PT,melt_wf,species,models)
-        fO2 = f_O2(PT,melt_wf,species,models)
+        Csulfide = C_S(PT,melt_wf,models)
+        fO2 = f_O2(PT,melt_wf,models)
         S6ST_ = melt_wf["S6ST"]
         S = overtotal2ratio(S6ST_)
         Csulfate = (S*Csulfide)/(fO2**2)
@@ -536,19 +536,19 @@ def C_SO4(PT,melt_wf,species,models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 ### (we
         Csulfate = 10.**17.
     elif model == "Boulliung22nP": # Boullioung & Wood (2022) GCA 336:150-164 [eq5] - corrected!
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        melt_comp = mg.melt_cation_proportion(melt_wf,species,"no","no")
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","no")
         logCS6 = -12.948 + ((15602.*melt_comp["Ca"] + 28649.*melt_comp["Na"] - 9596.*melt_comp["Mg"] + 4194.*melt_comp["Al"] +16016.*melt_comp["Mn"] + 29244.)/T) # wt% S
         Csulfate = (10.**logCS6)*10000. # ppm S
     elif model == "Boulliung22wP": # Boullioung & Wood (2022) GCA 336:150-164 [eq5] - corrected!
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        melt_comp = mg.melt_cation_proportion(melt_wf,species,"no","no")
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","no")
         logCS6 = -12.659 + ((3692.*melt_comp["Ca"] - 7592.*melt_comp["Si"] - 13736.*melt_comp["Ti"] + 3762.*melt_comp["Al"] + 34483)/T) - (0.1*P*1.5237)/T # wt% S
         Csulfate = (10.**logCS6)*10000. # ppm S
     elif model in ["ONeill22","ONeill22dil"]: 
         if model == "ONeill22": # O'Neill & Mavrogenes (2022) GCA 334:368-382 eq[12a]
-            melt_comp = mg.melt_cation_proportion(melt_wf,species,"no","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) no volatiles   
+            melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) no volatiles   
         elif model == "ONeill22dil": # O'Neill & Mavrogenes (2022) GCA 334:368-382 eq[12a]
-            melt_comp = mg.melt_cation_proportion(melt_wf,species,"water","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) includes water
+            melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) includes water
         lnC = -8.02 + ((21100. + 44000.*melt_comp["Na"] + 18700.*melt_comp["Mg"] + 4300.*melt_comp["Al"] + 44200.*melt_comp["K"] + 35600.*melt_comp["Ca"] + 12600.*melt_comp["Mn"] + 16500.*melt_comp["Fe2"])/T) #CS6+ = [S6+, ppm]/fSO3
         Csulfate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
         
@@ -559,7 +559,7 @@ def C_SO4(PT,melt_wf,species,models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 ### (we
 ###################################
 ### solubility constant for H2S ###
 ###################################
-def C_H2S(PT,melt_wf,species,models): # C_H2S = wmH2S/fH2S (ppm H2S, fH2S bar)
+def C_H2S(PT,melt_wf,models): # C_H2S = wmH2S/fH2S (ppm H2S, fH2S bar)
     model = models.loc["hydrogen sulfide","option"]
     if model == "basalt":
         K = 10.23 # fitted to basalt data from Moune+ 2009 CMP 157:691–707 and Lesne+ 2015 ChemGeol 418:104–116
@@ -572,7 +572,7 @@ def C_H2S(PT,melt_wf,species,models): # C_H2S = wmH2S/fH2S (ppm H2S, fH2S bar)
 ########################################
 ### solubility constant for hydrogen ###
 ########################################
-def C_H2(PT,melt_wf,species,models): # C_H2 = wmH2/fH2 (wtppm)
+def C_H2(PT,melt_wf,models): # C_H2 = wmH2/fH2 (wtppm)
     model = models.loc["hydrogen","option"] 
     
     # Hirchmann et al. (2012) EPSL 345-348:38-48
@@ -597,7 +597,7 @@ def C_H2(PT,melt_wf,species,models): # C_H2 = wmH2/fH2 (wtppm)
 ######################################
 ### solubility constant for methane ##
 ######################################
-def C_CH4(PT,melt_wf,species,models): # C_CH4 = wmCH4/fCH4 (ppm)
+def C_CH4(PT,melt_wf,models): # C_CH4 = wmCH4/fCH4 (ppm)
     model = models.loc["methane","option"]
 
     if model == "Ardia13": # Ardia et al. (2013) GCA 114:52-71
@@ -618,7 +618,7 @@ def C_CH4(PT,melt_wf,species,models): # C_CH4 = wmCH4/fCH4 (ppm)
 #################################
 ### solubility constant for CO ##
 #################################
-def C_CO(PT,melt_wf,species,models): # C_CO = wmCO/fCO (ppm)
+def C_CO(PT,melt_wf,models): # C_CO = wmCO/fCO (ppm)
     model = models.loc["carbon monoxide","option"]
 
     if model == "basalt": # from fitting Armstrong et al. (2015) GCA 171:283-302; Stanley+2014, and Wetzel+13 thermodynamically
@@ -636,7 +636,7 @@ def C_CO(PT,melt_wf,species,models): # C_CO = wmCO/fCO (ppm)
 #################################
 ### solubility constant for X ###
 #################################
-def C_X(PT,melt_wf,species,models): # C_X = wmX/fX (ppm)
+def C_X(PT,melt_wf,models): # C_X = wmX/fX (ppm)
     species = models.loc["species X","option"]
     model = models.loc["species X solubility","option"]
         
@@ -671,16 +671,16 @@ def C_X(PT,melt_wf,species,models): # C_X = wmX/fX (ppm)
 ################################################
 ### sulfate content at anhydrite saturation ###
 ################################################
-def SCAS(PT,melt_wf,species,models): 
+def SCAS(PT,melt_wf,models): 
     model = models.loc["SCAS","option"]
     
     T = PT['T'] +273.15
     
-    comp = mg.melt_pysulfsat(melt_wf,species)
+    comp = mg.melt_pysulfsat(melt_wf)
  
     if model == "Chowdhury18": # sulfate content (ppm) at anhydrite saturation from Chowdhury & Dasgupta (2018) [T in K]
         # mole fraction melt composition including water but all Fe as FeOT
-        melt_comp = mg.melt_mole_fraction(melt_wf,species,models,"water","no")
+        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
         tot = 100.*melt_comp["mol_tot"]
         a = -13.23
         b = -0.50
@@ -702,7 +702,7 @@ def SCAS(PT,melt_wf,species,models):
                            
     elif model == "Zajacz19":
         # mole fraction melt composition including water but all Fe as FeOT
-        melt_comp = mg.melt_mole_fraction(melt_wf,species,models,"water","no")
+        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
         tot = 100.*melt_comp["mol_tot"]
         if melt_comp["Na2O"] + melt_comp["K2O"] + melt_comp["CaO"] >= melt_comp["Al2O3"]:
             P_Rhyo = 3.11*(melt_comp["Na2O"]+melt_comp["K2O"]+melt_comp["CaO"]-melt_comp["Al2O3"])
@@ -717,9 +717,9 @@ def SCAS(PT,melt_wf,species,models):
         S6CAS = Xsm_S*tot*32.07*10000.
         
     elif model == "Liu23": # Liu et al. (2023) GCA 349:135-145 eq. 4
-        melt_comp = mg.melt_mole_fraction(melt_wf,species,models,"no","no")
+        melt_comp = mg.melt_mole_fraction(melt_wf,models,"no","no")
         NBOT = (2.*melt_comp["Na2O"]+2.*melt_comp["K2O"]+2.*(melt_comp["CaO"]+melt_comp["MgO"]+melt_comp["FeOT"])-melt_comp["Al2O3"]*2.)/(melt_comp["SiO2"]+2.*melt_comp["Al2O3"]) 
-        melt_comp = mg.melt_mole_fraction(melt_wf,species,models,"water","no")
+        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
         lnSCAS = 12.185 - (8541./T) + (1.409*NBOT) + 9.984*melt_comp["CaO"] + melt_wf["H2OT"]*100.
         S6CAS = gp.exp(lnSCAS)
     
@@ -738,13 +738,13 @@ def SCAS(PT,melt_wf,species,models):
 ###############################################
 ### sulfide content at sulfide saturation ###
 ###############################################
-def SCSS(PT,melt_wf,species,models): # sulfide content (ppm) at sulfide saturation from O'Neill (2020) [P in bar,T in K]
+def SCSS(PT,melt_wf,models): # sulfide content (ppm) at sulfide saturation from O'Neill (2020) [P in bar,T in K]
     model = models.loc["SCSS","option"]
 
     P_bar = PT['P']
     T = PT['T'] + 273.15
     Fe3FeT = melt_wf["Fe3FeT"]
-    comp = mg.melt_pysulfsat(melt_wf,species)
+    comp = mg.melt_pysulfsat(melt_wf)
     
     if model in ["ONeill21","ONeill21dil","ONeill21hyd"]:
         R = 8.31441
@@ -753,28 +753,28 @@ def SCSS(PT,melt_wf,species,models): # sulfide content (ppm) at sulfide saturati
         sulfide_comp = 1.0 # assumes the sulfide is pure FeS (no Ni, Cu, etc.)
         if model == "ONeill21":
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) no volatiles
-            melt_comp = mg.melt_cation_proportion(melt_wf,species,"no","yes")
+            melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
         elif model == "ONeill21dil":
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) and water
-            melt_comp = mg.melt_cation_proportion(melt_wf,species,"water","yes")
+            melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes")
         elif model == "ONeill21hyd":
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) and water
-            melt_comp = mg.melt_cation_proportion(melt_wf,species,"water","yes")
+            melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes")
         lnaFeS = gp.log((1.0 - melt_comp["Fe2"])*sulfide_comp)
         lnyFe2 = (((1.0-melt_comp["Fe2"])**2.0)*(28870.0 - 14710.0*melt_comp["Mg"] + 1960.0*melt_comp["Ca"] + 43300.0*melt_comp["Na"] + 95380.0*melt_comp["K"] - 76880.0*melt_comp["Ti"]) + (1.0-melt_comp["Fe2"])*(-62190.0*melt_comp["Si"] + 31520.0*melt_comp["Si"]**2.0))/(R*T)
-        lnS = D/(R*T) + gp.log(C_S(PT,melt_wf,species,models)) - gp.log(melt_comp["Fe2"]) - lnyFe2 + lnaFeS + (-291.0*P + 351.0*gp.erf(P))/T
+        lnS = D/(R*T) + gp.log(C_S(PT,melt_wf,models)) - gp.log(melt_comp["Fe2"]) - lnyFe2 + lnaFeS + (-291.0*P + 351.0*gp.erf(P))/T
         SCSS = gp.exp(lnS)  
     
     elif model == "Liu07":
         # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) and water
-        melt_comp = mg.melt_cation_proportion(melt_wf,species,"water","yes")
+        melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes")
         MFM = (melt_comp["Na"]+melt_comp["K"]+2.*(melt_comp["Ca"]+melt_comp["Mg"]+melt_comp["Fe2"]))/(melt_comp["Si"]*(melt_comp["Al"]+melt_comp["Fe3"]))
         lnS = 11.35251 - (4454.6/T) - 0.03190*(PT["P"]/T) + 0.71006*gp.log(MFM) - 1.98063*(MFM*melt_comp["H"]) + 0.21867*gp.log(melt_comp["H"]) + 0.36192*gp.log(melt_comp["Fe2"])
         SCSS = gp.exp(lnS)
         
     elif model == "Fortin15":
         # Mole fractions in the melt on cationic lattice (all Fe as FeOT) and water
-        melt_comp = mg.melt_cation_proportion(melt_wf,species,"water","no")
+        melt_comp = mg.melt_cation_proportion(melt_wf,"water","no")
         lnS = 34.784 - (5772.3/T) - 346.54*((0.0001*PT["P"])/T) - 20.393*melt_comp["H"] - 25.499*melt_comp["Si"] - 18.344*melt_comp["Ti"] - 27.381*melt_comp["Al"] - 17.275*melt_comp["Fe"] - 22.398*melt_comp["Mg"] - 20.378*melt_comp["Ca"] - 18.954*melt_comp["Na"] - 32.195*melt_comp["K"]
         SCSS = gp.exp(lnS)
     
@@ -910,7 +910,7 @@ def KCOs(PT,models):
        
 # H2Omol + O = 2OH
 # K = xOH*2/(xH2Omol*xO)
-def KHOm(PT,melt_wf,species,models):
+def KHOm(PT,melt_wf,models):
     Hspeccomp = models.loc["Hspeccomp","option"]
     
     T_K = PT['T']+273.15
@@ -947,7 +947,7 @@ def KHOm(PT,melt_wf,species,models):
         K = 0.17
     return K
 
-def KregH2O(PT,melt_wf,species,models):
+def KregH2O(PT,melt_wf,models):
     Hspeccomp = models.loc["Hspeccomp","option"]
 
     if Hspeccomp == "MORB": # Dixon et al. (1995)
@@ -956,7 +956,7 @@ def KregH2O(PT,melt_wf,species,models):
         C = 10.894
     elif Hspeccomp == "alkali basalt XT": # No T-dependence, hence its the speciation frozen in the glass. Eqn 7-10 from Lesne et al. (2010) CMP 162:133-151 (eqn 7 is wrong)
         # wt% normalised including H2O, all Fe as FeOT
-        melt_comp = melt_normalise_wf(melt_wf,species,"volatiles","Fe speciation")
+        melt_comp = melt_normalise_wf(melt_wf,"volatiles","Fe speciation")
         Na = melt_comp["Na2O"]*100.
         K = melt_comp["K2O"]*100.
         A = 0.5761*(Na+K) - 0.2884 # eqn-8
@@ -985,7 +985,7 @@ def KregH2O(PT,melt_wf,species,models):
         C = 10.894
     
 # CO2 + O = CO3
-def KCOm(PT,melt_wf,species,models): # K = 
+def KCOm(PT,melt_wf,models): # K = 
     Cspeccomp = models.loc["Cspeccomp","option"]
 
     T_K = PT['T']+273.15
@@ -1129,7 +1129,7 @@ def Q_SS(PT,Tr,Pcr):
         integral0 = 0.0
         return A, B, C, D, P0, integral0
     
-def y_SS(gas_species,PT,species,models):
+def y_SS(gas_species,PT,models):
     P = PT['P']
     T_K = PT['T']+273.15
     
@@ -1148,7 +1148,7 @@ def y_SS(gas_species,PT,species,models):
 ### for each vapor species ###    
 ##############################
 
-def y_H2(PT,species,models):
+def y_H2(PT,models):
     P = PT['P']
     T_K = PT['T']+273.15
 
@@ -1217,7 +1217,7 @@ def y_H2(PT,species,models):
         integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
         return gp.exp(integral + integral0)/P
 
-def y_H2O(PT,species,models):
+def y_H2O(PT,models):
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_H2O","option"]
 
@@ -1238,7 +1238,7 @@ def y_H2O(PT,species,models):
         y = CORK(PT,p0,a,b,c,d)
         return y
 
-def y_CO2(PT,species,models):
+def y_CO2(PT,models):
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_CO2","option"]
 
@@ -1259,60 +1259,60 @@ def y_CO2(PT,species,models):
             y = CORK(PT,p0,a,b,c,d)
         elif model == "SS92": # use Shi & Saxena (1992)
             gas_species = "CO2"
-            y = y_SS(gas_species,PT,species,models)
+            y = y_SS(gas_species,PT,models)
         return y
     
-def y_O2(PT,species,models):
+def y_O2(PT,models):
     model = models.loc["y_O2","option"]
 
     if model == "SS92":
         gas_species = "O2"
-        y = y_SS(gas_species,PT,species,models)
+        y = y_SS(gas_species,PT,models)
     elif model == "ideal":
         y = 1.
     return y
     
-def y_S2(PT,species,models):
+def y_S2(PT,models):
     model = models.loc["y_S2","option"]
 
     if model == "SS92":
         gas_species = "S2"
-        y = y_SS(gas_species,PT,species,models)
+        y = y_SS(gas_species,PT,models)
     elif model == "ideal":
         y = 1.
     return y
 
-def y_CO(PT,species,models):
+def y_CO(PT,models):
     model = models.loc["y_CO","option"]
 
     if model == "SS92":
         gas_species = "CO"
-        y = y_SS(gas_species,PT,species,models)
+        y = y_SS(gas_species,PT,models)
     elif model == "ideal":
         y = 1.
     return y
     
-def y_CH4(PT,species,models):
+def y_CH4(PT,models):
     model = models.loc["y_CH4","option"]
 
     if model == "SS92":
         gas_species = "CH4"
-        y = y_SS(gas_species,PT,species,models)
+        y = y_SS(gas_species,PT,models)
     elif model == "ideal":
         y = 1.
     return y
     
-def y_OCS(PT,species,models):
+def y_OCS(PT,models):
     model = models.loc["y_OCS","option"]
 
     if model == "SS92":
         gas_species = "OCS"
-        y = y_SS(gas_species,PT,species,models)
+        y = y_SS(gas_species,PT,models)
     elif model == "ideal":
         y = 1.
     return y
 
-def y_X(PT,species,models): # species X fugacity coefficient
+def y_X(PT,models): # species X fugacity coefficient
     model = models.loc["y_X","option"]
 
     if model == "ideal":  # ideal gas
@@ -1323,7 +1323,7 @@ def y_X(PT,species,models): # species X fugacity coefficient
 ### SO2 and H2S from Shi & Saxena (1992) with option to modify below 500 bars ###
 #################################################################################
 
-def y_SO2(PT,species,models):
+def y_SO2(PT,models):
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_SO2","option"]
 
@@ -1363,7 +1363,7 @@ def y_SO2(PT,species,models):
             y = ((y_500 - 1.)*(P/500.)) + 1. # linear extrapolation to P of interest
         return y       
             
-def y_H2S(PT,species,models):
+def y_H2S(PT,models):
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_H2S","option"]
 
@@ -1438,7 +1438,7 @@ def y_H2S(PT,species,models):
         integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
         return gp.exp(integral + integral0)/P
     
-def y_SO3(PT,species,models):
+def y_SO3(PT,models):
     return 1.
 
 #######################
@@ -1469,14 +1469,14 @@ def FMQ(PT,models):
 
 # terms for different equations
 
-def FefO2_KC91_Eq7_terms(PT,melt_wf,species,models): # terms for Kress & Carmichael (1991) Equation 7
+def FefO2_KC91_Eq7_terms(PT,melt_wf,models): # terms for Kress & Carmichael (1991) Equation 7
     # ln(XFe2O3/XFeO) = alnfO2 + (b/T) + c + sum(dX) + e[1 - (T0/T) = ln(T/T0)] + f(P/T) + g(((T-T0)P)/T) + h(P2/T)
     # ln(XFe2O3/XFeO) = alnfO2 + B
     # terms
     a = 0.196
     # sum(dX)
     # mole frations in the melt based on oxide components (all Fe as FeO) with no volatiles
-    melt_comp = mg.melt_mole_fraction(melt_wf,species,models,"no","no")
+    melt_comp = mg.melt_mole_fraction(melt_wf,models,"no","no")
     DAl = -2.243
     DFe = -1.828
     DCa = 3.201
@@ -1497,13 +1497,13 @@ def FefO2_KC91_Eq7_terms(PT,melt_wf,species,models): # terms for Kress & Carmich
     B = (b/T_K) + c + D4X + e*(1.0 - (T0/T_K) - math.log(T_K/T0)) + f*(P_Pa/T_K) + g*(((T_K-T0)*P_Pa)/T_K) + h*((P_Pa**2.0)/T_K) 
     return a, B
 
-def FefO2_KC91_EqA_terms(PT,melt_wf,species,models): # terms for Kress & Carmichael (1991) Appendix Equations A1-6
+def FefO2_KC91_EqA_terms(PT,melt_wf,models): # terms for Kress & Carmichael (1991) Appendix Equations A1-6
     # XFeO1.5/XFeO = (KD1*fO2**0.25 + 2y*KD2*KD1**2y*fO2**0.5y)/(1 + (1-2y)KD2*KD1**2y*fO2**0.5y)
     KD2 = 0.4
     y = 0.3
     # compositional term
     # mole frations in the melt based on oxide components (all Fe as FeO) with no volatiles
-    melt_comp = mg.melt_mole_fraction(melt_wf,species,models,"no","no")
+    melt_comp = mg.melt_mole_fraction(melt_wf,models,"no","no")
     DWAl = 39.86e3             #J
     DWCa = -62.52e3            #J
     DWNa = -102.0e3            #J
@@ -1525,60 +1525,60 @@ def FefO2_KC91_EqA_terms(PT,melt_wf,species,models): # terms for Kress & Carmich
     KD1 = math.exp((-DH/(R*T_K)) + (DS/R) - (DCp/R)*(1.0 - (T0/T_K) - gp.log(T_K/T0)) - (1.0/(R*T_K))*D4X - ((DV*(P_Pa-P0))/(R*T_K)) - ((DVdot*(T_K-T0)*(P_Pa-P0))/(R*T_K)) - (DVdash/(2.0*R*T_K))*pow((P_Pa-P0),2.0))
     return KD1, KD2, y
 
-def FefO2_ONeill18_terms(PT,melt_wf,species,models):
+def FefO2_ONeill18_terms(PT,melt_wf,models):
     # O'Neill et al. (2018) EPSL 504:152-162
     # 1n(Fe3Fe2) = a*DFMQ + B
     a = 0.125
     # mole fractions on a single cation basis in the melt based on oxide components (all Fe as FeO) with no volatiles
-    melt_comp = mg.melt_cation_proportion(melt_wf,species,"volatiles","Fe speciation")
+    melt_comp = mg.melt_cation_proportion(melt_wf,"volatiles","Fe speciation")
     B = - 1.36 + 2.4*melt_comp["Ca"] + 2.0*melt_comp["Na"] + 3.7*melt_comp["K"] - 2.4*melt_comp["P"]
     # FMQ
     T_K = PT['T']+273.15
     FMQ = 8.58 - (25050/T_K) # O'Neill (1987)
     return a, B, FMQ
 
-def FefO2_Borisov18_terms(PT,melt_wf,species,models):
+def FefO2_Borisov18_terms(PT,melt_wf,models):
     T_K = PT['T']+273.15
     # Borisov et al. (2018) CMP 173
     a = 0.207
     # melt mole fraction with no volatiles and all Fe as FeOT
-    melt_comp = mg.melt_mole_fraction(melt_wf,species,models,"no","no")  
+    melt_comp = mg.melt_mole_fraction(melt_wf,models,"no","no")  
     B = (4633.3/T_K -0.445*melt_comp["SiO2"] - 0.900*melt_comp["TiO2"] + 1.532*melt_comp["MgO"] + 0.314*melt_comp["CaO"] + 2.030*melt_comp["Na2O"] + 3.355*melt_comp["K2O"] - 4.851*melt_comp["P2O5"] - 3.081*melt_comp["SiO2"]*melt_comp["Al2O3"] -  4.370*melt_comp["SiO2"]*melt_comp["MgO"] - 1.852)
     return a, B
 
-def fO22Fe3FeT(fO2,PT,melt_wf,species,models): # converting fO2 to Fe3/FeT
+def fO22Fe3FeT(fO2,PT,melt_wf,models): # converting fO2 to Fe3/FeT
     model = models.loc["fO2","option"]
 
     T_K = PT['T']+273.15
     
     if model == "Kress91":
-        a, PTterm = FefO2_KC91_Eq7_terms(PT,melt_wf,species,models)
+        a, PTterm = FefO2_KC91_Eq7_terms(PT,melt_wf,models)
         lnXFe2O3XFeO = a*gp.log(fO2) + PTterm
         XFe2O3XFeO = gp.exp(lnXFe2O3XFeO)
         return (2.0*XFe2O3XFeO)/((2.0*XFe2O3XFeO)+1.0)
     
     elif model == "Kress91A": 
-        kd1, KD2, y = FefO2_KC91_EqA_terms(PT,melt_wf,species,models)
+        kd1, KD2, y = FefO2_KC91_EqA_terms(PT,melt_wf,models)
         XFeO15XFeO = ((kd1*fO2**0.25)+(2.0*y*KD2*(kd1**(2.0*y))*(fO2**(0.5*y))))/(1.0 + (1.0 - 2.0*y)*KD2*(kd1**(2.0*y))*(fO2**(0.5*y)))
         return XFeO15XFeO/(XFeO15XFeO+1.0)  
     
     elif model == "ONeill18": # O'Neill et al. (2018) EPSL 504:152-162
-        a,B,FMQ = FefO2_ONeill18_terms(PT,melt_wf,species,models)
+        a,B,FMQ = FefO2_ONeill18_terms(PT,melt_wf,models)
         DQFM = gp.log10(fO2) - FMQ
         lnFe3Fe2 = a*DQFM + B
         Fe3Fe2 =  gp.exp(lnFe3Fe2)
         return Fe3Fe2/(Fe3Fe2 + 1.0)
     
     elif model == "Borisov18": # Borisov et al. (2018) CMP 173:
-        a,B = FefO2_Borisov18_terms(PT,melt_wf,species,models)
+        a,B = FefO2_Borisov18_terms(PT,melt_wf,models)
         Fe3Fe2 = 10.**(a*gp.log10(fO2) + B)
         return Fe3Fe2/(Fe3Fe2 + 1.0)
 
-def f_O2(PT,melt_wf,species,models):
+def f_O2(PT,melt_wf,models):
     model = models.loc["fO2","option"]
     
-    def KC91(PT,melt_wf,species,models):
-        a, PTterm = FefO2_KC91_Eq7_terms(PT,melt_wf,species,models)
+    def KC91(PT,melt_wf,models):
+        a, PTterm = FefO2_KC91_Eq7_terms(PT,melt_wf,models)
         F = 0.5*mg.Fe3Fe2(melt_wf) # XFe2O3/XFeO
         alnfO2 = math.log(F) - PTterm
         fO2 = math.exp(alnfO2/a)
@@ -1588,12 +1588,12 @@ def f_O2(PT,melt_wf,species,models):
     #    return 10.0**(setup.loc[run,"logfO2"]) 
     
     if model == "Kress91":
-        fO2 = KC91(PT,melt_wf,species,models)
+        fO2 = KC91(PT,melt_wf,models)
         return fO2
     
     elif model == "Kress91A": 
         F = mg.Fe3Fe2(melt_wf) # XFeO1.5/XFeO
-        kd1, KD2, y = FefO2_KC91_EqA_terms(PT,melt_wf,species,models)
+        kd1, KD2, y = FefO2_KC91_EqA_terms(PT,melt_wf,models)
             
         def f(y,F,KD2,kd1,x): # KC91A rearranged to equal 0
             f = ((2.0*y - F + 2.0*y*F)*KD2*kd1**(2.0*y)*x**(0.5*y) + kd1*x**0.25 - F)
@@ -1614,14 +1614,14 @@ def f_O2(PT,melt_wf,species,models):
                 delta1 = dx(x0)
             return x0
             
-        x0 = KC91(PT,melt_wf,species,models)
+        x0 = KC91(PT,melt_wf,models)
     
         fO2 = nr(x0, 1.e-15)
         return fO2
         
     elif model == "ONeill18": # O'Neill et al. (2018) EPSL 504:152-162
         F = mg.Fe3Fe2(melt_wf) # Fe3+/Fe2+
-        a,B,FMQ = FefO2_ONeill18_terms(PT,melt_wf,species,models)
+        a,B,FMQ = FefO2_ONeill18_terms(PT,melt_wf,models)
         DQFM = (math.log(F) - B)/a
         logfO2 = DQFM + FMQ
         return 10.0**logfO2
@@ -1629,12 +1629,12 @@ def f_O2(PT,melt_wf,species,models):
     #elif model == "S6ST": # remove?!?!
     #    S6T = melt_wf['S6ST']
     #    S62 = mg.overtotal2ratio(S6T)
-    #    fO2 = mg.S6S2_2_fO2(S62,melt_wf,run,PT,setup,species,models)
+    #    fO2 = mg.S6S2_2_fO2(S62,melt_wf,run,PT,setup,models)
     #    return fO2
     
     elif model == "Borisov18": # Borisov et al. (2018) CMP 173
         F = mg.Fe3Fe2(melt_wf)
-        a,B = FefO2_Borisov18_terms(PT,melt_wf,species,models)
+        a,B = FefO2_Borisov18_terms(PT,melt_wf,models)
         fO2 = 10.**((gp.log10(F) - B)/a)
         return fO2
     
@@ -1645,9 +1645,9 @@ def S_Nash19_terms(PT): # Nash et al. 2019
     return A, B
 
 # density of the melt in g/cm3 using DensityX (Iacovino & Till 2019 Volcanica 2(1))
-def melt_density(PT,melt_wf,species,models):
+def melt_density(PT,melt_wf,models):
     if models.loc["density","option"] == "DensityX":
-        melt_comp = mg.melt_normalise_wf(melt_wf,species,"water","yes")
+        melt_comp = mg.melt_normalise_wf(melt_wf,"water","yes")
         P = PT["P"]
         T = PT["T"]
         melt_dx = pd.DataFrame([["sample", melt_comp["SiO2"], melt_comp["TiO2"], melt_comp["Al2O3"], melt_comp["FeO"], melt_comp["Fe2O3"], melt_comp["MgO"], melt_comp["CaO"], melt_comp["Na2O"], melt_comp["K2O"], melt_comp["H2O"],P,T]])
@@ -1662,7 +1662,7 @@ def melt_density(PT,melt_wf,species,models):
 
 # beta factors from Richet et al. (1977) fitted to quadratic equation for 600 < T'C < 1300
 
-def beta_gas(PT,element,species):
+def beta_gas(PT,element):
     t = 1./(PT["T"]+273.15)
     if element == "S":
         if species == "SO2":
@@ -1704,3 +1704,55 @@ def alpha_SO2_SO4(PT,models): # Fiege et al. (2015) Chemical Geology equation 9 
 def alpha_A_B(element,A,B,PT,models):
     if A == "SO2" and B == "H2S":
         a = alpha_gas(element,A,B,PT)
+    return a
+
+#################
+### constants ###
+#################
+
+species = [['H',1.008,1.,0.,1.,'','','',''],
+        ['C',12.011,'',0.,'','','',''],
+        ['O',15.999,-2.,0.,'','','',''],				
+        ['Na',22.99,'',0.,'','','','',''],
+        ['Mg',24.305,'',0.,'','','','',''],
+        ['Al',26.982,'',0.,'','','','',''],
+        ['Si',28.085,'',0.,'','','','',''],
+        ['P',30.974,'',0.,'','','','',''],
+        ['S',32.06,'',0.,'','','','',''],
+        ['K',39.098,'',0.,'','','','',''],
+        ['Ca',40.078,'',0.,'','','','',''],
+        ['Ti',47.867,'',0.,'','','','',''],
+        ['Mn',54.938,'',0.,'','','','',''],
+        ['Fe',55.845,'',0.,'','','','',''],
+        ['SiO2',60.083,0.,2.,4.,1.,2.,'',''],
+        ['TiO2',79.865,0.,2.,3.,1.,2.,'',''],
+        ['Al2O3',101.961,0.,3.,3.,2.,3.,'',''],
+        ['Fe2O3',159.687,0.,3.,3.,2.,3.,'',''],
+        ['FeO1.5',79.8435,0.,1.5,3.,1.,1.5,'',''],
+        ['FeO',71.844,0.,1.,2.,1.,1.,'',''],
+        ['MnO',70.937,0.,1.,2.,1.,1.,'',''],
+        ['MgO',40.304,0.,1.,2.,1.,1.,'',''],
+        ['CaO',56.077,0.,1.,2.,1.,1.,'',''],
+        ['Na2O',61.979,0.,1.,1.,2.,1.,'',''],
+        ['K2O',94.195,0.,1.,1.,2.,1.,'',''],
+        ['P2O5',141.943,0.,1.,5.,2.,1.,'',''],
+        ['OH',17.007,-1.,1.,1.,1.,1.,'',''],
+        ['H2O',18.015,0.,1.,1.,1.,1.,647.25,221.1925],
+        ['H2S',34.076,0.,0.,1.,1.,1.,373.55,90.0779],
+        ['CO',28.01,0.,1.,2.,1.,1.,133.15,34.9571],
+        ['CO2',44.009,0.,2.,4.,1.,2.,304.15,73.8659],
+        ['CO3',60.008,-2.,3.,4.,1.,3.,'',''],
+        ['S2',64.12,0.,0.,'','','',208.15,72.954],
+        ['SO2',64.058,0.,2.,4.,1.,2.,430.95,78.7295],
+        ['SO3',80.057,0.,3.,6.,1.,3.,'',''],
+        ['SO4',96.056,-2.,4.,6,'',4.,'',''],
+        ['OCS',60.07,0.,1.,'','','',377.55,65.8612],
+        ['O2',31.998,0.,2.,'','','',154.75,50.7638],
+        ['H2',2.016,0.,0.,'','','',33.25,12.9696],
+        ['CH4',16.043,0.,0.,'','','',191.05,46.4069],
+        ['Ar',39.948,'','','','','','',''],
+        ['Ne',20.1797,'','','','','','','']]
+    
+# Create the pandas DataFrame
+species = pd.DataFrame(species,columns=['species','M','overall_charge','no_O','cat_charge','no_cat','no_an','Tcr','Pcr'])
+species = species.set_index('species')
