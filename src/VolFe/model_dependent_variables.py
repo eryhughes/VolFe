@@ -21,16 +21,35 @@ import VolFe.melt_gas as mg
 # Fugacity coefficients
 # Speciation 
 # Isotope fractionation factors
+# Constants
+
+def make_models_df(models): 
+    # Create the pandas DataFrame
+    models = pd.DataFrame(models, columns=['type', 'option'])
+    models = models.set_index('type')
+    return models
+
+# define default models
+default_models = [['insolubles','yes'],['H2S_m','yes'],['species X','Ar'],['Hspeciation','none'],
+              ['fO2','Kress91A'],['NNObuffer','Frost91'],['FMQbuffer','Frost91'],
+              ['carbon dioxide','Dixon95'],['water','AllisonDataComp'],['hydrogen','basalt'],['sulfide','ONeill21dil'],['sulfate','ONeill22dil'],['hydrogen sulfide','basalt'],['methane','Ardia13'],['carbon monoxide','basalt'],['species X solubility','Iacono-Marziano10_Ar_basalt'],['Cspeccomp','basalt'],['Hspeccomp','MORB'],
+              ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','no'],['sulfur_is_sat','no'],['graphite_saturation','no'],
+              ['ideal_gas','no'],['y_CO2','SS92'],['y_SO2','SS92_modified'],['y_H2S','SS92_modified'],['y_H2','SW64'],['y_O2','SS92'],['y_S2','SS92'],['y_CO','SS92'],['y_CH4','SS92'],['y_H2O','HP91'],['y_OCS','SS92'],['y_X','ideal'],
+              ['KHOg','KO97'],['KHOSg','KO97'],['KOSg','KO97'],['KOSg2','OM22'], ['KCOg','KO97'],['KCOHg','KO97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
+              ['bulk_composition','yes'],['starting_P','bulk'],['gassing_style','closed'],['gassing_direction','degas'],['P_variation','polybaric'],['eq_Fe','yes'],['solve_species','OCS'],
+              ['density','DensityX'],['isotopes','no'],['T_variation','isothermal'],['crystallisation','no'],['mass_volume','mass'],['calc_sat','fO2_melt'],['bulk_O','exc_S'],['error',0.1],
+              ['print status','yes'],['output csv','yes'],['setup','no']]
+# Create the pandas DataFrame
+default_models = pd.DataFrame(default_models, columns=['type', 'option'])
+default_models = default_models.set_index('type')
 
 def check_default_options(models):
     
     def return_options(default,name,models):
-        if models == "default_options":
-            variable = default
-        elif name in models.index:
+        if name in models.index:
             variable = models.loc[name,'option']
             if variable == "default":
-                variable = default
+                    variable = default
         else:
             variable = default
         return variable
@@ -121,6 +140,11 @@ def check_default_options(models):
     models = models.set_index('type')
     return models
 
+def make_df_and_add_model_defaults(models):
+    df_models = make_models_df(models)
+    added_defaults = check_default_options(df_models)
+    return added_defaults
+
 #################################################################################################################################
 ##################################################### SOLUBILITY CONSTANTS ######################################################
 #################################################################################################################################
@@ -128,7 +152,7 @@ def check_default_options(models):
 ###################################
 ### Solubility constant for H2O ###
 ###################################
-def C_H2O(PT,melt_wf,models):
+def C_H2O(PT,melt_wf,models=default_models):
     
     """ 
     Solubility constant for disolving H2O in the melt.
@@ -217,7 +241,7 @@ def C_H2O(PT,melt_wf,models):
 ##############################################
 ### Solubility constant for carbon dioxide ###
 ##############################################
-def C_CO3(PT,melt_wf,models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fraction) ***except Shishkina14 - wmCO2 ppm***
+def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fraction) ***except Shishkina14 - wmCO2 ppm***
     
     """ 
     Solubility constant for disolving CO2 in the melt: C_CO2,T = xmCO2,T/fCO2 [all oxidised carbon - i.e., CO2mol and CO32- - as CO2,T]
@@ -432,7 +456,7 @@ def C_CO3(PT,melt_wf,models): ### C_CO2,T = xmCO2,T/fCO2 ### (mole fraction) ***
 ########################################
 ### solubility constant for sulfide ###
 ########################################
-def C_S(PT,melt_wf,models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (weight ppm)
+def C_S(PT,melt_wf,models=default_models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (weight ppm)
     
     """ 
     Solubility constant for disolving S in the melt as S2- in ppmw: C_S = wmS2-*(fO2/fS2)^0.5
@@ -499,7 +523,7 @@ def C_S(PT,melt_wf,models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (weight ppm)
 ########################################
 ### solubility constant for sulfate ###
 ########################################
-def C_SO4(PT,melt_wf,models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 ### (weight ppm)
+def C_SO4(PT,melt_wf,models=default_models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 ### (weight ppm)
     model = models.loc["sulfate","option"]
 
     T = PT['T'] + 273.15 # T in Kelvin
@@ -559,7 +583,7 @@ def C_SO4(PT,melt_wf,models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 ### (weight ppm
 ###################################
 ### solubility constant for H2S ###
 ###################################
-def C_H2S(PT,melt_wf,models): # C_H2S = wmH2S/fH2S (ppm H2S, fH2S bar)
+def C_H2S(PT,melt_wf,models=default_models): # C_H2S = wmH2S/fH2S (ppm H2S, fH2S bar)
     model = models.loc["hydrogen sulfide","option"]
     if model == "basalt":
         K = 10.23 # fitted to basalt data from Moune+ 2009 CMP 157:691–707 and Lesne+ 2015 ChemGeol 418:104–116
@@ -572,7 +596,7 @@ def C_H2S(PT,melt_wf,models): # C_H2S = wmH2S/fH2S (ppm H2S, fH2S bar)
 ########################################
 ### solubility constant for hydrogen ###
 ########################################
-def C_H2(PT,melt_wf,models): # C_H2 = wmH2/fH2 (wtppm)
+def C_H2(PT,melt_wf,models=default_models): # C_H2 = wmH2/fH2 (wtppm)
     model = models.loc["hydrogen","option"] 
     
     # Hirchmann et al. (2012) EPSL 345-348:38-48
@@ -597,7 +621,7 @@ def C_H2(PT,melt_wf,models): # C_H2 = wmH2/fH2 (wtppm)
 ######################################
 ### solubility constant for methane ##
 ######################################
-def C_CH4(PT,melt_wf,models): # C_CH4 = wmCH4/fCH4 (ppm)
+def C_CH4(PT,melt_wf,models=default_models): # C_CH4 = wmCH4/fCH4 (ppm)
     model = models.loc["methane","option"]
 
     if model == "Ardia13": # Ardia et al. (2013) GCA 114:52-71
@@ -618,7 +642,7 @@ def C_CH4(PT,melt_wf,models): # C_CH4 = wmCH4/fCH4 (ppm)
 #################################
 ### solubility constant for CO ##
 #################################
-def C_CO(PT,melt_wf,models): # C_CO = wmCO/fCO (ppm)
+def C_CO(PT,melt_wf,models=default_models): # C_CO = wmCO/fCO (ppm)
     model = models.loc["carbon monoxide","option"]
 
     if model == "basalt": # from fitting Armstrong et al. (2015) GCA 171:283-302; Stanley+2014, and Wetzel+13 thermodynamically
@@ -636,7 +660,7 @@ def C_CO(PT,melt_wf,models): # C_CO = wmCO/fCO (ppm)
 #################################
 ### solubility constant for X ###
 #################################
-def C_X(PT,melt_wf,models): # C_X = wmX/fX (ppm)
+def C_X(PT,melt_wf,models=default_models): # C_X = wmX/fX (ppm)
     species = models.loc["species X","option"]
     model = models.loc["species X solubility","option"]
         
@@ -671,7 +695,7 @@ def C_X(PT,melt_wf,models): # C_X = wmX/fX (ppm)
 ################################################
 ### sulfate content at anhydrite saturation ###
 ################################################
-def SCAS(PT,melt_wf,models): 
+def SCAS(PT,melt_wf,models=default_models): 
     model = models.loc["SCAS","option"]
     
     T = PT['T'] +273.15
@@ -738,7 +762,7 @@ def SCAS(PT,melt_wf,models):
 ###############################################
 ### sulfide content at sulfide saturation ###
 ###############################################
-def SCSS(PT,melt_wf,models): # sulfide content (ppm) at sulfide saturation from O'Neill (2020) [P in bar,T in K]
+def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide saturation from O'Neill (2020) [P in bar,T in K]
     model = models.loc["SCSS","option"]
 
     P_bar = PT['P']
@@ -810,7 +834,7 @@ Ni_Liq=None, Cu_Liq=None, Fe_Sulf=None, Cu_Sulf=None, Ni_Sulf=None, Ni_Sulf_init
 
 # H2 + 0.5O2 = H2O
 # K = fH2O/(fH2*(fO2)^0.5)
-def KHOg(PT,models):
+def KHOg(PT,models=default_models):
     model = models.loc["KHOg","option"]
 
     T_K = PT['T']+273.15
@@ -820,7 +844,7 @@ def KHOg(PT,models):
 
 # H2O + 0.5S2 = H2S + 0.5O2
 # K = (fH2S*(fO2)^0.5)/((fS2^0.5)*fH2O)
-def KHOSg(PT,models):
+def KHOSg(PT,models=default_models):
     model = models.loc["KHOSg","option"]
 
     T_K = PT['T']+273.15
@@ -832,7 +856,7 @@ def KHOSg(PT,models):
 
 # 0.5S2 + O2 = SO2
 # K = fSO2/((fS2^0.5)*fO2)
-def KOSg(PT,models):
+def KOSg(PT,models=default_models):
     model = models.loc["KOSg","option"]
 
     T_K = PT['T']+273.15
@@ -842,7 +866,7 @@ def KOSg(PT,models):
 
 # 0.5S2 + 1.5O2 = SO3
 # K = fSO3/((fS2^0.5)*(fO2^1.5)
-def KOSg2(PT,models):
+def KOSg2(PT,models=default_models):
     model = models.loc["KOSg2","option"]
 
     T_K = PT['T']+273.15
@@ -853,7 +877,7 @@ def KOSg2(PT,models):
 
 # CO + 0.5O = CO2
 # K = fCO2/(fCO*(fO2^0.5))
-def KCOg(PT,models):
+def KCOg(PT,models=default_models):
     model = models.loc["KCOg","option"]
 
     T_K = PT['T']+273.15
@@ -863,7 +887,7 @@ def KCOg(PT,models):
 
 # CH4 + 2O2 = CO2 + 2H2O
 # K = (fCO2*(fH2O^2))/(fCH4*(fO2^2))
-def KCOHg(PT,models): 
+def KCOHg(PT,models=default_models): 
     model = models.loc["KCOHg","option"]
 
     T_K = PT['T']+273.15
@@ -871,7 +895,7 @@ def KCOHg(PT,models):
         K = 10.**((41997.0/T_K)+0.719*gp.log10(T_K)-2.404)
     return K
 
-def KOCSg(PT,models): # OCS - depends on system
+def KOCSg(PT,models=default_models): # OCS - depends on system
     reaction = models.loc["carbonylsulfide","option"]
     model = models.loc["KOCSg","option"]
 
@@ -890,7 +914,7 @@ def KOCSg(PT,models): # OCS - depends on system
         return K
 
 # Cgraphite + O2 = CO2
-def KCOs(PT,models): 
+def KCOs(PT,models=default_models): 
     model = models.loc["KCOs","option"]
 
     T_K = PT['T']+273.15
@@ -910,7 +934,7 @@ def KCOs(PT,models):
        
 # H2Omol + O = 2OH
 # K = xOH*2/(xH2Omol*xO)
-def KHOm(PT,melt_wf,models):
+def KHOm(PT,melt_wf,models=default_models):
     Hspeccomp = models.loc["Hspeccomp","option"]
     
     T_K = PT['T']+273.15
@@ -947,7 +971,7 @@ def KHOm(PT,melt_wf,models):
         K = 0.17
     return K
 
-def KregH2O(PT,melt_wf,models):
+def KregH2O(PT,melt_wf,models=default_models):
     Hspeccomp = models.loc["Hspeccomp","option"]
 
     if Hspeccomp == "MORB": # Dixon et al. (1995)
@@ -985,7 +1009,7 @@ def KregH2O(PT,melt_wf,models):
         C = 10.894
     
 # CO2 + O = CO3
-def KCOm(PT,melt_wf,models): # K = 
+def KCOm(PT,melt_wf,models=default_models): # K = 
     Cspeccomp = models.loc["Cspeccomp","option"]
 
     T_K = PT['T']+273.15
@@ -1129,7 +1153,7 @@ def Q_SS(PT,Tr,Pcr):
         integral0 = 0.0
         return A, B, C, D, P0, integral0
     
-def y_SS(gas_species,PT,models):
+def y_SS(gas_species,PT,models=default_models):
     P = PT['P']
     T_K = PT['T']+273.15
     
@@ -1148,7 +1172,7 @@ def y_SS(gas_species,PT,models):
 ### for each vapor species ###    
 ##############################
 
-def y_H2(PT,models):
+def y_H2(PT,models=default_models):
     P = PT['P']
     T_K = PT['T']+273.15
 
@@ -1217,7 +1241,7 @@ def y_H2(PT,models):
         integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
         return gp.exp(integral + integral0)/P
 
-def y_H2O(PT,models):
+def y_H2O(PT,models=default_models):
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_H2O","option"]
 
@@ -1238,7 +1262,7 @@ def y_H2O(PT,models):
         y = CORK(PT,p0,a,b,c,d)
         return y
 
-def y_CO2(PT,models):
+def y_CO2(PT,models=default_models):
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_CO2","option"]
 
@@ -1262,7 +1286,7 @@ def y_CO2(PT,models):
             y = y_SS(gas_species,PT,models)
         return y
     
-def y_O2(PT,models):
+def y_O2(PT,models=default_models):
     model = models.loc["y_O2","option"]
 
     if model == "SS92":
@@ -1272,7 +1296,7 @@ def y_O2(PT,models):
         y = 1.
     return y
     
-def y_S2(PT,models):
+def y_S2(PT,models=default_models):
     model = models.loc["y_S2","option"]
 
     if model == "SS92":
@@ -1282,7 +1306,7 @@ def y_S2(PT,models):
         y = 1.
     return y
 
-def y_CO(PT,models):
+def y_CO(PT,models=default_models):
     model = models.loc["y_CO","option"]
 
     if model == "SS92":
@@ -1292,7 +1316,7 @@ def y_CO(PT,models):
         y = 1.
     return y
     
-def y_CH4(PT,models):
+def y_CH4(PT,models=default_models):
     model = models.loc["y_CH4","option"]
 
     if model == "SS92":
@@ -1302,7 +1326,7 @@ def y_CH4(PT,models):
         y = 1.
     return y
     
-def y_OCS(PT,models):
+def y_OCS(PT,models=default_models):
     model = models.loc["y_OCS","option"]
 
     if model == "SS92":
@@ -1312,7 +1336,7 @@ def y_OCS(PT,models):
         y = 1.
     return y
 
-def y_X(PT,models): # species X fugacity coefficient
+def y_X(PT,models=default_models): # species X fugacity coefficient
     model = models.loc["y_X","option"]
 
     if model == "ideal":  # ideal gas
@@ -1323,7 +1347,7 @@ def y_X(PT,models): # species X fugacity coefficient
 ### SO2 and H2S from Shi & Saxena (1992) with option to modify below 500 bars ###
 #################################################################################
 
-def y_SO2(PT,models):
+def y_SO2(PT,models=default_models):
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_SO2","option"]
 
@@ -1363,7 +1387,7 @@ def y_SO2(PT,models):
             y = ((y_500 - 1.)*(P/500.)) + 1. # linear extrapolation to P of interest
         return y       
             
-def y_H2S(PT,models):
+def y_H2S(PT,models=default_models):
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_H2S","option"]
 
@@ -1438,7 +1462,7 @@ def y_H2S(PT,models):
         integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
         return gp.exp(integral + integral0)/P
     
-def y_SO3(PT,models):
+def y_SO3(PT,models=default_models):
     return 1.
 
 #######################
@@ -1446,7 +1470,7 @@ def y_SO3(PT,models):
 #######################
 
 # buffers
-def NNO(PT,models):
+def NNO(PT,models=default_models):
     model = models.loc["NNObuffer","option"]
 
     P = PT['P']
@@ -1455,7 +1479,7 @@ def NNO(PT,models):
         buffer = (-24930/T_K + 9.36 + 0.046*(P-1.0)/T_K) # Frost (1991)
     return buffer
 
-def FMQ(PT,models):
+def FMQ(PT,models=default_models):
     model = models.loc["FMQbuffer","option"]
 
     P = PT['P']
@@ -1469,7 +1493,7 @@ def FMQ(PT,models):
 
 # terms for different equations
 
-def FefO2_KC91_Eq7_terms(PT,melt_wf,models): # terms for Kress & Carmichael (1991) Equation 7
+def FefO2_KC91_Eq7_terms(PT,melt_wf,models=default_models): # terms for Kress & Carmichael (1991) Equation 7
     # ln(XFe2O3/XFeO) = alnfO2 + (b/T) + c + sum(dX) + e[1 - (T0/T) = ln(T/T0)] + f(P/T) + g(((T-T0)P)/T) + h(P2/T)
     # ln(XFe2O3/XFeO) = alnfO2 + B
     # terms
@@ -1497,7 +1521,7 @@ def FefO2_KC91_Eq7_terms(PT,melt_wf,models): # terms for Kress & Carmichael (199
     B = (b/T_K) + c + D4X + e*(1.0 - (T0/T_K) - math.log(T_K/T0)) + f*(P_Pa/T_K) + g*(((T_K-T0)*P_Pa)/T_K) + h*((P_Pa**2.0)/T_K) 
     return a, B
 
-def FefO2_KC91_EqA_terms(PT,melt_wf,models): # terms for Kress & Carmichael (1991) Appendix Equations A1-6
+def FefO2_KC91_EqA_terms(PT,melt_wf,models=default_models): # terms for Kress & Carmichael (1991) Appendix Equations A1-6
     # XFeO1.5/XFeO = (KD1*fO2**0.25 + 2y*KD2*KD1**2y*fO2**0.5y)/(1 + (1-2y)KD2*KD1**2y*fO2**0.5y)
     KD2 = 0.4
     y = 0.3
@@ -1525,7 +1549,7 @@ def FefO2_KC91_EqA_terms(PT,melt_wf,models): # terms for Kress & Carmichael (199
     KD1 = math.exp((-DH/(R*T_K)) + (DS/R) - (DCp/R)*(1.0 - (T0/T_K) - gp.log(T_K/T0)) - (1.0/(R*T_K))*D4X - ((DV*(P_Pa-P0))/(R*T_K)) - ((DVdot*(T_K-T0)*(P_Pa-P0))/(R*T_K)) - (DVdash/(2.0*R*T_K))*pow((P_Pa-P0),2.0))
     return KD1, KD2, y
 
-def FefO2_ONeill18_terms(PT,melt_wf,models):
+def FefO2_ONeill18_terms(PT,melt_wf,models=default_models):
     # O'Neill et al. (2018) EPSL 504:152-162
     # 1n(Fe3Fe2) = a*DFMQ + B
     a = 0.125
@@ -1537,7 +1561,7 @@ def FefO2_ONeill18_terms(PT,melt_wf,models):
     FMQ = 8.58 - (25050/T_K) # O'Neill (1987)
     return a, B, FMQ
 
-def FefO2_Borisov18_terms(PT,melt_wf,models):
+def FefO2_Borisov18_terms(PT,melt_wf,models=default_models):
     T_K = PT['T']+273.15
     # Borisov et al. (2018) CMP 173
     a = 0.207
@@ -1546,7 +1570,7 @@ def FefO2_Borisov18_terms(PT,melt_wf,models):
     B = (4633.3/T_K -0.445*melt_comp["SiO2"] - 0.900*melt_comp["TiO2"] + 1.532*melt_comp["MgO"] + 0.314*melt_comp["CaO"] + 2.030*melt_comp["Na2O"] + 3.355*melt_comp["K2O"] - 4.851*melt_comp["P2O5"] - 3.081*melt_comp["SiO2"]*melt_comp["Al2O3"] -  4.370*melt_comp["SiO2"]*melt_comp["MgO"] - 1.852)
     return a, B
 
-def fO22Fe3FeT(fO2,PT,melt_wf,models): # converting fO2 to Fe3/FeT
+def fO22Fe3FeT(fO2,PT,melt_wf,models=default_models): # converting fO2 to Fe3/FeT
     model = models.loc["fO2","option"]
 
     T_K = PT['T']+273.15
@@ -1574,7 +1598,7 @@ def fO22Fe3FeT(fO2,PT,melt_wf,models): # converting fO2 to Fe3/FeT
         Fe3Fe2 = 10.**(a*gp.log10(fO2) + B)
         return Fe3Fe2/(Fe3Fe2 + 1.0)
 
-def f_O2(PT,melt_wf,models):
+def f_O2(PT,melt_wf,models=default_models):
     model = models.loc["fO2","option"]
     
     def KC91(PT,melt_wf,models):
@@ -1645,7 +1669,7 @@ def S_Nash19_terms(PT): # Nash et al. 2019
     return A, B
 
 # density of the melt in g/cm3 using DensityX (Iacovino & Till 2019 Volcanica 2(1))
-def melt_density(PT,melt_wf,models):
+def melt_density(PT,melt_wf,models=default_models):
     if models.loc["density","option"] == "DensityX":
         melt_comp = mg.melt_normalise_wf(melt_wf,"water","yes")
         P = PT["P"]
@@ -1683,7 +1707,7 @@ def alpha_gas(element,A,B,PT):
     result = beta_A/beta_B
     return result
 
-def alpha_H2S_S(PT,models): # Fiege et al. (2015) Chemical Geology equation 8 - H2S fluid and S2- melt
+def alpha_H2S_S(PT,models=default_models): # Fiege et al. (2015) Chemical Geology equation 8 - H2S fluid and S2- melt
     model = models.loc["alpha_H2S_S","option"]
 
     if model == "Fiege15":
@@ -1692,7 +1716,7 @@ def alpha_H2S_S(PT,models): # Fiege et al. (2015) Chemical Geology equation 8 - 
         a = gp.exp(lna103/1000.)
     return a
 
-def alpha_SO2_SO4(PT,models): # Fiege et al. (2015) Chemical Geology equation 9 - SO2 fluid and SO4 melt
+def alpha_SO2_SO4(PT,models=default_models): # Fiege et al. (2015) Chemical Geology equation 9 - SO2 fluid and SO4 melt
     model = models.loc["alpha_SO2_SO4","option"]
 
     if model == "Fiege15":
@@ -1701,14 +1725,14 @@ def alpha_SO2_SO4(PT,models): # Fiege et al. (2015) Chemical Geology equation 9 
         a = gp.exp(lna103/1000.)
     return a
 
-def alpha_A_B(element,A,B,PT,models):
+def alpha_A_B(element,A,B,PT,models=default_models):
     if A == "SO2" and B == "H2S":
         a = alpha_gas(element,A,B,PT)
     return a
 
-#################
-### constants ###
-#################
+#################################################################################################################################
+########################################################### CONSTANTS ###########################################################
+#################################################################################################################################
 
 species = [['H',1.008,1.,0.,1.,'','','',''],
         ['C',12.011,'',0.,'','','',''],
@@ -1751,8 +1775,7 @@ species = [['H',1.008,1.,0.,1.,'','','',''],
         ['H2',2.016,0.,0.,'','','',33.25,12.9696],
         ['CH4',16.043,0.,0.,'','','',191.05,46.4069],
         ['Ar',39.948,'','','','','','',''],
-        ['Ne',20.1797,'','','','','','','']]
-    
+        ['Ne',20.1797,'','','','','','','']]    
 # Create the pandas DataFrame
 species = pd.DataFrame(species,columns=['species','M','overall_charge','no_O','cat_charge','no_cat','no_an','Tcr','Pcr'])
 species = species.set_index('species')
