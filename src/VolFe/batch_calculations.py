@@ -208,7 +208,7 @@ def options_from_setup(run,models,setup):
 
 
 # calculate the saturation pressure for multiple melt compositions in setup file
-def P_sat_output(setup,models="default",first_row=0,last_row=None,p_tol=1.e-1,nr_step=1.,nr_tol=1.e-9):
+def P_sat_output(setup,models=mdv.default_models,first_row=0,last_row=None,p_tol=1.e-1,nr_step=1.,nr_tol=1.e-9):
     
     """ 
     Calculates the pressure of vapor saturation for multiple melt compositions given volatile-free melt composition, volatile content, temperature, and an fO2 estimate.
@@ -217,18 +217,16 @@ def P_sat_output(setup,models="default",first_row=0,last_row=None,p_tol=1.e-1,nr
     Parameters
     ----------
     setup: pandas.DataFrame
-        Dataframe with melt compositions to be used, requires following headers): 
+        Dataframe with melt compositions to be used, requires following headers: 
         Sample, T_C, 
         DNNO or DFMQ or logfO2 or (Fe2O3 and FeO) or Fe3FeT or S6ST
         SiO2, TiO2, Al2O3, (Fe2O3T or FeOT unless Fe2O3 and FeO given), MnO, MgO, CaO, Na2O, K2O, P2O5, 
         H2O and/or CO2ppm and/or STppm and/or Xppm
         Note: concentrations (unless otherwise stated) are in wt%
-    species: pandas.DataFrame
-        Dataframe of species.csv file.
-    models: pandas.DataFrame
-        Dataframe of models.csv file.
     
     Optional:
+    models: pandas.DataFrame
+        Dataframe of options for different models.
     first_row: float
         Integer of the first row in the setup file to run (note the first row under the headers is row 0). Default = 0  
     last_row: float
@@ -251,11 +249,6 @@ def P_sat_output(setup,models="default",first_row=0,last_row=None,p_tol=1.e-1,nr
     """
     if last_row == None:
         last_row = len(setup)
-    
-    if type(models) != "<class 'pandas.core.frame.DataFrame'>":
-         models = "default_options"
-
-    models = mdv.check_default_options(models)   
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
@@ -392,7 +385,7 @@ def P_sat_output_fS2(setup,models,first_row=0,last_row=None,p_tol=1.e-1,nr_step=
 ### gassing ###
 ###############
 
-def gassing(setup,models,run=0,nr_step=1.,nr_tol=1.e-9,dp_step=10.,psat_tol=0.1,dwtg=1.e-7,i_nr_step=1.e-1,i_nr_tol=1.-9):
+def gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,dp_step=10.,psat_tol=0.1,dwtg=1.e-7,i_nr_step=1.e-1,i_nr_tol=1.-9):
      
     """ 
     Calculates the pressure of vapor saturation for multiple melt compositions given volatile-free melt composition, volatile content, temperature, and an fO2 estimate.
@@ -767,7 +760,7 @@ def isotopes(run,isotope_inputs,setup,models):
    
     
     
-def calc_isobar(run,setup,models,initial_P,final_P,step_P):
+def calc_isobar(setup,run=0,models=mdv.default_models,initial_P=1000.,final_P=10000.,step_P=1000.):
     
     if models.loc["insolubles","option"] == "H2O-CO2 only":
         PT={"T":setup.loc[run,"T_C"]}
@@ -796,7 +789,7 @@ def calc_isobar(run,setup,models,initial_P,final_P,step_P):
 
     return results
     
-def calc_pure_solubility(run,setup,models,initial_P):
+def calc_pure_solubility(setup,run=0,models=mdv.default_models,initial_P=5000.):
     if models.loc["print status","option"] == "yes":
         print(setup.loc[run,"Sample"],initial_P)
     PT={"T":setup.loc[run,"T_C"]}
@@ -827,7 +820,7 @@ def calc_pure_solubility(run,setup,models,initial_P):
 #########################
 
 # calculate the Csulfate for multiple melt compositions in input file
-def Csulfate_output(first_row,last_row,setup,models):
+def Csulfate_output(setup,first_row=0,last_row=None,models=mdv.default_models):
     
     # set up results table
     results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","sulfide saturation","ideal gas","carbonylsulfide","mass_volume","Date"]])
@@ -836,7 +829,10 @@ def Csulfate_output(first_row,last_row,setup,models):
     results1 = ([["Sample","Pressure (bar)","T ('C)","SiO2","TiO2","Al2O3","FeOT","MnO","MgO","CaO","Na2O","K2O","P2O5",
                 "H2O","CO2 (ppm)","ST (ppm)","S6/ST","Fe3/FeT","ln[Csulfide]","ln[Csulfate]","fO2","DNNO","DFMQ"]])
     results = pd.concat([results, results1], ignore_index=True)
-
+    
+    if last_row == None:
+        last_row = len(setup)
+    
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
         
@@ -870,7 +866,7 @@ def Csulfate_output(first_row,last_row,setup,models):
 ##################
 
 # print capacities for multiple melt compositions in input file
-def capacities_output(first_row,last_row,setup,models):
+def capacities_output(setup,first_row=0,last_row=None,models=mdv.default_models):
     # set up results table
     results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","sulfide saturation","ideal gas","carbonylsulfide","mass_volume","Date"]])
     results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["sulfur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["mass_volume","option"],date.today()]])
@@ -878,7 +874,10 @@ def capacities_output(first_row,last_row,setup,models):
     results1 = ([["Sample","Pressure (bar)","T ('C)","SiO2","TiO2","Al2O3","FeOT","MnO","MgO","CaO","Na2O","K2O","P2O5",
                 "H2O","CO2 (ppm)","ST (ppm)","Fe3+/FeT","fO2 DFMQ","ln[C_CO32-]","ln[C_H2OT]","ln[C_S2-]","ln[C_S6+]","ln[C_H2S]","ln[C_H2]","ln[C_CO]","ln[C_CH4]","ln[C_X]","M_m_SO",]])
     results = pd.concat([results, results1], ignore_index=True)
-
+    
+    if last_row == None:
+        last_row = len(setup)
+    
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
         
@@ -922,7 +921,7 @@ def capacities_output(first_row,last_row,setup,models):
 ### Fe3+/Fe2+ from fO2 ###        
 ##########################
 
-def Fe3Fe2_output(first_row,last_row,setup,models):
+def Fe3Fe2_output(setup,first_row=0,last_row=None,models=mdv.default_models):
     # set up results table
     results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","sulfide saturation","ideal gas","carbonylsulfide","mass_volume","insolubles","Date"]])
     results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["sulfur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["mass_volume","option"],models.loc['insolubles','option'],date.today()]])
@@ -930,6 +929,9 @@ def Fe3Fe2_output(first_row,last_row,setup,models):
     results1 = ([["Sample","Pressure (bar)","T ('C)","fO2 (DNNO)","fO2 (DFMQ)",
                   "SiO2 (wt%)","TiO2 (wt%)","Al2O3 (wt%)","FeOT (wt%)","MnO (wt%)","MgO (wt%)","CaO (wt%)","Na2O (wt%)","K2O (wt%)","P2O5 (wt%)","Fe3/FeT"]])
     results = pd.concat([results, results1], ignore_index=True)
+    
+    if last_row == None:
+        last_row = len(setup)
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
@@ -956,13 +958,16 @@ def Fe3Fe2_output(first_row,last_row,setup,models):
 ### fugacity coefficients ###
 #############################
 
-def fugacity_coefficients(first_row,last_row,setup,models):
+def fugacity_coefficients(setup,first_row=0,last_row=None,models=mdv.default_models):
     # set up results table
     results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","sulfide saturation","ideal gas","carbonylsulfide","mass_volume","insolubles","Date"]])
     results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["sulfur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["mass_volume","option"],models.loc['insolubles','option'],date.today()]])
     results = pd.concat([results, results1], ignore_index=True)
     results1 = ([["Sample","Pressure (bar)","T ('C)","yH2O","yCO2","yH2","yCO","yO2","yCH4","yS2","ySO2","yH2S","yOCS"]])
     results = pd.concat([results, results1], ignore_index=True)
+    
+    if last_row == None:
+        last_row = len(setup)
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
@@ -986,7 +991,7 @@ def fugacity_coefficients(first_row,last_row,setup,models):
 ### fO2 range from sulfur content ###
 ######################################        
         
-def fO2_range_from_S_output(first_row,last_row,setup,models,p_tol,nr_step,nr_tol):
+def fO2_range_from_S_output(setup,first_row=0,last_row=None,models=mdv.default_models,p_tol=0.1,nr_step=1.,nr_tol=1.e-9):
 
     # set up results table
     results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","SCSS","SCAS","ideal gas","carbonylsulfide","insolubles","H2S","species X","species X solubility","Date"]])
@@ -994,6 +999,9 @@ def fO2_range_from_S_output(first_row,last_row,setup,models,p_tol,nr_step,nr_tol
     results = pd.concat([results, results1], ignore_index=True)
     results1 = pd.DataFrame([["Sample","T ('C)","wm_STppm","wm_H2OT","wm_CO2ppm","P (bar) sulf","S2- SCSS","sulfide saturated?","DFMQ-sulfide","fO2-sulfide","Fe3FeT-sulfide","S6ST-sulfide","P (bar) anh","S6+ SCAS","sulfate saturated?","DFMQ-sulfate","fO2-sulfate","Fe3FeT-sulfate","S6ST-sulfate"]])
     results = pd.concat([results, results1], ignore_index=True)
+    
+    if last_row == None:
+        last_row = len(setup)
 
     # run over rows in file
     for n in range(first_row,last_row,1): # number of rows in the table
@@ -1033,7 +1041,7 @@ def fO2_range_from_S_output(first_row,last_row,setup,models,p_tol,nr_step,nr_tol
 ### melt-vapour equilibrium at given fO2 ###
 ############################################
 
-def eq_given_fO2(inputs,setup,models): # only S atm
+def eq_given_fO2(setup,inputs,models=mdv.default_models): # only S atm
     
     option = inputs["option"]
     
@@ -1165,11 +1173,14 @@ mg.KD1(PT,melt_wf,models),mg.KHOg(PT,models),mg.KHOm(PT,melt_wf,models),mg.KHOSg
 ### fO2 of silm+sulfm+anh at given T and P ###
 ##############################################
 
-def fO2_SSA_output(first_row,last_row,setup,models):
+def fO2_SSA_output(setup,first_row=0,last_row=None,models=mdv.default_models):
     # set up results table
     results = pd.DataFrame([["Sample","P (bar)","T ('C)","fO2 (DFMQ)",
                   "SiO2 (wt%)","TiO2 (wt%)","Al2O3 (wt%)","FeOT (wt%)","MnO (wt%)","MgO (wt%)","CaO (wt%)","Na2O (wt%)","K2O (wt%)","P2O5 (wt%)",
                 "H2OT (wt%)","CO2 (ppm)","ST (ppm)","SCSS (ppm)","SCAS (ppm)", "S6+/ST","Fe3+/FeT"]])
+
+    if last_row == None:
+        last_row = len(setup)
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
@@ -1205,10 +1216,13 @@ def fO2_SSA_output(first_row,last_row,setup,models):
 ### S content at given T, P, fO2, C, and H ###
 ##############################################
             
-def S_given_T_P_fO2_C_H_output(first_row,last_row,setup,models,nr_step,nr_tol):
+def S_given_T_P_fO2_C_H_output(setup,first_row=0,last_row=None,models=mdv.default_models,nr_step=1.,nr_tol=1.e-9):
                 
     if models.loc["H2S_m","option"] != "no":
         raise TypeError("This calculation assumes H2S is insoluble in the melt")
+    
+    if last_row == None:
+        last_row = len(setup)
 
     for n in range(first_row,last_row,1): # n is number of rows of data in conditions file
         run = n
