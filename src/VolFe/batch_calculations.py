@@ -825,12 +825,11 @@ def calc_sol_consts(setup,first_row=0,last_row=None,models=mdv.default_models):
 ### calculate fugacity coefficients ###
 #######################################
 def calc_fugacity_coefficients(setup,first_row=0,last_row=None,models=mdv.default_models):
+
     # set up results table
-    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","sulfide saturation","ideal gas","carbonylsulfide","mass_volume","insolubles","Date"]])
-    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["sulfur_saturation","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc["mass_volume","option"],models.loc['insolubles','option'],date.today()]])
-    results = pd.concat([results, results1], ignore_index=True)
-    results1 = ([["Sample","Pressure (bar)","T ('C)","yH2O","yCO2","yH2","yCO","yO2","yCH4","yS2","ySO2","yH2S","yOCS"]])
-    results = pd.concat([results, results1], ignore_index=True)
+    results_headers_models = pd.DataFrame([["y_CO2 opt","y_SO2 opt","y_H2S opt","y_H2 opt","y_O2 opt","y_S2 opt","y_CO opt","y_CH4 opt","y_H2O opt","y_OCS opt","y_X opt","Date"]])
+    results_headers_values = pd.DataFrame([["Sample","Pressure (bar)","T ('C)","yO2","yH2","yH2O","yS2","ySO2","yH2S","yCO2","yCO","yCH4","yOCS","yX"]])
+    results_headers = pd.concat([results_headers_values,results_headers_models],axis=1)
     
     if last_row == None:
         last_row = len(setup)
@@ -845,13 +844,26 @@ def calc_fugacity_coefficients(setup,first_row=0,last_row=None,models=mdv.defaul
         PT["P"] = setup.loc[run,"P_bar"]
         
         ### store results ###
-        results2 = pd.DataFrame([[setup.loc[run,"Sample"],PT["P"],setup.loc[run,"T_C"],mdv.y_H2O(PT,models),mdv.y_CO2(PT,models),mdv.y_H2(PT,models),mdv.y_CO(PT,models),mdv.y_O2(PT,models),mdv.y_CH4(PT,models),mdv.y_S2(PT,models),mdv.y_SO2(PT,models),mdv.y_H2S(PT,models),mdv.y_OCS(PT,models)]])
-        results = pd.concat([results, results2], ignore_index=True)                     
-        if models.loc["output csv","option"] == "yes":
-            results.to_csv('fugacity_coefficients_outputs.csv', index=False, header=False)
+        results_values_models = pd.DataFrame([[models.loc["y_CO2","option"], models.loc["y_SO2","option"], models.loc["y_H2S","option"], models.loc["y_H2","option"], models.loc["y_O2","option"], models.loc["y_S2","option"], models.loc["y_CO","option"], models.loc["y_CH4","option"], models.loc["y_H2O","option"],models.loc["y_OCS","option"], models.loc["y_X","option"],datetime.datetime.now()]])
+        results_values_values = pd.DataFrame([[setup.loc[run,"Sample"],PT["P"],PT["T"],mdv.y_O2(PT,models),mdv.y_H2(PT,models),mdv.y_H2O(PT,models),mdv.y_S2(PT,models),mdv.y_SO2(PT,models),mdv.y_H2S(PT,models),mdv.y_CO2(PT,models),mdv.y_CO(PT,models),mdv.y_CH4(PT,models),mdv.y_OCS(PT,models),mdv.y_X(PT,models)]])
+
+        results1 = pd.concat([results_values_values,results_values_models],axis=1)
+    
+        if n == first_row:
+            results = pd.concat([results_headers, results1])
+        else:                         
+            results = pd.concat([results, results1])
+        
         if models.loc["print status","option"] == "yes":
-            print(n, setup.loc[run,"Sample"],mdv.y_H2O(PT,models))
-        return results
+            print(n, setup.loc[run,"Sample"],PT["P"])
+    
+    results.columns = results.iloc[0]
+    results = results[1:]  
+    
+    if models.loc["output csv","option"] == "yes":
+        results.to_csv('results_fugacity_coefficients.csv', index=False, header=True)
+
+    return results
 
 ###############################               
 ### Use melt S oxybarometer ###
