@@ -23,8 +23,6 @@ from VolFe.batch_calculations import *
 from VolFe.calculations import *
 # functions to run calculations in batch mode
 from VolFe.batch_calculations import *
-# function to import files
-from VolFe.import_files import *
 
 # version
 from ._version import __version__
