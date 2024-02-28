@@ -497,11 +497,13 @@ def C_S(PT,melt_wf,models=default_models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (we
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
         melt_comp = mg.melt_cation_proportion(melt_wf,"no","no")
         lnC = ONeill21(T,melt_comp)
+        C = math.exp(lnC) 
      
     if model == "ONeill21dil":
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
         melt_comp = mg.melt_cation_proportion(melt_wf,"water","no")        
         lnC = ONeill21(T,melt_comp)
+        C = math.exp(lnC) 
 
     if model == "ONeill21hyd":
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
@@ -511,11 +513,23 @@ def C_S(PT,melt_wf,models=default_models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (we
         lnCdil = ONeill21(T,melt_comp)
         lnCH = (melt_comp["H"]*(6.4 + 12.4*melt_comp["H"] - 20.3*melt_comp["Si"] + 73.0*(melt_comp["Na"]+melt_comp["K"])))
         lnC = lnCdil+lnCH
-        
-    elif model == "FR54-S1":
-        lnC = math.log(((1.3e-4)*10000.))
+        C = math.exp(lnC) 
 
-    C = math.exp(lnC) 
+    if model == "BW23eq6": # Eq. (6) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
+        # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
+        logC = 0.338 + (24328.*melt_comp["Fe2"] + 5411.*melt_comp["Ca"] + 15872.*melt_comp["Mn"] - 9697.)/T
+        C = 10.**(logC) 
+    
+    if model == "BW23eq7": # Eq. (7) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
+        # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
+        logC = 0.225 + (25237.*melt_comp["Fe2"] + 5214.*melt_comp["Ca"] + 12705.*melt_comp["Mn"] + 19829.*melt_comp["K"] - 1109.*melt_comp["Si"] - 8879.)/T
+        C = 10.**(logC)
+
+    #elif model == "FR54-S1":
+    #    lnC = math.log(((1.3e-4)*10000.))
+
     return C
 
 
@@ -545,19 +559,19 @@ def C_SO4(PT,melt_wf,models=default_models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 
         S6ST_ = melt_wf["S6ST"]
         S = overtotal2ratio(S6ST_)
         Csulfate = (S*Csulfide)/(fO2**2)
-    elif model == "Hawaii":
-        #Csulfate = gp.exp(30.4) # Using Brounce et al. (2017) dataset at 1200 'C
-        Csulfate = math.exp(slope*(1./T) -48.)
-    elif model == "Etna":
-        Csulfate = math.exp(slope*(1./T) -50.15)
-    elif model == "Fuego":
-        Csulfate = math.exp(slope*(1./T) -48.5)
-    elif model == "Erta Ale":
-        Csulfate = math.exp(slope*(1./T) -45.5)
-    elif model == "FR54-S1":
-        Csulfate = ((67.e6)*10000.)
-    elif model == "JdF": # 1100 'C ONLY
-        Csulfate = 10.**17.
+    #elif model == "Hawaii":
+    #    Csulfate = gp.exp(30.4) # Using Brounce et al. (2017) dataset at 1200 'C
+    #    Csulfate = math.exp(slope*(1./T) -48.)
+    #elif model == "Etna":
+    #    Csulfate = math.exp(slope*(1./T) -50.15)
+    #elif model == "Fuego":
+    #    Csulfate = math.exp(slope*(1./T) -48.5)
+    #elif model == "Erta Ale":
+    #    Csulfate = math.exp(slope*(1./T) -45.5)
+    #elif model == "FR54-S1":
+    #    Csulfate = ((67.e6)*10000.)
+    #elif model == "JdF": # 1100 'C ONLY
+    #    Csulfate = 10.**17.
     elif model in ["Boulliung22nP","Boulliung22wP"]: # Boullioung & Wood (2022) GCA 336:150-164 [eq5] - corrected!
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
         melt_comp = mg.melt_cation_proportion(melt_wf,"no","no")
@@ -572,7 +586,16 @@ def C_SO4(PT,melt_wf,models=default_models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 
             melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) includes water
         lnC = -8.02 + ((21100. + 44000.*melt_comp["Na"] + 18700.*melt_comp["Mg"] + 4300.*melt_comp["Al"] + 44200.*melt_comp["K"] + 35600.*melt_comp["Ca"] + 12600.*melt_comp["Mn"] + 16500.*melt_comp["Fe2"])/T) #CS6+ = [S6+, ppm]/fSO3
         Csulfate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
-        
+    elif model == "BW23eq9": # Eq. (9) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
+        # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
+        logC = -12.948 + (28649.*melt_comp["Na"] + 15602.*melt_comp["Ca"] + 9496.*melt_comp["Mg"] + 16016.*melt_comp["Mn"] + 4194.*melt_comp["Al"] + 29244.)/T
+        Csulfate = 10.**(logC)
+    elif model == "BW23eq11": # Eq. (11) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
+        # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
+        logC = -213.65 + (25696.*melt_comp["Na"] + 15076.*melt_comp["Ca"] + 9543.*melt_comp["Mg"] + 16158.*melt_comp["Mn"] + 4316.*melt_comp["Al"] + 68254.)/T + 55.03*math.log10(T)
+        Csulfate = 10.**(logC)
     return Csulfate
 
 
