@@ -722,7 +722,7 @@ def calc_isobar(setup,run=0,models=mdv.default_models,initial_P=1000.,final_P=10
         models = options_from_setup(run,models,setup)
 
         # set up results table
-        results = pd.DataFrame([["P (bar)","H2O (wt%)","CO2 (ppm)"]])
+        results = pd.DataFrame([["P_bar","H2O_wtpc","CO2_ppm"]])
     
         initial_P = int(initial_P)
         final_P = int(final_P+1)
