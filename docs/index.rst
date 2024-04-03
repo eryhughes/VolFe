@@ -19,12 +19,6 @@ This is the VolFe documentation
    :caption: Worked Examples
 
    worked_examples_pvsat
-   worked_examples_isobars
-   worked_examples_pureCO2H2O
-   worked_examples_gassing
-   worked_examples_S2fO2
-   worked_examples_mdv
-   worked_examples_randomcomp
 
 
 Indices and tables
