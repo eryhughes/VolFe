@@ -11,14 +11,19 @@ This is the VolFe documentation
    :caption: Contents:
 
    introduction
-   #installation
-   #changelog
+   dependencies
+   code_structure
+   current_mdv
 
 .. toctree::
    :maxdepth: 2
    :caption: Worked Examples
 
-   worked_examples_pvsat
+   worked_example_pvsat
+   worked_example_degas
+   worked_example_oxys
+   worked_example_other
+   worked_example_marianas
 
 
 Indices and tables
