@@ -24,6 +24,11 @@ import VolFe.melt_gas as mg
 # Constants
 
 def make_models_df(models): 
+
+        
+    
+
+
     # Create the pandas DataFrame
     models = pd.DataFrame(models, columns=['type', 'option'])
     models = models.set_index('type')
@@ -141,6 +146,45 @@ def check_default_options(models):
     return models
 
 def make_df_and_add_model_defaults(models):
+    """
+
+    Converts user-provided model configurations (e.g. ['carbon dioxide','Dixon97'],['hydrogen sulfide','basaltic andesite']
+    into a structured pandas DataFrame, combined with default options for anything not specified
+    
+
+    Parameters
+    ----------
+    models : list of [str, str]
+        A list of lists, where each inner list contains two elements: the model type (str)
+        and the user-specified option (str) for that model type.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A DataFrame where the first column is 'type', set as the index, and the second column
+        is 'option', containing the user-specified option or the default option if none is provided.
+        
+    Model Parameters and Options
+    ---------------------------------
+    The following parameters can be overridden in models.
+    
+    Specifying Species:
+    
+    insolubles: default 'yes'
+        Include insoluble species (CH4, H2, and CO) in Psat calculations?
+        Other options: 'no', or 'H2O-CO2 only'
+        
+    H2S_m: default 'yes'
+        Include H2S_m as a dissolved melt species. 
+        other options:  'no'
+        
+    species X: Default 'Ar'
+        Include 'Ar' 
+        other options: 'Ne', 
+        
+    """
+    
+    
     df_models = make_models_df(models)
     added_defaults = check_default_options(df_models)
     return added_defaults
