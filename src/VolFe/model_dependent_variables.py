@@ -24,11 +24,6 @@ import VolFe.melt_gas as mg
 # Constants
 
 def make_models_df(models): 
-
-        
-    
-
-
     # Create the pandas DataFrame
     models = pd.DataFrame(models, columns=['type', 'option'])
     models = models.set_index('type')
@@ -37,9 +32,9 @@ def make_models_df(models):
 # define default models
 default_models = [['insolubles','yes'],['H2S_m','yes'],['species X','Ar'],['Hspeciation','none'],
               ['fO2','Kress91A'],['NNObuffer','Frost91'],['FMQbuffer','Frost91'],
-              ['carbon dioxide','Dixon95'],['water','AllisonDataComp'],['hydrogen','basalt'],['sulfide','ONeill21dil'],['sulfate','ONeill22dil'],['hydrogen sulfide','basalt'],['methane','Ardia13'],['carbon monoxide','basalt'],['species X solubility','Iacono-Marziano10_Ar_basalt'],['Cspeccomp','basalt'],['Hspeccomp','MORB'],
+              ['carbon dioxide','MORB_Dixon95'],['water','Basalt_Hughes24'],['hydrogen','Basalt_Hughes24'],['sulfide','ONeill21dil'],['sulfate','ONeill22dil'],['hydrogen sulfide','Basalt_Hughes24'],['methane','Basalt_Ardia13'],['carbon monoxide','Basalt_Hughes24'],['species X solubility','Iacono-Marziano10_Ar_basalt'],['Cspeccomp','basalt'],['Hspeccomp','MORB'],
               ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','no'],['sulfur_is_sat','no'],['graphite_saturation','no'],
-              ['ideal_gas','no'],['y_CO2','SS92'],['y_SO2','SS92_modified'],['y_H2S','SS92_modified'],['y_H2','SW64'],['y_O2','SS92'],['y_S2','SS92'],['y_CO','SS92'],['y_CH4','SS92'],['y_H2O','HP91'],['y_OCS','SS92'],['y_X','ideal'],
+              ['ideal_gas','no'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holloway91'],['y_OCS','Shi92'],['y_X','ideal'],
               ['KHOg','KO97'],['KHOSg','KO97'],['KOSg','KO97'],['KOSg2','OM22'], ['KCOg','KO97'],['KCOHg','KO97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
               ['bulk_composition','yes'],['starting_P','bulk'],['gassing_style','closed'],['gassing_direction','degas'],['P_variation','polybaric'],['eq_Fe','yes'],['solve_species','OCS'],
               ['density','DensityX'],['isotopes','no'],['T_variation','isothermal'],['crystallisation','no'],['mass_volume','mass'],['calc_sat','fO2_melt'],['bulk_O','exc_S'],['error',0.1],
@@ -60,75 +55,75 @@ def check_default_options(models):
         return variable
 
     # species
-    insolubles = return_options('yes','insolubles',models)
-    H2S_m = return_options('yes','H2S_m',models)
-    species_X = return_options('Ar','species X',models)
-    Hspeciation = return_options('none','Hspeciation',models)
+    insolubles = return_options(default_models.loc['insolubles','option'],'insolubles',models)
+    H2S_m = return_options(default_models.loc['H2S_m','option'],'H2S_m',models)
+    species_X = return_options(default_models.loc['species X','option'],'species X',models)
+    Hspeciation = return_options(default_models.loc['Hspeciation','option'],'Hspeciation',models)
     # oxygen fugacity
-    fO2 = return_options('Kress91A','fO2',models)
-    NNObuffer = return_options('Frost91','NNObuffer',models)
-    FMQbuffer = return_options('Frost91','FMQbuffer',models)
+    fO2 = return_options(default_models.loc['fO2','option'],'fO2',models)
+    NNObuffer = return_options(default_models.loc['NNObuffer','option'],'NNObuffer',models)
+    FMQbuffer = return_options(default_models.loc['FMQbuffer','option'],'FMQbuffer',models)
     # solubility constants
-    CO2 = return_options('Dixon95','carbon dioxide',models)
-    H2O = return_options('AllisonDataComp','water',models)
-    H2 = return_options('basalt','hydrogen',models)
-    S2m = return_options('ONeill21dil','sulfide',models)
-    S6p = return_options('ONeill22dil','sulfate',models)
-    H2S = return_options('basalt','hydrogen sulfide',models)
-    CH4 = return_options('Ardia13','methane',models)
-    CO = return_options('basalt','carbon monoxide',models)
-    X = return_options('Iacono-Marziano10_Ar_basalt','species X solubility',models)
-    Cspec = return_options('basalt','Cspeccomp',models)
-    Hspec = return_options('MORB','Hspeccomp',models)
+    CO2 = return_options(default_models.loc['carbon dioxide','option'],'carbon dioxide',models)
+    H2O = return_options(default_models.loc['water','option'],'water',models)
+    H2 = return_options(default_models.loc['hydrogen','option'],'hydrogen',models)
+    S2m = return_options(default_models.loc['sulfide','option'],'sulfide',models)
+    S6p = return_options(default_models.loc['sulfate','option'],'sulfate',models)
+    H2S = return_options(default_models.loc['hydrogen sulfide','option'],'hydrogen sulfide',models)
+    CH4 = return_options(default_models.loc['methane','option'],'methane',models)
+    CO = return_options(default_models.loc['carbon monoxide','option'],'carbon monoxide',models)
+    X = return_options(default_models.loc['species X solubility','option'],'species X solubility',models)
+    Cspec = return_options(default_models.loc['Cspeccomp','option'],'Cspeccomp',models)
+    Hspec = return_options(default_models.loc['Hspeccomp','option'],'Hspeccomp',models)
     # saturation conditions
-    SCSS = return_options('ONeill21hyd','SCSS',models)
-    SCAS = return_options('Zajacz19','SCAS',models)
-    sulfur_saturation = return_options('no','sulfur_saturation',models)
-    sulfur_is_sat = return_options('no','sulfur_is_sat',models)
-    graphite_saturation = return_options('no','graphite_saturation',models)
+    SCSS = return_options(default_models.loc['SCSS','option'],'SCSS',models)
+    SCAS = return_options(default_models.loc['SCAS','option'],'SCAS',models)
+    sulfur_saturation = return_options(default_models.loc['sulfur_saturation','option'],'sulfur_saturation',models)
+    sulfur_is_sat = return_options(default_models.loc['sulfur_is_sat','option'],'sulfur_is_sat',models)
+    graphite_saturation = return_options(default_models.loc['graphite_saturation','option'],'graphite_saturation',models)
     # fugacity coefficients
-    ideal_gas = return_options('no','ideal_gas',models)
-    yCO2 = return_options('SS92','y_CO2',models)
-    ySO2 = return_options('SS92_modified','y_SO2',models)
-    yH2S = return_options('SS92_modified','y_H2S',models)
-    yH2 = return_options('SW64','y_H2',models)
-    yO2 = return_options('SS92','y_O2',models)
-    yS2 = return_options('SS92','y_S2',models)
-    yCO = return_options('SS92','y_CO',models)
-    yCH4 = return_options('SS92','y_CH4',models)
-    yH2O = return_options('HP91','y_H2O',models)
-    yOCS = return_options('SS92','y_OCS',models)
-    yX = return_options('ideal','y_X',models)
+    ideal_gas = return_options(default_models.loc['ideal_gas','option'],'ideal_gas',models)
+    yCO2 = return_options(default_models.loc['y_CO2','option'],'y_CO2',models)
+    ySO2 = return_options(default_models.loc['y_SO2','option'],'y_SO2',models)
+    yH2S = return_options(default_models.loc['y_H2S','option'],'y_H2S',models)
+    yH2 = return_options(default_models.loc['y_H2','option'],'y_H2',models)
+    yO2 = return_options(default_models.loc['y_O2','option'],'y_O2',models)
+    yS2 = return_options(default_models.loc['y_S2','option'],'y_S2',models)
+    yCO = return_options(default_models.loc['y_CO','option'],'y_CO',models)
+    yCH4 = return_options(default_models.loc['y_CH4','option'],'y_CH4',models)
+    yH2O = return_options(default_models.loc['y_H2O','option'],'y_H2O',models)
+    yOCS = return_options(default_models.loc['y_OCS','option'],'y_OCS',models)
+    yX = return_options(default_models.loc['y_X','option'],'y_X',models)
     # equilibrium constants
-    KHOg = return_options('KO97','KOHg',models)
-    KHOSg = return_options('KO97','KHOSg',models)
-    KOSg = return_options('KO97','KOSg',models)
-    KOSg2 = return_options('OM22','KOSg2',models)
-    KCOg = return_options('KO97','KCOg',models)
-    KCOHg = return_options('KO97','KCOHg',models)
-    KOCSg = return_options('Moussallam19','KOCSg',models)
-    KCOs = return_options('Holloway92','KCOs',models)
-    OCS = return_options('COS','carbonlysulfide',models)
+    KHOg = return_options(default_models.loc['KHOg','option'],'KHOg',models)
+    KHOSg = return_options(default_models.loc['KHOSg','option'],'KHOSg',models)
+    KOSg = return_options(default_models.loc['KOSg','option'],'KOSg',models)
+    KOSg2 = return_options(default_models.loc['KOSg2','option'],'KOSg2',models)
+    KCOg = return_options(default_models.loc['KCOg','option'],'KCOg',models)
+    KCOHg = return_options(default_models.loc['KCOHg','option'],'KCOHg',models)
+    KOCSg = return_options(default_models.loc['KOCSg','option'],'KOCSg',models)
+    KCOs = return_options(default_models.loc['KCOs','option'],'KCOs',models)
+    OCS = return_options(default_models.loc['carbonylsulfide','option'],'carbonlysulfide',models)
     # degassing calculation
-    bulk_composition = return_options('yes','bulk_composition',models)
-    starting_P = return_options('bulk','starting_P',models)
-    gassing_style = return_options('closed','gassing_style',models)
-    gassing_direction = return_options('degas','gassing_direction',models)
-    P_variation = return_options('polybaric','P_variation',models)
-    eq_Fe = return_options('yes','eq_Fe',models)
-    solve_species = return_options('OCS','solve_species',models)
+    bulk_composition = return_options(default_models.loc['bulk_composition','option'],'bulk_composition',models)
+    starting_P = return_options(default_models.loc['starting_P','option'],'starting_P',models)
+    gassing_style = return_options(default_models.loc['gassing_style','option'],'gassing_style',models)
+    gassing_direction = return_options(default_models.loc['gassing_direction','option'],'gassing_direction',models)
+    P_variation = return_options(default_models.loc['P_variation','option'],'P_variation',models)
+    eq_Fe = return_options(default_models.loc['eq_Fe','option'],'eq_Fe',models)
+    solve_species = return_options(default_models.loc['solve_species','option'],'solve_species',models)
     # other
-    density = return_options('DensityX','density',models)
-    isotopes = return_options('no','isotopes',models)
-    T_variation = return_options('isothermal','T_variation',models)
-    crystallisation = return_options('no','cystallisation',models)
-    mass_volume = return_options('mass','mass_volume',models)
-    calc_sat = return_options('fO2_melt','calc_sat',models)
-    bulk_O = return_options('exc S','bulk_O',models)
-    error = return_options(0.1,'error',models)
-    print_status = return_options('yes','print status',models)
-    output_csv = return_options('yes','output csv',models)
-    setup = return_options('no','setup',models)
+    density = return_options(default_models.loc['density','option'],'density',models)
+    isotopes = return_options(default_models.loc['isotopes','option'],'isotopes',models)
+    T_variation = return_options(default_models.loc['T_variation','option'],'T_variation',models)
+    crystallisation = return_options(default_models.loc['crystallisation','option'],'cystallisation',models)
+    mass_volume = return_options(default_models.loc['mass_volume','option'],'mass_volume',models)
+    calc_sat = return_options(default_models.loc['calc_sat','option'],'calc_sat',models)
+    bulk_O = return_options(default_models.loc['bulk_O','option'],'bulk_O',models)
+    error = return_options(default_models.loc['error','option'],'error',models)
+    print_status = return_options(default_models.loc['print status','option'],'print status',models)
+    output_csv = return_options(default_models.loc['output csv','option'],'output csv',models)
+    setup = return_options(default_models.loc['setup','option'],'setup',models)
 
     models = [['insolubles',insolubles],['H2S_m',H2S_m],['species X',species_X],['Hspeciation',Hspeciation],
               ['fO2',fO2],['NNObuffer',NNObuffer],['FMQbuffer',FMQbuffer],
@@ -148,7 +143,7 @@ def check_default_options(models):
 def make_df_and_add_model_defaults(models):
     """
 
-    Converts user-provided model configurations (e.g. ['carbon dioxide','Dixon97'],['hydrogen sulfide','basaltic andesite']
+    Converts user-provided model configurations (e.g. ['carbon dioxide','MORB_Dixon95'],['hydrogen sulfide','basaltic andesite']
     into a structured pandas DataFrame, combined with default options for anything not specified
     
 
@@ -166,22 +161,234 @@ def make_df_and_add_model_defaults(models):
         
     Model Parameters and Options
     ---------------------------------
-    The following parameters can be overridden in models.
+    The following parameters can be overridden in models. 
+    Any parameter can be set to 'setup', in which case the parameter is specified in the setup dataframe instead.
     
-    Specifying Species:
     
-    insolubles: default 'yes'
-        Include insoluble species (CH4, H2, and CO) in Psat calculations?
-        Other options: 'no', or 'H2O-CO2 only'
+    ### Specifying species ###
+    
+    insolubles: Specifying if H2, CO, and CH4 are present in the melt and/or vapor.
+        default: 'yes' Include H2mol, COmol and/or CH4mol as dissolved melt species (which species depends on whether H and/or C are volatile elements).
+        Other options: 
+        'no' H2, CO and/or CH4 are insoluble in the melt.
+        'H2O-CO2 only' The only species present in the vapor are H2O and CO2 and in the melt are H2OT and CO2T (i.e., no CO, H2, and/or CH4 in the melt or vapor).
         
-    H2S_m: default 'yes'
-        Include H2S_m as a dissolved melt species. 
-        other options:  'no'
+    H2S_m: Specify if H2S is a dissolved melt species.
+        default 'yes' Include H2Smol as a dissolved melt species. 
+        Other options:  
+        'no' H2Smol is insoluble in the melt.
         
-    species X: Default 'Ar'
-        Include 'Ar' 
-        other options: 'Ne', 
+    species X: Chemical identity of species X, which defines its atomic mass.
+        default 'Ar' Species X is argon (i.e., atomic mass of ~40).
+        Other options:
+        'Ne' Species X is Ne (i.e., atomic mass of ~20).
+    
+    ### Hspeciation: default 'none' Oxidised H in the melt only occurs as H2O species (i.e., no OH-).
+        Other options:
+
+    
+    ### Oxygen fugacity ###
+
+    ### fO2: Model for parameterisation of relationship between fO2 and Fe3+/FeT
+        default: 'Kress91A' Eq. (A-5, A-6) from Kress & Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
+        Other options:
+
+    NNObuffer: Model for the parameterisation for the fO2 value of the NNO buffer.
+        default: 'Frost91' Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
+
+    FMQbuffer: Model for the parameterisation for the fO2 value of the FMQ buffer.
+        default: 'Frost91' Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
+        Other options:
+        'ONeill87' O'Neill (1897) AmMin 72(1-2):67-75
+
+    
+    ### Models for solubility and speciation constants ###
+
+    carbon dioxide: Model for the parameterisation of the CO2T solubility constant.
+        default: 'MORB_Dixon95' Bullet (5) of summary from Dixon et al. (1995) JPet 36(6):1607-1631 doi:10.1093/oxfordjournals.petrology.a037267
+        Other options:
+        'Basalt_Dixon97' Eq. (7) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
+        'NorthArchBasalt_Dixon97' Eq. (8) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
+        'Basalt_Lesne11' Eq. (25,26) from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+        'VesuviusAlkaliBasalt_Lesne11' VES-9 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+        'EtnaAlkaliBasalt_Lesne11' ETN-1 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+        'StromboliAlkaliBasalt_Lense11' PST-9 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+        'SunsetCraterAlkaliBasalt_Allison19' Sunset Crater in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        'SVFVBasalticAndesite_Allison19' SVFV in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        'ErebusPhonotephrite_Allison19' Erebus in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        'VesuviusPhonotephrite_Allison19' Vesuvius in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        'EtnaTrachybasalt_Allison19' Etna in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        'StromboliAlkaliBasalt_Allison19' Stromboli in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        'Basanite_Holloway94' Basanite in Table 5 from Holloway and Blank (1994) RiMG 30:187-230 doi:10.1515/9781501509674-012
+        'Leucitite_Thibault94' Leucitite from Thibault & Holloway (1994) CMP 116:216-224 doi:10.1007/BF00310701
+        'TholeiiteBasalt_Allison22' N72 basalt in Table 2 from Allison et al. (2022) CMP 177:40 doi:10.1007/s00410-022-01903-y
+        'Rhyolite_Blank93' Fig.2 caption from Blank et al. (1993) EPSL 119:27-36 doi:10.1016/0012-821X(93)90004-S
+
+    ### water: Model for the parameterisation for the H2O solubility constant.
+        default: 'AllisonDataComp' The p is from Hughes et al. (2024) AmMin 109(3):422-438 based on data compiliation from Allison et al. (2022) CMP 177(3):40 doi:10.1007/s00410-022-01903-y
+    
+    hydrogen: Model for the parameterisation of the H2 solubility constant.
+        default: 'Basalt_Hughes24' Basalt H2 in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+        Other options:
+        'Andesite_Hughes24' Andesite H2 in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+    
+    sulfide: Model for the parameterisation for the *S2- solubility constant (all calibrated over wide range of silicate melt compositions).
+        default: 'ONeill21dil' Eq. (10.34) inc. H2O dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+        Other options:
+        'ONeill21' Eq. (10.34) ex. H2O dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+        'ONeill21hyd' (hydrous) Eq. (10.34, 10.49) from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+        'Boulliung23eq6' Eq. (6) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
+        'Boulliung23eq7' Eq. (7) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9 
+    
+    sulfate: Model for the parameterisation of the S6+ solubility constant (all calibrated over wide range of silicate melt compositions).
+        default: 'ONeill22dil' Eq. (12a) inc. H2O dilution from O'Neill & Mavrogenes (2022) GCA 334:368-382 10.1016/j.gca.2022.06.020
+        Other options:
+        'ONeill22' Eq. (12a) without H2O dilution from O'Neill & Mavrogenes (2022) GCA 334:368-382 doi:10.1016/j.gca.2022.06.020
+        'Boulliung22nP' (no P-dependence) Eq. (5) from Boulliung & Wood (2023) GCA 343:420 doi:10.1016/j.gca.2022.11.025
+        'Boulliung22wP' (inc. P-dependece) Eq. (5) from Boulliung & Wood (2023) GCA 343:420 doi:10.1016/j.gca.2022.11.025 and Eq. (8) for P from Boulliung & Wood (2022) GCA 336:150-164 doi:10.1016/j.gca.2022.08.032
+        'Boulliung23eq9' Eq. (9) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
+        'Boulliung23eq11' Eq. (11) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
+    
+    hydrogen sulfide: Model for the parameterisation for the H2S solubility constant.
+        default 'Basalt_Hughes24' Fig.S6 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+        Other options:
+        'BasalticAndesite_Hughes24' Fig.S6 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+    
+    methane: Model for the parameterisation of the CH4 solubility constant.
+        default: 'Basalt_Ardia13' Eq. (7a) from Ardia et al. (2013) GCA 114:52-71 doi:10.1016/j.gca.2013.03.028
+   
+    carbon monoxide: Model for the parameterisation of the CO solubility constant.
+        default: 'Basalt_Hughes24' CO in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+    
+    ### species X solubility: Model for the parameterisation of the X solubility constant. 
+        default: 'Iacono-Marziano10_Ar_basalt' is based on experimental data from Iacono-Marziano et al. (2010) 279(3-4)145-157
+    
+    Cspeccomp:
+        default: basalt'
+    
+    Hspeccomp
+        default: MORB
+
         
+    ### Saturation conditions ###
+        
+    ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','no'],['sulfur_is_sat','no'],['graphite_saturation','no'],
+              
+    ### Fugacity coefficients ###
+          
+    ideal_gas: Treat all vapor species as ideal gases (i.e., all fugacity coefficients = 1 at all P).
+        default: 'no' At least some of the vapor species are not treated as ideal gases. 
+        Other options:
+        'yes' All fugacity coefficients = 1 at all P.
+    
+    y_CO2: Model for the parameterisation of the CO2 fugacity coefficient.
+        default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        Other options:
+        'Holloway91' Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
+        'ideal' Treat CO2 as ideal gas species, fugacity coefficient = 1 at all P.
+
+    y_SO2: Model for the parameterisation of the SO2 fugacity coefficient.
+        default: 'Shi92_Hughes23' Fig.S1 Hughes et al. (2023) JGSL 180(3) doi:10.1144/jgs2021-12
+        Other options:
+        'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        'ideal' Treat SO2 as ideal gas species, fugacity coefficient = 1 at all P.
+
+    y_H2S: Model for the parameterisation of the H2S fugacity coefficient.
+        default: 'Shi92_Hughes24' Fig.S1 Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+        Other options:
+        'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        'ideal' Treat H2S as ideal gas species, fugacity coefficient = 1 at all P.
+
+    y_H2: Model for the parameterisation of the SO2 fugacity coefficient.
+        default: 'Shaw64'
+        Other options:
+        'ideal' Treat H2 as ideal gas species, fugacity coefficient = 1 at all P.
+
+    y_O2: Model for the parameterisation of the O2 fugacity coefficient.
+        default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        Other options:
+        'ideal' Treat O2 as ideal gas species, fugacity coefficient = 1 at all P.
+
+    y_S2: Model for the parameterisation of the O2 fugacity coefficient.
+        default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        Other options:
+        'ideal' Treat S2 as ideal gas species, fugacity coefficient = 1 at all P.
+
+    y_CO: Model for the parameterisation of the CO fugacity coefficient.
+        default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        Other options:
+        'ideal' Treat CO as ideal gas species, fugacity coefficient = 1 at all P.        
+
+    y_CH4: Model for the parameterisation of the CH4 fugacity coefficient.
+        default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        Other options:
+        'ideal' Treat CH4 as ideal gas species, fugacity coefficient = 1 at all P.    
+
+    y_H2O: Model for the parameterisation of the H2O fugacity coefficient.
+        default: 'Holloway91' Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
+        Other options:
+        'ideal' Treat H2O as ideal gas species, fugacity coefficient = 1 at all P.    
+    
+    y_OCS: Model for the parameterisation of the OCS fugacity coefficient.
+        default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        Other options:
+        'ideal' Treat OCS as ideal gas species, fugacity coefficient = 1 at all P.            
+
+    y_X: Model for the parameterisation of the X fugacity coefficient.
+        default: 'ideal' Treat X as ideal gas species, fugacity coefficient = 1 at all P.  
+          
+    
+    ['KHOg','KO97'],['KHOSg','KO97'],['KOSg','KO97'],['KOSg2','OM22'], ['KCOg','KO97'],['KCOHg','KO97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
+
+
+    ### Degassing calculation ###
+
+    bulk_composition: Specifying what the inputted melt composition (i.e., dissolved volatiles and fO2-estimate) correspond to for the degassing calculation
+        default: 'yes' The inputted melt composition (i.e., dissolved volatiles) represents the bulk system - there is no vapor present. The fO2-estimate is calculated at Pvsat for this melt composition.
+        Other options:
+        'wtg' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. The amount of vapor is specified in the inputs. The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input composition.
+        'CO2' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. The initial CO2 content of the melt (i.e., before degassing) is specified in the inputs. The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input composition.
+    
+    starting_P: Determing the starting pressure for a degassing calculation.
+        default: 'bulk' Calculation starts at Pvsat for the inputted melt composition (i.e., dissolved volatiles), which has no vapor present.
+        Other options:
+        'set' Calculation starts at the pressure specified in the inputs.
+        'measured' Calculation starts at Pvsat for the inputted melt composition (i.e., dissolved volatiles), which has vapor present.
+    
+    gassing_style: Does the bulk composition of the system (including oxygen) remain constant during the re/degassing calculation.
+        default: 'closed' The bulk composition of the system (inc. oxygen) is constant during re/degassing calculation - vapor and melt remain in chemical equilibrium throughout.
+        Other options:
+        'open' At each pressure-step, the vapor in equilibrium with the melt is removed (or added for regassing), such that the bulk composition of the system changes. This does not refer to being buffered in terms of fO2.
+    
+    gassing_direction: Is pressure increasing or decreasing from the starting perssure.
+        default: 'degas' Pressure progressively decreases from starting pressure for isothermal, polybaric calculations (i.e., degassing).
+        Other options:
+        'regas' Pressure progressively increases from starting pressure for isothermal, polybaric calculations (i.e., regassing).
+    
+    P_variation: Is pressure varying during the calculation?
+        default: 'polybaric' Pressure progressively changes during the calculation.
+    
+    T_variation: Is temperature varying during the calculation?
+        default: 'isothermal' Temperature is constant during the calculation.
+    
+    eq_Fe: Does iron in the melt equilibrate with fO2.
+        default: 'yes' Iron equilibrates with fO2
+    
+    solve_species: What species are used to solve the equilibrium equations? This should not need to be changed unless the solver is struggling.
+        default: 'OCS' Guess mole fractions of O2, CO, and S2 in the vapor to solve the equilibrium equations.
+
+    ### Other ###
+
+    density: Model for parameterisation of melt density
+        default: 'DensityX' DensityX from Iacovino & Till (2019) Volcanica 2(1):1-10 doi:10.30909/vol.02.01.0110
+
+    setup: Specifies whether model options are specified in the models or setup dataframe. 
+        default: 'no' All model options are specified in the models dataframe.
+        Other options:
+        'yes' Some of the model options are specified in the setup dataframe.
+              
+              ['isotopes','no'],,['crystallisation','no'],['mass_volume','mass'],['calc_sat','fO2_melt'],['bulk_O','exc_S'],['error',0.1],
+              ['print status','yes'],['output csv','yes'],      
     """
     
     
@@ -199,8 +406,9 @@ def make_df_and_add_model_defaults(models):
 def C_H2O(PT,melt_wf,models=default_models):
     
     """ 
-    Solubility constant for disolving H2O in the melt.
+    NOT COMPLETE
 
+    Solubility constant for disolving H2O in the melt.
 
     Parameters
     ----------
@@ -210,15 +418,19 @@ def C_H2O(PT,melt_wf,models=default_models):
         temperature ('C) as "T"
         
     melt_wf: pandas.DataFrame
-        Dataframe of melt composition, not used but kept in case dependence on melt composition is required.
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        Not normally used unless model option requires melt composition.
         
-    species: pandas.DataFrame
-        Dataframe of species.csv file.
-    
     models: pandas.DataFrame
-        Typically dataframe of models.csv file
-        Minimum requirement is dataframe with row labels of "Hspeciation" and "water" and column label of "option"
-        See models.csv for available options
+        Minimum requirement is dataframe with index of "Hspeciation" and "water" and column label of "option"
+
+    Model options
+    -------------
+    If "Hspeciation" = "none"
+        default: 'Basalt_Hughes24' Fig.S2 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+        Other options:
+        'Rhyolite_HughesIP' Hughes et al. (in prep)
+    
 
     Returns
     -------
@@ -229,18 +441,20 @@ def C_H2O(PT,melt_wf,models=default_models):
     model_solubility = models.loc["water","option"]
 
     if model_speciation == "none": ### C_H2O = (xmH2O)^2/fH2O ### (mole fraction)
-        if model_solubility == "ETN-1" or model_solubility == "PST-9": # Fitted to ETN-1 and PST-9 from Lesne et al. (2011) 162:133-151
+        if model_solubility == "Rhyolite_Hughes24": # Fitted to Blank et al. (1993) and Silver et al. (1990) datasets
+            C = 5.13488743E-06 
+        elif model_solubility == "Basalt_Hughes24": # Fig.S2 from Hughes et al. (2024) based on data compilation from Allison et al. (2022) for basalts with H2O < 6 wt%
+            C = 4.6114e-6
+
+        ### WORK IN PROGRESS ###
+        elif model_solubility == "Lesne11mod": # modified general model from Lesne et al. (2011) 162:133-151
+            C = 5.62316e-6
+        elif model_solubility == "ETN-1" or model_solubility == "PST-9": # Fitted to ETN-1 and PST-9 from Lesne et al. (2011) 162:133-151
             C = 4.77591e-6
         elif model_solubility == "VES-9": # Fitted to VES-9 from Lesne et al. (2011) 162:133-151
             C = 5.46061e-6
-        elif model_solubility == "rhyolite": # Fitted to Blank et al. (1993) and Silver et al. (1990) datasets
-            C = 5.13488743E-06 
         elif model_solubility ==  "evo": # Fitted to match EVo
             C = 2.782e-6
-        elif model_solubility == "Lesne11mod": # modified general model from Lesne et al. (2011) 162:133-151
-            C = 5.62316e-6
-        elif model_solubility == "AllisonDataComp": # fitted to experimental data compilation from Allison et al. (2022) for H2O < 6 wt%
-            C = 4.6114e-6
         elif model_solubility == "test": #test
             R_ = 83.144621 # cm3 bar K−1 mol−1
             DV = 12 # cm3/mol
@@ -271,6 +485,8 @@ def C_H2O(PT,melt_wf,models=default_models):
             A = 5.71e-5 # XmH2Om0
             DV = 26.9 # VH2Om0 in cm3/mol
             C = A*gp.exp((-DV*(P-P0))/(R*T0)) 
+        
+        ### Work in progress ###
         elif model_solubility == "ETN-1": # Fitted to ETN-1 and VES-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011) 162:133-151
             C = 3.3989655e-6 
         elif model_solubility == "VES-9": # Fitted to ETN-1 and VES-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011) 162:133-151
@@ -280,8 +496,7 @@ def C_H2O(PT,melt_wf,models=default_models):
     
     return C
 
-        
-        
+          
 ##############################################
 ### Solubility constant for carbon dioxide ###
 ##############################################
@@ -300,21 +515,38 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         
     melt_wf: pandas.DataFrame
         Dataframe of melt composition (SiO2, TiO2, etc.)
-        Not normally required unless "carbon dioxide" option requires melt composition.
-        
-    species: pandas.DataFrame
-        Dataframe of species.csv file.
+        Not normally used unless model option requires melt composition.
     
     models: pandas.DataFrame
-        Typically dataframe of models.csv file
-        Minimum requirement is dataframe with row label of "carbon dioxide" and column label of "option"
-        See models.csv for available options
+        Minimum requirement is dataframe with index of "carbon dioxide" and column label of "option"
 
     Returns
     -------
     Solubility constant for CO2 as <class 'mpfr'>
 
+    Model options
+    -------------
+    default: 'MORB_Dixon95' Bullet (5) of summary from Dixon et al. (1995) JPet 36(6):1607-1631 doi:10.1093/oxfordjournals.petrology.a037267
+    Other options:
+    'Basalt_Dixon97' Eq. (7) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
+    'NorthArchBasalt_Dixon97' Eq. (8) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
+    'Basalt_Lesne11' Eq. (25,26) from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+    'VesuviusAlkaliBasalt_Lesne11' VES-9 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+    'EtnaAlkaliBasalt_Lesne11' ETN-1 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+    'StromboliAlkaliBasalt_Lense11' PST-9 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+    'SunsetCraterAlkaliBasalt_Allison19' Sunset Crater in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+    'SVFVBasalticAndesite_Allison19' SVFV in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+    'ErebusPhonotephrite_Allison19' Erebus in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+    'VesuviusPhonotephrite_Allison19' Vesuvius in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+    'EtnaTrachybasalt_Allison19' Etna in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+    'StromboliAlkaliBasalt_Allison19' Stromboli in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+    'Basanite_Holloway94' Basanite in Table 5 from Holloway and Blank (1994) RiMG 30:187-230 doi:10.1515/9781501509674-012
+    'Leucitite_Thibault94' Leucitite from Thibault & Holloway (1994) CMP 116:216-224 doi:10.1007/BF00310701
+    'TholeiiteBasalt_Allison22' N72 basalt in Table 2 from Allison et al. (2022) CMP 177:40 doi:10.1007/s00410-022-01903-y
+    'Rhyolite_Blank93' Fig.2 caption from Blank et al. (1993) EPSL 119:27-36 doi:10.1016/0012-821X(93)90004-S
+
     """
+
     model = models.loc["carbon dioxide","option"]
 
     P = PT['P']
@@ -324,118 +556,138 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
 
     R = 83.15
     T0 = 1473.15 # K
-    PI = -6.5*(melt_comp["Si"]+melt_comp["Al"]) + 20.17*(melt_comp["Ca"] + 0.8*melt_comp["K"] + 0.7*melt_comp["Na"] + 0.4*melt_comp["Mg"] + 0.4*melt_comp["FeT"]) # Dixon (1997) Am. Min. 82:368-378
+    PI = -6.5*(melt_comp["Si"]+melt_comp["Al"]) + 20.17*(melt_comp["Ca"] + 0.8*melt_comp["K"] + 0.7*melt_comp["Na"] + 0.4*melt_comp["Mg"] + 0.4*melt_comp["FeT"]) # Eq. (7) from Dixon (1997) Am. Min. 82:368-378
     PI_ = (melt_comp["Ca"] + 0.8*melt_comp["K"] + 0.7*melt_comp["Na"] + 0.4*melt_comp["Mg"] + 0.4*melt_comp["FeT"])/(melt_comp["Si"] + melt_comp["Al"]) # Shishkina et al. (2014) Chem. Geol. 388:112-129
-    DH = -13.1 # kJ/mol # Lesne et al. (2011) CMP 162:153-168 from basanite of Holloway & Blank (1994)
  
-    if model == "Dixon95": # Dixon et al. (1995)
+    if model == "MORB_Dixon95": # Bullet (5) of summary from Dixon et al. (1995), which includes values from Pan et al. (1991)
         DV = 23. # cm3/mol
         P0 = 1.0 # bar
         A = 3.8e-7
         B = (-DV*(P-P0))/(R*T0)
         C = A*gp.exp(B)
-    elif model == "Dixon97": # Compositional dependence from Dixon (1997) Am. Min. 82:368-378 as shown by Witham et al. (2012) [assumes PI-SiO2 relationship in caption of figre 2 is 10.19 instead of 10.9 - if 10.9 is assumed you get negative C_CO3]
+    elif model == "Basalt_Dixon97": # Compositional dependence of Eq. (7) from Dixon (1997) Am. Min. 82:368-378 as shown in Eq. (1,5) from Witham et al. (2012)
         DV = 23 # cm3/mol
         P0 = 1.0 # bar
         A = (7.94e-7)*(PI+0.762)
         B = (-DV*(P-P0))/(R*T0)
         C = A*gp.exp(B)
-    elif model == "Lesne11": # Lesne et al. (2011)
+    elif model == "NorthArchBasalt_Dixon97": # Eq. (8) from Dixon (1997) Am. Min. 82:368-378
+        melt_comp_ox = mg.melt_normalise_wf(melt_wf,"no","no")
         DV = 23 # cm3/mol
         P0 = 1.0 # bar
-        A = 7.94e-7*((((871*PI)+93.0)/1000.0)+0.762)
+        A = (8.70e-6)-((1.7e-7)*(melt_comp_ox["SiO2"]*100.))
         B = (-DV*(P-P0))/(R*T0)
         C = A*gp.exp(B)
-    elif model == "VES-9": # Lesne et al. (2011) CMP 162:153-168
+    elif model == "Basalt_Lesne11": # Eq. (25, 26) from Lesne et al. (2011) based on Dixon (1997)
+        DV = 25 # cm3/mol ±3
+        P0 = 1000.0 # bar
+        A = gp.exp(0.893*PI - 15.247) # Eq. (25)
+        B = (-DV*(P-P0))/(R*T0)
+        C = A*gp.exp(B)
+    elif model == "VesuviusAlkaliBasalt_Lesne11": # VES-9 in Table 4 of Lesne et al. (2011) CMP 162:153-168
         DV = 31.0 # cm3/mol
         P0 = 1000.0 # bar
-        A = gp.exp(-14.10)
-        B = -((DV/(R*T_K))*(P-P0)) + (DH/R)*((1.0/T0) - (1.0/T_K))
+        A = gp.exp(-14.10) # ±0.03
+        B = -((DV/(R*T_K))*(P-P0))
         C = A*gp.exp(B)
-    elif model == "ETN-1": # Lesne et al. (2011) CMP 162:153-168
+    elif model == "EtnaAlkaliBasalt_Lesne11": # ETN-1 in Table 4 of Lesne et al. (2011) CMP 162:153-168
         DV = 23.0 # cm3/mol
         P0 = 1000.0 # bar
-        A = gp.exp(-14.55)
-        B = -((DV/(R*T_K))*(P-P0)) + (DH/R)*((1.0/T0) - (1.0/T_K))    
+        A = gp.exp(-14.55) # ±0.00
+        B = -((DV/(R*T_K))*(P-P0)) 
         C = A*gp.exp(B)
-    elif model == "PST-9": # Lesne et al. (2011) CMP 162:153-168
+    elif model == "StromboliAlkaliBasalt_Lesne11": # PST-9 in Table 4 of Lesne et al. (2011) CMP 162:153-168
         DV = 6.0 # cm3/mol
         P0 = 1000.0 # bar
-        A = gp.exp(-14.74)
-        B = -((DV/(R*T_K))*(P-P0)) + (DH/R)*((1.0/T0) - (1.0/T_K))
+        A = gp.exp(-14.74) # ±0.01
+        B = -((DV/(R*T_K))*(P-P0))
         C = A*gp.exp(B)
     elif model == "Shishkina14": # modified from Shishkina et al. (2014) Chem. Geol. 388:112-129
         A = 1.164 # modified by converting P^A to APyCO2 but only including data up to and including 400 MPa
         B = 6.71*PI_-1.345
         C = A*gp.exp(B)
-    elif model == "Sunset Crater": # Sunset Crater from Allison et al. (2022) CMP 177:40
+    elif model == "SunsetCraterAlkaliBasalt_Allison19": # Sunset Crater in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4) 
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 16.40 # cm3/mol
         P0 = 1000.0 # bar
         A = gp.exp(-14.67)
         B = -((DV/(R_*T_K))*(P-P0))
         C = A*gp.exp(B)
-    elif model == "SFVF": # SFVF from Allison et al. (2022) CMP 177:40
+    elif model == "SFVFBasalticAndesite_Allison19": # SFVF in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4) 
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 15.02 # cm3/mol
         P0 = 1000.0 # bar
         A = gp.exp(-14.87)
         B = -((DV/(R_*T_K))*(P-P0))
         C = A*gp.exp(B)
-    elif model == "Erebus": # Erebus from Allison et al. (2022) CMP 177:40
+    elif model == "ErebusPhonotephrite_Allison19": # Erebus in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4) 
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = -14.65 # cm3/mol
         P0 = 1000.0 # bar
         A = gp.exp(-14.65)
         B = -((DV/(R_*T_K))*(P-P0))
         C = A*gp.exp(B)
-    elif model == "Vesuvius": # Vesuvius from Allison et al. (2022) CMP 177:40
+    elif model == "VesuviusPhonotephrite_Allison19": # Vesuvius in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4) 
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 24.42 # cm3/mol
         P0 = 1000.0 # bar
         A = gp.exp(-14.04)
         B = -((DV/(R_*T_K))*(P-P0))
         C = A*gp.exp(B)
-    elif model == "Etna": # Etna from Allison et al. (2022) CMP 177:40
+    elif model == "EtnaTrachybasalt_Allison19": # Etna in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4) 
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 21.59 # cm3/mol
         P0 = 1000.0 # bar
         A = gp.exp(-14.28)
         B = -((DV/(R_*T_K))*(P-P0))
         C = A*gp.exp(B)
-    elif model == "Stromboli": # Stromboli from Allison et al. (2022) CMP 177:40
+    elif model == "StromboliAlkaliBasalt_Allison19": # Stromboli in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4) 
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 14.93 # cm3/mol
         P0 = 1000.0 # bar
         A = gp.exp(-14.68)
         B = -((DV/(R_*T_K))*(P-P0))
         C = A*gp.exp(B)
-    elif model == "Basanite": # Basanite composition from Holloway and Blank (1994), data from Allison et al. (2022) CMP 177:40
+    elif model == "Basanite_Holloway94": # Basanite in Table 5 from Holloway and Blank (1994) 
         R_ = 83.144621 # cm3 bar K−1 mol−1
-        DV = 21.72 # cm3/mol
+        DV = 21.72 # cm3/mol ± 1.27
+        DH = -13.1 # kJmol ± 13.9
+        T0 = 1200. + 273.15 # K 
         P0 = 1000.0 # bar
         A = gp.exp(-14.32)
-        B = -((DV/(R_*T_K))*(P-P0))
+        B = -((DV/(R_*T_K))*(P-P0)) + (DH/R)*((1.0/T0) - (1.0/T_K))
         C = A*gp.exp(B)
-    elif model == "Leucite": # Leucite composition from Thibault and Holloway (1994), data from Allison et al. (2022) CMP 177:40
+    elif model == "Leucitite_Thibault94": # Leucitite from Thibault & Holloway (1994) 
         R_ = 83.144621 # cm3 bar K−1 mol−1
-        DV = 21.53 # cm3/mol
+        DV = 21.53 # cm3/mol ± 0.42
+        DH = -28.15 #kJ/mol ±4.24
+        T0 = 1200. + 273.15 # K
         P0 = 1000.0 # bar
         A = gp.exp(-13.36)
-        B = -((DV/(R_*T_K))*(P-P0))
+        B = -((DV/(R_*T_K))*(P-P0)) + (DH/R)*((1.0/T0) - (1.0/T_K))
         C = A*gp.exp(B)
-    elif model == "AH3 phonotephrite": # AH3 Phonotephrite composition from Vetere et al. (2014), data from Allison et al. (2022) CMP 177:40
-        R_ = 83.144621 # cm3 bar K−1 mol−1
-        DV = 30.45 # cm3/mol
-        P0 = 1000.0 # bar
-        A = gp.exp(-13.26)
-        B = -((DV/(R_*T_K))*(P-P0))
-        C = A*gp.exp(B)
-    elif model == "N72 Basalt": # N72 basalt composition from Shishkina et al. (2010), data from Allison et al. (2022) CMP 177:40
+    elif model == "TholeiiteBasalt_Allison22": # N72 basalt in Table 2 from Allison et al. (2022) CMP 177:40, based on experiments from Shishkina et al. (2010) 
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 19.05 # cm3/mol
         P0 = 1000.0 # bar
         A = gp.exp(-14.86)
+        B = -((DV/(R_*T_K))*(P-P0))
+        C = A*gp.exp(B)
+    elif model == "Rhyolite_Blank93": # Fig. 2 caption from Blank et al. (1993) 
+        DV = 28. # cm3/mol ± 2
+        DH = -27.2 # kJ/mole ±2.1 
+        P0 = 1.0 # bar
+        T0 = 850. + 273.15 # K
+        A = gp.exp(-14.45) # ±0.02
+        B = -((DV/(R_*T_K))*(P-P0)) + (DH/R)*((1.0/T0) - (1.0/T_K))
+        C = A*gp.exp(B)
+    
+    ### WORK IN PROGRESS BELOW HERE ###
+    elif model == "Phonotephrite_Allison22": # AH3 Phonotephrite in Table 2 from Allison et al. (2022) CMP 177:40, based on experiments from Vetere et al. (2014) 
+        R_ = 83.144621 # cm3 bar K−1 mol−1
+        DV = 30.45 # cm3/mol
+        P0 = 1000.0 # bar
+        A = gp.exp(-13.26)
         B = -((DV/(R_*T_K))*(P-P0))
         C = A*gp.exp(B)
     elif model == "Allison22mod": # modified from Allison et al. (2022) CMP 177:40
@@ -457,12 +709,6 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         P0 = 1000. # bars
         R_ = 83.144621 # cm3 bar K−1 mol−1
         B = ((-1.*DV)*(P-P0))/(R_*T_K)
-        C = A*gp.exp(B)
-    elif model == "Blank93": # Blank et al. (1993) - rhyolite - tried for workshop
-        DV = 28 # cm3/mol
-        P0 = 1.0 # bar
-        A = gp.exp(-14.45)
-        B = (-DV*(P-P0))/(R*(850.+273.15))
         C = A*gp.exp(B)
     elif model == "Behrens04fit": # Fit to Behrens et al. (2004) - tried for workshop
         DV = 41.8 # cm3/mol
@@ -515,18 +761,22 @@ def C_S(PT,melt_wf,models=default_models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (we
         
     melt_wf: pandas.DataFrame
         Dataframe of melt composition (SiO2, TiO2, etc.)
-        
-    species: pandas.DataFrame
-        Dataframe of species.csv file.
     
     models: pandas.DataFrame
-        Typically dataframe of models.csv file
-        Minimum requirement is dataframe with row label of "sulfide" and column label of "option"
-        See models.csv for available options
-
+        Minimum requirement is dataframe with index of "sulfide" and column label of "option"
+    
+    Model options
+    -------------
+    default: 'ONeill21dil' Eq. (10.34) inc. H2O dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+    Other options:
+    'ONeill21' Eq. (10.34) ex. H2O dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+    'ONeill21hyd' (hydrous) Eq. (10.34, 10.49) from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+    'Boulliung23eq6' Eq. (6) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
+    'Boulliung23eq7' Eq. (7) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
+    
     Returns
     -------
-    Solubility constant for CO2 as <class 'mpfr'>
+    Solubility constant for S2- as <class 'mpfr'>
 
     """
     model = models.loc["sulfide","option"]
@@ -559,13 +809,13 @@ def C_S(PT,melt_wf,models=default_models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (we
         lnC = lnCdil+lnCH
         C = math.exp(lnC) 
 
-    if model == "BW23eq6": # Eq. (6) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
+    if model == "Boulliung23eq6": # Eq. (6) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
         melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
         logC = 0.338 + (24328.*melt_comp["Fe2"] + 5411.*melt_comp["Ca"] + 15872.*melt_comp["Mn"] - 9697.)/T
         C = 10.**(logC) 
     
-    if model == "BW23eq7": # Eq. (7) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
+    if model == "Boulliung23eq7": # Eq. (7) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
         melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
         logC = 0.225 + (25237.*melt_comp["Fe2"] + 5214.*melt_comp["Ca"] + 12705.*melt_comp["Mn"] + 19829.*melt_comp["K"] - 1109.*melt_comp["Si"] - 8879.)/T
@@ -582,27 +832,87 @@ def C_S(PT,melt_wf,models=default_models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (we
 ### solubility constant for sulfate ###
 ########################################
 def C_SO4(PT,melt_wf,models=default_models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 ### (weight ppm)
+    
+    """ 
+    Solubility constant for disolving S6+ in the melt: C_SO4 = wmS6+(fS2*fO2^3)^-0.5 (in ppmw and bar)
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+        
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "sulfate" and column label of "option"
+
+    Returns
+    -------
+    Solubility constant for S6+ as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'ONeill22dil' Eq. (12a) inc. H2O dilution from O'Neill & Mavrogenes (2022) GCA 334:368-382 10.1016/j.gca.2022.06.020
+    Other options:
+    'ONeill22' Eq. (12a) without H2O dilution from O'Neill & Mavrogenes (2022) GCA 334:368-382 doi:10.1016/j.gca.2022.06.020
+    'Boulliung22nP' Eq. (5) from Boulliung & Wood (2023) GCA 343:420 doi:10.1016/j.gca.2022.11.025
+    'Boulliung22wP' Eq. (5) from Boulliung & Wood (2023) GCA 343:420 doi:10.1016/j.gca.2022.11.025 and Eq. (8) for P from Boulliung & Wood (2022) GCA 336:150-164 doi:10.1016/j.gca.2022.08.032
+    'Boulliung23eq9' Eq. (9) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
+    'Boulliung23eq11' Eq. (11) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
+
+    """
+
     model = models.loc["sulfate","option"]
 
     T = PT['T'] + 273.15 # T in Kelvin
     P = PT['P'] # P in bars
-    slope = 115619.707 # slope for T-dependence for melt inclusion fits
+    #slope = 115619.707 # slope for T-dependence for melt inclusion fits
     
-    if model == "Nash19": # Nash et al. (2019) EPSL 507:187-198
-        S = 1. # S6+/S2- ratio of S6+/S2- of 0.5
-        Csulfide = C_S(PT,melt_wf,models)
-        A = PT_KCterm(PT,melt_wf,models) # P, T, compositional term from Kress & Carmicheal (1991)
-        B = (8743600/T**2) - (27703/T) + 20.273 # temperature dependence from Nash et al. (2019)
-        a = 0.196 # alnfO2 from Kress & Carmicheal (1991)
-        F = 10**(((math.log10(S))-B)/8.)
-        fO2 = math.exp(((math.log(0.5*F))-A)/a)
-        Csulfate = (S*Csulfide)/(fO2**2)
-    elif model == "S6ST":
-        Csulfide = C_S(PT,melt_wf,models)
-        fO2 = f_O2(PT,melt_wf,models)
-        S6ST_ = melt_wf["S6ST"]
-        S = overtotal2ratio(S6ST_)
-        Csulfate = (S*Csulfide)/(fO2**2)
+    if model in ["Boulliung22nP","Boulliung22wP"]: # Boullioung & Wood (2022) GCA 336:150-164 [eq5] - corrected!
+        # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","no")
+        logCS6 = -12.948 + ((15602.*melt_comp["Ca"] + 28649.*melt_comp["Na"] - 9596.*melt_comp["Mg"] + 4194.*melt_comp["Al"] +16016.*melt_comp["Mn"] + 29244.)/T) # wt% S
+        if model == "Boulliung22wP": 
+            logCS6 = logCS6 - ((0.1*((10.*P)-0.1))*1.5237)/T # wt% S, Boullioung & Wood (2022) GCA 336:150-164 [eq8]
+        Csulfate = (10.**logCS6)*10000. # ppm S
+    elif model in ["ONeill22","ONeill22dil"]: 
+        if model == "ONeill22": # O'Neill & Mavrogenes (2022) GCA 334:368-382 eq[12a]
+            melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) no volatiles   
+        elif model == "ONeill22dil": # O'Neill & Mavrogenes (2022) GCA 334:368-382 eq[12a]
+            melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) includes water
+        lnC = -8.02 + ((21100. + 44000.*melt_comp["Na"] + 18700.*melt_comp["Mg"] + 4300.*melt_comp["Al"] + 44200.*melt_comp["K"] + 35600.*melt_comp["Ca"] + 12600.*melt_comp["Mn"] + 16500.*melt_comp["Fe2"])/T) #CS6+ = [S6+, ppm]/fSO3
+        Csulfate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
+    elif model == "Boulliung23eq9": # Eq. (9) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
+        # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
+        logC = -12.948 + (28649.*melt_comp["Na"] + 15602.*melt_comp["Ca"] + 9496.*melt_comp["Mg"] + 16016.*melt_comp["Mn"] + 4194.*melt_comp["Al"] + 29244.)/T
+        Csulfate = 10.**(logC)
+    elif model == "Boulliung23eq11": # Eq. (11) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
+        # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
+        logC = -213.65 + (25696.*melt_comp["Na"] + 15076.*melt_comp["Ca"] + 9543.*melt_comp["Mg"] + 16158.*melt_comp["Mn"] + 4316.*melt_comp["Al"] + 68254.)/T + 55.03*math.log10(T)
+        Csulfate = 10.**(logC)
+    
+    ### OLD ###
+    #elif model == "Nash19": # Nash et al. (2019) EPSL 507:187-198
+    #    S = 1. # S6+/S2- ratio of S6+/S2- of 0.5
+    #    Csulfide = C_S(PT,melt_wf,models)
+    #    A = PT_KCterm(PT,melt_wf,models) # P, T, compositional term from Kress & Carmicheal (1991)
+    #    B = (8743600/T**2) - (27703/T) + 20.273 # temperature dependence from Nash et al. (2019)
+    #    a = 0.196 # alnfO2 from Kress & Carmicheal (1991)
+    #    F = 10**(((math.log10(S))-B)/8.)
+    #    fO2 = math.exp(((math.log(0.5*F))-A)/a)
+    #    Csulfate = (S*Csulfide)/(fO2**2)
+    #elif model == "S6ST":
+    #    Csulfide = C_S(PT,melt_wf,models)
+    #    fO2 = f_O2(PT,melt_wf,models)
+    #    S6ST_ = melt_wf["S6ST"]
+    #    S = overtotal2ratio(S6ST_)
+    #    Csulfate = (S*Csulfide)/(fO2**2)
     #elif model == "Hawaii":
     #    Csulfate = gp.exp(30.4) # Using Brounce et al. (2017) dataset at 1200 'C
     #    Csulfate = math.exp(slope*(1./T) -48.)
@@ -616,30 +926,7 @@ def C_SO4(PT,melt_wf,models=default_models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 
     #    Csulfate = ((67.e6)*10000.)
     #elif model == "JdF": # 1100 'C ONLY
     #    Csulfate = 10.**17.
-    elif model in ["Boulliung22nP","Boulliung22wP"]: # Boullioung & Wood (2022) GCA 336:150-164 [eq5] - corrected!
-        # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        melt_comp = mg.melt_cation_proportion(melt_wf,"no","no")
-        logCS6 = -12.948 + ((15602.*melt_comp["Ca"] + 28649.*melt_comp["Na"] - 9596.*melt_comp["Mg"] + 4194.*melt_comp["Al"] +16016.*melt_comp["Mn"] + 29244.)/T) # wt% S
-        if model == "Boulliung22wP": # Boullioung & Wood (2022) GCA 336:150-164 [eq5] - corrected!
-            logCS6 = logCS6 - ((0.1*((10.*P)-0.1))*1.5237)/T # wt% S
-        Csulfate = (10.**logCS6)*10000. # ppm S
-    elif model in ["ONeill22","ONeill22dil"]: 
-        if model == "ONeill22": # O'Neill & Mavrogenes (2022) GCA 334:368-382 eq[12a]
-            melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) no volatiles   
-        elif model == "ONeill22dil": # O'Neill & Mavrogenes (2022) GCA 334:368-382 eq[12a]
-            melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) includes water
-        lnC = -8.02 + ((21100. + 44000.*melt_comp["Na"] + 18700.*melt_comp["Mg"] + 4300.*melt_comp["Al"] + 44200.*melt_comp["K"] + 35600.*melt_comp["Ca"] + 12600.*melt_comp["Mn"] + 16500.*melt_comp["Fe2"])/T) #CS6+ = [S6+, ppm]/fSO3
-        Csulfate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
-    elif model == "BW23eq9": # Eq. (9) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
-        # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
-        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
-        logC = -12.948 + (28649.*melt_comp["Na"] + 15602.*melt_comp["Ca"] + 9496.*melt_comp["Mg"] + 16016.*melt_comp["Mn"] + 4194.*melt_comp["Al"] + 29244.)/T
-        Csulfate = 10.**(logC)
-    elif model == "BW23eq11": # Eq. (11) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
-        # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
-        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
-        logC = -213.65 + (25696.*melt_comp["Na"] + 15076.*melt_comp["Ca"] + 9543.*melt_comp["Mg"] + 16158.*melt_comp["Mn"] + 4316.*melt_comp["Al"] + 68254.)/T + 55.03*math.log10(T)
-        Csulfate = 10.**(logC)
+           
     return Csulfate
 
 
@@ -648,10 +935,41 @@ def C_SO4(PT,melt_wf,models=default_models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 
 ### solubility constant for H2S ###
 ###################################
 def C_H2S(PT,melt_wf,models=default_models): # C_H2S = wmH2S/fH2S (ppm H2S, fH2S bar)
+    
+    """ 
+    Solubility constant for disolving H2S in the melt: C_H2S = wmH2S/fH2S (ppmw/bar)
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+        
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        Not normally used unless model option requires melt composition.
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "hydrogen sulfide" and column label of "option"
+
+    Returns
+    -------
+    Solubility constant for H2S as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Basalt_Hughes24' Fig.S6 from Hughes et al. (2024) based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011)
+    Other options:
+    'BasalticAndesite_Hughes24' Fig.S6 from Hughes et al. (2024) based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011)
+
+    """
+
     model = models.loc["hydrogen sulfide","option"]
-    if model == "basalt":
+    if model == "Basalt_Hughes24":
         K = 10.23 # fitted to basalt data from Moune+ 2009 CMP 157:691–707 and Lesne+ 2015 ChemGeol 418:104–116
-    elif model == "basaltic andesite":
+    elif model == "BasalticAndesite_Hughes24":
         K = 6.82 # fitted to basaltic andesite data from Moune+ 2009 CMP 157:691–707 and Lesne+ 2015 ChemGeol 418:104–116 
     return K
 
@@ -661,6 +979,37 @@ def C_H2S(PT,melt_wf,models=default_models): # C_H2S = wmH2S/fH2S (ppm H2S, fH2S
 ### solubility constant for hydrogen ###
 ########################################
 def C_H2(PT,melt_wf,models=default_models): # C_H2 = wmH2/fH2 (wtppm)
+    
+    """ 
+    Solubility constant for disolving H2 in the melt: C_H2 = wmH2/fH2 (ppmw/bar)
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+        
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        Not normally used unless model option requires melt composition.
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "hydrogen" and column label of "option"
+
+    Returns
+    -------
+    Solubility constant for H2 as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Basalt_Hughes24' Basalt in Table S4 from Hughes et al. (2024) based on experimetnal data from Hirschmann et al. (2012)
+    Other options:
+    'Andesite_Hughes24' Andesite in Table S4 from Hughes et al. (2024) based on experimental data from Hirschmann et al. (2012)
+
+    """
+
     model = models.loc["hydrogen","option"] 
     
     # Hirchmann et al. (2012) EPSL 345-348:38-48
@@ -668,11 +1017,11 @@ def C_H2(PT,melt_wf,models=default_models): # C_H2 = wmH2/fH2 (wtppm)
     P = PT['P'] # pressure in bars
     T = PT['T'] + 273.15 # T in Kelvin SHOULD BE T0
     P0 = 100.*0.01 # kPa to bars
-    if model == "basalt":
+    if model == "Basalt_Hughes24": # Basalt in Table S4 from Hughes et al. (2024) based on experimetnal data from Hirschmann et al. (2012)
         #lnK0 = -11.4 # T0 = 1400 'C, P0 = 100 kPa for mole fraction H2
         lnK0 = -0.9624 # for ppm H2 (fitted in excel)
         DV = 10.6 # cm3/mol
-    elif model == "andesite":
+    elif model == "Basalt_Hughes24": # Andesite in Table S4 from Hughes et al. (2024) based on experimental data from Hirschmann et al. (2012)
         #lnK0 = -10.6 # T0 = 1400 'C, P0 = 100 kPa for mole fraction H2
         lnK0 = -0.1296 # for ppm H2 (fitted in excel)
         DV = 11.3 # cm3/mol
@@ -686,9 +1035,38 @@ def C_H2(PT,melt_wf,models=default_models): # C_H2 = wmH2/fH2 (wtppm)
 ### solubility constant for methane ##
 ######################################
 def C_CH4(PT,melt_wf,models=default_models): # C_CH4 = wmCH4/fCH4 (ppm)
+    
+    """ 
+    Solubility constant for disolving CH4 in the melt: C_CH4 = wmCH4/fCH4 (ppmw/bar)
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+        
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        Not normally used unless model option requires melt composition.
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "methane" and column label of "option"
+
+    Returns
+    -------
+    Solubility constant for CH4 as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Basalt_Ardia13' Eq. (7a) from Ardia et al. (2013)
+
+    """
+
     model = models.loc["methane","option"]
 
-    if model == "Ardia13": # Ardia et al. (2013) GCA 114:52-71
+    if model == "Basalt_Ardia13": # Eq. (7a) from Ardia et al. (2013) GCA 114:52-71
         R = 83.144598 # bar cm3 /mol /K 
         P = PT['P'] # pressure in bars
         T = PT['T'] + 273.15 # T in Kelvin SHOULD BE T0
@@ -707,9 +1085,38 @@ def C_CH4(PT,melt_wf,models=default_models): # C_CH4 = wmCH4/fCH4 (ppm)
 ### solubility constant for CO ##
 #################################
 def C_CO(PT,melt_wf,models=default_models): # C_CO = wmCO/fCO (ppm)
+    
+    """ 
+    Solubility constant for disolving CO in the melt: C_CO = wmCO/fCO (ppmw/bar)
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+        
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        Not normally used unless model option requires melt composition.
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "carbon monoxide" and column label of "option"
+
+    Returns
+    -------
+    Solubility constant for CH4 as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Basalt_Hughes24' CO in Table S4 from Hughes et al. (2024) based on data from Armstrong et al. (2015), Stanley et al., (2014), and Wetzel et al., (2013)
+
+    """
+
     model = models.loc["carbon monoxide","option"]
 
-    if model == "basalt": # from fitting Armstrong et al. (2015) GCA 171:283-302; Stanley+2014, and Wetzel+13 thermodynamically
+    if model == "Basalt_Hughes24": # from fitting Armstrong et al. (2015) GCA 171:283-302; Stanley+2014, and Wetzel+13 thermodynamically
         R = 83.144598 # bar cm3 /mol /K 
         P = PT['P'] # pressure in bars
         T = PT['T'] +273.15 # T in Kelvin
@@ -1247,14 +1654,14 @@ def y_H2(PT,models=default_models):
         return 1.0
     elif P < 1.: # ideal gas below 1 bar
         return 1.
-    elif model == "SW64": # Shaw & Wones (1964)
+    elif model == "Shaw64": # Shaw & Wones (1964)
         SW1 = gp.exp(-3.8402*pow(T_K,0.125)+0.5410)
         SW2 = gp.exp(-0.1263*pow(T_K,0.5)-15.980)
         SW3 = 300*gp.exp((-0.011901*T_K)-5.941) # NB used a value of -0.011901 instead of -0.11901 as reported to match data in Table 2
         P_atm = 0.986923*P
         ln_y = SW1*P_atm - SW2*pow(P_atm,2.0) + SW3*gp.exp((-P_atm/300.0)-1.0)
         return gp.exp(ln_y)
-    elif model == "SS92": # Shi & Saxena (1992) NOT WORKING
+    elif model == "Shi92": # Shi & Saxena (1992) NOT WORKING
         Tcr = 33.25 # critical temperature in K 
         Pcr = 12.9696 # critical temperature in bar
         Tr = T_K/Tcr
@@ -1316,7 +1723,7 @@ def y_H2O(PT,models=default_models):
         return 1.
     elif P < 1.: # ideal gas below 1 bar
         return 1.
-    if model == "HP91": 
+    if model == "Holloway91": 
     # (T > 673 K only) - using Holland & Powell (1991) CORK
         p0 = 2.00 # in kb
         a = 1113.4 + -0.22291*(T_K - 673.0) + -3.8022e-4*pow((T_K-673.0),2.0) + 1.7791e-7*pow((T_K-673.0),3.0)
@@ -1338,14 +1745,14 @@ def y_CO2(PT,models=default_models):
     elif P < 1.: # ideal gas below 1 bar
         return 1.
     else:
-        if model == "HP91": # use Holland & Powell (1991)
+        if model == "Holloway91": # use Holland & Powell (1991)
             p0 = 5.00 # in kb
             a = 741.2 + -0.10891*(T_K) + -3.4203e-4*pow(T_K,2.0)
             b = 3.057
             c = -2.26924e-1 + -7.73793e-5*T_K
             d = 1.33790e-2 + -1.1740e-5*T_K
             y = CORK(PT,p0,a,b,c,d)
-        elif model == "SS92": # use Shi & Saxena (1992)
+        elif model == "Shi92": # use Shi & Saxena (1992)
             gas_species = "CO2"
             y = y_SS(gas_species,PT,models)
         return y
@@ -1353,7 +1760,7 @@ def y_CO2(PT,models=default_models):
 def y_O2(PT,models=default_models):
     model = models.loc["y_O2","option"]
 
-    if model == "SS92":
+    if model == "Shi92":
         gas_species = "O2"
         y = y_SS(gas_species,PT,models)
     elif model == "ideal":
@@ -1363,7 +1770,7 @@ def y_O2(PT,models=default_models):
 def y_S2(PT,models=default_models):
     model = models.loc["y_S2","option"]
 
-    if model == "SS92":
+    if model == "Shi92":
         gas_species = "S2"
         y = y_SS(gas_species,PT,models)
     elif model == "ideal":
@@ -1373,7 +1780,7 @@ def y_S2(PT,models=default_models):
 def y_CO(PT,models=default_models):
     model = models.loc["y_CO","option"]
 
-    if model == "SS92":
+    if model == "Shi92":
         gas_species = "CO"
         y = y_SS(gas_species,PT,models)
     elif model == "ideal":
@@ -1383,7 +1790,7 @@ def y_CO(PT,models=default_models):
 def y_CH4(PT,models=default_models):
     model = models.loc["y_CH4","option"]
 
-    if model == "SS92":
+    if model == "Shi92":
         gas_species = "CH4"
         y = y_SS(gas_species,PT,models)
     elif model == "ideal":
@@ -1393,7 +1800,7 @@ def y_CH4(PT,models=default_models):
 def y_OCS(PT,models=default_models):
     model = models.loc["y_OCS","option"]
 
-    if model == "SS92":
+    if model == "Shi92":
         gas_species = "OCS"
         y = y_SS(gas_species,PT,models)
     elif model == "ideal":
@@ -1440,11 +1847,11 @@ def y_SO2(PT,models=default_models):
             Pr = P/Pcr
             integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
             y = (gp.exp(integral))/P
-        elif models.loc["y_SO2","option"] == "SS92": # as is Shi and Saxena (1992)
+        elif models.loc["y_SO2","option"] == "Shi92": # as is Shi and Saxena (1992)
             Pr = P/Pcr
             integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
             y = (gp.exp(integral))/P
-        elif models.loc["y_SO2","option"] == "SS92_modified": # below 500 bar linear fit between the value at 500 bar and y = 1 at 1 bar to avoid weird behaviour...
+        elif models.loc["y_SO2","option"] == "Shi92_Hughes23": # below 500 bar linear fit between the value at 500 bar and y = 1 at 1 bar to avoid weird behaviour...
             Pr = 500./Pcr # calculate y at 500 bar
             integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
             y_500 = (gp.exp(integral))/500.
@@ -1476,14 +1883,14 @@ def y_H2S(PT,models=default_models):
         if P < 1.:
             return 1. # ideal gas below 1 bar
         elif P < 500.:
-            if models.loc["y_H2S","option"] == "SS92": # as is Shi and Saxena (1992) 
+            if models.loc["y_H2S","option"] == "Shi92": # as is Shi and Saxena (1992) 
                 A = Q1_A_LP + Q2_A_LP*Tr + Q3_A_LP*Tr**(-1.) + Q4_A_LP*Tr**2. + Q5_A_LP*Tr**(-2.) + Q6_A_LP*Tr**3. + Q7_A_LP*Tr**(-3.0) + Q8_A_LP*gp.log(Tr)
                 B = Q1_B_LP + Q2_B_LP*Tr + Q3_B_LP*Tr**(-1.) + Q4_B_LP*Tr**2. + Q5_B_LP*Tr**(-2.) + Q6_B_LP*Tr**3. + Q7_B_LP*Tr**(-3.0) + Q8_B_LP*gp.log(Tr)
                 C = Q1_C_LP + Q2_C_LP*Tr + Q3_C_LP*Tr**(-1.) + Q4_C_LP*Tr**2. + Q5_C_LP*Tr**(-2.) + Q6_C_LP*Tr**3. + Q7_C_LP*Tr**(-3.0) + Q8_C_LP*gp.log(Tr)
                 D = 0.0
                 P0 = 1.0
                 integral0 = 0.
-            elif models.loc["y_SO2","option"] == "SS92_modified": # below 500 bar linear fit between the value at 500 bar and y = 1 at 1 bar to avoid weird behaviour... 
+            elif models.loc["y_H2S","option"] == "Shi92_Hughes24": # below 500 bar linear fit between the value at 500 bar and y = 1 at 1 bar to avoid weird behaviour... 
                 P0 = 500.0 # calculate y at 500 bars
                 Pr_ = 500.0/Pcr
                 P0r_ = 1.0/Pcr
@@ -1535,23 +1942,71 @@ def y_SO3(PT,models=default_models):
 
 # buffers
 def NNO(PT,models=default_models):
+    """ 
+    Value of NNO buffer
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "NNObuffer" and column label of "option"
+
+    Model options
+    -------------
+    default: 'Frost91' Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
+        
+    Returns
+    -------
+    log10fO2 value of NNO buffer as <class 'mpfr'>
+
+    """
+
     model = models.loc["NNObuffer","option"]
 
     P = PT['P']
     T_K = PT["T"]+273.15
-    if model == "Frost91":
-        buffer = (-24930/T_K + 9.36 + 0.046*(P-1.0)/T_K) # Frost (1991)
+    if model == "Frost91": # Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
+        buffer = (-24930/T_K + 9.36 + 0.046*(P-1.0)/T_K)
     return buffer
 
 def FMQ(PT,models=default_models):
+    """ 
+    Value of FMQ buffer
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "FMQbuffer" and column label of "option"
+
+    Model options
+    -------------
+    default: 'Frost91' Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
+    Other options:
+    'ONeill87' O'Neill (1897) AmMin 72(1-2):67-75
+        
+    Returns
+    -------
+    log10fO2 value of FMQ buffer as <class 'mpfr'>
+
+    """
+
     model = models.loc["FMQbuffer","option"]
 
     P = PT['P']
     T_K = PT["T"]+273.15
-    if model == "Frost91":
-        buffer = (-25096.3/T_K + 8.735 + 0.11*(P-1.0)/T_K) # Frost (1991)
-    elif model == "ONeill87":
-        buffer = (8.58 - (25050/T_K)) # O'Neill (1987)
+    if model == "Frost91": # Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
+        buffer = (-25096.3/T_K + 8.735 + 0.11*(P-1.0)/T_K)
+    elif model == "ONeill87": # O'Neill (1897) AmMin 72(1-2):67-75
+        buffer = (8.58 - (25050/T_K))
     return buffer
 
 
@@ -1732,9 +2187,34 @@ def S_Nash19_terms(PT): # Nash et al. 2019
     B = ((8.7436e6)/pow(T_K,2.0)) - (27703.0/T_K) + 20.273
     return A, B
 
-# density of the melt in g/cm3 using DensityX (Iacovino & Till 2019 Volcanica 2(1))
-def melt_density(PT,melt_wf,models=default_models):
-    if models.loc["density","option"] == "DensityX":
+def melt_density(PT,melt_wf,models=default_models): # g/cm3
+    """ 
+    Melt density
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        Not normally used unless model option requires melt composition.
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "density" and column label of "option"
+
+    Model options
+    -------------
+    default: 'DensityX' DensityX from Iacovino & Till (2019) Volcanica 2(1):1-10 doi:10.30909/vol.02.01.0110 
+        
+    Returns
+    -------
+    melt density in g/cm3 <class 'mpfr'>
+
+    """
+    if models.loc["density","option"] == "DensityX": # DensityX from Iacovino & Till (2019) Volcanica 2(1):1-10 doi:10.30909/vol.02.01.0110
         melt_comp = mg.melt_normalise_wf(melt_wf,"water","yes")
         P = PT["P"]
         T = PT["T"]
