@@ -18,7 +18,3 @@ In this example we'll show you how to run this calculation for:
 :doc:`Example 1b <Examples/1b. pvsat csv>`: Analyses in a csv file using default options. 
 
 :doc:`Example 1c <Examples/1c. pvsat user_opt>`: Analyses in a csv file using user specified options.
-
-*References*
-
-Hughes, E.C., Liggins, P., Saper, L. and M. Stolper, E., 2024. The efects of oxygen fugacity and sulfur on the pressure of vapor-saturation of magma. American Mineralogist, 109(3), pp.422-438. https://doi.org/10.2138/am-2022-8739 
