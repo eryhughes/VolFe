@@ -1173,7 +1173,7 @@ def SCAS(PT,melt_wf,models=default_models):
     
     comp = mg.melt_pysulfsat(melt_wf)
  
-    if model == "Chowdhury18": # sulfate content (ppm) at anhydrite saturation from Chowdhury & Dasgupta (2018) [T in K]
+    if model == "Chowdhury19": # sulfate content (ppm) at anhydrite saturation from Chowdhury & Dasgupta (2019) [T in K]
         # mole fraction melt composition including water but all Fe as FeOT
         melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
         tot = 100.*melt_comp["mol_tot"]
@@ -1278,23 +1278,23 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
         H2O = melt_wf["H2OT"]*100.
         SCSS = (XFeS*gp.exp(13.88 - (9744./T) - (328.*(0.0001*PT["P"])/T))) + 104.*H2O
     
-    elif model == "pss_LiZhang2022": # NOT WORKING Li and Zhang (2022) using PySulfSat by Wieser and Gleeson (2023) - assuming pure FeS
+    elif model == "pss_Li22": # NOT WORKING Li and Zhang (2022) using PySulfSat by Wieser and Gleeson (2023) - assuming pure FeS
         output = ss.calculate_LiZhang2022_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']), Fe_FeNiCu_Sulf=1., Cu_FeNiCu_Sulf=0., Ni_FeNiCu_Sulf=0., Fe3Fet_Liq=Fe3FeT, logfo2=None,Ni_Liq=None, Cu_Liq=None, Ni_Sulf_init=5, Cu_Sulf_init=5, Fe_Sulf=None, Cu_Sulf=None, Ni_Sulf=None, T_K_transition=True,highT=False, lowT=False)
         SCSS = float(output["SCSS_Tot"])
-    elif model == "pss_F2015": # Fortin et al. (2015) using PySulfSat by Wieser and Gleeson (2023)
+    elif model == "pss_Fortin15": # Fortin et al. (2015) using PySulfSat by Wieser and Gleeson (2023)
         output = ss.calculate_F2015_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']), Fe3Fet_Liq=None,Fe_FeNiCu_Sulf=None)
         SCSS = float(output["SCSS2_ppm"])
-    elif model == "pss_Liu2021": # Liu et al. (2021) using PySulfSat by Wieser and Gleeson (2023) - assuming pure FeS
+    elif model == "pss_Liu21": # Liu et al. (2021) using PySulfSat by Wieser and Gleeson (2023) - assuming pure FeS
         output = ss.calculate_Liu2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe_FeNiCu_Sulf=1., H2O_Liq=float(100.*melt_wf['H2OT']), Cu_FeNiCu_Sulf=0., Ni_FeNiCu_Sulf=0.,
 Ni_Liq=None, Cu_Liq=None, Fe_Sulf=None, Cu_Sulf=None, Ni_Sulf=None, Ni_Sulf_init=5, Cu_Sulf_init=5, Fe3Fet_Liq=Fe3FeT)
         SCSS = float(output["SCSS2_ppm"])
-    elif model == "pss_OM2022": # O'Neill & Mavrogenes (2022) using PySulfSat by Wieser and Gleeson (2023) - assuming pure FeS
+    elif model == "pss_ONeill22": # O'Neill & Mavrogenes (2022) using PySulfSat by Wieser and Gleeson (2023) - assuming pure FeS
         output = ss.calculate_OM2022_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=1., Cu_FeNiCu_Sulf=0., Ni_FeNiCu_Sulf=0., Fe_Sulf=None, Ni_Sulf=None, Cu_Sulf=None, Ni_Liq=None, Cu_Liq=None, Ni_Sulf_init=5, Cu_Sulf_init=5)
         SCSS = float(output["SCSS2_ppm"])
-    elif model == "pss_O2021": # O'Neill (2021) using PySulfSat by Wieser and Gleeson (2023) - assuming pure FeS
+    elif model == "pss_ONeill21": # O'Neill (2021) using PySulfSat by Wieser and Gleeson (2023) - assuming pure FeS
         output = ss.calculate_O2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=1., Cu_FeNiCu_Sulf=0., Ni_FeNiCu_Sulf=0.,Fe_Sulf=None, Ni_Sulf=None, Cu_Sulf=None,Ni_Liq=None, Cu_Liq=None, Ni_Sulf_init=5, Cu_Sulf_init=5)
         SCSS = float(output["SCSS2_ppm"])
-    elif model == "pss_S2017": # Smythe et al. (2017) using PySulfSat by Wieser and Gleeson (2023) - assuming pure FeS    
+    elif model == "pss_Smythe17": # Smythe et al. (2017) using PySulfSat by Wieser and Gleeson (2023) - assuming pure FeS    
         output = ss.calculate_S2017_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=0.999999, Cu_FeNiCu_Sulf=0.000001, Ni_FeNiCu_Sulf=0.,Fe_Sulf=None, Ni_Sulf=None, Cu_Sulf=None, Ni_Liq=None, Cu_Liq=None, H2O_Liq=float(100.*melt_wf['H2OT']),Ni_Sulf_init=5, Cu_Sulf_init=5)
         SCSS = float(output["SCSS2_ppm_ideal_Smythe2017"])
     return SCSS

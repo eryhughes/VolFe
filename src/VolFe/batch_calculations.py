@@ -892,13 +892,6 @@ def calc_fugacity_coefficients(setup,first_row=0,last_row=None,models=mdv.defaul
 ### Use melt S oxybarometer ###
 ###############################        
 def calc_melt_S_oxybarometer(setup,first_row=0,last_row=None,models=mdv.default_models,p_tol=0.1,nr_step=1.,nr_tol=1.e-9):
-
-    # set up results table
-    results = pd.DataFrame([["oxygen fugacity","carbon dioxide solubility","C speciation composition","water solubility","water speciation","water speciation composition","sulfide solubility","sulfate solubility","SCSS","SCAS","ideal gas","carbonylsulfide","insolubles","H2S","species X","species X solubility","Date"]])
-    results1 = pd.DataFrame([[models.loc["fO2","option"],models.loc["carbon dioxide","option"],models.loc["Cspeccomp","option"],models.loc["water","option"],models.loc["Hspeciation","option"],models.loc["Hspeccomp","option"],models.loc["sulfide","option"],models.loc["sulfate","option"],models.loc["SCSS","option"],models.loc["SCAS","option"],models.loc["ideal_gas","option"],models.loc["carbonylsulfide","option"],models.loc['insolubles','option'],models.loc["H2S_m","option"],models.loc['species X','option'],models.loc['species X solubility','option'],date.today()]])
-    results = pd.concat([results, results1], ignore_index=True)
-    results1 = pd.DataFrame([["Sample","T ('C)","wm_STppm","wm_H2OT","wm_CO2ppm","P (bar) sulf","S2- SCSS","sulfide saturated?","DFMQ-sulfide","fO2-sulfide","Fe3FeT-sulfide","S6ST-sulfide","P (bar) anh","S6+ SCAS","sulfate saturated?","DFMQ-sulfate","fO2-sulfate","Fe3FeT-sulfate","S6ST-sulfate"]])
-    results = pd.concat([results, results1], ignore_index=True)
     
     if last_row == None:
         last_row = len(setup)
@@ -917,25 +910,47 @@ def calc_melt_S_oxybarometer(setup,first_row=0,last_row=None,models=mdv.default_
         melt_wf["H2OT"] = (setup.loc[run, "H2O"]/100.)
         melt_wf["CO2"] = setup.loc[run, "CO2ppm"]/1000000.
         melt_wf["HT"] = ((setup.loc[run, "H2O"]/100.)/mdv.species.loc["H2O","M"])*mdv.species.loc["H2","M"]
-        if setup.loc[run,"P_bar"] > 0.:
-            PT["P"] = setup.loc[run,"P_bar"]
-            P_sat_sulf, P_sat_anh = setup.loc[run,"P_bar"],setup.loc[run,"P_bar"]
-            melt_wf["Fe3FeT"] = setup.loc[run, "Fe3FeT"]
-            SCAS_,SCSS_,sulfide_sat,DFMQ_1,fO2_1,Fe3FeT_1,S6ST_1,sulfate_sat,DFMQ_2,fO2_2,Fe3FeT_2,S6ST_2 = c.fO2_range_from_S(PT,melt_wf,models)
+        melt_wf["ST"] = setup.loc[run, "STppm"]/1000000.
+        melt_wf["XT"] = setup.loc[run, "Xppm"]/1000000.
+        melt_wf["CT"] = ((setup.loc[run, "CO2ppm"]/1000000.)/mdv.species.loc["CO2","M"])*mdv.species.loc["C","M"]
+        if 'P_bar' in setup:    
+            if setup.loc[run,"P_bar"] > 0.:
+                PT["P"] = setup.loc[run,"P_bar"]
+                melt_wf["Fe3FeT"] = setup.loc[run, "Fe3FeT"]
+                sulfsat_results = c.fO2_range_from_S(PT,melt_wf,models)
+                sulfsat_results["P_sat_sulf"] = setup.loc[run,"P_bar"]
+                sulfsat_results["P_sat_anh"] = setup.loc[run,"P_bar"]
+            else: 
+                sulfsat_results = c.P_sat_sulf_anh(PT,melt_wf,models,p_tol,nr_step,nr_tol)
         else:
-            melt_wf["ST"] = setup.loc[run, "STppm"]/1000000.
-            melt_wf["XT"] = setup.loc[run, "Xppm"]/1000000.
-            melt_wf["CT"] = ((setup.loc[run, "CO2ppm"]/1000000.)/mdv.species.loc["CO2","M"])*mdv.species.loc["C","M"]
-            P_sat_sulf,P_sat_anh,SCAS_,SCSS_,sulfide_sat,DFMQ_1,fO2_1,Fe3FeT_1,S6ST_1,sulfate_sat,DFMQ_2,fO2_2,Fe3FeT_2,S6ST_2 = c.P_sat_sulf_anh(PT,melt_wf,models,p_tol,nr_step,nr_tol)
+            sulfsat_results = c.P_sat_sulf_anh(PT,melt_wf,models,p_tol,nr_step,nr_tol)
 
-        # store results
-        results1 = pd.DataFrame([[setup.loc[run,"Sample"],PT["T"],setup.loc[run,"STppm"],setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],P_sat_sulf,SCSS_,sulfide_sat,DFMQ_1,fO2_1,Fe3FeT_1,S6ST_1,P_sat_anh,SCAS_,sulfate_sat,DFMQ_2,fO2_2,Fe3FeT_2,S6ST_2]])
-        results = pd.concat([results, results1], ignore_index=True)
-        if models.loc["output csv","option"] == "yes":
-            results.to_csv('fO2_range_from_S.csv', index=False, header=False)
+        # create results
+        results_headers_table_sample_name, results_values_table_sample_name = results_table_sample_name(setup,run)
+        results_headers_table_model_options, results_values_table_model_options = results_table_model_options(models)  
+        results_headers_T, results_values_T = pd.DataFrame([["T ('C)"]]), pd.DataFrame([[PT["T"]]])
+        results_headers_table_melt_vol = results_table_melt_vol() # "H2OT-eq_wtpc","CO2T-eq_ppmw","ST_ppmw","X_ppmw"
+        results_values_table_melt_vol = pd.DataFrame([[setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],setup.loc[run,"STppm"],setup.loc[run,"Xppm"]]])
+        results_headers_table_sulfsat = pd.DataFrame([["P (bar) sulf","S2- SCSS","sulfide saturated?","DFMQ-sulfide","fO2-sulfide","Fe3FeT-sulfide","S6ST-sulfide","P (bar) anh","S6+ SCAS","sulfate saturated?","DFMQ-sulfate","fO2-sulfate","Fe3FeT-sulfate","S6ST-sulfate"]])
+        results_values_table_sulfsat = pd.DataFrame([[sulfsat_results["P_sat_sulf"],sulfsat_results["SCSS"],sulfsat_results["sulf_sat"],sulfsat_results["DFMQ_sulf"],sulfsat_results["fO2_sulf"],sulfsat_results["Fe3T_sulf"],sulfsat_results["S6T_sulf"],sulfsat_results["P_sat_anh"],sulfsat_results["SCAS"],sulfsat_results["anh_sat"],sulfsat_results["DFMQ_anh"],sulfsat_results["fO2_anh"],sulfsat_results["Fe3T_anh"],sulfsat_results["S6T_anh"]]])
+        results_headers = pd.concat([results_headers_table_sample_name,results_headers_T,results_headers_table_melt_vol,results_headers_table_sulfsat,results_headers_table_model_options],axis=1)
+        results1 = pd.concat([results_values_table_sample_name,results_values_T,results_values_table_melt_vol,results_values_table_sulfsat,results_values_table_model_options],axis=1)
+    
+        if n == first_row:
+            results = pd.concat([results_headers, results1])
+        else:                         
+            results = pd.concat([results, results1])
+        
         if models.loc["print status","option"] == "yes":
-            print(setup.loc[run,"Sample"])
-        return results
+            print(n, setup.loc[run,"Sample"],sulfsat_results["sulf_sat"],sulfsat_results["anh_sat"])
+    
+    results.columns = results.iloc[0]
+    results = results[1:]  
+        
+    if models.loc["output csv","option"] == "yes":
+        results.to_csv('fO2_range_from_S.csv', index=False, header=True)
+
+    return results
 
 ########################################
 ### measured parameters within error ### 
