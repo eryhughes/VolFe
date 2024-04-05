@@ -1,14 +1,14 @@
 ===================================================================================
-1. Calculating the pressure of vapor saturation (<i>P</i><sup>v</sup><sub>sat<sub>)
+1. Calculating the pressure of vapor saturation (Pvsat)
 ===================================================================================
 
-The dissolved volatile content of a melt in equilibrium with a vapor can be used as a barometer because the sum of the partial pressures of all the vapor species must equal the total pressure (REF). This is the pressure of vapor saturation (<i>P</i><sup>v</sup><sub>sat<sub>) barometer and is often applied to melt inclusions to calculate magma storage depths (REF) and sub-aqueous matrix glasses to calculate eruption depths (REF). 
+The dissolved volatile content of a melt in equilibrium with a vapor can be used as a barometer because the sum of the partial pressures of all the vapor species must equal the total pressure (REF). This is the pressure of vapor saturation (Pvsat) barometer and is often applied to melt inclusions to calculate magma storage depths (REF) and sub-aqueous matrix glasses to calculate eruption depths (REF). 
 
-VolFe calculates <i>P</i><sup>v</sup><sub>sat<sub>, the melt speciation, and the vapor composition for a melt of given temperature and melt composition (including volatiles and <i>f</i><sub>O<sub>2</sub></sub>). 
+VolFe calculates Pvsat, the melt speciation, and the vapor composition for a melt of given temperature and melt composition (including volatiles and fO2). 
 
-This calculation was outlined in detail Hughes et al. (2024) (schematic in figure below).
+This calculation was outlined in detail Hughes et al. (2024) (schematic in figure below, Hughes et al. in prep).
 
-.. image:: figures/pvsat calc.png :width: 800
+.. image:: /figures/pvsatcalc.png :width: 800
 
 In this example we'll show you how to run this calculation for: 
 
