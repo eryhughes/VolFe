@@ -34,7 +34,7 @@ default_models = [['insolubles','yes'],['H2S_m','yes'],['species X','Ar'],['Hspe
               ['fO2','Kress91A'],['NNObuffer','Frost91'],['FMQbuffer','Frost91'],
               ['melt composition','Basalt'],['carbon dioxide','MORB_Dixon95'],['water','Basalt_Hughes24'],['hydrogen','Basalt_Hughes24'],['sulfide','ONeill21dil'],['sulfate','ONeill22dil'],['hydrogen sulfide','Basalt_Hughes24'],['methane','Basalt_Ardia13'],['carbon monoxide','Basalt_Hughes24'],['species X solubility','Ar_basalt_HughesIP'],['Cspeccomp','Basalt'],['Hspeccomp','MORB_HughesIP'],
               ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','no'],['sulfur_is_sat','no'],['graphite_saturation','no'],
-              ['ideal_gas','no'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holloway91'],['y_OCS','Shi92'],['y_X','ideal'],
+              ['ideal_gas','no'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holland91'],['y_OCS','Shi92'],['y_X','ideal'],
               ['KHOg','Ohmoto97'],['KHOSg','Ohmoto97'],['KOSg','Ohmoto97'],['KOSg2','ONeill22'], ['KCOg','Ohmoto97'],['KCOHg','Ohmoto97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
               ['bulk_composition','yes'],['starting_P','bulk'],['gassing_style','closed'],['gassing_direction','degas'],['P_variation','polybaric'],['eq_Fe','yes'],['solve_species','OCS'],
               ['density','DensityX'],['isotopes','no'],['T_variation','isothermal'],['crystallisation','no'],['mass_volume','mass'],['calc_sat','fO2_melt'],['bulk_O','exc_S'],['error',0.1],
@@ -311,7 +311,7 @@ def make_df_and_add_model_defaults(models):
     y_CO2: Model for the parameterisation of the CO2 fugacity coefficient.
         default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
         Other options:
-        'Holloway91' Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
+        'Holland91' Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
         'ideal' Treat CO2 as ideal gas species, fugacity coefficient = 1 at all P.
 
     y_SO2: Model for the parameterisation of the SO2 fugacity coefficient.
@@ -327,7 +327,7 @@ def make_df_and_add_model_defaults(models):
         'ideal' Treat H2S as ideal gas species, fugacity coefficient = 1 at all P.
 
     y_H2: Model for the parameterisation of the SO2 fugacity coefficient.
-        default: 'Shaw64'
+        default: 'Shaw64' Eq. (4) from Shaw & Wones (1964) AmJSci 262:918-929
         Other options:
         'ideal' Treat H2 as ideal gas species, fugacity coefficient = 1 at all P.
 
@@ -352,7 +352,7 @@ def make_df_and_add_model_defaults(models):
         'ideal' Treat CH4 as ideal gas species, fugacity coefficient = 1 at all P.    
 
     y_H2O: Model for the parameterisation of the H2O fugacity coefficient.
-        default: 'Holloway91' Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
+        default: 'Holland91' Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
         Other options:
         'ideal' Treat H2O as ideal gas species, fugacity coefficient = 1 at all P.    
     
@@ -362,7 +362,8 @@ def make_df_and_add_model_defaults(models):
         'ideal' Treat OCS as ideal gas species, fugacity coefficient = 1 at all P.            
 
     y_X: Model for the parameterisation of the X fugacity coefficient.
-        default: 'ideal' Treat X as ideal gas species, fugacity coefficient = 1 at all P.  
+        default: 'ideal' Treat X as ideal gas species, fugacity coefficient = 1 at all P.
+        Only one option available currently, included for future development.  
           
         
     ### Equilibrium constants ###
@@ -2048,6 +2049,30 @@ def y_SS(gas_species,PT,models=default_models):
 ##############################
 
 def y_H2(PT,models=default_models):
+    """ 
+    Fugacity coefficient for H2
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "y_H2" and "ideal_gas" and column label of "option"
+
+    Returns
+    -------
+    Fugacity coefficient as <class 'mpfr'>
+
+    Model options for y_H2
+    ----------------------
+    default: 'Shaw64' Eq. (4) from Shaw & Wones (1964) AmJSci 262:918-929
+    Other options:
+    ideal: Treat as ideal gas, y = 1 at all P.
+    (Note: "ideal_gas" = "yes" overides chosen option)
+    """
     P = PT['P']
     T_K = PT['T']+273.15
 
@@ -2058,13 +2083,14 @@ def y_H2(PT,models=default_models):
         return 1.0
     elif P < 1.: # ideal gas below 1 bar
         return 1.
-    elif model == "Shaw64": # Shaw & Wones (1964)
+    elif model == "Shaw64": # Eq. (4) from Shaw & Wones (1964) AmJSci 262:918-929
         SW1 = gp.exp(-3.8402*pow(T_K,0.125)+0.5410)
         SW2 = gp.exp(-0.1263*pow(T_K,0.5)-15.980)
         SW3 = 300*gp.exp((-0.011901*T_K)-5.941) # NB used a value of -0.011901 instead of -0.11901 as reported to match data in Table 2
         P_atm = 0.986923*P
         ln_y = SW1*P_atm - SW2*pow(P_atm,2.0) + SW3*gp.exp((-P_atm/300.0)-1.0)
         return gp.exp(ln_y)
+    ### work in progress ###
     elif model == "Shi92": # Shi & Saxena (1992) NOT WORKING
         Tcr = 33.25 # critical temperature in K 
         Pcr = 12.9696 # critical temperature in bar
@@ -2117,6 +2143,30 @@ def y_H2(PT,models=default_models):
         return gp.exp(integral + integral0)/P
 
 def y_H2O(PT,models=default_models):
+    """ 
+    Fugacity coefficient for H2O
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "y_H2O" and "ideal_gas" and column label of "option"
+
+    Returns
+    -------
+    Fugacity coefficient as <class 'mpfr'>
+
+    Model options for y_H2O
+    -----------------------
+    default: 'Holland91' Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
+    Other options:
+    ideal: Treat as ideal gas, y = 1 at all P.
+    (Note: "ideal_gas" = "yes" overides chosen option)
+    """
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_H2O","option"]
 
@@ -2127,7 +2177,7 @@ def y_H2O(PT,models=default_models):
         return 1.
     elif P < 1.: # ideal gas below 1 bar
         return 1.
-    if model == "Holloway91": 
+    if model == "Holland91": # Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
     # (T > 673 K only) - using Holland & Powell (1991) CORK
         p0 = 2.00 # in kb
         a = 1113.4 + -0.22291*(T_K - 673.0) + -3.8022e-4*pow((T_K-673.0),2.0) + 1.7791e-7*pow((T_K-673.0),3.0)
@@ -2138,6 +2188,31 @@ def y_H2O(PT,models=default_models):
         return y
 
 def y_CO2(PT,models=default_models):
+    """ 
+    Fugacity coefficient for CO2
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "y_CO2" and "ideal_gas" and column label of "option"
+
+    Returns
+    -------
+    Fugacity coefficient as <class 'mpfr'>
+
+    Model options for y_CO2
+    -----------------------
+    default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+    Other options:
+    ideal: Treat as ideal gas, y = 1 at all P.
+    Holland91: Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
+    (Note: "ideal_gas" = "yes" overides chosen option)
+    """
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_CO2","option"]
 
@@ -2149,22 +2224,46 @@ def y_CO2(PT,models=default_models):
     elif P < 1.: # ideal gas below 1 bar
         return 1.
     else:
-        if model == "Holloway91": # use Holland & Powell (1991)
+        if model == "Holland91": # Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
             p0 = 5.00 # in kb
             a = 741.2 + -0.10891*(T_K) + -3.4203e-4*pow(T_K,2.0)
             b = 3.057
             c = -2.26924e-1 + -7.73793e-5*T_K
             d = 1.33790e-2 + -1.1740e-5*T_K
             y = CORK(PT,p0,a,b,c,d)
-        elif model == "Shi92": # use Shi & Saxena (1992)
+        elif model == "Shi92": # Shi & Saxena (1992) AmMin 77(9-10):1038-1049
             gas_species = "CO2"
             y = y_SS(gas_species,PT,models)
         return y
     
 def y_O2(PT,models=default_models):
+    """ 
+    Fugacity coefficient for O2
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "y_O2" and "ideal_gas" and column label of "option"
+
+    Returns
+    -------
+    Fugacity coefficient as <class 'mpfr'>
+
+    Model options for y_O2
+    ----------------------
+    default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+    Other options:
+    ideal: Treat as ideal gas, y = 1 at all P.
+    (Note: "ideal_gas" = "yes" overides chosen option)
+    """
     model = models.loc["y_O2","option"]
 
-    if model == "Shi92":
+    if model == "Shi92": # Shi & Saxena (1992) AmMin 77(9-10):1038-1049
         gas_species = "O2"
         y = y_SS(gas_species,PT,models)
     elif model == "ideal":
@@ -2172,9 +2271,33 @@ def y_O2(PT,models=default_models):
     return y
     
 def y_S2(PT,models=default_models):
+    """ 
+    Fugacity coefficient for S2
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "y_S2" and "ideal_gas" and column label of "option"
+
+    Returns
+    -------
+    Fugacity coefficient as <class 'mpfr'>
+
+    Model options for y_S2
+    ----------------------
+    default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+    Other options:
+    ideal: Treat as ideal gas, y = 1 at all P.
+    (Note: "ideal_gas" = "yes" overides chosen option)
+    """
     model = models.loc["y_S2","option"]
 
-    if model == "Shi92":
+    if model == "Shi92": # Shi & Saxena (1992) AmMin 77(9-10):1038-1049
         gas_species = "S2"
         y = y_SS(gas_species,PT,models)
     elif model == "ideal":
@@ -2182,9 +2305,33 @@ def y_S2(PT,models=default_models):
     return y
 
 def y_CO(PT,models=default_models):
+    """ 
+    Fugacity coefficient for CO
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "y_CO" and "ideal_gas" and column label of "option"
+
+    Returns
+    -------
+    Fugacity coefficient as <class 'mpfr'>
+
+    Model options for y_CO
+    ----------------------
+    default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+    Other options:
+    ideal: Treat as ideal gas, y = 1 at all P.
+    (Note: "ideal_gas" = "yes" overides chosen option)
+    """
     model = models.loc["y_CO","option"]
 
-    if model == "Shi92":
+    if model == "Shi92": # Shi & Saxena (1992) AmMin 77(9-10):1038-1049
         gas_species = "CO"
         y = y_SS(gas_species,PT,models)
     elif model == "ideal":
@@ -2192,9 +2339,33 @@ def y_CO(PT,models=default_models):
     return y
     
 def y_CH4(PT,models=default_models):
+    """ 
+    Fugacity coefficient for CH4
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "y_CH4" and "ideal_gas" and column label of "option"
+
+    Returns
+    -------
+    Fugacity coefficient as <class 'mpfr'>
+
+    Model options for y_CH4
+    -----------------------
+    default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+    Other options:
+    ideal: Treat as ideal gas, y = 1 at all P.
+    (Note: "ideal_gas" = "yes" overides chosen option)
+    """
     model = models.loc["y_CH4","option"]
 
-    if model == "Shi92":
+    if model == "Shi92": # Shi & Saxena (1992) AmMin 77(9-10):1038-1049
         gas_species = "CH4"
         y = y_SS(gas_species,PT,models)
     elif model == "ideal":
@@ -2202,9 +2373,33 @@ def y_CH4(PT,models=default_models):
     return y
     
 def y_OCS(PT,models=default_models):
+    """ 
+    Fugacity coefficient for OCS
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "y_OCS" and "ideal_gas" and column label of "option"
+
+    Returns
+    -------
+    Fugacity coefficient as <class 'mpfr'>
+
+    Model options for y_OCS
+    -----------------------
+    default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+    Other options:
+    ideal: Treat as ideal gas, y = 1 at all P.
+    (Note: "ideal_gas" = "yes" overides chosen option)
+    """
     model = models.loc["y_OCS","option"]
 
-    if model == "Shi92":
+    if model == "Shi92": # Shi & Saxena (1992) AmMin 77(9-10):1038-1049
         gas_species = "OCS"
         y = y_SS(gas_species,PT,models)
     elif model == "ideal":
@@ -2212,6 +2407,29 @@ def y_OCS(PT,models=default_models):
     return y
 
 def y_X(PT,models=default_models): # species X fugacity coefficient
+    """ 
+    Fugacity coefficient for X
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "y_X" and "ideal_gas" and column label of "option"
+
+    Returns
+    -------
+    Fugacity coefficient as <class 'mpfr'>
+
+    Model options for y_X
+    -----------------------
+    default: "ideal" Treat as ideal gas, y = 1 at all P.
+    Only one option available currently, included for future development.        
+    (Note: "ideal_gas" = "yes" overides chosen option)
+    """
     model = models.loc["y_X","option"]
 
     if model == "ideal":  # ideal gas
@@ -2223,6 +2441,31 @@ def y_X(PT,models=default_models): # species X fugacity coefficient
 #################################################################################
 
 def y_SO2(PT,models=default_models):
+    """ 
+    Fugacity coefficient for SO2
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "y_SO2" and "ideal_gas" and column label of "option"
+
+    Returns
+    -------
+    Fugacity coefficient as <class 'mpfr'>
+
+    Model options for y_SO2
+    -----------------------
+    default: 'Shi92_Hughes23' Fig.S1 modified from Shi & Saxena (1992) from Hughes et al. (2023) JGSL 180(3) doi:10.1144/jgs2021-12
+    Other options:
+    Shi92: Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+    ideal: Treat as ideal gas, y = 1 at all P.
+    (Note: "ideal_gas" = "yes" overides chosen option)
+    """
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_SO2","option"]
 
@@ -2247,15 +2490,15 @@ def y_SO2(PT,models=default_models):
         B = Q1_B + Q2_B*Tr + Q3_B*Tr**(-1.) + Q4_B*Tr**2. + Q5_B*Tr**(-2.) + Q6_B*Tr**3. + Q7_B*Tr**(-3.0) + Q8_B*gp.log(Tr)
         C = Q1_C + Q2_C*Tr + Q3_C*Tr**(-1.) + Q4_C*Tr**2. + Q5_C*Tr**(-2.) + Q6_C*Tr**3. + Q7_C*Tr**(-3.0) + Q8_C*gp.log(Tr)
         D = 0.0
-        if P >= 500.: # above 500 bar using Shi and Saxena (1992) as is
+        if P >= 500.: # above 500 bar Shi & Saxena (1992) AmMin 77(9-10):1038-1049
             Pr = P/Pcr
             integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
             y = (gp.exp(integral))/P
-        elif models.loc["y_SO2","option"] == "Shi92": # as is Shi and Saxena (1992)
+        elif models.loc["y_SO2","option"] == "Shi92": # Shi & Saxena (1992) AmMin 77(9-10):1038-1049
             Pr = P/Pcr
             integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
             y = (gp.exp(integral))/P
-        elif models.loc["y_SO2","option"] == "Shi92_Hughes23": # below 500 bar linear fit between the value at 500 bar and y = 1 at 1 bar to avoid weird behaviour...
+        elif models.loc["y_SO2","option"] == "Shi92_Hughes23": # Fig.S1 Hughes et al. (2023) JGSL 180(3) doi:10.1144/jgs2021-12
             Pr = 500./Pcr # calculate y at 500 bar
             integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
             y_500 = (gp.exp(integral))/500.
@@ -2263,6 +2506,31 @@ def y_SO2(PT,models=default_models):
         return y       
             
 def y_H2S(PT,models=default_models):
+    """ 
+    Fugacity coefficient for H2S
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "y_H2S" and "ideal_gas" and column label of "option"
+
+    Returns
+    -------
+    Fugacity coefficient as <class 'mpfr'>
+
+    Model options for y_H2S
+    -----------------------
+    default: 'Shi92_Hughes23' Fig.S1 modified from Shi & Saxena (1992) Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+    Other options:
+    Shi92: Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+    ideal: Treat as ideal gas, y = 1 at all P.
+    (Note: "ideal_gas" = "yes" overides chosen option)
+    """
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_H2S","option"]
 
@@ -2294,7 +2562,7 @@ def y_H2S(PT,models=default_models):
                 D = 0.0
                 P0 = 1.0
                 integral0 = 0.
-            elif models.loc["y_H2S","option"] == "Shi92_Hughes24": # below 500 bar linear fit between the value at 500 bar and y = 1 at 1 bar to avoid weird behaviour... 
+            elif models.loc["y_H2S","option"] == "Shi92_Hughes24": # Fig.S1 modified from Shi & Saxena (1992) Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739 
                 P0 = 500.0 # calculate y at 500 bars
                 Pr_ = 500.0/Pcr
                 P0r_ = 1.0/Pcr
