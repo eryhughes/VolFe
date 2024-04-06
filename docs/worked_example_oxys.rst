@@ -1,5 +1,5 @@
 ===============================================================
-3. Calculating the oxygen fugacity from the melt sulfur content
+Calculating the oxygen fugacity from the melt sulfur content
 ===============================================================
 
 Oxygen fugacity is a key thermodynamic parameter to estimate in magmatic systems because of its effects on the chemical and physical properties of the melt (REF). 

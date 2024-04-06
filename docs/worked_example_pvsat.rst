@@ -1,5 +1,5 @@
 ===================================================================================
-1. Calculating the pressure of vapor saturation (Pvsat)
+Calculating the pressure of vapor saturation (Pvsat)
 ===================================================================================
 
 The dissolved volatile content of a melt in equilibrium with a vapor can be used as a barometer because the sum of the partial pressures of all the vapor species must equal the total pressure (REF). 
