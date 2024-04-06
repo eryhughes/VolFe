@@ -32,6 +32,7 @@ Specifying if H2, CO, and CH4 are present in the melt and/or vapor.
 Specify if H2S is a dissolved melt species.
 
 - *yes*: Include H2Smol as a dissolved melt species. [default]
+
 - *no*: H2Smol is insoluble in the melt.
 
 
