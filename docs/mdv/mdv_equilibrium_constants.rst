@@ -6,20 +6,51 @@ Below are the different models for the equilibrium constants currently in VolFe,
 Currently there is only one option for each equilibrium constant (except H2S), but more could be added in the future. 
 The name of the option in VolFe is in **Bold**.
 
-- 0.5H2 + O2 = H2O: Reaction (d) in Table 1 of Ohmoto & Kerrick (1997) [**Ohmoto97**]
+0.5H2 + O2 = H2O
+-----
 
-.. math:: (a + b)^2 = a^2 + 2ab + b^2
+**Ohmoto97:** Reaction (d) in Table 1 of Ohmoto & Kerrick (1997)
+.. math:: 12510/T - 0.979log10T + 0.483
 
-- CO + 0.5O2 = CO2: Reaction (c) in Table 1 of Ohmoto & Kerrick (1997) [**Ohmoto97**]
 
-- 0.5S2 + O2 = SO2: Reaction (f) in Table 1 of Ohmoto & Kerrick (1997) [**Ohmoto97**]
+CO + 0.5O2 = CO2
+-------
 
-- CH4 + 2O2 = CO2 + 2H2O: Reaction (e) in Table 1 of Ohmoto & Kerrick (1997) [**Ohmoto97**]
+**Ohmoto97:** Reaction (c) in Table 1 of Ohmoto & Kerrick (1997)
 
-- 0.5S2 + H2O = H2S + 0.5O2: Reaction (h) in Table 1 of Ohmoto & Kerrick (1997) [**Ohmoto97**] OR *K* = 0, which prevents H2S forming in the vapor [**noH2S**]
 
-- 2CO2 + OCS = 3CO + SO2: Eq. (8) in Moussallam et al. (2019) [**Moussallam19**]
+0.5S2 + O2 = SO2
+-------
 
-- 0.5S2 + 1.5O2 = SO3: Eq (6b) in O’Neill and Mavrogenes (2022) [**ONeill22**]
+**Ohmoto97:** Reaction (f) in Table 1 of Ohmoto & Kerrick (1997)
 
-- Cgraphite + O2 = CO2: Eq. (3) KI in Holloway et al. (1992) [**Holloway92**]
+
+CH4 + 2O2 = CO2 + 2H2O
+--------
+
+**Ohmoto97:** Reaction (e) in Table 1 of Ohmoto & Kerrick (1997)
+
+0.5S2 + H2O = H2S + 0.5O2
+--------
+
+**Ohmoto97:** Reaction (h) in Table 1 of Ohmoto & Kerrick (1997)
+
+**noH2S:** *K* = 0, which prevents H2S forming in the vapor
+
+
+2CO2 + OCS = 3CO + SO2
+------
+
+**Moussallam19:** Eq. (8) in Moussallam et al. (2019)
+
+
+0.5S2 + 1.5O2 = SO3
+----
+
+**ONeill22:** Eq (6b) in O’Neill and Mavrogenes (2022)
+
+
+Cgraphite + O2 = CO2
+----
+
+**Holloway92:** Eq. (3) KI in Holloway et al. (1992)
