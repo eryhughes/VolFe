@@ -43,7 +43,7 @@ def set_system(melt_wf,models):
 
 def initial_guesses(run,PT,melt_wf,setup,models,system): ### CHECK ###
     starting_P = models.loc["starting_P","option"]
-    xenia = models.loc["xenia","option"]
+    #xenia = models.loc["xenia","option"]
     solve_species = models.loc["solve_species","option"]
     
     if starting_P == "set":
@@ -855,7 +855,7 @@ def jac_newton(x0,y0,constants,eqs,deriv,step,tol,maxiter=1000):
         if(n % 50==0):
             results.to_csv('results_jacnewton2.csv', index=False, header=False) 
 
-def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=1000):
+def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=100):
 
 # create results table
     results = pd.DataFrame([["guessx","guessy","guessz","diff1","diff2","diff3","step"]])  
@@ -906,25 +906,25 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=1000):
         if(n % 50==0):
             results.to_csv('results_jacnewton3.csv', index=False, header=False)
 
-    #step = step0/10.
-    #x0, y0, z0 = x00, y00, z00
-    #for iter in range(maxiter):
-    #    deriv_ = deriv(x0,y0,z0,constants)
-    #    guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
-    #    while guessx < 0.0 or guessy < 0.0 or guessz < 0.0:
-    #        step = step/10.
-    #        guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
-    #    diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(guessx,guessy,guessz)
-    #    if abs(diff1) < tol and abs(diff2) < tol and abs(diff3) < tol:
-    #        return guessx, guessy, guessz
-    #    elif np.isnan(float(guessx)) or np.isnan(float(guessy)) or np.isnan(float(guessz)):
-    #        print("nan encountered")
-    #    x0 = guessx
-    #    y0 = guessy
-    #    z0 = guessz
-    #    results1 = pd.DataFrame([[guessx, guessy,guessz,diff1,diff2,diff3,step]])
-    #    results = pd.concat([results, results1], ignore_index=True)
-    #    results.to_csv('results_jacnewton3.csv', index=False, header=False)
+    step = step0/10.
+    x0, y0, z0 = x00, y00, z00
+    for iter in range(maxiter):
+        deriv_ = deriv(x0,y0,z0,constants)
+        guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
+        while guessx < 0.0 or guessy < 0.0 or guessz < 0.0:
+            step = step/10.
+            guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
+        diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(guessx,guessy,guessz)
+        if abs(diff1) < tol and abs(diff2) < tol and abs(diff3) < tol:
+            return guessx, guessy, guessz
+        elif np.isnan(float(guessx)) or np.isnan(float(guessy)) or np.isnan(float(guessz)):
+            print("nan encountered")
+        x0 = guessx
+        y0 = guessy
+        z0 = guessz
+        results1 = pd.DataFrame([[guessx, guessy,guessz,diff1,diff2,diff3,step]])
+        results = pd.concat([results, results1], ignore_index=True)
+        results.to_csv('results_jacnewton3.csv', index=False, header=False)
     
     guessx,guessy,guessz = 1.,1.,1.
     return guessx,guessy,guessz
