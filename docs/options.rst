@@ -1,5 +1,5 @@
 =========================
-Options within VolFe
+Calculation opions
 =========================
 
 There are various options for how the calculations are done in VolFe.
@@ -13,7 +13,7 @@ Volatile species
 ------
 
 Broadly, options related to the types of species VolFe is considering.
-This is mostly done automatically by the volatile elements included in the setup file, but there are a few options you can decide.
+This is mostly done automatically based on the volatile elements included in the setup file, but there are a few options you can decide.
 
 
 **insolubles**
@@ -155,6 +155,7 @@ Other
 **setup**
 
 Specifies whether model options are specified in the models or setup dataframe. 
+
 - *no*: All model options are specified in the models dataframe. [default]
 
 - *yes*: Some of the model options are specified in the setup dataframe.
