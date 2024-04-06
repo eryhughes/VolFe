@@ -14,6 +14,7 @@ This is the VolFe documentation
    dependencies
    code_structure
    current_mdv
+   options
    references
 
 .. toctree::
