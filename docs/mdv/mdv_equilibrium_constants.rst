@@ -10,6 +10,7 @@ The name of the option in VolFe is in **Bold**.
 -----
 
 **Ohmoto97:** Reaction (d) in Table 1 of Ohmoto & Kerrick (1997)
+
 .. math:: 12510/T - 0.979log10T + 0.483
 
 
@@ -18,17 +19,22 @@ CO + 0.5O2 = CO2
 
 **Ohmoto97:** Reaction (c) in Table 1 of Ohmoto & Kerrick (1997)
 
+.. math:: 14751/T - 4.535
 
 0.5S2 + O2 = SO2
 -------
 
 **Ohmoto97:** Reaction (f) in Table 1 of Ohmoto & Kerrick (1997)
 
+.. math:: 18929/T - 3.783
 
 CH4 + 2O2 = CO2 + 2H2O
 --------
 
 **Ohmoto97:** Reaction (e) in Table 1 of Ohmoto & Kerrick (1997)
+
+.. math:: 12510/T - 0.979log10T + 0.483
+
 
 0.5S2 + H2O = H2S + 0.5O2
 --------
