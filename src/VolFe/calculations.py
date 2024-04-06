@@ -303,18 +303,24 @@ def melt_species_ratios(conc):
         H2O_HT = ((2.*(conc["wm_H2O"]/M_H2O))*M_H)/wt_H
         CH4_HT = ((4.*(conc["wm_CH4"]/M_CH4))*M_H)/wt_H
         H2S_HT = ((2.*(conc["wm_H2S"]/M_H2S))*M_H)/wt_H
+    else:
+        H2_HT, H2O_HT, CH4_HT, H2S_HT = "","","", ""
     
     wt_C = ((conc["wm_CO"]/M_CO)*M_C) + ((conc["wm_CO2"]/M_CO2)*M_C) + ((conc["wm_CH4"]/M_CH4)*M_C)
     if wt_C > 0.: # contains C
         CO_CT = ((conc["wm_CO"]/M_CO)*M_C)/wt_C
         CO2_CT = ((conc["wm_CO2"]/M_CO2)*M_C)/wt_C
         CH4_CT = ((conc["wm_CH4"]/M_CH4)*M_C)/wt_C
+    else:
+        CO_CT, CO2_CT, CH4_CT = "","",""
 
     wt_S = conc["wm_S2m"] + conc["wm_S6p"] + (M_S*(conc["wm_H2S"]/M_H2S))
     if wt_S > 0.: # contains S
         S2m_ST = conc["wm_S2m"]/wt_S
         S6p_ST = conc["wm_S6p"]/wt_S
         H2S_ST = (M_S*(conc["wm_H2S"]/M_H2S))/wt_S
+    else:
+        S2m_ST, S6p_ST, H2S_ST = "","",""
 
     frac = {"H2O_HT":H2O_HT, "H2_HT":H2_HT, "CH4_HT":CH4_HT, "CO2_CT":CO2_CT, "CO_CT":CO_CT, "CH4_CT":CH4_CT, "S6p_ST":S6p_ST, "S2m_ST":S2m_ST, "H2S_ST":H2S_ST, "H2S_HT":H2S_HT}
     
