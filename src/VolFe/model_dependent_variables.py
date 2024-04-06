@@ -35,7 +35,7 @@ default_models = [['insolubles','yes'],['H2S_m','yes'],['species X','Ar'],['Hspe
               ['carbon dioxide','MORB_Dixon95'],['water','Basalt_Hughes24'],['hydrogen','Basalt_Hughes24'],['sulfide','ONeill21dil'],['sulfate','ONeill22dil'],['hydrogen sulfide','Basalt_Hughes24'],['methane','Basalt_Ardia13'],['carbon monoxide','Basalt_Hughes24'],['species X solubility','Iacono-Marziano10_Ar_basalt'],['Cspeccomp','basalt'],['Hspeccomp','MORB'],
               ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','no'],['sulfur_is_sat','no'],['graphite_saturation','no'],
               ['ideal_gas','no'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holloway91'],['y_OCS','Shi92'],['y_X','ideal'],
-              ['KHOg','KO97'],['KHOSg','KO97'],['KOSg','KO97'],['KOSg2','OM22'], ['KCOg','KO97'],['KCOHg','KO97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
+              ['KHOg','Ohmoto97'],['KHOSg','Ohmoto97'],['KOSg','Ohmoto97'],['KOSg2','ONeill22'], ['KCOg','Ohmoto97'],['KCOHg','Ohmoto97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
               ['bulk_composition','yes'],['starting_P','bulk'],['gassing_style','closed'],['gassing_direction','degas'],['P_variation','polybaric'],['eq_Fe','yes'],['solve_species','OCS'],
               ['density','DensityX'],['isotopes','no'],['T_variation','isothermal'],['crystallisation','no'],['mass_volume','mass'],['calc_sat','fO2_melt'],['bulk_O','exc_S'],['error',0.1],
               ['print status','yes'],['output csv','yes'],['setup','no']]
@@ -159,6 +159,7 @@ def make_df_and_add_model_defaults(models):
         A DataFrame where the first column is 'type', set as the index, and the second column
         is 'option', containing the user-specified option or the default option if none is provided.
         
+    
     Model Parameters and Options
     ---------------------------------
     The following parameters can be overridden in models. 
@@ -195,6 +196,7 @@ def make_df_and_add_model_defaults(models):
 
     NNObuffer: Model for the parameterisation for the fO2 value of the NNO buffer.
         default: 'Frost91' Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
+        Only one option available currently, included for future development.
 
     FMQbuffer: Model for the parameterisation for the fO2 value of the FMQ buffer.
         default: 'Frost91' Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
@@ -225,7 +227,7 @@ def make_df_and_add_model_defaults(models):
         'Rhyolite_Blank93' Fig.2 caption from Blank et al. (1993) EPSL 119:27-36 doi:10.1016/0012-821X(93)90004-S
 
     ### water: Model for the parameterisation for the H2O solubility constant.
-        default: 'AllisonDataComp' The p is from Hughes et al. (2024) AmMin 109(3):422-438 based on data compiliation from Allison et al. (2022) CMP 177(3):40 doi:10.1007/s00410-022-01903-y
+        default: 'Basalt_Hughes24' Hughes et al. (2024) AmMin 109(3):422-438 based on data compiliation from Allison et al. (2022) CMP 177(3):40 doi:10.1007/s00410-022-01903-y
     
     hydrogen: Model for the parameterisation of the H2 solubility constant.
         default: 'Basalt_Hughes24' Basalt H2 in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
@@ -256,10 +258,12 @@ def make_df_and_add_model_defaults(models):
     
     methane: Model for the parameterisation of the CH4 solubility constant.
         default: 'Basalt_Ardia13' Eq. (7a) from Ardia et al. (2013) GCA 114:52-71 doi:10.1016/j.gca.2013.03.028
-   
+        Only one option available currently, included for future development.
+
     carbon monoxide: Model for the parameterisation of the CO solubility constant.
         default: 'Basalt_Hughes24' CO in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
-    
+        Only one option available currently, included for future development.
+
     ### species X solubility: Model for the parameterisation of the X solubility constant. 
         default: 'Iacono-Marziano10_Ar_basalt' is based on experimental data from Iacono-Marziano et al. (2010) 279(3-4)145-157
     
@@ -273,7 +277,8 @@ def make_df_and_add_model_defaults(models):
     ### Saturation conditions ###
         
     ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','no'],['sulfur_is_sat','no'],['graphite_saturation','no'],
-              
+
+           
     ### Fugacity coefficients ###
           
     ideal_gas: Treat all vapor species as ideal gases (i.e., all fugacity coefficients = 1 at all P).
@@ -337,10 +342,47 @@ def make_df_and_add_model_defaults(models):
     y_X: Model for the parameterisation of the X fugacity coefficient.
         default: 'ideal' Treat X as ideal gas species, fugacity coefficient = 1 at all P.  
           
+        
+    ### Equilibrium constants ###
     
-    ['KHOg','KO97'],['KHOSg','KO97'],['KOSg','KO97'],['KOSg2','OM22'], ['KCOg','KO97'],['KCOHg','KO97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
+    KHOg: Model for the parameterisation of the equilibiurm constant for H2 + 0.5O2 = H2O.
+        default: 'Ohmoto97' Reaction (d) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
+        Only one option available currently, included for future development.
 
+    KHOSg: Model for the parameterisation of the equilibiurm constant for 0.5S2 + H2O = H2S + 0.5O2.
+        default: 'Ohmoto97' Reaction (h) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
+        Other options:
+        'no H2S' Stops H2S forming in the vapor (K = 0).
+    
+    KOSg: Model for the parameterisation of the equilibiurm constant for 0.5S2 + O2 = SO2.
+        default: 'Ohmoto97' Reaction (f) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
+        Only one option available currently, included for future development.
 
+    KOSg2: Model for the parameterisation of the equilibiurm constant for 0.5S2 + 1.5O2 = SO3.
+        default: 'ONeill2' Eq. (6b) from O'Neill & Mavrogenes (2022) GCA 334:368-382 doi:10.1016/j.gca.2022.06.020
+        Only one option available currently, included for future development.
+
+    KOCg: Model for the parameterisation of the equilibiurm constant for CO + 0.5O2 = CO2.
+        default: 'Ohmoto97' Reaction (c) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
+        Only one option available currently, included for future development. 
+
+    KCOHg: Model for the parameterisation of the equilibiurm constant for CH4 + 2O2 = CO2 + 2H2O.
+        default: 'Ohmoto97' Reaction (e) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
+        Only one option available currently, included for future development.
+
+    KOCSg: Model for the parameterisation of the equilibiurm constant for OCS.
+        default: 'Moussallam19' Eq. (8) for 2CO2 + OCS ⇄ 3CO + SO2 in Moussallam et al. (2019) EPSL 520:260-267 doi:10.1016/j.epsl.2019.05.036 for 
+        Only one option available currently, included for future development.  
+
+    KCOs: Model for the parameterisation of the equilibiurm constant for Cgrahite + O2 = CO2.
+        default: 'Holloway92' Eq. (3) KI in Holloway et al. (1992) EuropeanJ.Mineralogy 4(1):105-114.
+        Only one option available currently, included for future development.
+
+    carbonylsulfide: Reaction equilibrium KOCSg is for. 
+        default: 'COS' 2CO2 + OCS ⇄ 3CO + SO2
+        Only one option available currently, included for future development.
+
+        
     ### Degassing calculation ###
 
     bulk_composition: Specifying what the inputted melt composition (i.e., dissolved volatiles and fO2-estimate) correspond to for the degassing calculation
@@ -1061,6 +1103,7 @@ def C_CH4(PT,melt_wf,models=default_models): # C_CH4 = wmCH4/fCH4 (ppm)
     Model options
     -------------
     default: 'Basalt_Ardia13' Eq. (7a) from Ardia et al. (2013)
+    Only one option available currently, included for future development.
 
     """
 
@@ -1111,6 +1154,7 @@ def C_CO(PT,melt_wf,models=default_models): # C_CO = wmCO/fCO (ppm)
     Model options
     -------------
     default: 'Basalt_Hughes24' CO in Table S4 from Hughes et al. (2024) based on data from Armstrong et al. (2015), Stanley et al., (2014), and Wetzel et al., (2013)
+    Only one option available currently, included for future development.
 
     """
 
@@ -1306,20 +1350,72 @@ Ni_Liq=None, Cu_Liq=None, Fe_Sulf=None, Cu_Sulf=None, Ni_Sulf=None, Ni_Sulf_init
 # H2 + 0.5O2 = H2O
 # K = fH2O/(fH2*(fO2)^0.5)
 def KHOg(PT,models=default_models):
+    
+    """ 
+    Equilibrium constant for H2 + 0.5O2 = H2O, K = fH2O/(fH2*(fO2)^0.5)
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "KHOg" and column label of "option"
+
+    Returns
+    -------
+    Equilibrium constant as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Ohmoto97' Reaction (d) in Table 1 of Ohmoto & Kerrick (1997)
+    Only one option available currently, included for future development.
+
+    """
+    
     model = models.loc["KHOg","option"]
 
     T_K = PT['T']+273.15
-    if model == "KO97":
+    if model == "Ohmoto97": # Reaction (d) in Table 1 of Ohmoto & Kerrick (1997)
         K = 10.**((12510.0/T_K)-0.979*(gp.log10(T_K))+0.483)
     return K
 
 # H2O + 0.5S2 = H2S + 0.5O2
 # K = (fH2S*(fO2)^0.5)/((fS2^0.5)*fH2O)
 def KHOSg(PT,models=default_models):
+    """ 
+    Equilibrium constant for H2O + 0.5S2 = H2S + 0.5O2, K = (fH2S*(fO2)^0.5)/((fS2^0.5)*fH2O)
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "KHOSg" and column label of "option"
+
+    Returns
+    -------
+    Equilibrium constant as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Ohmoto97' Reaction (h) in Table 1 of Ohmoto & Kerrick (1997)
+    Other options:
+    'noH2S' Stops H2S forming in the vapor, K = 0.
+
+    """
+    
     model = models.loc["KHOSg","option"]
 
     T_K = PT['T']+273.15
-    if model == "KO97": # Kerrick & Ohmoto (1997)
+    if model == "Ohmoto97": # Reaction (h) in Table 1 of Ohmoto & Kerrick (1997)
         K = 10.**((-8117.0/T_K)+0.188*gp.log10(T_K)-0.352)
     elif model == "noH2S": # H2S doesn't form in the gas...
         K = 0.
@@ -1328,20 +1424,72 @@ def KHOSg(PT,models=default_models):
 # 0.5S2 + O2 = SO2
 # K = fSO2/((fS2^0.5)*fO2)
 def KOSg(PT,models=default_models):
+    
+    """ 
+    Equilibrium constant for 0.5S2 + O2 = SO2, K = fSO2/((fS2^0.5)*fO2)
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "KOSg" and column label of "option"
+
+    Returns
+    -------
+    Equilibrium constant as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Ohmoto97' Reaction (f) in Table 1 of Ohmoto & Kerrick (1997)
+    Only one option available currently, included for future development.
+
+    """
+    
     model = models.loc["KOSg","option"]
 
     T_K = PT['T']+273.15
-    if model == "KO97": # Kerrick & Ohmoto (1997)
+    if model == "Ohmoto97": # Reaction (f) in Table 1 of Ohmoto & Kerrick (1997)
         K = 10.**((18929.0/T_K)-3.783)
     return K
 
 # 0.5S2 + 1.5O2 = SO3
 # K = fSO3/((fS2^0.5)*(fO2^1.5)
 def KOSg2(PT,models=default_models):
+    
+    """ 
+    Equilibrium constant for 0.5S2 + 1.5O2 = SO3, K = fSO3/((fS2^0.5)*(fO2^1.5)
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "KOsg2" and column label of "option"
+
+    Returns
+    -------
+    Equilibrium constant as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Oneill22' Eq (6b) in O’Neill and Mavrogenes (2022)
+    Only one option available currently, included for future development.
+
+    """
+
     model = models.loc["KOSg2","option"]
 
     T_K = PT['T']+273.15
-    if model == "OM22": # O'Neill+Mavrogenes2022 from JANF 
+    if model == "Oneill22": # Eq (6b) in O’Neill and Mavrogenes (2022)
         lnK = (55921./T_K) - 25.07 + 0.6465*gp.log(T_K)
         K = gp.exp(lnK) 
     return K
@@ -1349,48 +1497,155 @@ def KOSg2(PT,models=default_models):
 # CO + 0.5O = CO2
 # K = fCO2/(fCO*(fO2^0.5))
 def KCOg(PT,models=default_models):
+    
+    """ 
+    Equilibrium constant for CO + 0.5O = CO2, K = fCO2/(fCO*(fO2^0.5))
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "KCOg" and column label of "option"
+
+    Returns
+    -------
+    Equilibrium constant as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Ohmoto97' Reaction (c) in Table 1 of Ohmoto & Kerrick (1997)
+    Only one option available currently, included for future development.
+
+    """
+
     model = models.loc["KCOg","option"]
 
     T_K = PT['T']+273.15
-    if model == "KO97": # Kerrick & Ohmoto (1997)
+    if model == "Ohmoto97": # Reaction (c) in Table 1 of Ohmoto & Kerrick (1997)
         K = 10.**((14751.0/T_K)-4.535)
     return K
 
 # CH4 + 2O2 = CO2 + 2H2O
 # K = (fCO2*(fH2O^2))/(fCH4*(fO2^2))
 def KCOHg(PT,models=default_models): 
+    
+    """ 
+    Equilibrium constant for CH4 + 2O2 = CO2 + 2H2O, K = (fCO2*(fH2O^2))/(fCH4*(fO2^2))
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "KCOHg" and column label of "option"
+
+    Returns
+    -------
+    Equilibrium constant as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Ohmoto97' Reaction (e) in Table 1 of Ohmoto & Kerrick (1997)
+    Only one option available currently, included for future development.
+
+    """
+
     model = models.loc["KCOHg","option"]
 
     T_K = PT['T']+273.15
-    if model == "KO97": # Kerrick & Ohmoto (1997)
+    if model == "Ohmoto97": # Reaction (e) in Table 1 of Ohmoto & Kerrick (1997)
         K = 10.**((41997.0/T_K)+0.719*gp.log10(T_K)-2.404)
     return K
 
 def KOCSg(PT,models=default_models): # OCS - depends on system
+    
+    """ 
+    Equilibrium constant for OCS (either K = (fCO2*fH2S)/(fOCS*fH2O) or (fCO^3*fSO2)/(fCO2^2*fOCS))
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "KOCSg" and "carbonylsulfide" and column label of "option"
+
+    Returns
+    -------
+    Equilibrium constant as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Moussallam19' Eq. (8) in Moussallam et al. (2019) for KOCSg AND 'COS' for carbonlysulfide
+    Other options:
+    Only one option available currently, included for future development.
+
+    """
+
     reaction = models.loc["carbonylsulfide","option"]
     model = models.loc["KOCSg","option"]
 
     T = PT['T']+273.15
+    if reaction == "COS":
+    # 2CO2 + OCS = 3CO + SO2 - 
+    # K = (fCO^3*fSO2)/(fCO2^2*fOCS)    
+        if model == "Moussallam19": # Eq. (8) in Moussallam et al. (2019)
+            K = 10.**(9.24403 - (15386.45/T)) # P and f in bars, T in K 
+        return K
+    
+    ### WORK IN PROGRESS ###
     if reaction == "COHS":
     # OCS + H2O = CO2 + H2S
     # K = (fCO2*fH2S)/(fOCS*fH2O)
         if models == "EVo": 
             K = gp.exp(0.482 + (16.166e-2/T) + 0.081e-3*T - (5.715e-3/T**2) - 2.224e-1*gp.log(T))
             return K
-    if reaction == "COS":
-    # 2CO2 + OCS = 3CO + SO2 - 
-    # K = (fCO^3*fSO2)/(fCO2^2*fOCS)    
-        if model == "Moussallam19": # Moussallam et al. (2019) EPSL 520:260-267
-            K = 10.**(9.24403 - (15386.45/T)) # P and f in bars, T in K 
-        return K
-
+        
 # Cgraphite + O2 = CO2
 def KCOs(PT,models=default_models): 
+    
+    """ 
+    Equilibrium constant for Cgraphite + O2 = CO2
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "KCOs" and column label of "option"
+
+    Returns
+    -------
+    Equilibrium constant as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Holloway92' Eq (3) KI in Holloway et al. (1992) Eur J. Mineral. 4:105-114
+    Only one option available currently, included for future development.
+
+    """
+
     model = models.loc["KCOs","option"]
 
     T_K = PT['T']+273.15
     P = PT['P']
-    if model == "Holloway92": # Holloway et al. (1992) Eur J. Mineral. 4:105-114 equation (3) KI
+    if model == "Holloway92": # Eq (3) KI in Holloway et al. (1992) Eur J. Mineral. 4:105-114
         a = 40.07639
         b = -2.5392e-2
         c = 5.27096e-6
