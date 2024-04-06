@@ -4,6 +4,7 @@ Fugacity coefficients
 
 Below are the different models for the fugacity coefficients currently in VolFe, which can also be viewed in the :doc:`fugacity coefficients notebook <FugCoeff>`. 
 The model type is in **bold** (i.e., what option will effect this variable) and the options of models to use are in *italics* (default options are indicated). 
+The range of valid *P* and *T* is stated for each model when known.
 Note that all vapor species can be treated as ideal (i.e., their fugacity coeffient = 1 at all *P*) by setting **ideal_gas** to *yes*, which overides the individual options listed below.
 
 
