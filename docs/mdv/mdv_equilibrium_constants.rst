@@ -55,11 +55,11 @@ Equilibrium constant for homogeneous vapor equilibrium reaction 2CO2 + OCS = 3CO
 
 Equilibrium constant for homogeneous vapor equilibrium reaction 0.5S2 + 1.5O2 = SO3
 
-- *ONeill22*:* Eq (6b) in O’Neill and Mavrogenes (2022) [default]
+- *ONeill22*: Eq (6b) in O’Neill and Mavrogenes (2022) [default]
 
 
 **KCOs**
 
 Equilibrium constant for heterogeneous solid-vapor equilibrium reaction Cgraphite + O2 = CO2
 
-**Holloway92:** Eq. (3) KI in Holloway et al. (1992) [default]
+- *Holloway92*: Eq. (3) KI in Holloway et al. (1992) [default]
