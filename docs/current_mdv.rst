@@ -1,6 +1,6 @@
-    ===
-    Model dependent variables
-    ===
+=========================
+Model dependent variables
+=========================
 
     Various parameters in VolFe can be calculated using different models - these include things like solubility constants, speciation constants, equilibrium constants, fugacity coefficients, etc. 
     For solubility and speciation constants, oxygen fugacity to Fe3+/FeT relationships, and sulfur saturation conditions, this is how VolFe includes the effect of melt compositions on calculations.
