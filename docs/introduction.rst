@@ -1,5 +1,5 @@
 ==============================
-Introduction and Citation
+Introduction and citation
 ==============================
 
 This is VolFe - An Open-Source python3 tool for calculating melt-vapor equilibra in the CHOS+ system.

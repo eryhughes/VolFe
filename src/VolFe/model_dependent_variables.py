@@ -32,7 +32,7 @@ def make_models_df(models):
 # define default models
 default_models = [['insolubles','yes'],['H2S_m','yes'],['species X','Ar'],['Hspeciation','none'],
               ['fO2','Kress91A'],['NNObuffer','Frost91'],['FMQbuffer','Frost91'],
-              ['carbon dioxide','MORB_Dixon95'],['water','Basalt_Hughes24'],['hydrogen','Basalt_Hughes24'],['sulfide','ONeill21dil'],['sulfate','ONeill22dil'],['hydrogen sulfide','Basalt_Hughes24'],['methane','Basalt_Ardia13'],['carbon monoxide','Basalt_Hughes24'],['species X solubility','Iacono-Marziano10_Ar_basalt'],['Cspeccomp','basalt'],['Hspeccomp','MORB'],
+              ['melt composition','Basalt'],['carbon dioxide','MORB_Dixon95'],['water','Basalt_Hughes24'],['hydrogen','Basalt_Hughes24'],['sulfide','ONeill21dil'],['sulfate','ONeill22dil'],['hydrogen sulfide','Basalt_Hughes24'],['methane','Basalt_Ardia13'],['carbon monoxide','Basalt_Hughes24'],['species X solubility','Ar_basalt_HughesIP'],['Cspeccomp','Basalt'],['Hspeccomp','MORB_HughesIP'],
               ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','no'],['sulfur_is_sat','no'],['graphite_saturation','no'],
               ['ideal_gas','no'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holloway91'],['y_OCS','Shi92'],['y_X','ideal'],
               ['KHOg','Ohmoto97'],['KHOSg','Ohmoto97'],['KOSg','Ohmoto97'],['KOSg2','ONeill22'], ['KCOg','Ohmoto97'],['KCOHg','Ohmoto97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
@@ -42,6 +42,11 @@ default_models = [['insolubles','yes'],['H2S_m','yes'],['species X','Ar'],['Hspe
 # Create the pandas DataFrame
 default_models = pd.DataFrame(default_models, columns=['type', 'option'])
 default_models = default_models.set_index('type')
+
+# define default models for rhyolite
+default_models_rhyolite = [['carbon dioxide','Rhyolite_Blank93'],['water','Rhyolite_HughesIP'],['hydrogen','Andesite_Hughes24'],
+                  ['hydrogen sulfide','BasalticAndesite_Hughes24'],['species X solubility','Ar_Rhyolite_HughesIP'],
+                  ['Cspeccomp','Rhyolite'],['Hspeccomp','Rhyolite_Zhang97']]
 
 def check_default_options(models):
     
@@ -64,17 +69,22 @@ def check_default_options(models):
     NNObuffer = return_options(default_models.loc['NNObuffer','option'],'NNObuffer',models)
     FMQbuffer = return_options(default_models.loc['FMQbuffer','option'],'FMQbuffer',models)
     # solubility constants
-    CO2 = return_options(default_models.loc['carbon dioxide','option'],'carbon dioxide',models)
-    H2O = return_options(default_models.loc['water','option'],'water',models)
-    H2 = return_options(default_models.loc['hydrogen','option'],'hydrogen',models)
+    melt_comp = return_options(default_models.loc['melt composition','option'],'melt composition',models)
     S2m = return_options(default_models.loc['sulfide','option'],'sulfide',models)
     S6p = return_options(default_models.loc['sulfate','option'],'sulfate',models)
-    H2S = return_options(default_models.loc['hydrogen sulfide','option'],'hydrogen sulfide',models)
     CH4 = return_options(default_models.loc['methane','option'],'methane',models)
     CO = return_options(default_models.loc['carbon monoxide','option'],'carbon monoxide',models)
-    X = return_options(default_models.loc['species X solubility','option'],'species X solubility',models)
-    Cspec = return_options(default_models.loc['Cspeccomp','option'],'Cspeccomp',models)
-    Hspec = return_options(default_models.loc['Hspeccomp','option'],'Hspeccomp',models)
+    if models.loc["melt composition","option"] == 'Basalt':
+        default_models_MC = default_models
+    elif models.loc["melt composition","option"] == 'Rhyolite':
+        default_models_MC = default_models_rhyolite
+    CO2 = return_options(default_models_MC.loc['carbon dioxide','option'],'carbon dioxide',models)
+    H2O = return_options(default_models_MC.loc['water','option'],'water',models)
+    H2 = return_options(default_models_MC.loc['hydrogen','option'],'hydrogen',models)
+    H2S = return_options(default_models_MC.loc['hydrogen sulfide','option'],'hydrogen sulfide',models)
+    X = return_options(default_models_MC.loc['species X solubility','option'],'species X solubility',models)
+    Cspec = return_options(default_models_MC.loc['Cspeccomp','option'],'Cspeccomp',models)
+    Hspec = return_options(default_models_MC.loc['Hspeccomp','option'],'Hspeccomp',models)
     # saturation conditions
     SCSS = return_options(default_models.loc['SCSS','option'],'SCSS',models)
     SCAS = return_options(default_models.loc['SCAS','option'],'SCAS',models)
@@ -267,12 +277,24 @@ def make_df_and_add_model_defaults(models):
     ### species X solubility: Model for the parameterisation of the X solubility constant. 
         default: 'Iacono-Marziano10_Ar_basalt' is based on experimental data from Iacono-Marziano et al. (2010) 279(3-4)145-157
     
-    Cspeccomp:
-        default: basalt'
+    Cspeccomp: Model for the parameterisation of the speciation constant for CO2mol and CO32- in the melt.
+        default: 'Basalt' Assume all oxidised carbon in the melt is present as carbonate ions.
+        Other options:
+        Andesite_Botcharnikov06: Eq. (8) from Botcharnikov et al. (2006) Chem.Geol. 229(1-3)125-143 doi:10.1016/j.chemgeo.2006.01.016
+        Dacite_Botcharnikov06: Botcharnikov et al. (2006) Chem.Geol. 229(1-3)125-143 doi:10.1016/j.chemgeo.2006.01.016
+        Rhyolite: Assume all oxidised carbon in the melt is present as molecular CO2.
     
-    Hspeccomp
-        default: MORB
-
+    Hspeccomp: Model for the parameterisation of the speciation constant for H2Omol and OH- in the melt, either assuming ideal or regular solution models.
+        default: 'MORB_HughesIP' [ideal solution only] Eq. SX in Hughes et al. (in prep) 
+        Other options:
+        MORB_Dixon95: [regular solution only] Table 5 of Dixon et al. (1995) JPet 36(6):1607-1631 doi:10.1093/oxfordjournals.petrology.a037267
+        AlkaliBasalt_Lesne10: [regular solution only] Eq. (24-27) Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
+        StromboliAlkaliBasalt_Lesne10: Eq. (15) [ideal solution] or PST-9 in Table 5 [regular solution] from Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
+        VesuviusAlkaliBasalt_Lesne10: Eq. (16) [ideal solution] or VES-9 in Table 5 [regular solution] from Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
+        EtnaAlkaliBasalt_Lesne10: Eq. (17) [ideal solution] or ETN-1 in Table 5 [regular solution] from Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
+        Andesite_Botcharnikov06: [ideal solution only] Eq (7) from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143 doi:10.1016/j.chemgeo.2006.01.016
+        Albite_Silver89: Fig. 8 [ideal solution only] or in the text [regular solution] from Silver & Stolper (1989) J.Pet 30(3)667-709 doi:10.1093/petrology/30.3.667
+        Rhyolite_Zhang97: [ideal solution only] Eq. (9) from Zhang et al. (1997) GCA 61(15):3089-3100 doi:10.1016/S0016-7037(97)00151-8
         
     ### Saturation conditions ###
         
@@ -1176,30 +1198,63 @@ def C_CO(PT,melt_wf,models=default_models): # C_CO = wmCO/fCO (ppm)
 ### solubility constant for X ###
 #################################
 def C_X(PT,melt_wf,models=default_models): # C_X = wmX/fX (ppm)
-    species = models.loc["species X","option"]
+    
+    """ 
+    Solubility constant for disolving X in the melt: C_X = wmX/fX (ppmw/bar)
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+        
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        Not normally used unless model option requires melt composition.
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "species X solubility" and column label of "option"
+
+    Returns
+    -------
+    Solubility constant for X as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Ar_Basalt_HughesIP' Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+    Other options:
+    Ar_Rhyolite_HughesIP: Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+    Ne_Basalt_HughesIP: Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+    Ne_Rhyolite_HughesIP: Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+
+    """
+
     model = models.loc["species X solubility","option"]
         
-    if species == "Ar":
-        if model == "Iacono-Marziano10_Ar_basalt": # Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
-            K = 0.0799 # fitted assuming Ar is an ideal gas... i.e. yAr = 1.
-        elif model == "Iacono-Marziano10_Ar_rhyolite": # Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
-            K = 0.4400 # fitted assuming Ar is an ideal gas... i.e. yAr = 1.
-        elif model == "test": 
-            #K = 40. # similar to H2O
-            #K = 6. # similar to S @ DFMQ+1.25
-            #K = 21. # similar to S @ DFMQ+3
-            #K = 155 # similar to S @ DFMQ0
-            #K = 918005 # similar to S @DFMQ-3
-            #K = 10.23 # similar to H2S
-            #K = 0.51 # similar to CO32-
-            #K = 1.37 # degassed at a similar depth to H2OT at 3wt%
-            #K = 100.
-            K = 35.
-    if species == "Ne":
-        if model == "Iacono-Marziano10_Ne_basalt": # Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
-            K = 0.1504 # fitted assuming Ne is an ideal gas... i.e. yNe = 1.
-        elif model == "Iacono-Marziano10_Ne_rhyolite": # Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
-            K = 0.8464 # fitted assuming Ne is an ideal gas... i.e. yNe = 1.
+    if model == "Ar_basalt_HughesIP": # Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+        K = 0.0799 # fitted assuming Ar is an ideal gas... i.e. yAr = 1.
+    elif model == "Ar_Rhyolite_HughesIP": # Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+        K = 0.4400 # fitted assuming Ar is an ideal gas... i.e. yAr = 1.
+    elif model == "Ne_Basalt_HughesIP": # Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+        K = 0.1504 # fitted assuming Ne is an ideal gas... i.e. yNe = 1.
+    elif model == "Ne_Rhyolite_HughesIP": # Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+        K = 0.8464 # fitted assuming Ne is an ideal gas... i.e. yNe = 1.
+    
+    ### WORK IN PROGRESS ###
+    elif model == "test": 
+        #K = 40. # similar to H2O
+        #K = 6. # similar to S @ DFMQ+1.25
+        #K = 21. # similar to S @ DFMQ+3
+        #K = 155 # similar to S @ DFMQ0
+        #K = 918005 # similar to S @DFMQ-3
+        #K = 10.23 # similar to H2S
+        #K = 0.51 # similar to CO32-
+        #K = 1.37 # degassed at a similar depth to H2OT at 3wt%
+        #K = 100.
+        K = 35.
+
     return K
 
 
@@ -1654,56 +1709,142 @@ def KCOs(PT,models=default_models):
         K = 10.**log10K     
     return K
     
-#################################################################################################################################
-##################################### EQUILIBRIUM CONSTANTS FOR HOMOGENEOUS MELT EQUILIBRIA #####################################
-#################################################################################################################################
+################################################################################################
+##################################### SPECIATION CONSTANTS #####################################
+################################################################################################
        
 # H2Omol + O = 2OH
 # K = xOH*2/(xH2Omol*xO)
 def KHOm(PT,melt_wf,models=default_models):
+    
+    """ 
+    Speciation constant for H2Omol + O = 2OH- assuming ideal mixing
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "Hspeccomp" and column label of "option"
+
+    Returns
+    -------
+    Equilibrium constant as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'MORB_HughesIP' Eq. SX in Hughes et al. (in prep) based on data from Dixon et al. (1995)
+    Other options:
+    StromboliAlkaliBasalt_Lesne10": Eq. (15) Lesne et al. (2010) CMP 162:133-151
+    VesuviusAlkaliBasalt_Lesne10: Eq. (16) Lesne et al. (2010) CMP 162:133-151
+    EtnaAlkaliBasalt_Lesne10: Eq. (17) Lesne et al. (2010) CMP 162:133-151
+    Andesite_Botcharnikov06: Eq (7) from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
+    Albite_Silver89: Fig. 8 from Silver & Stolper (1989) J.Pet 30(3)667-709
+    Rhyolite_Zhang97: Eq. (9) from Zhang et al. (1997) GCA 61(15):3089-3100
+
+    """
+
     Hspeccomp = models.loc["Hspeccomp","option"]
     
     T_K = PT['T']+273.15
     
-    if Hspeccomp == "rhyolite": # Zhang (1999) Reviews in Geophysics 37(4):493-516
-        a = -3120.0
-        b = 1.89
+    if Hspeccomp == "Rhyolite_Zhang97": # Eq. (9) from Zhang et al. (1997) GCA 61(15):3089-3100
+        a = -3110.
+        b = 1.876
         K = gp.exp((a/T_K) + b)
-    elif Hspeccomp == "alkali basalt": # average of eqn-15-17 from Lesne et al. (2010) CMP 162:133-151
-        a = -8348.0 # VES-9 = -8033.0, ETN-1 = -8300.0, and PST-9 = -8710.0
-        b = 7.8108 # VES-9 = 7.4222, ETN-1 = 7.4859, and PEST-9 = 8.5244
-        K = gp.exp((a/T_K) + b)
-    elif Hspeccomp == "PST-9": # Lesne et al. (2010) CMP 162:133-151 eqn 15
-        a = -8710.0
+    elif Hspeccomp == "StromboliAlkaliBasalt_Lesne10": # Eq. (15) Lesne et al. (2010) CMP 162:133-151
+        a = -8710.
         b = 8.5244
         K = gp.exp((a/T_K) + b)
-    elif Hspeccomp == "VES-9": # Lesne et al. (2010) CMP 162:133-151 eqn 16
-        a = -8033.0
+    elif Hspeccomp == "VesuviusAlkaliBasalt_Lesne10": # Eq. (16) Lesne et al. (2010) CMP 162:133-151
+        a = -8033.
         b = 7.4222
         K = gp.exp((a/T_K) + b)
-    elif Hspeccomp == "ETN-1": # Lesne et al. (2010) CMP 162:133-151 eqn 17
-        a = -8300.0
+    elif Hspeccomp == "EtnaAlkaliBasalt_Lesne10": # Eq. (17) Lesne et al. (2010) CMP 162:133-151
+        a = -8300.
         b = 7.4859
         K = gp.exp((a/T_K) + b)
-    elif Hspeccomp == "andesite": # eqn-7 from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
-        a = -3650.0
+    elif Hspeccomp == "Andesite_Botcharnikov06": # Eq (7) from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
+        a = -3650.
         b = 2.99
         K = gp.exp((a/T_K) + b)
-    elif Hspeccomp == "MORB": # fit to Dixon et al. (1995) data digitised from Lesne et al. (2010) CMP 162:133-151
+    elif Hspeccomp == "MORB_HughesIP": # fit to Dixon et al. (1995) data digitised from Lesne et al. (2010) CMP 162:133-151 in Hughes et al. (in prep)
         a = -2204.99
         b = 1.2600
         K = gp.exp((a/T_K) + b)
-    elif Hspeccomp == "albite": # Silver & Stolper (1989) J.Pet 30(3)667-709
+    elif Hspeccomp == "Albite_Silver89": # Fig. 8 from Silver & Stolper (1989) J.Pet 30(3)667-709
         K = 0.17
+    
+    ### Work in progress ###
+    elif Hspeccomp == "AlkaliBasalt": # average of eqn-15-17 from Lesne et al. (2010) CMP 162:133-151
+        a = -8348.0 # VES-9 = -8033.0, ETN-1 = -8300.0, and PST-9 = -8710.0
+        b = 7.8108 # VES-9 = 7.4222, ETN-1 = 7.4859, and PEST-9 = 8.5244
+        K = gp.exp((a/T_K) + b)    
+
     return K
 
 def KregH2O(PT,melt_wf,models=default_models):
+    
+    """ 
+    Speciation constant for H2Omol + O = 2OH- assuming regular mixing
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "Hspeccomp" and column label of "option"
+
+    Returns
+    -------
+    Equilibrium constant as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'MORB_HughesIP' WHICH IS NOT USABLE WITH THIS FUNCTION
+    Other options:
+    MORB_Dixon95: Table 5 of Dixon et al. (1995)
+    AlkaliBasalt_Lesne10": Eq. (24-27) Lesne et al. (2010) CMP 162:133-151
+    StromboliAlkaliBasalt_Lesne10": PST-9 in Table 5 from Lesne et al. (2010) 162:133-151
+    VesuviusAlkaliBasalt_Lesne10: VES-9 in Table 5 from Lesne et al. (2010) 162:133-151
+    EtnaAlkaliBasalt_Lesne10: ETN-1 in Table 5 from Lesne et al. (2010) 162:133-151
+    Albite_Silver89: Silver & Stolper (1989) J.Pet 30(3)667-709
+
+    """
+
     Hspeccomp = models.loc["Hspeccomp","option"]
 
-    if Hspeccomp == "MORB": # Dixon et al. (1995)
+    if Hspeccomp in ["MORB_Dixon95","Albite_Silver89"]: # Table 5 of Dixon et al. (1995); Silver & Stolper (1989) J.Pet 30(3)667-709
         A = 0.403
         B = 15.333
         C = 10.894
+    elif Hspeccomp == "AlkaliBasalt_Lesne10": # Eq (24-27) from Lesne et al. (2010) CMP 162:133-151
+        lnK = ((-2704.4/T_K) + 0.641)
+        A = lnK + 49016.0/(R*T_K)
+        B = -2153326.51/(R*T_K)
+        C = 1.965495217/(R*T_K)
+    elif Hspeccomp == "VesuviusAlkaliBasalt_Lesne10": # VES-9 in Table 5 from Lesne et al. (2010) 162:133-151
+        A = 3.139
+        B = -29.555
+        C = 20.535
+    elif Hspeccomp == "EtnaAlkaliBasalt_Lesne10": # ETN-1 in Table 5 from Lesne et al. (2010) 162:133-151
+        A = 4.128
+        B = -45.905
+        C = 21.311
+    elif Hspeccomp == "StromboliAlkaliBasalt_Lesne10": # PST-9 in Table 5 from Lesne et al. (2010) 162:133-151
+        A = 2.6
+        B = -22.476
+        C = 22.295
+    
+    ### Work in progress ###
     elif Hspeccomp == "alkali basalt XT": # No T-dependence, hence its the speciation frozen in the glass. Eqn 7-10 from Lesne et al. (2010) CMP 162:133-151 (eqn 7 is wrong)
         # wt% normalised including H2O, all Fe as FeOT
         melt_comp = melt_normalise_wf(melt_wf,"volatiles","Fe speciation")
@@ -1712,45 +1853,53 @@ def KregH2O(PT,melt_wf,models=default_models):
         A = 0.5761*(Na+K) - 0.2884 # eqn-8
         B = -8.9589*(Na+K) + 24.65 # eqn-9
         C = 1.7013*(Na+K) + 9.6481 # eqn-1
-    elif Hspeccomp == "alkali basalt": # Includes T-dependence, hence speciation in the melt. Eqn 24-27 from Lesne et al. (2010) CMP 162:133-151
-        lnK = ((-2704.4/T_K) + 0.641)
-        A = lnK + 49016.0/(R*T_K)
-        B = -2153326.51/(R*T_K)
-        C = 1.965495217/(R*T_K)
-    elif Hspeccomp == "VES-9": # Lesne et al. (2011) 162:133-151 Table 5
-        A = 3.139
-        B = -29.555
-        C = 20.535
-    elif Hspeccomp == "ETN-1": # Lesne et al. (2011) 162:133-151 Table 5
-        A = 4.128
-        B = -45.905
-        C = 21.311
-    elif Hspeccomp == "PST-9": # Lesne et al. (2011) 162:133-151 Table 5
-        A = 2.6
-        B = -22.476
-        C = 22.295
-    elif Hspeccomp == "albite": # Silver & Stolper (1989) J.Pet 30(3)667-709
-        A = 0.403
-        B = 15.333
-        C = 10.894
+       
     
 # CO2 + O = CO3
 def KCOm(PT,melt_wf,models=default_models): # K = 
+    """ 
+    Speciation constant for CO2 + O = CO3
+
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "Cspeccomp" and column label of "option"
+
+    Returns
+    -------
+    Equilibrium constant as <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Basalt' Assume all oxidised carbon in the melt is present as carbonate ions.
+    Other options:
+    Andesite_Botcharnikov06: Eq. (8) from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
+    Dacite_Botcharnikov06: Eq. in the text from Botcharnikov et al. (2006), based on data from Behrens et al. (2004)
+    Rhyolite: Assume all oxidised carbon in the melt is present as molecular CO2.
+
+    """
+    
     Cspeccomp = models.loc["Cspeccomp","option"]
 
     T_K = PT['T']+273.15
     
-    if Cspeccomp == "andesite": # eqn-8 from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
+    if Cspeccomp == "Andesite_Botcharnikov06": # Eq. (8) from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
         a = 8665.0
         b = -5.11
         value = gp.exp((a/T_K) + b)  
-    elif Cspeccomp == "dacite": # from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
+    elif Cspeccomp == "Dacite_Botcharnikov06": # Eq. in the text from Botcharnikov et al. (2006), based on data from Behrens et al. (2004)
         a = 9787.0
         b = -7.69
         value = gp.exp((a/T_K) + b)
-    elif Cspeccomp == "basalt": # all oxidised carbon is CO32-
+    elif Cspeccomp == "Basalt": # all oxidised carbon is CO32-
         value = "infinite"
-    elif Cspeccomp == "rhyolite": # all oxidised carbon is CO2,mol
+    elif Cspeccomp == "Rhyolite": # all oxidised carbon is CO2,mol
         value = 0.
     return value
 
