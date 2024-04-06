@@ -7,8 +7,6 @@ For solubility and speciation constants, oxygen fugacity to Fe3+/FeT relationshi
     
 There are some models already available in VolFe, which are detailed below. Others can be added as they become available - let us know if you have a new model to be added!
 
-:doc:`All model dependent variables <mdv/mdv_all>` 
-
 :doc:`Equilibrium constants <mdv/mdv_equilibrium_constants>`
 
 :doc:`Fugacity coefficients <mdv/mdv_fugacity_coefficients>`
