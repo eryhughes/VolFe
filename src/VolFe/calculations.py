@@ -183,7 +183,7 @@ def bulk_composition(run,PT,melt_wf,setup,models):
         wt_g = setup.loc[run,"wt_g"]/100.
     elif bulk_composition == "CO2":
         wt_C_ = ((mdv.species.loc['C','M']*(setup.loc[run,"initial_CO2wtpc"]/100.))/mdv.species.loc['CO2','M'])
-        wt_g = ((wt_C_/mdv.species.loc["C","M"]) - (wm_CO2/mdv.species.loc["CO2","M"]))/(((mg.xg_CO2(run,PT,melt_wf,setup,models)+mg.xg_CO(run,PT,melt_wf,setup,models)+mg.xg_CH4(run,PT,melt_wf,setup,models)+mg.xg_OCS(run,PT,melt_wf,setup,models))/mg.Xg_tot(run,PT,melt_wf,setup,models)) - (wm_CO2/mdv.species.loc["CO2","M"]))    
+        wt_g = ((wt_C_/mdv.species.loc["C","M"]) - (wm_CO2/mdv.species.loc["CO2","M"]))/(((mg.xg_CO2(PT,melt_wf,models)+mg.xg_CO(PT,melt_wf,models)+mg.xg_CH4(PT,melt_wf,models)+mg.xg_OCS(PT,melt_wf,models))/mg.Xg_tot(PT,melt_wf,models)) - (wm_CO2/mdv.species.loc["CO2","M"]))    
 
     if bulk_composition == "CO2":
         wt_C = wt_C_
@@ -214,7 +214,10 @@ def bulk_composition(run,PT,melt_wf,setup,models):
                               + wm_XT/mdv.species.loc[species_X,"M"])
     
     if models.loc["mass_volume","option"] == "mass":
-        Wt = setup.loc[run, "total_mass_g"]
+        if "total_mass_g" in setup:
+            Wt = setup.loc[run, "total_mass_g"]
+        else:
+            Wt = ""
     elif models.loc["mass_volume","option"] == "volume": ### THIS NEEDS FIXING ###
         Wt = 0.
 
@@ -233,7 +236,7 @@ def bulk_composition(run,PT,melt_wf,setup,models):
 # calculate weight fraction of elements in the system when adding gas into a melt
 def new_bulk_regas_open(PT,melt_wf,bulk_wf,gas_mf,dwtg,models):
     me = mg.melt_elements(PT,melt_wf,bulk_wf,gas_mf,models)
-    mg = mg.gas_elements(gas_mf)
+    ge = mg.gas_elements(gas_mf,models)
     wt_C = (1.-dwtg)*me["wm_C"] + dwtg*ge["wg_C"]
     wt_H = (1.-dwtg)*me["wm_H"] + dwtg*ge["wg_H"]
     wt_O = (1.-dwtg)*me["wm_O"] + dwtg*ge["wg_O"]
@@ -999,7 +1002,7 @@ def calc_isobar_CO2H2O(PT,melt_wf,models):
         xm_H2O_ = xm_H2O_step*m
         Xm_t = xm_H2O_*M_H2O + (1.-xm_H2O_)*M_m_
         wm_H2O_ = (xm_H2O_*M_H2O)/Xm_t
-        melt_wf={"H2OT":wm_H2O_}
+        melt_wf["H2OT"]=wm_H2O_
         melt_wf["CO2"] = 0.
         pH2O = mg.p_H2O(PT,melt_wf,models)
         pCO2 = PT["P"] - pH2O
@@ -1007,10 +1010,10 @@ def calc_isobar_CO2H2O(PT,melt_wf,models):
         Xm_t = xm_CO2_*M_CO2 + xm_H2O_*M_H2O + (1.0-xm_CO2_-xm_H2O_)*M_m_
         wf_CO2 = (xm_CO2_*M_CO2)/Xm_t
         results1 = pd.DataFrame([[PT["P"],melt_wf["H2OT"]*100.,wf_CO2*1000000.]])
-        results = results.append(results1, ignore_index=True)
+        results = pd.concat([results, results1], ignore_index=True)
         
     results1 = pd.DataFrame([[PT["P"],wm_H2O_0*100.,0.]])
-    results = results.append(results1, ignore_index=True)
+    results = pd.concat([results, results1], ignore_index=True)
     return results
 
 def calc_pure_solubility(PT,melt_wf,models):

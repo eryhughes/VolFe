@@ -427,7 +427,7 @@ def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,d
     melt_wf["CT"] = (melt_wf["CO2"]/mdv.species.loc["CO2","M"])*mdv.species.loc["C","M"]
     melt_wf["HT"] = (2.*melt_wf["H2OT"]/mdv.species.loc["H2O","M"])*mdv.species.loc["H","M"]
     melt_wf["ST"] = melt_wf["ST"]
-    if setup.loc[run,"S6ST"] > 0.:
+    if "S6ST" in setup > 0.:
         melt_wf["S6ST"] = setup.loc[run,"S6ST"]
 
     # Calculate saturation pressure for composition given in setup file
@@ -540,8 +540,8 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
     
     # add some gas to the system if doing open-system regassing
     if models.loc["gassing_direction","option"] == "regas" and models.loc["gassing_style","option"] == "open":
-        gas_mf = {"O2":mg.xg_O2(PT,melt_wf,models),"CO":mg.xg_CO(PT,melt_wf,models),"CO2":mg.xg_CO2(run,PT,melt_wf,setup,models),"H2":mg.xg_H2(PT,melt_wf,models),"H2O":mg.xg_H2O(PT,melt_wf,models),"CH4":mg.xg_CH4(PT,melt_wf,models),"S2":mg.xg_S2(PT,melt_wf,models),"SO2":mg.xg_SO2(PT,melt_wf,models),"SO3":mg.xg_SO3(PT,melt_wf,models),"H2S":mg.xg_H2S(run,PT,melt_wf,setup,models),"OCS":mg.xg_OCS(PT,melt_wf,models),"X":mg.xg_X(PT,melt_wf,models),"Xg_t":mg.Xg_tot(PT,melt_wf,models),"wt_g":0.}
-        wt_C, wt_H, wt_S, wt_X, wt_Fe, wt_O, Wt = new_bulk_regas_open(PT,melt_wf,bulk_wf,gas_mf,dwtg,models)
+        gas_mf = {"O2":mg.xg_O2(PT,melt_wf,models),"CO":mg.xg_CO(PT,melt_wf,models),"CO2":mg.xg_CO2(PT,melt_wf,models),"H2":mg.xg_H2(PT,melt_wf,models),"H2O":mg.xg_H2O(PT,melt_wf,models),"CH4":mg.xg_CH4(PT,melt_wf,models),"S2":mg.xg_S2(PT,melt_wf,models),"SO2":mg.xg_SO2(PT,melt_wf,models),"H2S":mg.xg_H2S(PT,melt_wf,models),"OCS":mg.xg_OCS(PT,melt_wf,models),"X":mg.xg_X(PT,melt_wf,models),"Xg_t":mg.Xg_tot(PT,melt_wf,models),"wt_g":0.}
+        wt_C, wt_H, wt_S, wt_X, wt_Fe, wt_O, Wt = c.new_bulk_regas_open(PT,melt_wf,bulk_wf,gas_mf,dwtg,models)
         bulk_wf = {"C":wt_C,"H":wt_H,"O":wt_O,"S":wt_S,"Fe":wt_Fe,"X":wt_X,"Wt":Wt}
     
     # run over different pressures #
@@ -565,7 +565,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         elif models.loc["T_variation","option"] == "polythermal":
             T = i - dp_step
             PT["T"] = T
-        if P_sat_ > PT["P"]:  
+        if P_sat_ > PT["P"] or models.loc["gassing_direction","option"] == "regas":  
             # work out equilibrium partitioning between melt and gas phase
             xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step,nr_tol,guesses)
             models = new_models
@@ -726,10 +726,10 @@ def calc_isobar(setup,run=0,models=mdv.default_models,initial_P=1000.,final_P=10
         initial_P = int(initial_P)
         final_P = int(final_P+1)
         step_P = int(step_P)
-        
+        melt_wf=mg.melt_comp(run,setup)
+
         for n in range(initial_P,final_P,step_P):
             PT["P"] = n # pressure in bars
-            melt_wf=mg.melt_comp(run,setup)
             results1 = c.calc_isobar_CO2H2O(PT,melt_wf,models)
             results = pd.concat([results, results1], ignore_index=True)
             if models.loc["print status","option"] == "yes":
