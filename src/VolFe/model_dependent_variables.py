@@ -38,7 +38,7 @@ default_models = [['insolubles','yes'],['H2S_m','yes'],['species X','Ar'],['Hspe
               ['KHOg','Ohmoto97'],['KHOSg','Ohmoto97'],['KOSg','Ohmoto97'],['KOSg2','ONeill22'], ['KCOg','Ohmoto97'],['KCOHg','Ohmoto97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
               ['bulk_composition','yes'],['starting_P','bulk'],['gassing_style','closed'],['gassing_direction','degas'],['P_variation','polybaric'],['eq_Fe','yes'],['solve_species','OCS'],
               ['density','DensityX'],['isotopes','no'],['T_variation','isothermal'],['crystallisation','no'],['mass_volume','mass'],['calc_sat','fO2_melt'],['bulk_O','exc_S'],['error',0.1],
-              ['print status','yes'],['output csv','yes'],['setup','no']]
+              ['print status','no'],['output csv','yes'],['setup','no']]
 # Create the pandas DataFrame
 default_models = pd.DataFrame(default_models, columns=['type', 'option'])
 default_models = default_models.set_index('type')
@@ -274,8 +274,12 @@ def make_df_and_add_model_defaults(models):
         default: 'Basalt_Hughes24' CO in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
         Only one option available currently, included for future development.
 
-    ### species X solubility: Model for the parameterisation of the X solubility constant. 
-        default: 'Iacono-Marziano10_Ar_basalt' is based on experimental data from Iacono-Marziano et al. (2010) 279(3-4)145-157
+    species X solubility: Model for the parameterisation of the X solubility constant. 
+        default: 'Ar_Basalt_HughesIP' Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+        Other options:
+        Ar_Rhyolite_HughesIP: Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+        Ne_Basalt_HughesIP: Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+        Ne_Rhyolite_HughesIP: Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
     
     Cspeccomp: Model for the parameterisation of the speciation constant for CO2mol and CO32- in the melt.
         default: 'Basalt' Assume all oxidised carbon in the melt is present as carbonate ions.
@@ -295,10 +299,21 @@ def make_df_and_add_model_defaults(models):
         Andesite_Botcharnikov06: [ideal solution only] Eq (7) from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143 doi:10.1016/j.chemgeo.2006.01.016
         Albite_Silver89: Fig. 8 [ideal solution only] or in the text [regular solution] from Silver & Stolper (1989) J.Pet 30(3)667-709 doi:10.1093/petrology/30.3.667
         Rhyolite_Zhang97: [ideal solution only] Eq. (9) from Zhang et al. (1997) GCA 61(15):3089-3100 doi:10.1016/S0016-7037(97)00151-8
-        
+
+            
     ### Saturation conditions ###
-        
-    ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','no'],['sulfur_is_sat','no'],['graphite_saturation','no'],
+
+    SCSS:
+    'ONeill21hyd'
+    
+    SCAS:
+    'Zajacz19'
+    
+    sulfur_saturation:
+    'no'
+    
+    graphite_saturation
+    'no'
 
            
     ### Fugacity coefficients ###
@@ -432,28 +447,67 @@ def make_df_and_add_model_defaults(models):
     
     P_variation: Is pressure varying during the calculation?
         default: 'polybaric' Pressure progressively changes during the calculation.
+        Only one option available currently, included for future development.
     
     T_variation: Is temperature varying during the calculation?
         default: 'isothermal' Temperature is constant during the calculation.
+        Only one option available currently, included for future development.
     
     eq_Fe: Does iron in the melt equilibrate with fO2.
         default: 'yes' Iron equilibrates with fO2
+        Only one option available currently, included for future development.
     
     solve_species: What species are used to solve the equilibrium equations? This should not need to be changed unless the solver is struggling.
         default: 'OCS' Guess mole fractions of O2, CO, and S2 in the vapor to solve the equilibrium equations.
+        'OHS' Guess mole fractions of O2, H2, and S2 in the vapor to solve the equilibrium equations.
+        'OCH' Guess mole fractions of O2, CO, and H2 in the vapor to solve the equilibrium equations.
 
+        
     ### Other ###
 
     density: Model for parameterisation of melt density
         default: 'DensityX' DensityX from Iacovino & Till (2019) Volcanica 2(1):1-10 doi:10.30909/vol.02.01.0110
+        Only one option available currently, included for future development.
 
     setup: Specifies whether model options are specified in the models or setup dataframe. 
         default: 'no' All model options are specified in the models dataframe.
         Other options:
         'yes' Some of the model options are specified in the setup dataframe.
-              
-              ['isotopes','no'],,['crystallisation','no'],['mass_volume','mass'],['calc_sat','fO2_melt'],['bulk_O','exc_S'],['error',0.1],
-              ['print status','yes'],['output csv','yes'],      
+    
+    print status: Specifies whether some sort of status information during the calculation is outputted to let you know progress.
+        default: 'no' No information about calculation progress is printed.
+        Other options:
+        'yes': Some information about calculation progress is printed.
+
+    output csv: Specicies whether a csv of the outputted dataframe is saved at the end of the calculation.
+        default: 'yes' csv is outputted
+        'no' csv is not outputted
+
+            
+    ### In development ###
+
+    For now, just leave them as their default option and everything should work fine!
+          
+    isotopes
+        default: 'no'
+        
+    crystallisation
+        default: 'no'
+        
+    mass_volume
+        default: 'mass'
+        
+    calc_sat
+        default: 'fO2_melt'
+    
+    bulk_O
+        default: 'exc_S'
+    
+    error
+        default: 0.1
+
+    sulfur_is_sat
+        default: 'no'
     """
     
     
