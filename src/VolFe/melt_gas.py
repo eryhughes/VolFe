@@ -336,10 +336,10 @@ def wm_H2Omol_OH(PT,melt_wf,models): # wt fraction
 def xm_CO32_CO2mol(PT,melt_wf,models): # mole fraction
     xm_CO2T = xm_CO2_so(melt_wf)
     xm_H2OT = xm_H2OT_so(melt_wf)
-    if models.loc["Cspeccomp","option"] == "basalt":
+    if models.loc["Cspeccomp","option"] == "Basalt":
         xm_CO32 = xm_CO2T
         xm_CO2mol = 0.
-    elif models.loc["Cspeccomp","option"] == "rhyolite":
+    elif models.loc["Cspeccomp","option"] == "Rhyolite":
         xm_CO32 = 0.
         xm_CO2mol = xm_CO2T
     else: 
@@ -566,12 +566,13 @@ def gas_moles(gas_mf,bulk_wf,models):
     return result
         
 # calculate weight fraction of elements in the gas
-def gas_elements(gas_mf):
-    gaswf = gas_wf(gas_mf)
+def gas_elements(gas_mf,models):
+    gaswf = gas_wf(gas_mf,models)
     wg_O = gaswf["wg_O2"] + mdv.species.loc["O","M"]*((gaswf["wg_H2O"]/mdv.species.loc["H2O","M"]) + (2.*gaswf["wg_SO2"]/mdv.species.loc["SO2","M"]) + (2.*gaswf["wg_CO2"]/mdv.species.loc["CO2","M"]) + (gaswf["wg_CO"]/mdv.species.loc["CO","M"]) + (gaswf["wg_OCS"]/mdv.species.loc["OCS","M"]))
     wg_H = gaswf["wg_H2"] + mdv.species.loc["H","M"]*((2.*gaswf["wg_H2O"]/mdv.species.loc["H2O","M"]) + (2.*gaswf["wg_H2S"]/mdv.species.loc["H2S","M"]) + (4.*gaswf["wg_CH4"]/mdv.species.loc["CH4","M"]))
     wg_S = gaswf["wg_S2"] + mdv.species.loc["S","M"]*((gaswf["wg_H2S"]/mdv.species.loc["H2S","M"]) + (gaswf["wg_SO2"]/mdv.species.loc["SO2","M"]) + (gaswf["wg_OCS"]/mdv.species.loc["OCS","M"]))
-    wg_C = mdv.species.loc["S","M"]*((gaswf["wg_CO2"]/mdv.species.loc["CO2","M"]) + (gaswf["wg_CO"]/mdv.species.loc["CO","M"]) + (gaswf["wg_OCS"]/mdv.species.loc["OCS","M"]) + (gaswf["wg_CH4"]/mdv.species.loc["CH4","M"]))
+    wg_C = mdv.species.loc["C","M"]*((gaswf["wg_CO2"]/mdv.species.loc["CO2","M"]) + (gaswf["wg_CO"]/mdv.species.loc["CO","M"]) + (gaswf["wg_OCS"]/mdv.species.loc["OCS","M"]) + (gaswf["wg_CH4"]/mdv.species.loc["CH4","M"]))
+    wg_X = gaswf['wg_X']
     result = {"wg_O":wg_O,"wg_H":wg_H, "wg_S":wg_S, "wg_C":wg_C, "wg_X":wg_X}
     return result
 
