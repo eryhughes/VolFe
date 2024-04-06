@@ -32,7 +32,7 @@ def make_models_df(models):
 # define default models
 default_models = [['insolubles','yes'],['H2S_m','yes'],['species X','Ar'],['Hspeciation','none'],
               ['fO2','Kress91A'],['NNObuffer','Frost91'],['FMQbuffer','Frost91'],
-              ['melt composition','Basalt'],['carbon dioxide','MORB_Dixon95'],['water','Basalt_Hughes24'],['hydrogen','Basalt_Hughes24'],['sulfide','ONeill21dil'],['sulfate','ONeill22dil'],['hydrogen sulfide','Basalt_Hughes24'],['methane','Basalt_Ardia13'],['carbon monoxide','Basalt_Hughes24'],['species X solubility','Ar_basalt_HughesIP'],['Cspeccomp','Basalt'],['Hspeccomp','MORB_HughesIP'],
+              ['melt composition','Basalt'],['carbon dioxide','MORB_Dixon95'],['water','Basalt_Hughes24'],['hydrogen','Basalt_Hughes24'],['sulfide','ONeill21dil'],['sulfate','ONeill22dil'],['hydrogen sulfide','Basalt_Hughes24'],['methane','Basalt_Ardia13'],['carbon monoxide','Basalt_Hughes24'],['species X solubility','Ar_Basalt_HughesIP'],['Cspeccomp','Basalt'],['Hspeccomp','MORB_HughesIP'],
               ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','no'],['sulfur_is_sat','no'],['graphite_saturation','no'],
               ['ideal_gas','no'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holland91'],['y_OCS','Shi92'],['y_X','ideal'],
               ['KHOg','Ohmoto97'],['KHOSg','Ohmoto97'],['KOSg','Ohmoto97'],['KOSg2','ONeill22'], ['KCOg','Ohmoto97'],['KCOHg','Ohmoto97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
@@ -74,9 +74,9 @@ def check_default_options(models):
     S6p = return_options(default_models.loc['sulfate','option'],'sulfate',models)
     CH4 = return_options(default_models.loc['methane','option'],'methane',models)
     CO = return_options(default_models.loc['carbon monoxide','option'],'carbon monoxide',models)
-    if models.loc["melt composition","option"] == 'Basalt':
+    if melt_comp == 'Basalt':
         default_models_MC = default_models
-    elif models.loc["melt composition","option"] == 'Rhyolite':
+    elif melt_comp == 'Rhyolite':
         default_models_MC = default_models_rhyolite
     CO2 = return_options(default_models_MC.loc['carbon dioxide','option'],'carbon dioxide',models)
     H2O = return_options(default_models_MC.loc['water','option'],'water',models)
@@ -137,7 +137,7 @@ def check_default_options(models):
 
     models = [['insolubles',insolubles],['H2S_m',H2S_m],['species X',species_X],['Hspeciation',Hspeciation],
               ['fO2',fO2],['NNObuffer',NNObuffer],['FMQbuffer',FMQbuffer],
-              ['carbon dioxide',CO2],['water',H2O],['hydrogen',H2],['sulfide',S2m],['sulfate',S6p],['hydrogen sulfide',H2S],['methane',CH4],['carbon monoxide',CO],['species X solubility',X],['Cspeccomp',Cspec],['Hspeccomp',Hspec],
+              ['melt composition',melt_comp],['carbon dioxide',CO2],['water',H2O],['hydrogen',H2],['sulfide',S2m],['sulfate',S6p],['hydrogen sulfide',H2S],['methane',CH4],['carbon monoxide',CO],['species X solubility',X],['Cspeccomp',Cspec],['Hspeccomp',Hspec],
               ['SCSS',SCSS],['SCAS',SCAS],['sulfur_saturation',sulfur_saturation],['sulfur_is_sat',sulfur_is_sat],['graphite_saturation',graphite_saturation],
               ['ideal_gas',ideal_gas],['y_CO2',yCO2],['y_SO2',ySO2],['y_H2S',yH2S],['y_H2',yH2],['y_O2',yO2],['y_S2',yS2],['y_CO',yCO],['y_CH4',yCH4],['y_H2O',yH2O],['y_OCS',yOCS],['y_X',yX],
               ['KHOg',KHOg],['KHOSg',KHOSg],['KOSg',KOSg],['KOSg2',KOSg2], ['KCOg',KCOg],['KCOHg',KCOHg],['KOCSg',KOCSg],['KCOs',KCOs],['carbonylsulfide',OCS],
@@ -1234,7 +1234,7 @@ def C_X(PT,melt_wf,models=default_models): # C_X = wmX/fX (ppm)
 
     model = models.loc["species X solubility","option"]
         
-    if model == "Ar_basalt_HughesIP": # Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+    if model == "Ar_Basalt_HughesIP": # Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
         K = 0.0799 # fitted assuming Ar is an ideal gas... i.e. yAr = 1.
     elif model == "Ar_Rhyolite_HughesIP": # Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
         K = 0.4400 # fitted assuming Ar is an ideal gas... i.e. yAr = 1.
@@ -1537,7 +1537,7 @@ def KOSg2(PT,models=default_models):
 
     Model options
     -------------
-    default: 'Oneill22' Eq (6b) in O’Neill and Mavrogenes (2022)
+    default: 'ONeill22' Eq (6b) in O’Neill and Mavrogenes (2022)
     Only one option available currently, included for future development.
 
     """
@@ -1545,7 +1545,7 @@ def KOSg2(PT,models=default_models):
     model = models.loc["KOSg2","option"]
 
     T_K = PT['T']+273.15
-    if model == "Oneill22": # Eq (6b) in O’Neill and Mavrogenes (2022)
+    if model == "ONeill22": # Eq (6b) in O’Neill and Mavrogenes (2022)
         lnK = (55921./T_K) - 25.07 + 0.6465*gp.log(T_K)
         K = gp.exp(lnK) 
     return K
