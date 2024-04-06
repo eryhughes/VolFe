@@ -892,7 +892,46 @@ def calc_fugacity_coefficients(setup,first_row=0,last_row=None,models=mdv.defaul
 ### Use melt S oxybarometer ###
 ###############################        
 def calc_melt_S_oxybarometer(setup,first_row=0,last_row=None,models=mdv.default_models,p_tol=0.1,nr_step=1.,nr_tol=1.e-9):
+    """ 
+    Calculates the range in oxygen fugacity based on the melt sulfur content for multiple melt compositions given volatile-free melt composition, volatile content, temperature, and either pressure or assumes Pvsat.
+
+
+    Parameters
+    ----------
+    setup: pandas.DataFrame
+        Dataframe with melt compositions to be used, requires following headers: 
+        Sample, T_C, 
+        SiO2, TiO2, Al2O3, (Fe2O3T or FeOT unless Fe2O3 and FeO given), MnO, MgO, CaO, Na2O, K2O, P2O5, 
+        H2O and/or CO2ppm and/or STppm and/or Xppm
+        Note: concentrations (unless otherwise stated) are in wt%
+        Optional
+        P_bar is pressure is given (otherwise calculation is at Pvsat)
+        Fe3FeT is P_bar is specified
     
+    Optional:
+    models: pandas.DataFrame
+        Dataframe of options for different models.
+    first_row: float
+        Integer of the first row in the setup file to run (note the first row under the headers is row 0). Default = 0  
+    last_row: float
+        Integer of the last row in the setup file to run (note the first row under the headers is row 0). Default = length of setup
+    p_tol: float
+        Required tolerance for convergence of Pvsat in bars. Default = 1.e-1
+    nr_step: float
+        Step size for Newton-Raphson solver for melt speciation (this can be made smaller if there are problems with convergence.). Default = 1
+    nr_tol: float
+        Tolerance for the Newton-Raphson solver for melt speciation in weight fraction (this can be made larger if there are problems with convergence). Default = 1.e-9
+
+    Returns
+    -------
+    results: pandas.DataFrame
+
+    Outputs
+    -------
+    fO2_range_from_S: csv file (if output csv = yes in models)
+
+    """
+
     if last_row == None:
         last_row = len(setup)
 
