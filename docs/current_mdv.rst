@@ -15,4 +15,4 @@ There are some models already available in VolFe, which are detailed below. Othe
 
 - :doc:`Oxygen fugacity and Fe3+/FeT <mdv/mdv_oxygen_fugacity>`
 
-- :doc:`Sulfide, anhydrite, and graphite saturation <mdv/mdv_saturation>`
+- :doc:`Sulfide/sulfate content at sulfide/anhydrite saturation <mdv/mdv_saturation>`
