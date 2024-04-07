@@ -26,5 +26,5 @@ The pandas development team, 2024. pandas-dev/pandas: Pandas. https://doi.org/10
 
 Wieser, P., and Gleeson, M., 2023. PySulfSat: An open-source Python3 tool for modeling sulfide and sulfate saturation. Volcanica, 6(1), pp. 107–127. https://doi.org/10.30909/vol.06.01.107127
 
-O'Neill (2021), Zajacz & Tsay (2019), Fortin et al. (2015), (Wieser & Gleeson, 2023), Chowdhury & Dasgupta (2019), Iacovino & Till (2019)
+O'Neill (2021), Zajacz & Tsay (2019), Fortin et al. (2015), (Wieser & Gleeson, 2023), Chowdhury & Dasgupta (2019), Iacovino & Till (2019), Sympy,
 

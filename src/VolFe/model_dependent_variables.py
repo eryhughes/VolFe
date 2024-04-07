@@ -200,9 +200,12 @@ def make_df_and_add_model_defaults(models):
     
     ### Oxygen fugacity ###
 
-    ### fO2: Model for parameterisation of relationship between fO2 and Fe3+/FeT
-        default: 'Kress91A' Eq. (A-5, A-6) from Kress & Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
+    fO2: Model for parameterisation of relationship between fO2 and Fe3+/FeT
+        default: 'Kress91A' Eq. (A-5, A-6) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
         Other options:
+        'Kress91' Eq. (7) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
+        'ONeill18' Eq. (9a) in O'Neill et al. (2018) EPSL 504:152-162 doi:10.1016/j.epsl.2018.10.0020012-821X
+        'Borisov18' Eq. (4) from Borisov et al. (2018) CMP 173:98 doi:10.1007/s00410-018-1524-8  
 
     NNObuffer: Model for the parameterisation for the fO2 value of the NNO buffer.
         default: 'Frost91' Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
@@ -303,18 +306,21 @@ def make_df_and_add_model_defaults(models):
             
     ### Saturation conditions ###
 
-    SCSS:
-    'ONeill21hyd'
+    ### SCSS: Model for parameterisation of the sulfide content at sulfide saturation (S2-CSS).
+        default: 'ONeill21hyd'
     
-    SCAS:
-    'Zajacz19'
+    ### SCAS: Model for parameterisation of the sulfate content at anhydrite saturation (S6+CAS).
+        default: 'Zajacz19'
     
-    sulfur_saturation:
-    'no'
+    sulfur_saturation: Is sulfur allowed to form sulfide or anhydrite if sulfur content of the melt reaches saturation levels for these phases.
+        default: 'no' melt ± vapor are the only phases present - results are metastable with respect to sulfide and anhydrite if they could saturate.
+        Other options:
+        'yes' If saturation conditions for sulfide or anhydrite are met, melt sulfur content reflects this.
     
-    graphite_saturation
-    'no'
-
+    graphite_saturation: Is graphite allowed to form if the carbon content of the melt reaches saturation levels for graphite.
+        default: 'no' melt ± vapor are the only phases present - results are metastable with respect to graphite if it could saturate.
+        Other options:
+        'yes' If saturation conditions for graphite are met, melt carbon content reflects this.
            
     ### Fugacity coefficients ###
           
@@ -1782,6 +1788,10 @@ def KHOm(PT,melt_wf,models=default_models):
         Dataframe of pressure-temperature conditions
         pressure (bars) as "P"
         temperature ('C) as "T"
+
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        Not normally used unless model option requires melt composition.
     
     models: pandas.DataFrame
         Minimum requirement is dataframe with index of "Hspeccomp" and column label of "option"
@@ -1854,6 +1864,10 @@ def KregH2O(PT,melt_wf,models=default_models):
         Dataframe of pressure-temperature conditions
         pressure (bars) as "P"
         temperature ('C) as "T"
+
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        Not normally used unless model option requires melt composition.
     
     models: pandas.DataFrame
         Minimum requirement is dataframe with index of "Hspeccomp" and column label of "option"
@@ -1922,6 +1936,10 @@ def KCOm(PT,melt_wf,models=default_models): # K =
         Dataframe of pressure-temperature conditions
         pressure (bars) as "P"
         temperature ('C) as "T"
+    
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+        Not normally used unless model option requires melt composition.
     
     models: pandas.DataFrame
         Minimum requirement is dataframe with index of "Cspeccomp" and column label of "option"
@@ -2684,6 +2702,7 @@ def NNO(PT,models=default_models):
     Model options
     -------------
     default: 'Frost91' Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
+    Only one option available currently, included for future development.
         
     Returns
     -------
@@ -2738,7 +2757,7 @@ def FMQ(PT,models=default_models):
 
 # terms for different equations
 
-def FefO2_KC91_Eq7_terms(PT,melt_wf,models=default_models): # terms for Kress & Carmichael (1991) Equation 7
+def FefO2_KC91_Eq7_terms(PT,melt_wf,models=default_models): # terms for Eq. (7) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
     # ln(XFe2O3/XFeO) = alnfO2 + (b/T) + c + sum(dX) + e[1 - (T0/T) = ln(T/T0)] + f(P/T) + g(((T-T0)P)/T) + h(P2/T)
     # ln(XFe2O3/XFeO) = alnfO2 + B
     # terms
@@ -2766,7 +2785,7 @@ def FefO2_KC91_Eq7_terms(PT,melt_wf,models=default_models): # terms for Kress & 
     B = (b/T_K) + c + D4X + e*(1.0 - (T0/T_K) - math.log(T_K/T0)) + f*(P_Pa/T_K) + g*(((T_K-T0)*P_Pa)/T_K) + h*((P_Pa**2.0)/T_K) 
     return a, B
 
-def FefO2_KC91_EqA_terms(PT,melt_wf,models=default_models): # terms for Kress & Carmichael (1991) Appendix Equations A1-6
+def FefO2_KC91_EqA_terms(PT,melt_wf,models=default_models): # terms for Eq. (A-5, A-6) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
     # XFeO1.5/XFeO = (KD1*fO2**0.25 + 2y*KD2*KD1**2y*fO2**0.5y)/(1 + (1-2y)KD2*KD1**2y*fO2**0.5y)
     KD2 = 0.4
     y = 0.3
@@ -2794,8 +2813,7 @@ def FefO2_KC91_EqA_terms(PT,melt_wf,models=default_models): # terms for Kress & 
     KD1 = math.exp((-DH/(R*T_K)) + (DS/R) - (DCp/R)*(1.0 - (T0/T_K) - gp.log(T_K/T0)) - (1.0/(R*T_K))*D4X - ((DV*(P_Pa-P0))/(R*T_K)) - ((DVdot*(T_K-T0)*(P_Pa-P0))/(R*T_K)) - (DVdash/(2.0*R*T_K))*pow((P_Pa-P0),2.0))
     return KD1, KD2, y
 
-def FefO2_ONeill18_terms(PT,melt_wf,models=default_models):
-    # O'Neill et al. (2018) EPSL 504:152-162
+def FefO2_ONeill18_terms(PT,melt_wf,models=default_models): # Eq. (9a) in O'Neill et al. (2018) EPSL 504:152-162 doi:10.1016/j.epsl.2018.10.0020012-821X
     # 1n(Fe3Fe2) = a*DFMQ + B
     a = 0.125
     # mole fractions on a single cation basis in the melt based on oxide components (all Fe as FeO) with no volatiles
@@ -2806,7 +2824,7 @@ def FefO2_ONeill18_terms(PT,melt_wf,models=default_models):
     FMQ = 8.58 - (25050/T_K) # O'Neill (1987)
     return a, B, FMQ
 
-def FefO2_Borisov18_terms(PT,melt_wf,models=default_models):
+def FefO2_Borisov18_terms(PT,melt_wf,models=default_models): # Eq. (4) from Borisov et al. (2018) CMP 173:98 doi:10.1007/s00410-018-1524-8
     T_K = PT['T']+273.15
     # Borisov et al. (2018) CMP 173
     a = 0.207
@@ -2816,34 +2834,94 @@ def FefO2_Borisov18_terms(PT,melt_wf,models=default_models):
     return a, B
 
 def fO22Fe3FeT(fO2,PT,melt_wf,models=default_models): # converting fO2 to Fe3/FeT
+    """ 
+    Fe3+/FeT in the melt from fO2
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "fO2" and column label of "option"
+    
+    Returns
+    -------
+    Fe3+/FeT in the melt <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Kress91A' Eq. (A-5, A-6) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
+    Other options:
+    'Kress91' Eq. (7) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
+    'ONeill18' Eq. (9a) in O'Neill et al. (2018) EPSL 504:152-162 doi:10.1016/j.epsl.2018.10.0020012-821X
+    'Borisov18' Eq. (4) from Borisov et al. (2018) CMP 173:98 doi:10.1007/s00410-018-1524-8   
+
+    """
     model = models.loc["fO2","option"]
 
     T_K = PT['T']+273.15
     
-    if model == "Kress91":
+    if model == "Kress91": # Eq. (7) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
         a, PTterm = FefO2_KC91_Eq7_terms(PT,melt_wf,models)
         lnXFe2O3XFeO = a*gp.log(fO2) + PTterm
         XFe2O3XFeO = gp.exp(lnXFe2O3XFeO)
         return (2.0*XFe2O3XFeO)/((2.0*XFe2O3XFeO)+1.0)
     
-    elif model == "Kress91A": 
+    elif model == "Kress91A": # Eq. (A-5, A-6) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
         kd1, KD2, y = FefO2_KC91_EqA_terms(PT,melt_wf,models)
         XFeO15XFeO = ((kd1*fO2**0.25)+(2.0*y*KD2*(kd1**(2.0*y))*(fO2**(0.5*y))))/(1.0 + (1.0 - 2.0*y)*KD2*(kd1**(2.0*y))*(fO2**(0.5*y)))
         return XFeO15XFeO/(XFeO15XFeO+1.0)  
     
-    elif model == "ONeill18": # O'Neill et al. (2018) EPSL 504:152-162
+    elif model == "ONeill18": # Eq. (9a) in O'Neill et al. (2018) EPSL 504:152-162 doi:10.1016/j.epsl.2018.10.0020012-821X
         a,B,FMQ = FefO2_ONeill18_terms(PT,melt_wf,models)
         DQFM = gp.log10(fO2) - FMQ
         lnFe3Fe2 = a*DQFM + B
         Fe3Fe2 =  gp.exp(lnFe3Fe2)
         return Fe3Fe2/(Fe3Fe2 + 1.0)
     
-    elif model == "Borisov18": # Borisov et al. (2018) CMP 173:
+    elif model == "Borisov18": # Eq. (4) from Borisov et al. (2018) CMP 173:98 doi:10.1007/s00410-018-1524-8
         a,B = FefO2_Borisov18_terms(PT,melt_wf,models)
         Fe3Fe2 = 10.**(a*gp.log10(fO2) + B)
         return Fe3Fe2/(Fe3Fe2 + 1.0)
 
 def f_O2(PT,melt_wf,models=default_models):
+    
+    """ 
+    fO2 from Fe3+/FeT in the melt
+
+    Parameters
+    ----------
+    PT: pandas.DataFrame
+        Dataframe of pressure-temperature conditions
+        pressure (bars) as "P"
+        temperature ('C) as "T"
+
+    melt_wf: pandas.DataFrame
+        Dataframe of melt composition (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Minimum requirement is dataframe with index of "fO2" and column label of "option"
+    
+    Returns
+    -------
+    fO2 in bars <class 'mpfr'>
+
+    Model options
+    -------------
+    default: 'Kress91A' Eq. (A-5, A-6) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
+    Other options:
+    'Kress91' Eq. (7) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
+    'ONeill18' Eq. (9a) in O'Neill et al. (2018) EPSL 504:152-162 doi:10.1016/j.epsl.2018.10.0020012-821X
+    'Borisov18' Eq. (4) from Borisov et al. (2018) CMP 173:98 doi:10.1007/s00410-018-1524-8   
+
+    """
+
     model = models.loc["fO2","option"]
     
     def KC91(PT,melt_wf,models):
@@ -2856,11 +2934,11 @@ def f_O2(PT,melt_wf,models=default_models):
     #if model == "yes":
     #    return 10.0**(setup.loc[run,"logfO2"]) 
     
-    if model == "Kress91":
+    if model == "Kress91": # Eq. (7) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
         fO2 = KC91(PT,melt_wf,models)
         return fO2
     
-    elif model == "Kress91A": 
+    elif model == "Kress91A": # Eq. (A-5, A-6) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
         F = mg.Fe3Fe2(melt_wf) # XFeO1.5/XFeO
         kd1, KD2, y = FefO2_KC91_EqA_terms(PT,melt_wf,models)
             
@@ -2888,7 +2966,7 @@ def f_O2(PT,melt_wf,models=default_models):
         fO2 = nr(x0, 1.e-15)
         return fO2
         
-    elif model == "ONeill18": # O'Neill et al. (2018) EPSL 504:152-162
+    elif model == "ONeill18": # Eq. (9a) in O'Neill et al. (2018) EPSL 504:152-162 doi:10.1016/j.epsl.2018.10.0020012-821X
         F = mg.Fe3Fe2(melt_wf) # Fe3+/Fe2+
         a,B,FMQ = FefO2_ONeill18_terms(PT,melt_wf,models)
         DQFM = (math.log(F) - B)/a
@@ -2901,7 +2979,7 @@ def f_O2(PT,melt_wf,models=default_models):
     #    fO2 = mg.S6S2_2_fO2(S62,melt_wf,run,PT,setup,models)
     #    return fO2
     
-    elif model == "Borisov18": # Borisov et al. (2018) CMP 173
+    elif model == "Borisov18": # Eq. (4) from Borisov et al. (2018) CMP 173:98 doi:10.1007/s00410-018-1524-8
         F = mg.Fe3Fe2(melt_wf)
         a,B = FefO2_Borisov18_terms(PT,melt_wf,models)
         fO2 = 10.**((gp.log10(F) - B)/a)
