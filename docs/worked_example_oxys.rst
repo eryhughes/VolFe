@@ -7,7 +7,7 @@ In certain circumstances, the sulfur content of the melt can be used to place bo
 
 This calculation was outlined in detail in Section “Using wmST as an oxybarometer” in Hughes et al. (2023) (schematic in figure below, Hughes et al. in prep).
 
-:image:`<figures/SfO2calc.png>` :width: 800
+.. figure:: figures/SfO2calc.png
 
 In this example we'll show you how to run this calculation for: 
 

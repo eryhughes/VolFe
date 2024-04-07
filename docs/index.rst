@@ -15,6 +15,7 @@ This is the VolFe documentation
    code_structure
    current_mdv
    options
+   mv_combo
    references
 
 .. toctree::
@@ -26,11 +27,4 @@ This is the VolFe documentation
    worked_example_oxys
    worked_example_other
    worked_example_marianas
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   add_your_own

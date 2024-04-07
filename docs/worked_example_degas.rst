@@ -8,7 +8,7 @@ VolFe calculates the proportions of vapor and melt and their compositions and sp
 
 This calculation is described in detail in Hughes et al. (in prep) (schematic in figure below, Hughes et al. in prep).
 
-:image:`<figures/degascalc.png>` :width: 800
+.. figure:: figures/degassingcalc.png
 
 In this example we'll show you how to run this calculation for: 
 
