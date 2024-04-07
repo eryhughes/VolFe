@@ -994,7 +994,7 @@ def calc_melt_S_oxybarometer(setup,first_row=0,last_row=None,models=mdv.default_
 ########################################
 ### measured parameters within error ### 
 ########################################
-def compositions_within_error_output(setup,run,iterations):
+def calc_comp_error(setup,run,iterations):
     
     # set up results table
     results = pd.DataFrame([["Sample","T_C",

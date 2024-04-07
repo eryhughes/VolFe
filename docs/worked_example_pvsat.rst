@@ -9,7 +9,7 @@ VolFe calculates Pvsat, the melt speciation, and the vapor composition for a mel
 
 This calculation was outlined in detail Hughes et al. (2024) (schematic in figure below, Hughes et al. in prep).
 
-:image:`<figures/pvsatcalc.png>` :width: 800
+.. figure:: figures/pvsatcalc.png
 
 In this example we'll show you how to run this calculation for: 
 

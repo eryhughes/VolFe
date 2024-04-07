@@ -1,5 +1,5 @@
 =========================
-Calculation opions
+Calculation options
 =========================
 
 There are various options for how the calculations are done in VolFe.
