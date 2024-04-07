@@ -3,6 +3,7 @@ Equilibrium constants
 ===================================================================================
 
 Below are the different models for the equilibrium constants currently in VolFe, which can also be viewed in the :doc:`equilibrium constants notebook <EqConst>`. 
+The calibration range for these parametrisations is not listed in the original references but is suitable for magmatic systems.
 Currently there is only one option for each equilibrium constant (except H2S), but more could be added in the future. 
 The model type is in **bold** (i.e., what option will effect this variable) and the options of models to use are in *italics* (default options are indicated).
 
