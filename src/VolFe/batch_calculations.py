@@ -40,11 +40,23 @@ def results_table_melt_comp_etc(PT,melt_comp,conc,frac,melt_wf):
     results_headers = pd.DataFrame([["T_C","P_bar",
         "SiO2_wtpc", "TiO2_wtpc", "Al2O3_wtpc", "FeOT_wtpc", "MnO_wtpc", "MgO_wtpc", "CaO_wtpc", "Na2O_wtpc", "K2O_wtpc", "P2O5_wtpc",
         "H2OT_wtpc","OH_wtpc","H2Omol_wtpc","H2_ppmw","CH4_ppmw","CO2T_ppmw","CO2mol_ppmw","CO32-_ppmw","CO_ppmw","S2-_ppmw","S6+_ppmw","H2S_ppmw",
-        "H_H2OT/HT", "H_H2/HT", "H_CH4/HT", "H_H2S/HT", "C_CO2T/CT", "C_CO/CT", "C_CH4/CT", "S2-/ST", "S6+/ST", "H2S/ST", "Fe3+/FeT"]])
+        "H_H2OT/HT", "H_H2/HT", "H_CH4/HT", "H_H2S/HT", "C_CO2T/CT", "C_CO/CT", "C_CH4/CT", "S2-/ST", "S6+/ST", "H2S/ST", "Fe3+/FeT","sulf_XFe","sulf_XCu","sulf_XNi"]])
+    if "sulf_XFe" in melt_wf:
+        melt_wf
+    else:
+        melt_wf["sulf_XFe"] = 1.
+    if "sulf_XCu" in melt_wf:
+        melt_wf
+    else:
+        melt_wf["sulf_XCu"] = 0.
+    if "sulf_XNi" in melt_wf:
+        melt_wf
+    else:
+        melt_wf["sulf_XNi"] = 0.
     results_values = pd.DataFrame([[PT["T"],PT["P"],
                 melt_comp["SiO2"]*100., melt_comp["TiO2"]*100., melt_comp["Al2O3"]*100., melt_comp["FeOT"]*100., melt_comp["MnO"]*100., melt_comp["MgO"]*100., melt_comp["CaO"]*100., melt_comp["Na2O"]*100., melt_comp["K2O"]*100., melt_comp["P2O5"]*100.,
                 conc["wm_H2O"]*100.,conc["wm_OH"]*100,conc["wm_H2Omol"]*100.,conc["wm_H2"]*1000000.,conc["wm_CH4"]*1000000.,conc["wm_CO2"]*1000000.,conc["wm_CO2mol"]*1000000,conc["wm_CO2carb"]*1000000,conc["wm_CO"]*1000000.,conc["wm_S2m"]*1000000.,conc["wm_S6p"]*1000000.,conc["wm_H2S"]*1000000.,
-                frac["H2O_HT"], frac["H2_HT"], frac["CH4_HT"], frac["H2S_HT"], frac["CO2_CT"], frac["CO_CT"], frac["CH4_CT"], frac["S2m_ST"], frac["S6p_ST"], frac["H2S_ST"],melt_wf["Fe3FeT"]]])
+                frac["H2O_HT"], frac["H2_HT"], frac["CH4_HT"], frac["H2S_HT"], frac["CO2_CT"], frac["CO_CT"], frac["CH4_CT"], frac["S2m_ST"], frac["S6p_ST"], frac["H2S_ST"],melt_wf["Fe3FeT"],melt_wf["sulf_XFe"],melt_wf["sulf_XCu"],melt_wf["sulf_XNi"]]])
     return results_headers, results_values
 def results_table_melt_vol():
     results_headers = pd.DataFrame([["H2OT-eq_wtpc","CO2T-eq_ppmw","ST_ppmw","X_ppmw"]])
@@ -273,6 +285,12 @@ def calc_Pvsat(setup,models=mdv.default_models,first_row=0,last_row=None,p_tol=1
         melt_wf=mg.melt_comp(run,setup)
         melt_wf['CO2'] = setup.loc[run,"CO2ppm"]/1000000.
         melt_wf["H2OT"] = setup.loc[run,"H2O"]/100.
+        if "sulf_XFe" in setup:
+            melt_wf["sulf_XFe"] = setup.loc[run,"sulf_XFe"]
+        if "sulf_XCu" in setup:
+            melt_wf["sulf_XCu"] = setup.loc[run,"sulf_XCu"]
+        if "sulf_XNi" in setup:
+            melt_wf["sulf_XNi"] = setup.loc[run,"sulf_XNi"]
 
         # check if any options need to be read from the setup file rather than the models file
         models = options_from_setup(run,models,setup)
@@ -429,6 +447,12 @@ def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,d
     melt_wf["ST"] = melt_wf["ST"]
     if "S6ST" in setup > 0.:
         melt_wf["S6ST"] = setup.loc[run,"S6ST"]
+    if "sulf_XFe" in setup:
+        melt_wf["sulf_XFe"] = setup.loc[run,"sulf_XFe"]
+    if "sulf_XCu" in setup:
+        melt_wf["sulf_XCu"] = setup.loc[run,"sulf_XCu"]
+    if "sulf_XNi" in setup:
+        melt_wf["sulf_XNi"] = setup.loc[run,"sulf_XNi"]
 
     # Calculate saturation pressure for composition given in setup file
     if models.loc["insolubles","option"] == "H2O-CO2 only":  
@@ -952,6 +976,13 @@ def calc_melt_S_oxybarometer(setup,first_row=0,last_row=None,models=mdv.default_
         melt_wf["ST"] = setup.loc[run, "STppm"]/1000000.
         melt_wf["XT"] = setup.loc[run, "Xppm"]/1000000.
         melt_wf["CT"] = ((setup.loc[run, "CO2ppm"]/1000000.)/mdv.species.loc["CO2","M"])*mdv.species.loc["C","M"]
+        if "sulf_XFe" in setup:
+            melt_wf["sulf_XFe"] = setup.loc[run,"sulf_XFe"]
+        if "sulf_XCu" in setup:
+            melt_wf["sulf_XCu"] = setup.loc[run,"sulf_XCu"]
+        if "sulf_XNi" in setup:
+            melt_wf["sulf_XNi"] = setup.loc[run,"sulf_XNi"]
+
         if 'P_bar' in setup:    
             if setup.loc[run,"P_bar"] > 0.:
                 PT["P"] = setup.loc[run,"P_bar"]

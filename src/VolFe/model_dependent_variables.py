@@ -1485,12 +1485,25 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
     T = PT['T'] + 273.15
     Fe3FeT = melt_wf["Fe3FeT"]
     comp = mg.melt_pysulfsat(melt_wf)
-    
+
+    if "sulf_XFe" in melt_wf:
+        sulf_XFe = melt_wf["sulf_XFe"]
+    else:
+        sulf_XFe = 1.
+    if "sulf_XCu" in melt_wf:
+        sulf_XCu = melt_wf["sulf_XCu"]       
+    else:
+        sulf_XCu = 0.
+    if "sulf_XNi" in melt_wf:
+        sulf_XNi = melt_wf["sulf_XNi"]       
+    else:
+        sulf_XNi = 0.
+
     if model in ["ONeill21","ONeill21dil","ONeill21hyd"]: # O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
         R = 8.31441
         P = (1.0e-4)*P_bar # pressure in GPa
         D = (137778.0 - 91.66*T + 8.474*T*gp.log(T)) # J/mol Eq. (10.45)
-        sulfide_comp = 1.0 # assumes the sulfide is pure FeS (no Ni, Cu, etc.)
+        sulfide_comp = sulf_XFe # assumes the sulfide is pure FeS (no Ni, Cu, etc.)
         if model == "ONeill21": # Eq. (10.34, 10.43, 10.45, 10.46) 
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) no volatiles
             melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
@@ -1521,7 +1534,7 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
         SCSS = gp.exp(lnS)
     
     elif model == "Liu21": # Eq. (2) Liu et al. (2021) Chem.Geol. 559:119913 doi:10.1016.j.chemgeo.2020.119913
-        XFeS = 1.
+        XFeS = sulf_XFe
         H2O = melt_wf["H2OT"]*100.
         SCSS = (XFeS*gp.exp(13.88 - (9744./T) - (328.*(0.0001*PT["P"])/T))) + 104.*H2O
     
@@ -1536,13 +1549,13 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
 Ni_Liq=None, Cu_Liq=None, Fe_Sulf=None, Cu_Sulf=None, Ni_Sulf=None, Ni_Sulf_init=5, Cu_Sulf_init=5, Fe3Fet_Liq=Fe3FeT)
         SCSS = float(output["SCSS2_ppm"])
     elif model == "ONeill22_pss": # O'Neill & Mavrogenes (2022) assuming pure FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-        output = ss.calculate_OM2022_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=1., Cu_FeNiCu_Sulf=0., Ni_FeNiCu_Sulf=0., Fe_Sulf=None, Ni_Sulf=None, Cu_Sulf=None, Ni_Liq=None, Cu_Liq=None, Ni_Sulf_init=5, Cu_Sulf_init=5)
+        output = ss.calculate_OM2022_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi, Fe_Sulf=None, Ni_Sulf=None, Cu_Sulf=None, Ni_Liq=None, Cu_Liq=None, Ni_Sulf_init=5, Cu_Sulf_init=5)
         SCSS = float(output["SCSS2_ppm"])
     elif model == "ONeill21_pss": # O'Neill (2021) assuming pure FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-        output = ss.calculate_O2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=1., Cu_FeNiCu_Sulf=0., Ni_FeNiCu_Sulf=0.,Fe_Sulf=None, Ni_Sulf=None, Cu_Sulf=None,Ni_Liq=None, Cu_Liq=None, Ni_Sulf_init=5, Cu_Sulf_init=5)
+        output = ss.calculate_O2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi, Fe_Sulf=None, Ni_Sulf=None, Cu_Sulf=None,Ni_Liq=None, Cu_Liq=None, Ni_Sulf_init=5, Cu_Sulf_init=5)
         SCSS = float(output["SCSS2_ppm"])
     elif model == "Smythe17_pss": # Smythe et al. (2017) assuming pure FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-        output = ss.calculate_S2017_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=0.999999, Cu_FeNiCu_Sulf=0.000001, Ni_FeNiCu_Sulf=0.,Fe_Sulf=None, Ni_Sulf=None, Cu_Sulf=None, Ni_Liq=None, Cu_Liq=None, H2O_Liq=float(100.*melt_wf['H2OT']),Ni_Sulf_init=5, Cu_Sulf_init=5)
+        output = ss.calculate_S2017_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi, Fe_Sulf=None, Ni_Sulf=None, Cu_Sulf=None, Ni_Liq=None, Cu_Liq=None, H2O_Liq=float(100.*melt_wf['H2OT']),Ni_Sulf_init=5, Cu_Sulf_init=5)
         SCSS = float(output["SCSS2_ppm_ideal_Smythe2017"])
     return SCSS
 

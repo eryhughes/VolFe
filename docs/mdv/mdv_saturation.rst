@@ -3,6 +3,7 @@ Sulfide/sulfate content at sulfide/anhydrite saturation
 ===================================================================================
 
 Below are the different models for the sulfide content an sulfide saturation and sulate content at anhydrite currently in VolFe, which can also be viewed in the :doc:`saturation conditions notebook <SatCond>`.  
+The sulfide is assumed to be pure FeS unless specified in the input dataframe using "sulf_XFe", "sulf_XCu", and "sulf_XNi" (mole fractions of FeS, CuS, and NiS in the sulfide, respectively)
 The model type is in **bold** (i.e., what option will effect this variable) and the options of models to use are in *italics* (default options are indicated).
 
 
@@ -24,13 +25,13 @@ Model for parameterisation of the sulfide content at sulfide saturation (S2-CSS)
 
 - *Fortin15_pss*: Fortin et al. (2015) using PySulfSat by Wieser & Gleeson (2023)
 
-- *Liu21_pss*: Liu et al. (2021) assuming pure FeS using PySulfSat by Wieser & Gleeson (2023)
+- *Liu21_pss*: Liu et al. (2021) using PySulfSat by Wieser & Gleeson (2023)
 
-- *ONeill22_pss*: O'Neill & Mavrogenes (2022) assuming pure FeS using PySulfSat by Wieser & Gleeson (2023)
+- *ONeill22_pss*: O'Neill & Mavrogenes (2022) using PySulfSat by Wieser & Gleeson (2023)
 
-- *ONeill21_pss*: O'Neill (2021) assuming pure FeS using PySulfSat by Wieser & Gleeson (2023)
+- *ONeill21_pss*: O'Neill (2021) using PySulfSat by Wieser & Gleeson (2023)
 
-- *Smythe17_pss*: Smythe et al. (2017) assuming pure FeS using PySulfSat by Wieser & Gleeson (2023)
+- *Smythe17_pss*: Smythe et al. (2017) using PySulfSat by Wieser & Gleeson (2023)
 
 
 **SCAS**
