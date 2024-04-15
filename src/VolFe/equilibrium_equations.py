@@ -1098,7 +1098,7 @@ def eq_HOFe_xenia(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses):
     
     # equilibrium constants
     K1_ = 1.0/(6.9617e-10) # H2O = H2 + 0.5O2
-    K2_ = gp.exp(-13.869+3890.0/T_K)# H2Og = H2Omol Zhang 1999 eq14 @1bar
+    K2_ = exp(-13.869+3890.0/T_K)# H2Og = H2Omol Zhang 1999 eq14 @1bar
     K3_ = 0.368 # H2O + O = 2OH
     K4a_ = mdv.C_H2_a()/100. # H2g = H2m, converted to weight fraction
     K4b_ = mdv.C_H2_b() # power for H2g = H2m
@@ -1134,7 +1134,7 @@ def eq_HOFe_xenia(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses):
         wm_H2_ = K4a_*(y_H2_*xg_H2_*P)**K4b_
         Xm_t = xm_H2OT_*M_H2O + (1.0-xm_H2OT_)*M_m_
         Xg_t = xg_H2O_*M_H2O + xg_H2_*M_H2 + xg_O2_*M_O2
-        Fe32 = 2.0*gp.exp(0.196*gp.log(y_O2_*xg_O2_*P)+K5_)
+        Fe32 = 2.0*exp(0.196*log(y_O2_*xg_O2_*P)+K5_)
         Fe3T = Fe32/(1.0+Fe32)
         wm_H2OT_ = (xm_H2OT_*M_H2O)/Xm_t
         return xg_H2O_, xg_H2_, xm_H2Omol_, xm_OH_, xm_H2OT_, Xm_t, Xg_t, Fe32, Fe3T, wm_H2OT_, wm_H2_

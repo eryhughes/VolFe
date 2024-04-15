@@ -2,7 +2,6 @@
 
 import pandas as pd
 from datetime import date
-import gmpy2 as gp
 import numpy as np
 import datetime
 import math as math
@@ -850,7 +849,7 @@ def calc_sol_consts(setup,first_row=0,last_row=None,models=mdv.default_models):
         results_values_models = pd.DataFrame([[models.loc["species X","option"],models.loc["Hspeciation","option"], 
                 models.loc["fO2","option"], models.loc["NNObuffer","option"], models.loc["FMQbuffer","option"],
                  models.loc["carbon dioxide","option"], models.loc["water","option"], models.loc["hydrogen","option"], models.loc["sulfide","option"], models.loc["sulfate","option"], models.loc["hydrogen sulfide","option"], models.loc["methane","option"], models.loc["carbon monoxide","option"], models.loc["species X solubility","option"], models.loc["Cspeccomp","option"], models.loc["Hspeccomp","option"],datetime.datetime.now()]])
-        results_values_values = pd.DataFrame([[setup.loc[run,"Sample"],PT["P"],PT["T"],melt_comp["SiO2"]*100., melt_comp["TiO2"]*100., melt_comp["Al2O3"]*100., melt_comp["FeOT"]*100., melt_comp["MnO"]*100., melt_comp["MgO"]*100., melt_comp["CaO"]*100., melt_comp["Na2O"]*100., melt_comp["K2O"]*100., melt_comp["P2O5"]*100.,setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],setup.loc[run,"STppm"],melt_wf["Fe3FeT"],fO2_,gp.log(C_CO32),gp.log(C_H2OT),gp.log(C_S2),gp.log(C_S6),gp.log(C_H2S),gp.log(C_H2),gp.log(C_CO),gp.log(C_CH4),gp.log(C_X),M_m]])
+        results_values_values = pd.DataFrame([[setup.loc[run,"Sample"],PT["P"],PT["T"],melt_comp["SiO2"]*100., melt_comp["TiO2"]*100., melt_comp["Al2O3"]*100., melt_comp["FeOT"]*100., melt_comp["MnO"]*100., melt_comp["MgO"]*100., melt_comp["CaO"]*100., melt_comp["Na2O"]*100., melt_comp["K2O"]*100., melt_comp["P2O5"]*100.,setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],setup.loc[run,"STppm"],melt_wf["Fe3FeT"],fO2_,log(C_CO32),log(C_H2OT),log(C_S2),log(C_S6),log(C_H2S),log(C_H2),log(C_CO),log(C_CH4),log(C_X),M_m]])
         results1 = pd.concat([results_values_values,results_values_models],axis=1)
     
         if n == first_row:
@@ -859,7 +858,7 @@ def calc_sol_consts(setup,first_row=0,last_row=None,models=mdv.default_models):
             results = pd.concat([results, results1])
         
         if models.loc["print status","option"] == "yes":
-            print(n, setup.loc[run,"Sample"],gp.log(C_CO32),gp.log(C_H2OT),gp.log(C_S2),gp.log(C_S6),gp.log(C_H2S),gp.log(C_H2),gp.log(C_CO),gp.log(C_CH4),M_m)
+            print(n, setup.loc[run,"Sample"],log(C_CO32),log(C_H2OT),log(C_S2),log(C_S6),log(C_H2S),log(C_H2),log(C_CO),log(C_CH4),M_m)
     
     results.columns = results.iloc[0]
     results = results[1:]
@@ -1173,12 +1172,12 @@ def Csulfate_output(setup,first_row=0,last_row=None,models=mdv.default_models):
         Csulfate_ = mdv.C_SO4(PT,melt_wf,models)
                 
         ### store results ###
-        results2 = pd.DataFrame([[setup.loc[run,"Sample"],setup.loc[run,"P_bar"],setup.loc[run,"T_C"],setup.loc[run,"SiO2"],setup.loc[run,"TiO2"],setup.loc[run,"Al2O3"],mg.Wm_FeOT(run,setup),setup.loc[run,"MnO"],setup.loc[run,"MgO"],setup.loc[run,"CaO"],setup.loc[run,"Na2O"],setup.loc[run,"K2O"],setup.loc[run,"P2O5"],setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],setup.loc[run,"STppm"],melt_wf["S6ST"],melt_wf["Fe3FeT"],gp.log(mg.C_S(PT,melt_wf,models)),gp.log(Csulfate_),mdv.f_O2(PT,melt_wf,models),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,models),"NNO"),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,models),"FMQ")]])
+        results2 = pd.DataFrame([[setup.loc[run,"Sample"],setup.loc[run,"P_bar"],setup.loc[run,"T_C"],setup.loc[run,"SiO2"],setup.loc[run,"TiO2"],setup.loc[run,"Al2O3"],mg.Wm_FeOT(run,setup),setup.loc[run,"MnO"],setup.loc[run,"MgO"],setup.loc[run,"CaO"],setup.loc[run,"Na2O"],setup.loc[run,"K2O"],setup.loc[run,"P2O5"],setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],setup.loc[run,"STppm"],melt_wf["S6ST"],melt_wf["Fe3FeT"],log(mg.C_S(PT,melt_wf,models)),log(Csulfate_),mdv.f_O2(PT,melt_wf,models),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,models),"NNO"),mg.fO22Dbuffer(PT,mdv.f_O2(PT,melt_wf,models),"FMQ")]])
         results = pd.concat([results, results2], ignore_index=True)                     
         if models.loc["output csv","option"] == "yes":
             results.to_csv('Csulfate.csv', index=False, header=False)
         if models.loc["print status","option"] == "yes":
-            print(n, setup.loc[run,"Sample"],gp.log(Csulfate_),gp.log(mg.C_S(PT,melt_wf,models)))
+            print(n, setup.loc[run,"Sample"],log(Csulfate_),log(mg.C_S(PT,melt_wf,models)))
         return results
 
 ##########################

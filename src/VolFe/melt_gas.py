@@ -2,7 +2,6 @@
 
 import pandas as pd
 import numpy as np
-import gmpy2 as gp
 import math
 import warnings as w
 
@@ -285,7 +284,7 @@ def xm_OH_so(PT,melt_wf,models):
     Z = xm_H2OT_so(melt_wf)
     
     def f(A, B, C, Z, x): # regular solution model rearranged to equal 0 to solve for xm_OH
-        return (A + B*x + C*(Z - 0.5*x) + gp.log((x**2.0)/((Z - 0.5*x)*(1.0 - Z - 0.5*x))))
+        return (A + B*x + C*(Z - 0.5*x) + log((x**2.0)/((Z - 0.5*x)*(1.0 - Z - 0.5*x))))
 
     def df(B, C, Z, x): # derivative of above
         return (B - 0.5*C - (2.0/x) + (0.5/(Z-0.5*x) + (0.5/(1.0-Z-0.5*x))))
