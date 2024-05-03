@@ -36,9 +36,8 @@ def P_sat(PT,melt_wf,models,Ptol,nr_step,nr_tol):
 
     guess0 = 40000. # initial guess for pressure
     PT["P"] = guess0
-    melt_wf1["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,models)
-    
-    melt_wf2["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,models)
+    melt_wf1["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf1,models)
+    melt_wf2["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf2,models)
     #wt_C, wt_O, wt_H, wt_S, wt_Fe, wt_g, Wt = bulk_composition(run,PT,melt_wf1,setup,models)
     #bulk_wf = {"H":wt_H,"C":wt_C,"S":wt_S}
     ms_conc = eq.melt_speciation(PT,melt_wf1,models,nr_step,nr_tol)
@@ -61,8 +60,8 @@ def P_sat(PT,melt_wf,models,Ptol,nr_step,nr_tol):
         guess0 = mg.p_tot(PT,melt_wf1,models)
         guess0 = float(guess0)
         PT["P"] = guess0
-        melt_wf1["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,models)
-        melt_wf2["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,models)
+        melt_wf1["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf1,models)
+        melt_wf2["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf2,models)
         ms_conc = eq.melt_speciation(PT,melt_wf1,models,nr_step,nr_tol)
         ms_frac = melt_species_ratios(ms_conc)
         melt_wf1["H2OT"] = ms_conc["wm_H2O"]
@@ -217,7 +216,7 @@ def bulk_composition(run,PT,melt_wf,setup,models):
         if "total_mass_g" in setup:
             Wt = setup.loc[run, "total_mass_g"]
         else:
-            Wt = ""
+            Wt = 1.
     elif models.loc["mass_volume","option"] == "volume": ### THIS NEEDS FIXING ###
         Wt = 0.
 
