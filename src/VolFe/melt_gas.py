@@ -7,6 +7,7 @@ import warnings as w
 
 #import model_dependent_variables as mdv
 import VolFe.model_dependent_variables as mdv
+import VolFe.equilibrium_equations as eq
 
 ### TO SORT ###
 # species X solubility
@@ -137,17 +138,46 @@ def Dbuffer2fO2(PT,D,buffer,model):
         return 10.0**(D + mdv.FMQ(PT,model))
         
 def S6S2_2_fO2(S62,melt_wf,PT,models):
-    CSO4 = mdv.C_SO4(PT,melt_wf,models)
-    CS = mdv.C_S(PT,melt_wf,models)
-    if models.loc["H2S_m","option"] == "no":
-        fO2 = ((S62*CS)/CSO4)**0.5
-    elif models.loc["H2S_m","option"] == "yes":
-        KHS = mdv.KHOSg(PT,models)
-        CH2S = mdv.C_H2S(PT,melt_wf,models)
-        CH2OT = mdv.C_H2O(PT,melt_wf,models)
-        xmH2O = xm_H2OT_so(melt_wf)
-        W = (CSO4/((KHS*CH2S*(xmH2O**2./CH2OT)) + CS))
-        fO2 = (S62/W)**0.5
+
+    def calc_fO2(S62,melt_wf,PT,models):
+        CSO4 = mdv.C_SO4(PT,melt_wf,models)/1000000.
+        CS = mdv.C_S(PT,melt_wf,models)/1000000.
+        if models.loc["H2S_m","option"] == "no":
+            fO2 = ((S62*CS)/CSO4)**0.5
+        elif models.loc["H2S_m","option"] == "yes":
+            KHS = mdv.KHOSg(PT,models)
+            CH2S = ((mdv.C_H2S(PT,melt_wf,models)/1000000.)/mdv.species.loc['H2S','M'])*mdv.species.loc['S','M']
+            CH2OT = mdv.C_H2O(PT,melt_wf,models)
+            xmH2O = xm_H2OT_so(melt_wf)
+            W = (CSO4/((KHS*CH2S*(xmH2O**2./CH2OT)) + CS))
+            fO2 = (S62/W)**0.5
+        return fO2, xmH2O
+
+    melt_wf['Fe3FeT'] = 0.1
+    fO2, xmH2O = calc_fO2(S62,melt_wf,PT,models)
+    Fe3FeT = mdv.fO22Fe3FeT(fO2,PT,melt_wf,models)
+    delta1 = abs(melt_wf['Fe3FeT'] - Fe3FeT)
+    conc = eq.melt_speciation(PT,melt_wf,models,1.,1.e-9)
+    melt_wf["H2OT"] = conc["wm_H2O"]
+    melt_wf["CO2"] = conc["wm_CO2"]
+    while delta1 > 0.0001 or delta2 > 1.e-9:
+        melt_wf['Fe3FeT'] = Fe3FeT
+        fO2, xmH2O = calc_fO2(S62,melt_wf,PT,models)
+        Fe3FeT = mdv.fO22Fe3FeT(fO2,PT,melt_wf,models)
+        delta1 = abs(melt_wf['Fe3FeT'] - Fe3FeT)
+        conc = eq.melt_speciation(PT,melt_wf,models,1.,1.e-9)
+        melt_wf["H2OT"] = conc["wm_H2O"]
+        melt_wf["CO2"] = conc["wm_CO2"]
+        delta2 = abs(xmH2O - xm_H2OT_so(melt_wf))
+    else:
+        fO2, xmH2O = calc_fO2(S62,melt_wf,PT,models)
+    
+    #S6p = melt_wf["ST"]*(S62/(1.+S62))
+    #S2mT = melt_wf["ST"] - S6p
+    #S_H2S_S2m = (mdv.KHOSg(PT,models)*(mdv.C_H2S(PT,melt_wf,models)/1000000.)*(xmH2O**2./mdv.C_H2O(PT,melt_wf,models)))/(mdv.C_S(PT,melt_wf,models)/1000000.)
+    #S_H2S = S2mT*(S_H2S_S2m/(1.+S_H2S_S2m))
+    #H2S = (S_H2S/mdv.species.loc['S','M'])*mdv.species.loc['H2S','M']
+    #S2m = S2mT - S_H2S
     return fO2
     
     
