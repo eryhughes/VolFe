@@ -681,7 +681,9 @@ def melt_speciation(PT,melt_wf,models,nr_step,nr_tol):
     
     wm_SO3_ = (wm_S6p_*mdv.species.loc["SO3","M"])/mdv.species.loc["S","M"]
 
-    conc = {"xm_H2O":xm_H2O_, "wm_H2O":wm_H2O_, "wm_H2Omol":wm_H2Omol_, "wm_OH":wm_OH_, "xm_CO2":xm_CO2_, "wm_CO2":wm_CO2_, "wm_CO2carb":wm_CO2carb_,"wm_CO2mol":wm_CO2mol_,"wm_H2":wm_H2_, "wm_CO":wm_CO_, "wm_CH4":wm_CH4_, "wm_H2S":wm_H2S_, "wm_S2m":wm_S2m_, "wm_S6p":wm_S6p_, "wm_SO3":wm_SO3_,"ST": wt_S}
+    Fe3FeT = melt_wf["Fe3FeT"]
+
+    conc = {"xm_H2O":xm_H2O_, "wm_H2O":wm_H2O_, "wm_H2Omol":wm_H2Omol_, "wm_OH":wm_OH_, "xm_CO2":xm_CO2_, "wm_CO2":wm_CO2_, "wm_CO2carb":wm_CO2carb_,"wm_CO2mol":wm_CO2mol_,"wm_H2":wm_H2_, "wm_CO":wm_CO_, "wm_CH4":wm_CH4_, "wm_H2S":wm_H2S_, "wm_S2m":wm_S2m_, "wm_S6p":wm_S6p_, "wm_SO3":wm_SO3_,"ST": wt_S,'Fe3FeT':Fe3FeT}
     return conc
 
 def eq_SOFe_melt(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses): # equilibrium between S and Fe in the melt
