@@ -30,11 +30,11 @@ def make_models_df(models):
     return models
 
 # define default models
-default_models = [['insolubles','yes'],['H2S_m','yes'],['species X','Ar'],['Hspeciation','none'],
+default_models = [['COH_species','yes_H2_CO_CH4_melt'],['H2S_m','True'],['species X','Ar'],['Hspeciation','none'],
               ['fO2','Kress91A'],['NNObuffer','Frost91'],['FMQbuffer','Frost91'],
               ['melt composition','Basalt'],['carbon dioxide','MORB_Dixon95'],['water','Basalt_Hughes24'],['hydrogen','Basalt_Hughes24'],['sulfide','ONeill21dil'],['sulfate','ONeill22dil'],['hydrogen sulfide','Basalt_Hughes24'],['methane','Basalt_Ardia13'],['carbon monoxide','Basalt_Hughes24'],['species X solubility','Ar_Basalt_HughesIP'],['Cspeccomp','Basalt'],['Hspeccomp','MORB_HughesIP'],
-              ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','no'],['sulfur_is_sat','no'],['graphite_saturation','no'],
-              ['ideal_gas','no'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holland91'],['y_OCS','Shi92'],['y_X','ideal'],
+              ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','False'],['sulfur_is_sat','no'],['graphite_saturation','False'],
+              ['ideal_gas','False'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holland91'],['y_OCS','Shi92'],['y_X','ideal'],
               ['KHOg','Ohmoto97'],['KHOSg','Ohmoto97'],['KOSg','Ohmoto97'],['KOSg2','ONeill22'], ['KCOg','Ohmoto97'],['KCOHg','Ohmoto97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
               ['bulk_composition','yes'],['starting_P','bulk'],['gassing_style','closed'],['gassing_direction','degas'],['P_variation','polybaric'],['eq_Fe','yes'],['solve_species','OCS'],
               ['density','DensityX'],['isotopes','no'],['T_variation','isothermal'],['crystallisation','no'],['mass_volume','mass'],['calc_sat','fO2_melt'],['bulk_O','exc_S'],['error',0.1],
@@ -60,7 +60,7 @@ def check_default_options(models):
         return variable
 
     # species
-    insolubles = return_options(default_models.loc['insolubles','option'],'insolubles',models)
+    COH_species = return_options(default_models.loc['COH_species','option'],'COH_species',models)
     H2S_m = return_options(default_models.loc['H2S_m','option'],'H2S_m',models)
     species_X = return_options(default_models.loc['species X','option'],'species X',models)
     Hspeciation = return_options(default_models.loc['Hspeciation','option'],'Hspeciation',models)
@@ -136,7 +136,7 @@ def check_default_options(models):
     setup = return_options(default_models.loc['setup','option'],'setup',models)
     precision = return_options(default_models.loc['high precision','option'],'high precision',models)
 
-    models = [['insolubles',insolubles],['H2S_m',H2S_m],['species X',species_X],['Hspeciation',Hspeciation],
+    models = [['COH_species',COH_species],['H2S_m',H2S_m],['species X',species_X],['Hspeciation',Hspeciation],
               ['fO2',fO2],['NNObuffer',NNObuffer],['FMQbuffer',FMQbuffer],
               ['melt composition',melt_comp],['carbon dioxide',CO2],['water',H2O],['hydrogen',H2],['sulfide',S2m],['sulfate',S6p],['hydrogen sulfide',H2S],['methane',CH4],['carbon monoxide',CO],['species X solubility',X],['Cspeccomp',Cspec],['Hspeccomp',Hspec],
               ['SCSS',SCSS],['SCAS',SCAS],['sulfur_saturation',sulfur_saturation],['sulfur_is_sat',sulfur_is_sat],['graphite_saturation',graphite_saturation],
@@ -179,24 +179,26 @@ def make_df_and_add_model_defaults(models):
     
     ### Specifying species ###
     
-    insolubles: Specifying if H2, CO, and CH4 are present in the melt and/or vapor.
-        default: 'yes' Include H2mol, COmol and/or CH4mol as dissolved melt species (which species depends on whether H and/or C are volatile elements).
+    COH_species: Specifying what COH species are present in the melt and vapor.
+        default: 'yes_H2_CO_CH4_melt' Include H2mol (if H present), COmol (if C present) and/or CH4mol (if H and C present) as dissolved melt species.
         Other options: 
-        'no' H2, CO and/or CH4 are insoluble in the melt.
+        'no_H2_CO_CH4_melt' H2, CO and/or CH4 are insoluble in the melt but they are still present in the vapor (H2 in the vapor if H present, CO in the vapor if C present, CH4 in the vapor if both H and C present).
         'H2O-CO2 only' The only species present in the vapor are H2O and CO2 and in the melt are H2OT and CO2T (i.e., no CO, H2, and/or CH4 in the melt or vapor).
         
-    H2S_m: Specify if H2S is a dissolved melt species.
-        default 'yes' Include H2Smol as a dissolved melt species. 
+    H2S_m: Is H2S a dissolved melt species.
+        default 'True' Include H2Smol as a dissolved melt species. 
         Other options:  
-        'no' H2Smol is insoluble in the melt.
+        'False' H2Smol is insoluble in the melt.
         
     species X: Chemical identity of species X, which defines its atomic mass.
         default 'Ar' Species X is argon (i.e., atomic mass of ~40).
         Other options:
         'Ne' Species X is Ne (i.e., atomic mass of ~20).
+        Other noble gases not currently supported, but we can add them if you get in touch!
     
     ### Hspeciation: default 'none' Oxidised H in the melt only occurs as H2O species (i.e., no OH-).
         Other options:
+        WORK IN PROGRESS
 
     
     ### Oxygen fugacity ###
@@ -213,7 +215,7 @@ def make_df_and_add_model_defaults(models):
         Only one option available currently, included for future development.
 
     FMQbuffer: Model for the parameterisation for the fO2 value of the FMQ buffer.
-        default: 'Frost91' Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
+        default: 'Frost91' FM[beta]Q in Table 1 of Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
         Other options:
         'ONeill87' O'Neill (1897) AmMin 72(1-2):67-75
 
@@ -329,22 +331,22 @@ def make_df_and_add_model_defaults(models):
         'Chowdhury19_pss' Chowdhury & Dasgupta (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         'Zajacz19_pss' Zajacz and Tsay (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     
-    sulfur_saturation: Is sulfur allowed to form sulfide or anhydrite if sulfur content of the melt reaches saturation levels for these phases.
-        default: 'no' melt ± vapor are the only phases present - results are metastable with respect to sulfide and anhydrite if they could saturate.
+    sulfur_saturation: Is sulfur allowed to form sulfide or anhydrite if sulfur content of the melt reaches saturation levels for these phases?
+        default: 'False' melt ± vapor are the only phases present - results are metastable with respect to sulfide and anhydrite if they could saturate.
         Other options:
-        'yes' If saturation conditions for sulfide or anhydrite are met, melt sulfur content reflects this.
+        'True' If saturation conditions for sulfide or anhydrite are met, melt sulfur content reflects this.
     
-    graphite_saturation: Is graphite allowed to form if the carbon content of the melt reaches saturation levels for graphite.
-        default: 'no' melt ± vapor are the only phases present - results are metastable with respect to graphite if it could saturate.
+    graphite_saturation: Is graphite allowed to form if the carbon content of the melt reaches saturation levels for graphite?
+        default: 'False' melt ± vapor are the only phases present - results are metastable with respect to graphite if it could saturate.
         Other options:
-        'yes' If saturation conditions for graphite are met, melt carbon content reflects this.
+        'True' If saturation conditions for graphite are met, melt carbon content reflects this.
            
     ### Fugacity coefficients ###
           
     ideal_gas: Treat all vapor species as ideal gases (i.e., all fugacity coefficients = 1 at all P).
-        default: 'no' At least some of the vapor species are not treated as ideal gases. 
+        default: 'False' At least some of the vapor species are not treated as ideal gases. 
         Other options:
-        'yes' All fugacity coefficients = 1 at all P.
+        'True' All fugacity coefficients = 1 at all P.
     
     y_CO2: Model for the parameterisation of the CO2 fugacity coefficient.
         default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
@@ -447,18 +449,28 @@ def make_df_and_add_model_defaults(models):
     ### Degassing calculation ###
 
     bulk_composition: Specifying what the inputted melt composition (i.e., dissolved volatiles and fO2-estimate) correspond to for the degassing calculation
-        default: 'yes' The inputted melt composition (i.e., dissolved volatiles) represents the bulk system - there is no vapor present. The fO2-estimate is calculated at Pvsat for this melt composition.
+        default: 'yes' The inputted melt composition (i.e., dissolved volatiles) represents the bulk system - 
+        there is no vapor present. The fO2-estimate is calculated at Pvsat for this melt composition.
         Other options:
-        'wtg' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. The amount of vapor is specified in the inputs. The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input composition.
-        'CO2' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. The initial CO2 content of the melt (i.e., before degassing) is specified in the inputs. The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input composition.
+        'wtg' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. 
+        The amount of vapor is specified in the inputs. The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input composition.
+        CO2INIT
+        'CO2' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. 
+        The initial CO2 content of the melt (i.e., before degassing) is specified in the inputs. 
+        The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input 
+        composition. EXCESS GOES INTO THE GAS PHASE (ESTIMATING WTG BY GIVING INITIAL CO2)
     
     starting_P: Determing the starting pressure for a degassing calculation.
-        default: 'bulk' Calculation starts at Pvsat for the inputted melt composition (i.e., dissolved volatiles), which has no vapor present.
+        UNITS
+        default: 'bulk' Calculation starts at Pvsat for the inputted melt composition (i.e., dissolved volatiles), 
+        which has no vapor present.
         Other options:
         'set' Calculation starts at the pressure specified in the inputs.
-        'measured' Calculation starts at Pvsat for the inputted melt composition (i.e., dissolved volatiles), which has vapor present.
+        # CHECK # 'measured' Calculation starts at Pvsat for the inputted melt composition (i.e., dissolved volatiles), 
+        which has vapor present.
     
-    gassing_style: Does the bulk composition of the system (including oxygen) remain constant during the re/degassing calculation.
+    gassing_style: Does the bulk composition of the system (including oxygen) remain constant during the re/degassing 
+    calculation.
         default: 'closed' The bulk composition of the system (inc. oxygen) is constant during re/degassing calculation - vapor and melt remain in chemical equilibrium throughout.
         Other options:
         'open' At each pressure-step, the vapor in equilibrium with the melt is removed (or added for regassing), such that the bulk composition of the system changes. This does not refer to being buffered in terms of fO2.
@@ -476,11 +488,13 @@ def make_df_and_add_model_defaults(models):
         default: 'isothermal' Temperature is constant during the calculation.
         Only one option available currently, included for future development.
     
+    # WHY DID I THINK THIS WAS USEFUL #
     eq_Fe: Does iron in the melt equilibrate with fO2.
         default: 'yes' Iron equilibrates with fO2
         Only one option available currently, included for future development.
     
-    solve_species: What species are used to solve the equilibrium equations? This should not need to be changed unless the solver is struggling.
+    solve_species: What species are used to solve the equilibrium equations? 
+    This should not need to be changed unless the solver is struggling.
         default: 'OCS' Guess mole fractions of O2, CO, and S2 in the vapor to solve the equilibrium equations.
         'OHS' Guess mole fractions of O2, H2, and S2 in the vapor to solve the equilibrium equations.
         'OCH' Guess mole fractions of O2, CO, and H2 in the vapor to solve the equilibrium equations.
@@ -507,6 +521,7 @@ def make_df_and_add_model_defaults(models):
         'no' csv is not outputted
 
     high precision: Is high preicision used for calculations?
+        TRUE OR FALSE WHAT PRECISION IS IT USING
         default: 'no' normal precision used for calculations
         'yes' high precision used
 
@@ -2459,7 +2474,7 @@ def y_SS(gas_species,PT,models=default_models):
     
     ideal_gas = models.loc["ideal_gas","option"]
 
-    if ideal_gas == "yes":
+    if ideal_gas == "True":
         return 1.0
     elif P < 1.: # ideal gas below 1 bar
         return 1.
@@ -2499,7 +2514,7 @@ def y_H2(PT,models=default_models):
     default: 'Shaw64' Eq. (4) from Shaw & Wones (1964) AmJSci 262:918-929
     Other options:
     ideal: Treat as ideal gas, y = 1 at all P.
-    (Note: "ideal_gas" = "yes" overides chosen option)
+    (Note: "ideal_gas" = "True" overides chosen option)
     """
     P = PT['P']
     T_K = PT['T']+273.15
@@ -2507,7 +2522,7 @@ def y_H2(PT,models=default_models):
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_H2","option"]
 
-    if ideal_gas == "yes" or model == "ideal":
+    if ideal_gas == "True" or model == "ideal":
         return 1.0
     elif P < 1.: # ideal gas below 1 bar
         return 1.
@@ -2618,7 +2633,7 @@ def y_H2O(PT,models=default_models):
     default: 'Holland91' Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
     Other options:
     ideal: Treat as ideal gas, y = 1 at all P.
-    (Note: "ideal_gas" = "yes" overides chosen option)
+    (Note: "ideal_gas" = "True" overides chosen option)
     """
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_H2O","option"]
@@ -2626,7 +2641,7 @@ def y_H2O(PT,models=default_models):
     P = PT['P']
     T_K = PT['T']+273.15
 
-    if ideal_gas == "yes" or model == "ideal":
+    if ideal_gas == "True" or model == "ideal":
         return 1.
     elif P < 1.: # ideal gas below 1 bar
         return 1.
@@ -2664,7 +2679,7 @@ def y_CO2(PT,models=default_models):
     Other options:
     ideal: Treat as ideal gas, y = 1 at all P.
     Holland91: Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
-    (Note: "ideal_gas" = "yes" overides chosen option)
+    (Note: "ideal_gas" = "True" overides chosen option)
     """
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_CO2","option"]
@@ -2672,7 +2687,7 @@ def y_CO2(PT,models=default_models):
     P = PT['P']
     T_K = PT['T']+273.15
 
-    if ideal_gas == "yes" or model == "ideal":
+    if ideal_gas == "True" or model == "ideal":
         return 1.0
     elif P < 1.: # ideal gas below 1 bar
         return 1.
@@ -2712,7 +2727,7 @@ def y_O2(PT,models=default_models):
     default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
     Other options:
     ideal: Treat as ideal gas, y = 1 at all P.
-    (Note: "ideal_gas" = "yes" overides chosen option)
+    (Note: "ideal_gas" = "True" overides chosen option)
     """
     model = models.loc["y_O2","option"]
 
@@ -2746,7 +2761,7 @@ def y_S2(PT,models=default_models):
     default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
     Other options:
     ideal: Treat as ideal gas, y = 1 at all P.
-    (Note: "ideal_gas" = "yes" overides chosen option)
+    (Note: "ideal_gas" = "True" overides chosen option)
     """
     model = models.loc["y_S2","option"]
 
@@ -2780,7 +2795,7 @@ def y_CO(PT,models=default_models):
     default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
     Other options:
     ideal: Treat as ideal gas, y = 1 at all P.
-    (Note: "ideal_gas" = "yes" overides chosen option)
+    (Note: "ideal_gas" = "True" overides chosen option)
     """
     model = models.loc["y_CO","option"]
 
@@ -2814,7 +2829,7 @@ def y_CH4(PT,models=default_models):
     default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
     Other options:
     ideal: Treat as ideal gas, y = 1 at all P.
-    (Note: "ideal_gas" = "yes" overides chosen option)
+    (Note: "ideal_gas" = "True" overides chosen option)
     """
     model = models.loc["y_CH4","option"]
 
@@ -2848,7 +2863,7 @@ def y_OCS(PT,models=default_models):
     default: 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
     Other options:
     ideal: Treat as ideal gas, y = 1 at all P.
-    (Note: "ideal_gas" = "yes" overides chosen option)
+    (Note: "ideal_gas" = "True" overides chosen option)
     """
     model = models.loc["y_OCS","option"]
 
@@ -2881,7 +2896,7 @@ def y_X(PT,models=default_models): # species X fugacity coefficient
     -----------------------
     default: "ideal" Treat as ideal gas, y = 1 at all P.
     Only one option available currently, included for future development.        
-    (Note: "ideal_gas" = "yes" overides chosen option)
+    (Note: "ideal_gas" = "True" overides chosen option)
     """
     model = models.loc["y_X","option"]
 
@@ -2917,7 +2932,7 @@ def y_SO2(PT,models=default_models):
     Other options:
     Shi92: Shi & Saxena (1992) AmMin 77(9-10):1038-1049
     ideal: Treat as ideal gas, y = 1 at all P.
-    (Note: "ideal_gas" = "yes" overides chosen option)
+    (Note: "ideal_gas" = "True" overides chosen option)
     """
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_SO2","option"]
@@ -2926,7 +2941,7 @@ def y_SO2(PT,models=default_models):
     T_K = PT['T']+273.15
 
     gas_species = "SO2"
-    if ideal_gas == "yes" or model == "ideal":
+    if ideal_gas == "True" or model == "ideal":
         return 1.
     elif P < 1.: # ideal gas below 1 bar
         return 1.
@@ -2999,7 +3014,7 @@ def y_H2S(PT,models=default_models):
     Other options:
     Shi92: Shi & Saxena (1992) AmMin 77(9-10):1038-1049
     ideal: Treat as ideal gas, y = 1 at all P.
-    (Note: "ideal_gas" = "yes" overides chosen option)
+    (Note: "ideal_gas" = "True" overides chosen option)
     """
     ideal_gas = models.loc["ideal_gas","option"]
     model = models.loc["y_H2S","option"]
@@ -3008,9 +3023,9 @@ def y_H2S(PT,models=default_models):
     T_K = PT['T']+273.15
 
     gas_species = "H2S"
-    if ideal_gas == "yes" or model == "ideal":
+    if ideal_gas == "True" or model == "ideal":
         return 1.0
-    elif ideal_gas == "no":
+    elif ideal_gas == "False":
         Tcr = species.loc[gas_species,"Tcr"] # critical temperature in K 
         Pcr = species.loc[gas_species,"Pcr"] # critical temperature in bar
         Tr = T_K/Tcr
