@@ -38,7 +38,7 @@ def results_table_sample_name(setup,run):
 def results_table_melt_comp_etc(PT,melt_comp,conc,frac,melt_wf):
     results_headers = pd.DataFrame([["T_C","P_bar",
         "SiO2_wtpc", "TiO2_wtpc", "Al2O3_wtpc", "FeOT_wtpc", "MnO_wtpc", "MgO_wtpc", "CaO_wtpc", "Na2O_wtpc", "K2O_wtpc", "P2O5_wtpc",
-        "H2OT_wtpc","OH_wtpc","H2Omol_wtpc","H2_ppmw","CH4_ppmw","CO2T_ppmw","CO2mol_ppmw","CO32-_ppmw","CO_ppmw","S2-_ppmw","S6+_ppmw","H2S_ppmw",
+        "H2OT_wtpc","OH_wtpc","H2Omol_wtpc","H2_ppmw","CH4_ppmw","CO2T_ppmw","CO2mol_ppmw","CO2carb_ppmw","CO_ppmw","S2-_ppmw","S6+_ppmw","H2S_ppmw",
         "H_H2OT/HT", "H_H2/HT", "H_CH4/HT", "H_H2S/HT", "C_CO2T/CT", "C_CO/CT", "C_CH4/CT", "S2-/ST", "S6+/ST", "H2S/ST", "Fe3+/FeT","sulf_XFe","sulf_XCu","sulf_XNi"]])
     if "sulf_XFe" in melt_wf:
         melt_wf
@@ -329,10 +329,11 @@ def calc_Pvsat(setup,models=mdv.default_models,first_row=0,last_row=None,p_tol=1
         melt_wf["H2OT"] = conc["wm_H2O"]
         melt_wf["CO2"] = conc["wm_CO2"]
         melt_wf["S2-"] = conc["wm_S2m"]
-        if models.loc["sulfur_is_sat","option"] == "yes":
-            melt_wf["Fe3FeT"] = frac["Fe3FeT"]
-        else:
-            melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,models)
+        melt_wf["Fe3FeT"] = conc["Fe3FeT"]
+        #if models.loc["sulfur_is_sat","option"] == "yes":
+        #    melt_wf["Fe3FeT"] = frac["Fe3FeT"]
+        #else:
+        #    melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,models)
         
         sulf_sat_result = c.sulfur_saturation(PT,melt_wf,models)
         # gas_mf = {"O2":mg.xg_O2(PT,melt_wf,models),"CO":mg.xg_CO(PT,melt_wf,models),"CO2":mg.xg_CO2(PT,melt_wf,models),"H2":mg.xg_H2(PT,melt_wf,models),"H2O":mg.xg_H2O(PT,melt_wf,models),"CH4":mg.xg_CH4(PT,melt_wf,models),"S2":mg.xg_S2(PT,melt_wf,models),"SO2":mg.xg_SO2(PT,melt_wf,models),"H2S":mg.xg_H2S(PT,melt_wf,models),"OCS":mg.xg_OCS(PT,melt_wf,models),"X":mg.xg_X(PT,melt_wf,models),"Xg_t":mg.Xg_tot(PT,melt_wf,models),"wt_g":0.}     
@@ -444,7 +445,7 @@ def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,d
     melt_wf["CT"] = (melt_wf["CO2"]/mdv.species.loc["CO2","M"])*mdv.species.loc["C","M"]
     melt_wf["HT"] = (2.*melt_wf["H2OT"]/mdv.species.loc["H2O","M"])*mdv.species.loc["H","M"]
     melt_wf["ST"] = melt_wf["ST"]
-    if "S6ST" in setup > 0.:
+    if "S6ST" in setup:
         melt_wf["S6ST"] = setup.loc[run,"S6ST"]
     if "sulf_XFe" in setup:
         melt_wf["sulf_XFe"] = setup.loc[run,"sulf_XFe"]
@@ -473,7 +474,7 @@ def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,d
     melt_wf["S2-"] = conc["wm_S2m"]
     melt_wf["S6+"] = conc["wm_S6p"]
     melt_wf["H2S"] = conc["wm_H2S"]
-    melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,models)
+    melt_wf["Fe3FeT"] = conc['Fe3FeT']
     melt_wf["S6ST"] = mg.S6ST(PT,melt_wf,models)
     sulf_sat_result = c.sulfur_saturation(PT,melt_wf,models)    
     wm_CO2eq, wm_H2Oeq = mg.melt_H2O_CO2_eq(melt_wf)
@@ -803,7 +804,7 @@ def calc_sol_consts(setup,first_row=0,last_row=None,models=mdv.default_models):
                  "fO2 opt","NNObuffer opt","FMQbuffer opt",
                  "carbon dioxide opt","water opt","hydrogen opt","sulfide opt","sulfate opt","hydrogen sulfide opt","methane opt","carbon monoxide opt","species X solubility opt","Cspeccomp opt","Hspeccomp opt","Date"]])
     results_headers_values = pd.DataFrame([["Sample","Pressure (bar)","T ('C)","SiO2","TiO2","Al2O3","FeOT","MnO","MgO","CaO","Na2O","K2O","P2O5",
-                "H2O","CO2 (ppm)","ST (ppm)","Fe3+/FeT","fO2 DFMQ","ln[C_CO32-]","ln[C_H2OT]","ln[C_S2-]","ln[C_S6+]","ln[C_H2S]","ln[C_H2]","ln[C_CO]","ln[C_CH4]","ln[C_X]","M_m_SO"]])
+                "H2O","CO2 (ppm)","ST (ppm)","Fe3+/FeT","fO2 DFMQ","ln[C_CO2T]","ln[C_H2OT]","ln[C_S2-]","ln[C_S6+]","ln[C_H2S]","ln[C_H2]","ln[C_CO]","ln[C_CH4]","ln[C_X]","M_m_SO"]])
     results_headers = pd.concat([results_headers_values,results_headers_models],axis=1)
     
     if last_row == None:
