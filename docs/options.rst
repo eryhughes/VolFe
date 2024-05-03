@@ -177,7 +177,14 @@ Specicies whether a csv of the outputted dataframe is saved at the end of the ca
 
 - *yes*: csv is outputted [default]
 
-- *no*: csv is not outputted    
+- *no*: csv is not outputted  
+
+
+**high precision**
+
+- *no*: normal precision is used for calculations [default]
+
+- *yes*: high precision is used for calculations
 
 
 
