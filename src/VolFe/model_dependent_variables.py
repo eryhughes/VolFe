@@ -36,9 +36,9 @@ default_models = [['COH_species','yes_H2_CO_CH4_melt'],['H2S_m','True'],['specie
               ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','False'],['sulfur_is_sat','no'],['graphite_saturation','False'],
               ['ideal_gas','False'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holland91'],['y_OCS','Shi92'],['y_X','ideal'],
               ['KHOg','Ohmoto97'],['KHOSg','Ohmoto97'],['KOSg','Ohmoto97'],['KOSg2','ONeill22'], ['KCOg','Ohmoto97'],['KCOHg','Ohmoto97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
-              ['bulk_composition','yes'],['starting_P','bulk'],['gassing_style','closed'],['gassing_direction','degas'],['P_variation','polybaric'],['eq_Fe','yes'],['solve_species','OCS'],
+              ['bulk_composition','melt-only'],['starting_P','Pvsat'],['gassing_style','closed'],['gassing_direction','degas'],['P_variation','polybaric'],['eq_Fe','yes'],['solve_species','OCS'],
               ['density','DensityX'],['isotopes','no'],['T_variation','isothermal'],['crystallisation','no'],['mass_volume','mass'],['calc_sat','fO2_melt'],['bulk_O','exc_S'],['error',0.1],
-              ['print status','no'],['output csv','yes'],['setup','no'],['high precision','no']]
+              ['print status','False'],['output csv','True'],['setup','False'],['high precision','False']]
 # Create the pandas DataFrame
 default_models = pd.DataFrame(default_models, columns=['type', 'option'])
 default_models = default_models.set_index('type')
@@ -419,7 +419,8 @@ def make_df_and_add_model_defaults(models):
     
     KOSg: Model for the parameterisation of the equilibiurm constant for 0.5S2 + O2 = SO2.
         default: 'Ohmoto97' Reaction (f) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
-        Only one option available currently, included for future development.
+        Other options:
+        'no SO2' Stops SO2 forming in the vapor (K = 0). As a by-product, OCS will also stop forming.
 
     KOSg2: Model for the parameterisation of the equilibiurm constant for 0.5S2 + 1.5O2 = SO3.
         default: 'ONeill2' Eq. (6b) from O'Neill & Mavrogenes (2022) GCA 334:368-382 doi:10.1016/j.gca.2022.06.020
@@ -431,11 +432,13 @@ def make_df_and_add_model_defaults(models):
 
     KCOHg: Model for the parameterisation of the equilibiurm constant for CH4 + 2O2 = CO2 + 2H2O.
         default: 'Ohmoto97' Reaction (e) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
-        Only one option available currently, included for future development.
+        Other options:
+        'no CH4' Stops CH4 forming in the vapor (K = large number).
 
     KOCSg: Model for the parameterisation of the equilibiurm constant for OCS.
         default: 'Moussallam19' Eq. (8) for 2CO2 + OCS ⇄ 3CO + SO2 in Moussallam et al. (2019) EPSL 520:260-267 doi:10.1016/j.epsl.2019.05.036 for 
-        Only one option available currently, included for future development.  
+        Other options:
+        'no OCS' Stops OCS forming in the vapor (K = large number).  
 
     KCOs: Model for the parameterisation of the equilibiurm constant for Cgrahite + O2 = CO2.
         default: 'Holloway92' Eq. (3) KI in Holloway et al. (1992) EuropeanJ.Mineralogy 4(1):105-114.
@@ -448,26 +451,21 @@ def make_df_and_add_model_defaults(models):
         
     ### Degassing calculation ###
 
-    bulk_composition: Specifying what the inputted melt composition (i.e., dissolved volatiles and fO2-estimate) correspond to for the degassing calculation
-        default: 'yes' The inputted melt composition (i.e., dissolved volatiles) represents the bulk system - 
-        there is no vapor present. The fO2-estimate is calculated at Pvsat for this melt composition.
+    bulk_composition: Specifying what the inputted melt composition (i.e., dissolved volatiles and fO2-estimate) corresponds to for the degassing calculation
+        default: 'melt-only' The inputted melt composition (i.e., dissolved volatiles) represents the bulk system - there is no vapor present. 
+        The fO2-estimate is calculated at Pvsat for this melt composition.
         Other options:
-        'wtg' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. 
-        The amount of vapor is specified in the inputs. The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input composition.
-        CO2INIT
-        'CO2' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. 
+        'melt+vapor_wtg' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. 
+        The amount of vapor as weight fraction gas (wtg) is specified in the inputs. The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input composition.
+        'melt+vapor_initialCO2' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. 
         The initial CO2 content of the melt (i.e., before degassing) is specified in the inputs. 
         The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input 
-        composition. EXCESS GOES INTO THE GAS PHASE (ESTIMATING WTG BY GIVING INITIAL CO2)
+        composition. The amount of vapor present is calculated using the given initial CO2.
     
     starting_P: Determing the starting pressure for a degassing calculation.
-        UNITS
-        default: 'bulk' Calculation starts at Pvsat for the inputted melt composition (i.e., dissolved volatiles), 
-        which has no vapor present.
+        default: 'Pvsat' Calculation starts at Pvsat for the inputted melt composition (i.e., dissolved volatiles).
         Other options:
-        'set' Calculation starts at the pressure specified in the inputs.
-        # CHECK # 'measured' Calculation starts at Pvsat for the inputted melt composition (i.e., dissolved volatiles), 
-        which has vapor present.
+        'set' Calculation starts at the pressure specified in the inputs (using P_bar, pressure in bars).
     
     gassing_style: Does the bulk composition of the system (including oxygen) remain constant during the re/degassing 
     calculation.
@@ -507,23 +505,23 @@ def make_df_and_add_model_defaults(models):
         Only one option available currently, included for future development.
 
     setup: Specifies whether model options are specified in the models or setup dataframe. 
-        default: 'no' All model options are specified in the models dataframe.
+        default: 'False' All model options are specified in the models dataframe.
         Other options:
-        'yes' Some of the model options are specified in the setup dataframe.
+        'True' Some of the model options are specified in the setup dataframe.
     
     print status: Specifies whether some sort of status information during the calculation is outputted to let you know progress.
-        default: 'no' No information about calculation progress is printed.
+        default: 'False' No information about calculation progress is printed.
         Other options:
-        'yes': Some information about calculation progress is printed.
+        'True': Some information about calculation progress is printed.
 
     output csv: Specicies whether a csv of the outputted dataframe is saved at the end of the calculation.
-        default: 'yes' csv is outputted
-        'no' csv is not outputted
+        default: 'True' csv is outputted
+        'False' csv is not outputted
 
     high precision: Is high preicision used for calculations?
         TRUE OR FALSE WHAT PRECISION IS IT USING
-        default: 'no' normal precision used for calculations
-        'yes' high precision used
+        default: 'False' normal precision used for calculations
+        'True' high precision used
 
             
     ### In development ###
@@ -622,12 +620,12 @@ def C_H2O(PT,melt_wf,models=default_models):
             P0 = 1.0 # bar
             A = 4.6114e-6
             B = -((DV/(R_*T_K))*(P-P0))
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 C = A*gp.exp(B)
             else:
                 C = A*math.exp(B)
         elif model_solubility == "test2": # for Ptot paper
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 C = gp.exp(-12.29)
             else:
                 C = math.exp(-12.29)
@@ -647,14 +645,14 @@ def C_H2O(PT,melt_wf,models=default_models):
         if model_solubility == "Dixon95": # Dixon et al. (1995) - no compositional dependence
             DV = 12.
             A = 3.28e-5
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 C = A*gp.exp((-DV*(P-P0))/(R*T0))
             else:
                 C = A*math.exp((-DV*(P-P0))/(R*T0))
         elif model_solubility == "alkali basalt": # Lesne et al. (2011) 162:133-151 eqn 31 with added RT term otherwise it will not work
             A = 5.71e-5 # XmH2Om0
             DV = 26.9 # VH2Om0 in cm3/mol
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 C = A*gp.exp((-DV*(P-P0))/(R*T0)) 
             else:
                 C = A*math.exp((-DV*(P-P0))/(R*T0)) 
@@ -737,7 +735,7 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         P0 = 1.0 # bar
         A = 3.8e-7
         B = (-DV*(P-P0))/(R*T0)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -746,7 +744,7 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         P0 = 1.0 # bar
         A = (7.94e-7)*(PI+0.762)
         B = (-DV*(P-P0))/(R*T0)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -756,62 +754,62 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         P0 = 1.0 # bar
         A = (8.70e-6)-((1.7e-7)*(melt_comp_ox["SiO2"]*100.))
         B = (-DV*(P-P0))/(R*T0)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
     elif model == "Basalt_Lesne11": # Eq. (25, 26) from Lesne et al. (2011) based on Dixon (1997)
         DV = 25 # cm3/mol ±3
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(0.893*PI - 15.247) # Eq. (25)
         else:
             A = math.exp(0.893*PI - 15.247) # Eq. (25)
         B = (-DV*(P-P0))/(R*T0)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
     elif model == "VesuviusAlkaliBasalt_Lesne11": # VES-9 in Table 4 of Lesne et al. (2011) CMP 162:153-168
         DV = 31.0 # cm3/mol
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.10) # ±0.03
         else:
             A = math.exp(-14.10) # ±0.03
         B = -((DV/(R*T_K))*(P-P0))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
     elif model == "EtnaAlkaliBasalt_Lesne11": # ETN-1 in Table 4 of Lesne et al. (2011) CMP 162:153-168
         DV = 23.0 # cm3/mol
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.55) # ±0.00
         else:
             A = math.exp(-14.55) # ±0.00
         B = -((DV/(R*T_K))*(P-P0)) 
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
     elif model == "StromboliAlkaliBasalt_Lesne11": # PST-9 in Table 4 of Lesne et al. (2011) CMP 162:153-168
         DV = 6.0 # cm3/mol
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.74) # ±0.01
         else:
             A = math.exp(-14.74) # ±0.01
         B = -((DV/(R*T_K))*(P-P0))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
     elif model == "Shishkina14": # modified from Shishkina et al. (2014) Chem. Geol. 388:112-129
         A = 1.164 # modified by converting P^A to APyCO2 but only including data up to and including 400 MPa
         B = 6.71*PI_-1.345
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -819,12 +817,12 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 16.40 # cm3/mol
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.67)
         else:
             A = math.exp(-14.67)
         B = -((DV/(R_*T_K))*(P-P0))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -832,12 +830,12 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 15.02 # cm3/mol
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.87)
         else:
             A = math.exp(-14.87)
         B = -((DV/(R_*T_K))*(P-P0))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -845,12 +843,12 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = -14.65 # cm3/mol
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.65)
         else:
             A = math.exp(-14.65)
         B = -((DV/(R_*T_K))*(P-P0))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -858,12 +856,12 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 24.42 # cm3/mol
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.04)
         else:
             A = math.exp(-14.04)
         B = -((DV/(R_*T_K))*(P-P0))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -871,12 +869,12 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 21.59 # cm3/mol
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.28)
         else:
             A = math.exp(-14.28)
         B = -((DV/(R_*T_K))*(P-P0))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -884,12 +882,12 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 14.93 # cm3/mol
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.68)
         else:
             A = math.exp(-14.68)
         B = -((DV/(R_*T_K))*(P-P0))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -899,12 +897,12 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         DH = -13.1 # kJmol ± 13.9
         T0 = 1200. + 273.15 # K 
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.32)
         else:
             A = math.exp(-14.32)
         B = -((DV/(R_*T_K))*(P-P0)) + (DH/R)*((1.0/T0) - (1.0/T_K))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -916,7 +914,7 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         P0 = 1000.0 # bar
         A = gp.exp(-13.36)
         B = -((DV/(R_*T_K))*(P-P0)) + (DH/R)*((1.0/T0) - (1.0/T_K))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -926,7 +924,7 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         P0 = 1000.0 # bar
         A = gp.exp(-14.86)
         B = -((DV/(R_*T_K))*(P-P0))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -935,12 +933,12 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         DH = -27.2 # kJ/mole ±2.1 
         P0 = 1.0 # bar
         T0 = 850. + 273.15 # K
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.45) # ±0.02
         else:
             A = math.exp(-14.45) # ±0.02
         B = -((DV/(R_*T_K))*(P-P0)) + (DH/R)*((1.0/T0) - (1.0/T_K))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -950,12 +948,12 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 30.45 # cm3/mol
         P0 = 1000.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-13.26)
         else:
             A = math.exp(-13.26)
         B = -((DV/(R_*T_K))*(P-P0))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -964,12 +962,12 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = -3350.650 + 3375.552*(Si+Na) + 2625.385*Ti + 3105.426*Al + 3628.018*Fe2 + 3323.320*(Mg+Ca) + 3795.115*K + 47.004*(Na/(Na+K)) # cm/mol
         lnK0 = -128.365 + 114.098*Si + 92.263*(Ti+Al) + 122.644*(Fe2+Ca+Na) + 111.549*Mg + 138.855*K + 2.239*(Na/(Na+K))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(lnK0)
         else:
             A = math.exp(lnK0)
         B = ((-1.*DV)*(P-P0))/(R_*T_K)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -979,7 +977,7 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         Csulfate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
         lnCsulfate = math.log(Csulfate)
         lnC=-0.46*lnCsulfate
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(lnC)
         else:
             A = math.exp(lnC)
@@ -987,31 +985,31 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         P0 = 1000. # bars
         R_ = 83.144621 # cm3 bar K−1 mol−1
         B = ((-1.*DV)*(P-P0))/(R_*T_K)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
     elif model == "Behrens04fit": # Fit to Behrens et al. (2004) - tried for workshop
         DV = 41.8 # cm3/mol
         P0 = 1.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.2)
         else:
             A = math.exp(-14.2)
         B = (-DV*(P-P0))/(R*(1250.+273.15))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
     elif model == "dacite": # Fit to Behrens et al. (2004) using Ptot
         DV = 36.5 # cm3/mol
         P0 = 1.0 # bar
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = gp.exp(-14.3)
         else:
             A = math.exp(-14.3)
         B = (-DV*(P-P0))/(R*(1250.+273.15))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
@@ -1028,12 +1026,12 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         #C = A1*gp.exp(B1) + A2*gp.exp(B2)
         # "average"
         DV2 = 16.57 # cm3/mol
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A2 =gp.exp(-15.275)
         else:
             A2 =math.exp(-15.275)
         B2 = (-DV2*(P-P0))/(R*T_K)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = A2*gp.exp(B2)
         else:
             C = A2*math.exp(B2)
@@ -1184,7 +1182,7 @@ def C_SO4(PT,melt_wf,models=default_models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 
         elif model == "ONeill22dil": # Eq. (12a) in O'Neill & Mavrogenes (2022) GCA 334:368-382
             melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) includes water
         lnC = -8.02 + ((21100. + 44000.*melt_comp["Na"] + 18700.*melt_comp["Mg"] + 4300.*melt_comp["Al"] + 44200.*melt_comp["K"] + 35600.*melt_comp["Ca"] + 12600.*melt_comp["Mn"] + 16500.*melt_comp["Fe2"])/T) #CS6+ = [S6+, ppm]/fSO3
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             Csulfate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
         else:
             Csulfate = math.exp(lnC)*KOSg2(PT,models) # ppm S
@@ -1328,7 +1326,7 @@ def C_H2(PT,melt_wf,models=default_models): # C_H2 = wmH2/fH2 (wtppm)
         lnK0 = -0.1296 # for ppm H2 (fitted in excel)
         DV = 11.3 # cm3/mol
     lnK = lnK0 - (DV*(P-P0))/(R*T) # = ln(XH2/fH2) in ppm/bar
-    if models.loc["high precision","option"] == "yes":
+    if models.loc["high precision","option"] == "True":
         C = gp.exp(lnK) 
     else:
         C = math.exp(lnK) 
@@ -1381,7 +1379,7 @@ def C_CH4(PT,melt_wf,models=default_models): # C_CH4 = wmCH4/fCH4 (ppm)
         #lnK0 = -7.63 # mole fraction CH4
         DV = 26.85 # cm3/mol
         lnK = lnK0 - (DV*(P-P0))/(R*T) 
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K_ = gp.exp(lnK) # for fCH4 in GPa
         else:
             K_ = math.exp(lnK) # for fCH4 in GPa
@@ -1434,7 +1432,7 @@ def C_CO(PT,melt_wf,models=default_models): # C_CO = wmCO/fCO (ppm)
         lnK0 = -2.11 # ppm CO
         DV = 15.20 # cm3/mol
         lnK = lnK0 - (DV*(P-P0))/(R*T) 
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K = gp.exp(lnK) # CO(ppm)/fCO(bars)
         else:
             K = math.exp(lnK) # CO(ppm)/fCO(bars)
@@ -1567,7 +1565,7 @@ def SCAS(PT,melt_wf,models=default_models):
         f = 0.54
         wm_H2OT = 100.*melt_wf['H2OT']
         dX = dSi*melt_comp["SiO2"] + dCa*melt_comp["CaO"] + dMg*melt_comp["MgO"] + dFe*melt_comp["FeOT"] + dAl*melt_comp["Al2O3"] + dNa*melt_comp["Na2O"] + dK*melt_comp["K2O"]
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             lnxm_SO4 = a + b*((10.0**4.0)/T) + dX + e*wm_H2OT - f*gp.log(melt_comp["CaO"])                                                                                  
             xm_SO4 = gp.exp(lnxm_SO4)
         else:
@@ -1587,7 +1585,7 @@ def SCAS(PT,melt_wf,models=default_models):
         NBOT = (2.*melt_comp["Na2O"]+2.*melt_comp["K2O"]+2.*(melt_comp["CaO"]+melt_comp["MgO"]+melt_comp["FeOT"])-melt_comp["Al2O3"]*2.)/(melt_comp["SiO2"]+2.*melt_comp["Al2O3"]) # according to spreadsheet not paper
         P_H2O = melt_comp["H2O"]*(2.09 - 1.65*NBOT) + 0.42*NBOT + 0.23
         P_C = ((P_Rhyo + 251.*melt_comp["CaO"]**2. + 57.*melt_comp["MgO"]**2. + 154.*melt_comp["FeOT"]**2.)/(2.*melt_comp["Al2O3"] + melt_comp["SiO2"]))/(1. + 4.8*NBOT)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             P_T = gp.exp(-7890./T)
             Ksm_SPAnh = gp.exp(1.226*gp.log(P_C*P_T*P_H2O) + 0.079)         
         else:
@@ -1601,7 +1599,7 @@ def SCAS(PT,melt_wf,models=default_models):
         NBOT = (2.*melt_comp["Na2O"]+2.*melt_comp["K2O"]+2.*(melt_comp["CaO"]+melt_comp["MgO"]+melt_comp["FeOT"])-melt_comp["Al2O3"]*2.)/(melt_comp["SiO2"]+2.*melt_comp["Al2O3"]) 
         melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
         lnSCAS = 12.185 - (8541./T) + (1.409*NBOT) + 9.984*melt_comp["CaO"] + melt_wf["H2OT"]*100.
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             S6CAS = gp.exp(lnSCAS)
         else:
             S6CAS = math.exp(lnSCAS)        
@@ -1683,7 +1681,7 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
     if model in ["ONeill21","ONeill21dil","ONeill21hyd"]: # O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
         R = 8.31441
         P = (1.0e-4)*P_bar # pressure in GPa
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             D = (137778.0 - 91.66*T + 8.474*T*gp.log(T)) # J/mol Eq. (10.45)
         else:
             D = (137778.0 - 91.66*T + 8.474*T*math.log(T)) # J/mol Eq. (10.45)
@@ -1697,7 +1695,7 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
         elif model == "ONeill21hyd": # Eq. (10.34, 10.43, 10.45, 10.46, 10.49)
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) and water
             melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes")
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             lnaFeS = gp.log((1.0 - melt_comp["Fe2"])*sulfide_comp)
         else:
             lnaFeS = math.log((1.0 - melt_comp["Fe2"])*sulfide_comp)
@@ -1705,7 +1703,7 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
         lnyFe2 = (((1.0-melt_comp["Fe2"])**2.0)*(28870.0 - 14710.0*melt_comp["Mg"] + 1960.0*melt_comp["Ca"] + 43300.0*melt_comp["Na"] + 95380.0*melt_comp["K"] - 76880.0*melt_comp["Ti"]) + (1.0-melt_comp["Fe2"])*(-62190.0*melt_comp["Si"] + 31520.0*melt_comp["Si"]**2.0))/(R*T)
         # lnS from Eq. (10.43)
         lnS = D/(R*T) + gp.log(C_S(PT,melt_wf,models)) - gp.log(melt_comp["Fe2"]) - lnyFe2 + lnaFeS + (-291.0*P + 351.0*gp.erf(P))/T
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             SCSS = gp.exp(lnS)  
         else:
             SCSS = math.exp(lnS)  
@@ -1714,7 +1712,7 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
         # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) and water
         melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes")
         MFM = (melt_comp["Na"]+melt_comp["K"]+2.*(melt_comp["Ca"]+melt_comp["Mg"]+melt_comp["Fe2"]))/(melt_comp["Si"]*(melt_comp["Al"]+melt_comp["Fe3"]))
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             lnS = 11.35251 - (4454.6/T) - 0.03190*(PT["P"]/T) + 0.71006*gp.log(MFM) - 1.98063*(MFM*melt_comp["H"]) + 0.21867*gp.log(melt_comp["H"]) + 0.36192*gp.log(melt_comp["Fe2"])
             SCSS = gp.exp(lnS)
         else:
@@ -1725,7 +1723,7 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
         # Mole fractions in the melt on cationic lattice (all Fe as FeOT) and water
         melt_comp = mg.melt_cation_proportion(melt_wf,"water","no")
         lnS = 34.784 - (5772.3/T) - 346.54*((0.0001*PT["P"])/T) - 20.393*melt_comp["H"] - 25.499*melt_comp["Si"] - 18.344*melt_comp["Ti"] - 27.381*melt_comp["Al"] - 17.275*melt_comp["Fe"] - 22.398*melt_comp["Mg"] - 20.378*melt_comp["Ca"] - 18.954*melt_comp["Na"] - 32.195*melt_comp["K"]
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             SCSS = gp.exp(lnS)
         else:
             SCSS = math.exp(lnS)
@@ -1733,7 +1731,7 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
     elif model == "Liu21": # Eq. (2) Liu et al. (2021) Chem.Geol. 559:119913 doi:10.1016.j.chemgeo.2020.119913
         XFeS = sulf_XFe
         H2O = melt_wf["H2OT"]*100.
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             SCSS = (XFeS*gp.exp(13.88 - (9744./T) - (328.*(0.0001*PT["P"])/T))) + 104.*H2O
         else:
             SCSS = (XFeS*math.exp(13.88 - (9744./T) - (328.*(0.0001*PT["P"])/T))) + 104.*H2O
@@ -1796,7 +1794,7 @@ def KHOg(PT,models=default_models):
 
     T_K = PT['T']+273.15
     if model == "Ohmoto97": # Reaction (d) in Table 1 of Ohmoto & Kerrick (1997)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K = 10.**((12510.0/T_K)-0.979*(gp.log10(T_K))+0.483)
         else:
             K = 10.**((12510.0/T_K)-0.979*(math.log10(T_K))+0.483)
@@ -1835,7 +1833,7 @@ def KHOSg(PT,models=default_models):
 
     T_K = PT['T']+273.15
     if model == "Ohmoto97": # Reaction (h) in Table 1 of Ohmoto & Kerrick (1997)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K = 10.**((-8117.0/T_K)+0.188*gp.log10(T_K)-0.352)
         else:
             K = 10.**((-8117.0/T_K)+0.188*math.log10(T_K)-0.352)
@@ -1868,7 +1866,8 @@ def KOSg(PT,models=default_models):
     Model options
     -------------
     default: 'Ohmoto97' Reaction (f) in Table 1 of Ohmoto & Kerrick (1997)
-    Only one option available currently, included for future development.
+    Other options:
+    'noSO2' Stops SO2 forming in the vapor, K = 0.
 
     """
     
@@ -1877,6 +1876,8 @@ def KOSg(PT,models=default_models):
     T_K = PT['T']+273.15
     if model == "Ohmoto97": # Reaction (f) in Table 1 of Ohmoto & Kerrick (1997)
         K = 10.**((18929.0/T_K)-3.783)
+    if model == 'noSO2':
+        K = 0.
     return K
 
 # 0.5S2 + 1.5O2 = SO3
@@ -1912,7 +1913,7 @@ def KOSg2(PT,models=default_models):
 
     T_K = PT['T']+273.15
     if model == "ONeill22": # Eq (6b) in O’Neill and Mavrogenes (2022)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             lnK = (55921./T_K) - 25.07 + 0.6465*gp.log(T_K)
             K = gp.exp(lnK) 
         else:
@@ -1981,7 +1982,8 @@ def KCOHg(PT,models=default_models):
     Model options
     -------------
     default: 'Ohmoto97' Reaction (e) in Table 1 of Ohmoto & Kerrick (1997)
-    Only one option available currently, included for future development.
+    Other options:
+    'noCH4' Almost stops CH4 forming in the vapor, K = very large.
 
     """
 
@@ -1989,10 +1991,12 @@ def KCOHg(PT,models=default_models):
 
     T_K = PT['T']+273.15
     if model == "Ohmoto97": # Reaction (e) in Table 1 of Ohmoto & Kerrick (1997)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K = 10.**((41997.0/T_K)+0.719*gp.log10(T_K)-2.404)
         else:
             K = 10.**((41997.0/T_K)+0.719*math.log10(T_K)-2.404)
+    if model == "noCH4":
+        K = 1.e40 # really big
     return K
 
 def KOCSg(PT,models=default_models): # OCS - depends on system
@@ -2019,7 +2023,8 @@ def KOCSg(PT,models=default_models): # OCS - depends on system
     -------------
     default: 'Moussallam19' Eq. (8) in Moussallam et al. (2019) for KOCSg AND 'COS' for carbonlysulfide
     Other options:
-    Only one option available currently, included for future development.
+    Other options:
+    'noOCS' Almost stops OCS forming in the vapor, K = very large.
 
     """
 
@@ -2032,6 +2037,8 @@ def KOCSg(PT,models=default_models): # OCS - depends on system
     # K = (fCO^3*fSO2)/(fCO2^2*fOCS)    
         if model == "Moussallam19": # Eq. (8) in Moussallam et al. (2019)
             K = 10.**(9.24403 - (15386.45/T)) # P and f in bars, T in K 
+        if model == "noOCS":
+            K = 1.e30 # really big
         return K
     
     ### WORK IN PROGRESS ###
@@ -2039,7 +2046,7 @@ def KOCSg(PT,models=default_models): # OCS - depends on system
     # OCS + H2O = CO2 + H2S
     # K = (fCO2*fH2S)/(fOCS*fH2O)
         if models == "EVo": 
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 K = gp.exp(0.482 + (16.166e-2/T) + 0.081e-3*T - (5.715e-3/T**2) - 2.224e-1*gp.log(T))
             else:
                 K = math.exp(0.482 + (16.166e-2/T) + 0.081e-3*T - (5.715e-3/T**2) - 2.224e-1*math.log(T))
@@ -2136,42 +2143,42 @@ def KHOm(PT,melt_wf,models=default_models):
     if Hspeccomp == "Rhyolite_Zhang97": # Eq. (9) from Zhang et al. (1997) GCA 61(15):3089-3100
         a = -3110.
         b = 1.876
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K = gp.exp((a/T_K) + b)
         else:
             K = math.exp((a/T_K) + b)
     elif Hspeccomp == "StromboliAlkaliBasalt_Lesne10": # Eq. (15) Lesne et al. (2010) CMP 162:133-151
         a = -8710.
         b = 8.5244
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K = gp.exp((a/T_K) + b)
         else:
             K = math.exp((a/T_K) + b)
     elif Hspeccomp == "VesuviusAlkaliBasalt_Lesne10": # Eq. (16) Lesne et al. (2010) CMP 162:133-151
         a = -8033.
         b = 7.4222
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K = gp.exp((a/T_K) + b)
         else:
             K = math.exp((a/T_K) + b)
     elif Hspeccomp == "EtnaAlkaliBasalt_Lesne10": # Eq. (17) Lesne et al. (2010) CMP 162:133-151
         a = -8300.
         b = 7.4859
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K = gp.exp((a/T_K) + b)
         else:
             K = math.exp((a/T_K) + b)
     elif Hspeccomp == "Andesite_Botcharnikov06": # Eq (7) from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
         a = -3650.
         b = 2.99
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K = gp.exp((a/T_K) + b)
         else:
             K = math.exp((a/T_K) + b)
     elif Hspeccomp == "MORB_HughesIP": # fit to Dixon et al. (1995) data digitised from Lesne et al. (2010) CMP 162:133-151 in Hughes et al. (in prep)
         a = -2204.99
         b = 1.2600
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K = gp.exp((a/T_K) + b)
         else:
             K = math.exp((a/T_K) + b)
@@ -2182,7 +2189,7 @@ def KHOm(PT,melt_wf,models=default_models):
     elif Hspeccomp == "AlkaliBasalt": # average of eqn-15-17 from Lesne et al. (2010) CMP 162:133-151
         a = -8348.0 # VES-9 = -8033.0, ETN-1 = -8300.0, and PST-9 = -8710.0
         b = 7.8108 # VES-9 = 7.4222, ETN-1 = 7.4859, and PEST-9 = 8.5244
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             K = gp.exp((a/T_K) + b)
         else:
             K = math.exp((a/T_K) + b)    
@@ -2302,14 +2309,14 @@ def KCOm(PT,melt_wf,models=default_models): # K =
     if Cspeccomp == "Andesite_Botcharnikov06": # Eq. (8) from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
         a = 8665.0
         b = -5.11
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             value = gp.exp((a/T_K) + b)  
         else:
             value = math.exp((a/T_K) + b)  
     elif Cspeccomp == "Dacite_Botcharnikov06": # Eq. in the text from Botcharnikov et al. (2006), based on data from Behrens et al. (2004)
         a = 9787.0
         b = -7.69
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             value = gp.exp((a/T_K) + b)  
         else:
             value = math.exp((a/T_K) + b)
@@ -2367,7 +2374,7 @@ def CORK(PT,p0,a,b,c,d,models):
     A = a/(b*R*pow(T_K,1.5))
     B = (b*P_kb)/(R*T_K)
         
-    if models.loc["high precision","option"] == "yes":
+    if models.loc["high precision","option"] == "True":
         ln_y = z - 1.0 - gp.log(z-B) - A*gp.log(1.0 + (B/z)) + ln_y_virial
         value = gp.exp(ln_y)
     else:
@@ -2386,7 +2393,7 @@ def lny_SS(PT,Pcr,Tcr,models):
     A, B, C, D, P0, integral0 = Q_SS(PT,Tr,Pcr,models)
     Pr = P/Pcr
     P0r = P0/Pcr
-    if models.loc["high precision","option"] == "yes":
+    if models.loc["high precision","option"] == "True":
         integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
     else:
         integral = A*math.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
@@ -2402,7 +2409,7 @@ def Q_SS(PT,Tr,Pcr,models):
         B0 = 0.9827e-1*pow(Tr,-1.0) + -0.2709*pow(Tr,-3.0)
         C0 = -0.1030e-2*pow(Tr,-1.5) + 0.1427e-1*pow(Tr,-4.0)
         D0 = 0.0
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             value = A0*gp.log(Pr_/P0r_) + B0*(Pr_ - P0r_) + (C0/2.0)*(pow(Pr_,2.0) - pow(P0r_,2.0)) + (D0/3.0)*(pow(Pr_,3.0) - pow(P0r_,3.0))
         else:
             value = A0*math.log(Pr_/P0r_) + B0*(Pr_ - P0r_) + (C0/2.0)*(pow(Pr_,2.0) - pow(P0r_,2.0)) + (D0/3.0)*(pow(Pr_,3.0) - pow(P0r_,3.0))
@@ -2414,7 +2421,7 @@ def Q_SS(PT,Tr,Pcr,models):
         A0 = 1.0 + -5.917e-1*pow(Tr,-2.0)
         B0 = 9.122e-2*pow(Tr,-1.0)
         D0 = 0.0
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C0 = -1.416e-4*pow(Tr,-2.0) + -2.835e-6*gp.log(Tr)
             value = A0*gp.log(Pr_/P0r_) + B0*(Pr_ - P0r_) + (C0/2.0)*(pow(Pr_,2.0) - pow(P0r_,2.0)) + (D0/3.0)*(pow(Pr_,3.0) - pow(P0r_,3.0))
         else:
@@ -2422,7 +2429,7 @@ def Q_SS(PT,Tr,Pcr,models):
             value = A0*math.log(Pr_/P0r_) + B0*(Pr_ - P0r_) + (C0/2.0)*(pow(Pr_,2.0) - pow(P0r_,2.0)) + (D0/3.0)*(pow(Pr_,3.0) - pow(P0r_,3.0))
         return value
     if P > 5000.0:
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = 2.0614 + -2.235*pow(Tr,-2.0) + -3.941e-1*gp.log(Tr)
         else:
             A = 2.0614 + -2.235*pow(Tr,-2.0) + -3.941e-1*math.log(Tr)
@@ -2443,7 +2450,7 @@ def Q_SS(PT,Tr,Pcr,models):
     elif P > 1000.0 and P < 5000.0:
         A = 1.0 + -5.917e-1*pow(Tr,-2.0)
         B = 9.122e-2*pow(Tr,-1.0)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             C = -1.416e-4*pow(Tr,-2.0) + -2.835e-6*gp.log(Tr)
         else:
             C = -1.416e-4*pow(Tr,-2.0) + -2.835e-6*math.log(Tr)
@@ -2481,7 +2488,7 @@ def y_SS(gas_species,PT,models=default_models):
     else:    
         Tcr = species.loc[gas_species,"Tcr"]
         Pcr = species.loc[gas_species,"Pcr"]
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             value = gp.exp(lny_SS(PT,Pcr,Tcr,models))/P    
         else:
             value = math.exp(lny_SS(PT,Pcr,Tcr,models))/P    
@@ -2528,7 +2535,7 @@ def y_H2(PT,models=default_models):
         return 1.
     elif model == "Shaw64": # Eq. (4) from Shaw & Wones (1964) AmJSci 262:918-929
         P_atm = 0.986923*P
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             SW1 = gp.exp(-3.8402*pow(T_K,0.125)+0.5410)
             SW2 = gp.exp(-0.1263*pow(T_K,0.5)-15.980)
             SW3 = 300*gp.exp((-0.011901*T_K)-5.941) # NB used a value of -0.011901 instead of -0.11901 as reported to match data in Table 2
@@ -2574,12 +2581,12 @@ def y_H2(PT,models=default_models):
             B0 = Q1_B_LP + Q2_B_LP*Tr + Q3_B_LP*Tr**(-1.) + Q4_B_LP*Tr**2. + Q5_B_LP*Tr**(-2.)
             C0 = Q1_C_LP + Q2_C_LP*Tr + Q3_C_LP*Tr**(-1.) + Q4_C_LP*Tr**2. + Q5_C_LP*Tr**(-2.)
             D0 = 0.0
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 integral0 = A0*gp.log(Pr_/P0r_) + B0*(Pr_ - P0r_) + (C0/2.0)*(pow(Pr_,2.0) - pow(P0r_,2.0)) + (D0/3.0)*(pow(Pr_,3.0) - pow(P0r_,3.0))   
             else:
                 integral0 = A0*math.log(Pr_/P0r_) + B0*(Pr_ - P0r_) + (C0/2.0)*(pow(Pr_,2.0) - pow(P0r_,2.0)) + (D0/3.0)*(pow(Pr_,3.0) - pow(P0r_,3.0))   
         elif P > 1000.:
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 A = Q1_A_HP + Q2_A_HP*Tr + Q3_A_HP*Tr**(-1.) + Q4_A_HP*Tr**2. + Q5_A_HP*Tr**(-2.) + Q6_A_HP*Tr**3. + Q7_A_HP*Tr**(-3.0) + Q8_A_HP*gp.log(Tr)
                 B = Q1_B_HP + Q2_B_HP*Tr + Q3_B_HP*Tr**(-1.) + Q4_B_HP*Tr**2. + Q5_B_HP*Tr**(-2.) + Q6_B_HP*Tr**3. + Q7_B_HP*Tr**(-3.0) + Q8_B_HP*gp.log(Tr)
                 C = Q1_C_HP + Q2_C_HP*Tr + Q3_C_HP*Tr**(-1.) + Q4_C_HP*Tr**2. + Q5_C_HP*Tr**(-2.) + Q6_C_HP*Tr**3. + Q7_C_HP*Tr**(-3.0) + Q8_C_HP*gp.log(Tr)
@@ -2596,13 +2603,13 @@ def y_H2(PT,models=default_models):
             B0 = Q1_B_LP + Q2_B_LP*Tr + Q3_B_LP*Tr**(-1.) + Q4_B_LP*Tr**2. + Q5_B_LP*Tr**(-2.)
             C0 = Q1_C_LP + Q2_C_LP*Tr + Q3_C_LP*Tr**(-1.) + Q4_C_LP*Tr**2. + Q5_C_LP*Tr**(-2.)
             D0 = 0.0
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 integral0 = A0*gp.log(Pr_/P0r_) + B0*(Pr_ - P0r_) + (C0/2.0)*(pow(Pr_,2.0) - pow(P0r_,2.0)) + (D0/3.0)*(pow(Pr_,3.0) - pow(P0r_,3.0))
             else:
                 integral0 = A0*math.log(Pr_/P0r_) + B0*(Pr_ - P0r_) + (C0/2.0)*(pow(Pr_,2.0) - pow(P0r_,2.0)) + (D0/3.0)*(pow(Pr_,3.0) - pow(P0r_,3.0))
         P0r = P0/Pcr
         Pr = P/Pcr
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
             value = gp.exp(integral + integral0)/P
         else:
@@ -2954,7 +2961,7 @@ def y_SO2(PT,models=default_models):
         Q1_A, Q2_A, Q3_A, Q4_A, Q5_A, Q6_A, Q7_A, Q8_A  = 0.92854, 0.43269e-1, -0.24671, 0., 0.24999, 0., -0.53182, -0.16461e-1
         Q1_B, Q2_B, Q3_B, Q4_B, Q5_B, Q6_B, Q7_B, Q8_B  = 0.84866e-3, -0.18379e-2, 0.66787e-1, 0., -0.29427e-1, 0., 0.29003e-1, 0.54808e-2
         Q1_C, Q2_C, Q3_C, Q4_C, Q5_C, Q6_C, Q7_C, Q8_C  = -0.35456e-3, 0.23316e-4, 0.94159e-3, 0., -0.81653e-3, 0., 0.23154e-3, 0.55542e-4
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             A = Q1_A + Q2_A*Tr + Q3_A*Tr**(-1.) + Q4_A*Tr**2. + Q5_A*Tr**(-2.) + Q6_A*Tr**3. + Q7_A*Tr**(-3.0) + Q8_A*gp.log(Tr)
             B = Q1_B + Q2_B*Tr + Q3_B*Tr**(-1.) + Q4_B*Tr**2. + Q5_B*Tr**(-2.) + Q6_B*Tr**3. + Q7_B*Tr**(-3.0) + Q8_B*gp.log(Tr)
             C = Q1_C + Q2_C*Tr + Q3_C*Tr**(-1.) + Q4_C*Tr**2. + Q5_C*Tr**(-2.) + Q6_C*Tr**3. + Q7_C*Tr**(-3.0) + Q8_C*gp.log(Tr)
@@ -2965,7 +2972,7 @@ def y_SO2(PT,models=default_models):
         D = 0.0
         if P >= 500.: # above 500 bar Shi & Saxena (1992) AmMin 77(9-10):1038-1049
             Pr = P/Pcr
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
                 y = (gp.exp(integral))/P
             else:
@@ -2973,7 +2980,7 @@ def y_SO2(PT,models=default_models):
                 y = (math.exp(integral))/P
         elif models.loc["y_SO2","option"] == "Shi92": # Shi & Saxena (1992) AmMin 77(9-10):1038-1049
             Pr = P/Pcr
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
                 y = (gp.exp(integral))/P
             else:
@@ -2981,7 +2988,7 @@ def y_SO2(PT,models=default_models):
                 y = (math.exp(integral))/P
         elif models.loc["y_SO2","option"] == "Shi92_Hughes23": # Fig.S1 Hughes et al. (2023) JGSL 180(3) doi:10.1144/jgs2021-12
             Pr = 500./Pcr # calculate y at 500 bar
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
                 y_500 = (gp.exp(integral))/500.
             else:
@@ -3041,7 +3048,7 @@ def y_H2S(PT,models=default_models):
             return 1. # ideal gas below 1 bar
         elif P < 500.:
             if models.loc["y_H2S","option"] == "Shi92": # as is Shi and Saxena (1992) 
-                if models.loc["high precision","option"] == "yes":
+                if models.loc["high precision","option"] == "True":
                     A = Q1_A_LP + Q2_A_LP*Tr + Q3_A_LP*Tr**(-1.) + Q4_A_LP*Tr**2. + Q5_A_LP*Tr**(-2.) + Q6_A_LP*Tr**3. + Q7_A_LP*Tr**(-3.0) + Q8_A_LP*gp.log(Tr)
                     B = Q1_B_LP + Q2_B_LP*Tr + Q3_B_LP*Tr**(-1.) + Q4_B_LP*Tr**2. + Q5_B_LP*Tr**(-2.) + Q6_B_LP*Tr**3. + Q7_B_LP*Tr**(-3.0) + Q8_B_LP*gp.log(Tr)
                     C = Q1_C_LP + Q2_C_LP*Tr + Q3_C_LP*Tr**(-1.) + Q4_C_LP*Tr**2. + Q5_C_LP*Tr**(-2.) + Q6_C_LP*Tr**3. + Q7_C_LP*Tr**(-3.0) + Q8_C_LP*gp.log(Tr)
@@ -3057,7 +3064,7 @@ def y_H2S(PT,models=default_models):
                 Pr_ = 500.0/Pcr
                 P0r_ = 1.0/Pcr
                 D0 = 0.0
-                if models.loc["high precision","option"] == "yes":
+                if models.loc["high precision","option"] == "True":
                     A0 = Q1_A_LP + Q2_A_LP*Tr + Q3_A_LP*Tr**(-1.) + Q4_A_LP*Tr**2. + Q5_A_LP*Tr**(-2.) + Q6_A_LP*Tr**3. + Q7_A_LP*Tr**(-3.0) + Q8_A_LP*gp.log(Tr)
                     B0 = Q1_B_LP + Q2_B_LP*Tr + Q3_B_LP*Tr**(-1.) + Q4_B_LP*Tr**2. + Q5_B_LP*Tr**(-2.) + Q6_B_LP*Tr**3. + Q7_B_LP*Tr**(-3.0) + Q8_B_LP*gp.log(Tr)
                     C0 = Q1_C_LP + Q2_C_LP*Tr + Q3_C_LP*Tr**(-1.) + Q4_C_LP*Tr**2. + Q5_C_LP*Tr**(-2.) + Q6_C_LP*Tr**3. + Q7_C_LP*Tr**(-3.0) + Q8_C_LP*gp.log(Tr)
@@ -3080,7 +3087,7 @@ def y_H2S(PT,models=default_models):
             Pr_ = 500.0/Pcr
             P0r_ = 1.0/Pcr
             D0 = 0.0
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 A0 = Q1_A_LP + Q2_A_LP*Tr + Q3_A_LP*Tr**(-1.) + Q4_A_LP*Tr**2. + Q5_A_LP*Tr**(-2.) + Q6_A_LP*Tr**3. + Q7_A_LP*Tr**(-3.0) + Q8_A_LP*gp.log(Tr)
                 B0 = Q1_B_LP + Q2_B_LP*Tr + Q3_B_LP*Tr**(-1.) + Q4_B_LP*Tr**2. + Q5_B_LP*Tr**(-2.) + Q6_B_LP*Tr**3. + Q7_B_LP*Tr**(-3.0) + Q8_B_LP*gp.log(Tr)
                 C0 = Q1_C_LP + Q2_C_LP*Tr + Q3_C_LP*Tr**(-1.) + Q4_C_LP*Tr**2. + Q5_C_LP*Tr**(-2.) + Q6_C_LP*Tr**3. + Q7_C_LP*Tr**(-3.0) + Q8_C_LP*gp.log(Tr)
@@ -3097,7 +3104,7 @@ def y_H2S(PT,models=default_models):
             Pr_ = 500.0/Pcr
             P0r_ = 1.0/Pcr
             D0 = 0.0
-            if models.loc["high precision","option"] == "yes":
+            if models.loc["high precision","option"] == "True":
                 A = Q1_A_HP + Q2_A_HP*Tr + Q3_A_HP*Tr**(-1.) + Q4_A_HP*Tr**2. + Q5_A_HP*Tr**(-2.) + Q6_A_HP*Tr**3. + Q7_A_HP*Tr**(-3.0) + Q8_A_HP*gp.log(Tr)
                 B = Q1_B_HP + Q2_B_HP*Tr + Q3_B_HP*Tr**(-1.) + Q4_B_HP*Tr**2. + Q5_B_HP*Tr**(-2.) + Q6_B_HP*Tr**3. + Q7_B_HP*Tr**(-3.0) + Q8_B_HP*gp.log(Tr)
                 C = Q1_C_HP + Q2_C_HP*Tr + Q3_C_HP*Tr**(-1.) + Q4_C_HP*Tr**2. + Q5_C_HP*Tr**(-2.) + Q6_C_HP*Tr**3. + Q7_C_HP*Tr**(-3.0) + Q8_C_HP*gp.log(Tr)
@@ -3115,7 +3122,7 @@ def y_H2S(PT,models=default_models):
                 integral0 = A0*math.log(Pr_/P0r_) + B0*(Pr_ - P0r_) + (C0/2.0)*(pow(Pr_,2.0) - pow(P0r_,2.0)) + (D0/3.0)*(pow(Pr_,3.0) - pow(P0r_,3.0))
         P0r = P0/Pcr
         Pr = P/Pcr
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             integral = A*gp.log(Pr/P0r) + B*(Pr - P0r) + (C/2.0)*(pow(Pr,2.0) - pow(P0r,2.0)) + (D/3.0)*(pow(Pr,3.0) - pow(P0r,3.0))
             value = gp.exp(integral + integral0)/P
         else:
@@ -3256,7 +3263,7 @@ def FefO2_KC91_EqA_terms(PT,melt_wf,models=default_models): # terms for Eq. (A-5
     P0 = 1.0e5                  # Pa 
     R = 8.3144598               # J/K/mol
     P_Pa = P*1.0e5
-    if models.loc["high precision","option"] == "yes":
+    if models.loc["high precision","option"] == "True":
         KD1 = math.exp((-DH/(R*T_K)) + (DS/R) - (DCp/R)*(1.0 - (T0/T_K) - gp.log(T_K/T0)) - (1.0/(R*T_K))*D4X - ((DV*(P_Pa-P0))/(R*T_K)) - ((DVdot*(T_K-T0)*(P_Pa-P0))/(R*T_K)) - (DVdash/(2.0*R*T_K))*pow((P_Pa-P0),2.0))
     else:
         KD1 = math.exp((-DH/(R*T_K)) + (DS/R) - (DCp/R)*(1.0 - (T0/T_K) - math.log(T_K/T0)) - (1.0/(R*T_K))*D4X - ((DV*(P_Pa-P0))/(R*T_K)) - ((DVdot*(T_K-T0)*(P_Pa-P0))/(R*T_K)) - (DVdash/(2.0*R*T_K))*pow((P_Pa-P0),2.0))
@@ -3318,7 +3325,7 @@ def fO22Fe3FeT(fO2,PT,melt_wf,models=default_models): # converting fO2 to Fe3/Fe
     
     if model == "Kress91": # Eq. (7) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
         a, PTterm = FefO2_KC91_Eq7_terms(PT,melt_wf,models)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             lnXFe2O3XFeO = a*gp.log(fO2) + PTterm
             XFe2O3XFeO = gp.exp(lnXFe2O3XFeO)
         else:
@@ -3333,12 +3340,12 @@ def fO22Fe3FeT(fO2,PT,melt_wf,models=default_models): # converting fO2 to Fe3/Fe
     
     elif model == "ONeill18": # Eq. (9a) in O'Neill et al. (2018) EPSL 504:152-162 doi:10.1016/j.epsl.2018.10.0020012-821X
         a,B,FMQ = FefO2_ONeill18_terms(PT,melt_wf,models)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             DQFM = gp.log10(fO2) - FMQ
         else:
             DQFM = math.log10(fO2) - FMQ
         lnFe3Fe2 = a*DQFM + B
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             Fe3Fe2 =  gp.exp(lnFe3Fe2)
         else:
             Fe3Fe2 =  math.exp(lnFe3Fe2)
@@ -3346,7 +3353,7 @@ def fO22Fe3FeT(fO2,PT,melt_wf,models=default_models): # converting fO2 to Fe3/Fe
     
     elif model == "Borisov18": # Eq. (4) from Borisov et al. (2018) CMP 173:98 doi:10.1007/s00410-018-1524-8
         a,B = FefO2_Borisov18_terms(PT,melt_wf,models)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             Fe3Fe2 = 10.**(a*gp.log10(fO2) + B)
         else:
             Fe3Fe2 = 10.**(a*math.log10(fO2) + B)
@@ -3444,7 +3451,7 @@ def f_O2(PT,melt_wf,models=default_models):
     elif model == "Borisov18": # Eq. (4) from Borisov et al. (2018) CMP 173:98 doi:10.1007/s00410-018-1524-8
         F = mg.Fe3Fe2(melt_wf)
         a,B = FefO2_Borisov18_terms(PT,melt_wf,models)
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             fO2 = 10.**((gp.log10(F) - B)/a)
         else:
             fO2 = 10.**((math.log10(F) - B)/a)
@@ -3582,7 +3589,7 @@ def alpha_H2S_S(PT,models=default_models): # Fiege et al. (2015) Chemical Geolog
     if model == "Fiege15":
         T_K = PT["T"] + 273.15
         lna103 = (10.84*((1000./T_K)**2)) - 2.5
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             a = gp.exp(lna103/1000.)
         else:
             a = math.exp(lna103/1000.)
@@ -3594,7 +3601,7 @@ def alpha_SO2_SO4(PT,models=default_models): # Fiege et al. (2015) Chemical Geol
     if model == "Fiege15":
         T_K = PT["T"] + 273.15
         lna103 = (-0.42*((1000./T_K)**3)) - (2.133*((1000./T_K)**3)) - (0.105*(1000./T_K)) - 0.41
-        if models.loc["high precision","option"] == "yes":
+        if models.loc["high precision","option"] == "True":
             a = gp.exp(lna103/1000.)
         else:
             a = math.exp(lna103/1000.)

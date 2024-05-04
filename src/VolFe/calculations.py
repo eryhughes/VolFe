@@ -50,7 +50,7 @@ def P_sat(PT,melt_wf,models,Ptol,nr_step,nr_tol):
     melt_wf2["S2-"] = ms_conc["wm_S2m"]
     melt_wf1["ST"] = ST
     melt_wf2["ST"] = ST
-    if models.loc["sulfur_saturation","option"] == "yes": # must incorporate H2S concentration into S2- for SCSS
+    if models.loc["sulfur_saturation","option"] == "True": # must incorporate H2S concentration into S2- for SCSS
         sulfsat = sulfur_saturation(PT,melt_wf2,models)
         melt_wf1["ST"] = sulfsat["ST"]/1000000.
         melt_wf2["ST"] = ST  
@@ -70,7 +70,7 @@ def P_sat(PT,melt_wf,models,Ptol,nr_step,nr_tol):
         melt_wf2["CO2"] = ms_conc["wm_CO2"]
         melt_wf1["S2-"] = ms_conc["wm_S2m"]
         melt_wf2["S2-"] = ms_conc["wm_S2m"]
-        if models.loc["sulfur_saturation","option"] == "yes":
+        if models.loc["sulfur_saturation","option"] == "True":
             sulfsat = sulfur_saturation(PT,melt_wf2,models)
             melt_wf1["ST"] = sulfsat["ST"]/1000000.
             melt_wf2["ST"] = ST
@@ -176,15 +176,15 @@ def bulk_composition(run,PT,melt_wf,setup,models):
     #SCSS_,sulfide_sat,SCAS_,sulfate_sat = sulfur_saturation(wm_ST/100.0,S6ST_)
     #print(P, S6ST_)
 
-    if bulk_composition == "yes":
+    if bulk_composition == "melt-only":
         wt_g = 0.
-    elif bulk_composition == "wtg":
+    elif bulk_composition == "melt+vapor_wtg":
         wt_g = setup.loc[run,"wt_g"]/100.
-    elif bulk_composition == "CO2":
+    elif bulk_composition == "melt+vapor_initialCO2":
         wt_C_ = ((mdv.species.loc['C','M']*(setup.loc[run,"initial_CO2wtpc"]/100.))/mdv.species.loc['CO2','M'])
         wt_g = ((wt_C_/mdv.species.loc["C","M"]) - (wm_CO2/mdv.species.loc["CO2","M"]))/(((mg.xg_CO2(PT,melt_wf,models)+mg.xg_CO(PT,melt_wf,models)+mg.xg_CH4(PT,melt_wf,models)+mg.xg_OCS(PT,melt_wf,models))/mg.Xg_tot(PT,melt_wf,models)) - (wm_CO2/mdv.species.loc["CO2","M"]))    
 
-    if bulk_composition == "CO2":
+    if bulk_composition == "melt+vapor_initialCO2":
         wt_C = wt_C_
     else:
         wt_C = mdv.species.loc["C","M"]*((wt_g*(((mg.xg_CO2(PT,melt_wf,models)+
@@ -377,9 +377,9 @@ def fO2_P_VSA(PT,melt_wf,models,nr_step,nr_tol,Ptol):
         CSO4 = mdv.C_SO4(PT,melt_wf,models)/1000000.
         CS = mdv.C_S(PT,melt_wf,models)/1000000.
         
-        if models.loc["H2S_m","option"] == "no":
+        if models.loc["H2S_m","option"] == "False":
             W = CSO4/CS
-        elif models.loc["H2S_m","option"] == "yes":
+        elif models.loc["H2S_m","option"] == "True":
             CH2S = mdv.C_H2S(PT,melt_wf,models)/1000000.
             KHS = mdv.KHOSg(PT,models)
             CH2OT = mdv.C_H2O(PT,melt_wf,models)
@@ -603,9 +603,9 @@ def graphite_saturation(PT,melt_wf,models): # needs finishing
     K1 = mg.f_CO2(PT,melt_wf,models)/mdv.f_O2(PT,melt_wf,models)
     K2 = mdv.KCOs(PT,models) # K for graphite saturation
     if K1 < K2:
-        graphite_sat = "no"
+        graphite_sat = "False"
     else:
-        graphite_sat = "yes"
+        graphite_sat = "True"
     fCO2_ = K2*mdv.f_O2(PT,melt_wf,models)
     xmCO2 = fCO2_*mdv.C_CO3(PT,melt_wf,models)
     return graphite_sat
@@ -1038,6 +1038,8 @@ def calc_pure_solubility(PT,melt_wf,models):
     results = pd.DataFrame([[PT["P"],wm_H2O*100.,wm_CO2*1000000.]])    
     
     return results
+
+
 
 ###########################################################################
 ### P given S content of melt after degassing given conditions of pvsat ### IN PROGRESS
