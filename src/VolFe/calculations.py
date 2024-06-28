@@ -360,7 +360,7 @@ def sulfur_saturation(PT,melt_wf,models): # melt weight fraction of ST and S6/ST
         sulfide_sat = "nan"
         sulfate_sat = "nan"
         ST = wmST*1000000.
-    result = {"SCSS":SCSS_, "sulfide_sat":sulfide_sat, "SCAS":SCAS_, "sulfate_sat":sulfate_sat, "ST":ST}
+    result = {"SCSS":SCSS_,"StCSS":StCSS,"sulfide_sat":sulfide_sat, "SCAS":SCAS_, "StCAS":StCAS,"sulfate_sat":sulfate_sat,"ST":ST}
     return result
 
 # fO2 and P of v+sulf+anh saturation
