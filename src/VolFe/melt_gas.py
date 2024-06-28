@@ -51,7 +51,7 @@ def f_H2O(PT,melt_wf,models):
     fH2O in bars as <class 'mpfr'>
 
     """
-    
+
     Hspeciation = models.loc["Hspeciation","option"]
     if Hspeciation == "none": # fH2O = xmH2OT^2/CH2O
         value = ((xm_H2OT_so(melt_wf))**2.0)/mdv.C_H2O(PT,melt_wf,models)
