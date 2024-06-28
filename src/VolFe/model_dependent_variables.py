@@ -1701,11 +1701,12 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
             lnaFeS = math.log((1.0 - melt_comp["Fe2"])*sulfide_comp)
         # lnyFe2 from Eq. (10.46)
         lnyFe2 = (((1.0-melt_comp["Fe2"])**2.0)*(28870.0 - 14710.0*melt_comp["Mg"] + 1960.0*melt_comp["Ca"] + 43300.0*melt_comp["Na"] + 95380.0*melt_comp["K"] - 76880.0*melt_comp["Ti"]) + (1.0-melt_comp["Fe2"])*(-62190.0*melt_comp["Si"] + 31520.0*melt_comp["Si"]**2.0))/(R*T)
-        # lnS from Eq. (10.43)
-        lnS = D/(R*T) + gp.log(C_S(PT,melt_wf,models)) - gp.log(melt_comp["Fe2"]) - lnyFe2 + lnaFeS + (-291.0*P + 351.0*gp.erf(P))/T
+        # lnS from Eq. (10.43)    
         if models.loc["high precision","option"] == "True":
+            lnS = D/(R*T) + gp.log(C_S(PT,melt_wf,models)) - gp.log(melt_comp["Fe2"]) - lnyFe2 + lnaFeS + (-291.0*P + 351.0*gp.erf(P))/T
             SCSS = gp.exp(lnS)  
         else:
+            lnS = D/(R*T) + math.log(C_S(PT,melt_wf,models)) - math.log(melt_comp["Fe2"]) - lnyFe2 + lnaFeS + (-291.0*P + 351.0*math.erf(P))/T
             SCSS = math.exp(lnS)  
     
     elif model == "Liu07": # Eq. (9) in Liu et al. (2007) GCA 71:1783-1799 doi:10.1016/j.gca.2007.01.004
