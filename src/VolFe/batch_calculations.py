@@ -131,7 +131,7 @@ def options_from_setup(run,models,setup):
     results: pandas.DataFrame
 
     """
-    if models.loc["setup","option"] == "no":
+    if models.loc["setup","option"] == "False":
         return models
     elif models.loc["setup","option"] == "True":
         # species
@@ -293,7 +293,7 @@ def calc_Pvsat(setup,models=mdv.default_models,first_row=0,last_row=None,p_tol=1
 
         # check if any options need to be read from the setup file rather than the models file
         models = options_from_setup(run,models,setup)
-        
+ 
         # calculate Pvsat assuming only H2O CO2 in vapour and melt
         #if setup.loc[run,"Fe3FeT"] > 0.:
         #    melt_wf['Fe3FeT'] = setup.loc[run,"Fe3FeT"]
@@ -1020,7 +1020,7 @@ def calc_melt_S_oxybarometer(setup,first_row=0,last_row=None,models=mdv.default_
 ########################################
 ### measured parameters within error ### 
 ########################################
-def calc_comp_error(setup,run,iterations):
+def calc_comp_error(setup,run,iterations,models=mdv.default_models):
     
     # set up results table
     results = pd.DataFrame([["Sample","T_C",
@@ -1039,13 +1039,16 @@ def calc_comp_error(setup,run,iterations):
                              
     results = pd.concat([results, results1], ignore_index=True)
     for n in range(0,iterations,1): # n is number of rows of data in conditions file
-        SiO2,TiO2,Al2O3,FeOT,MnO,MgO,CaO,Na2O,K2O,P2O5,H2O,CO2ppm,STppm,Fe3FeT = c.compositions_within_error(run,setup)
-        results1 = pd.DataFrame([[run,setup.loc[run,"T_C"],SiO2,TiO2,Al2O3,FeOT,MnO,MgO,CaO,Na2O,K2O,P2O5,H2O,CO2ppm,STppm,Fe3FeT]])
+        results1 = c.compositions_within_error(run,setup)
+        results1 = pd.DataFrame([[run,setup.loc[run,"T_C"],results1["SiO2"],results1["TiO2"],results1["Al2O3"],results1["FeOT"],results1["MnO"],results1["MgO"],results1["CaO"],results1["Na2O"],results1["K2O"],results1["P2O5"],results1["H2O"],results1["CO2ppm"],results1["STppm"],results1["Fe3FeT"]]])
         results = pd.concat([results, results1], ignore_index=True)
-        if models.loc["output csv","option"] == "True":
-            results.to_csv('random_compositions.csv', index=False, header=False)
-        if models.loc["print status","option"] == "True":
-            print(n, setup.loc[run,"Sample"],SiO2)
+    
+    results.columns = results.iloc[0]
+    results = results[1:]
+    if models.loc["output csv","option"] == "True":
+        results.to_csv('random_compositions.csv', index=False, header=False)
+    if models.loc["print status","option"] == "True":
+        print(n, setup.loc[run,"Sample"],SiO2)
     
     return results
         
