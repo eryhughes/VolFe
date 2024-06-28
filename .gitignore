@@ -11,4 +11,4 @@ ipynb_checkpoints
 /build/
 *.orig
 *.ini
-__pycache__/
+/__pycache__/
