@@ -144,7 +144,7 @@ def check_default_options(models):
               ['KHOg',KHOg],['KHOSg',KHOSg],['KOSg',KOSg],['KOSg2',KOSg2], ['KCOg',KCOg],['KCOHg',KCOHg],['KOCSg',KOCSg],['KCOs',KCOs],['carbonylsulfide',OCS],
               ['bulk_composition',bulk_composition],['starting_P',starting_P],['gassing_style',gassing_style],['gassing_direction',gassing_direction],['P_variation',P_variation],['eq_Fe',eq_Fe],['solve_species',solve_species],
               ['density',density],['isotopes',isotopes],['T_variation',T_variation],['crystallisation',crystallisation],['mass_volume',mass_volume],['calc_sat',calc_sat],['bulk_O',bulk_O],['error',error],
-              ['print status',print_status],['output csv',output_csv],['setup',setup],['high precision','precision']]
+              ['print status',print_status],['output csv',output_csv],['setup',setup],['high precision',precision]]
     
     # Create the pandas DataFrame
     models = pd.DataFrame(models, columns=['type', 'option'])
