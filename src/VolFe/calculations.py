@@ -967,6 +967,12 @@ def compositions_within_error(run,setup):
     else:
         CO2ppm_sd = setup.loc[run,"CO2ppm_sd"]*setup.loc[run,"CO2ppm"]
     CO2ppm = float(np.random.normal(setup.loc[run,"CO2ppm"],CO2ppm_sd,1))
+
+    if setup.loc[run,"Xppm_sd_type"] == "A": # absolute
+        Xppm_sd = setup.loc[run,"Xppm_sd"]
+    else:
+        Xppm_sd = setup.loc[run,"Xppm_sd"]*setup.loc[run,"Xppm"]
+    Xppm = float(np.random.normal(setup.loc[run,"Xppm"],Xppm_sd,1))
         
     if setup.loc[run,"STppm_sd_type"] == "A": # absolute
         STppm_sd = setup.loc[run,"STppm_sd"]
@@ -980,7 +986,7 @@ def compositions_within_error(run,setup):
         Fe3FeT_sd = setup.loc[run,"Fe3FeT_sd"]*setup.loc[run,"Fe3FeT"]
     Fe3FeT = float(np.random.normal(setup.loc[run,"Fe3FeT"],Fe3FeT_sd,1))
     
-    result = {"SiO2":SiO2, "TiO2":TiO2, "Al2O3":Al2O3, "FeOT":FeOT, "MnO":MnO, "MgO":MgO, "CaO":CaO, "Na2O":Na2O, "K2O":K2O, "P2O5":P2O5, "H2O":H2O, "CO2ppm":CO2ppm, "STppm":STppm, "Fe3FeT":Fe3FeT}
+    result = {"SiO2":SiO2, "TiO2":TiO2, "Al2O3":Al2O3, "FeOT":FeOT, "MnO":MnO, "MgO":MgO, "CaO":CaO, "Na2O":Na2O, "K2O":K2O, "P2O5":P2O5, "H2O":H2O, "CO2ppm":CO2ppm, "Xppm":Xppm,"STppm":STppm, "Fe3FeT":Fe3FeT}
     return result
 
 
