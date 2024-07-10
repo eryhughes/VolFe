@@ -26,5 +26,5 @@ This is the VolFe documentation
    worked_example_degas
    worked_example_oxys
    worked_example_other
-   worked_example_marianas
+   worked_example_realdata
    add_your_own
