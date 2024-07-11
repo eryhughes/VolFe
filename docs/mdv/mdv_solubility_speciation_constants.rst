@@ -1,8 +1,8 @@
 ===================================================================================
-Solubility and speciation constants
+Solubility constants
 ===================================================================================
 
-Below are the different models for the solubility and speciation constants currently in VolFe, which can also be viewed in the :doc:`solubility constants notebook <SolSpecConst>`.
+Below are the different models for the solubility constants currently in VolFe, which can also be viewed in the :doc:`solubility constants notebook <SolSpecConst>`.
 This is how VolFe incorporates the effect of melt composition on the solubility and speciation of volatile species in the melt.
 
 ### IN PROGRESS ###

@@ -11,7 +11,7 @@ There are some models already available in VolFe, which are detailed below. Othe
 
 - :doc:`Fugacity coefficients <mdv/mdv_fugacity_coefficients>`
 
-- :doc:`Solubility constants <mdv/mdv_solubility_speciation_constants>`
+- :doc:`Solubility constants <mdv/solubility_constants>`
 
 - :doc:`Oxygen fugacity and Fe3+/FeT <mdv/mdv_oxygen_fugacity>`
 
