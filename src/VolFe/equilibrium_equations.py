@@ -257,12 +257,14 @@ def mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step,nr_tol,guesses): ### CHECK 
                 guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_H2_, xg_S2_
             wm_H2_, wm_CO_, wm_CH4_, wm_H2S_ = 0.,0.,0.,0.
         elif models.loc["COH_species","option"] == "yes_H2_CO_CH4_melt" and models.loc["H2S_m","option"] == "True":
-            if models.loc["Hspeciation","option"] == "none":
+            if solve_species == "scipy":
+                A,B,C,D = eq_SCHOFe_scipy(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species)
+            elif models.loc["Hspeciation","option"] == "none":
                 A,B,C,D, models, solve_species = eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species)
             elif models.loc["Hspeciation","option"] == "linear":
                 A,B,C,D = eq_SCHOFe_3(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species)
             xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, Xg_t, xm_H2O_, xm_CO2_, wm_S_, wm_SO3_, Xm_t, Xm_t_ox, Fe32, Fe3T, S62, S6T, wm_H2O_, wm_CO2_, wm_ST_, wm_H2S_, wm_H2_, wm_CH4_, wm_CO_ = B
-            if solve_species == "OCS":
+            if solve_species == "OCS" or solve_species == "scipy":
                 guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_S2_, xg_H2_
             elif solve_species == "OHS":
                 guessx, guessy, guessz, guessw = xg_O2_, xg_H2_, xg_S2_, xg_CO_ 
@@ -2896,7 +2898,7 @@ def eq_SCHOFe_3(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
     return results1, results2, results3, results4
 
 
-def eq_SCHOFe_test(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
+def eq_SCHOFe_scipy(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
    
     P = float(PT["P"])
     wt_O = float(bulk_wf['O'])
@@ -3012,12 +3014,12 @@ def eq_SCHOFe_test(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_specie
     
     newguess = optimize.fsolve(solve_system, [float(guessx),float(guessy),float(guessz)])
     xg_O2_,xg_CO_,xg_S2_,xg_H2_,xg_H2O_,xg_CO2_,xg_OCS_,xg_SO2_,xg_H2S_,xg_CH4_,Xg_t,wm_CO2_,wm_CH4_,wm_CO_,wm_H2O_,wm_H2_,wm_SO3_,wm_S_,wm_H2S_,wm_ST_,xm_H2O_,xm_CO2_,Xm_t,Fe32,Fe3T,S62,S6T = system(newguess)
-    CO,CH,CS,CX,wt_g = solvers(newguess)
+    CO,CH,CS,wt_g = solvers(newguess)
     
     A = xg_O2_, xg_CO_, xg_S2_
-    B = xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, Xg_t, xm_H2O_, xm_CO2_, wm_S_, wm_SO3_, Xm_t, Xm_t_ox, Fe32, Fe3T, S62, S6T, wm_H2O_, wm_CO2_, wm_ST_, wm_H2S_, wm_H2_, wm_CH4_, wm_CO_ 
+    B = xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, Xg_t, xm_H2O_, xm_CO2_, wm_S_, wm_SO3_, Xm_t, 0., Fe32, Fe3T, S62, S6T, wm_H2O_, wm_CO2_, wm_ST_, wm_H2S_, wm_H2_, wm_CH4_, wm_CO_ 
     C = "", "", "", "", "", "", "" 
-    D = wt_g, "","","",""
+    D = wt_g, wt_O, wt_C, wt_H, wt_S
     return A, B, C, D
 
 ###############
