@@ -7,9 +7,11 @@ The calibration range for these parametrisations is not listed in the original r
 Currently there is only one option for each equilibrium constant (except H2S), but more could be added in the future. 
 The model type is in **bold** (i.e., what option will effect this variable) and the options of models to use are in *italics* (default options are indicated).
 
-    KHOg: Model for the parameterisation of the equilibiurm constant for H2 + 0.5O2 = H2O.
-        default: 'Ohmoto97' Reaction (d) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
-        Only one option available currently, included for future development.
+**KHOg:** Model for the parameterisation of the equilibiurm constant for H2 + 0.5O2 = H2O.
+    
+    default: 'Ohmoto97' Reaction (d) in Table 1 from Ohmoto & Kerrick (1977)
+    
+    Only one option available currently, included for future development.
 
     KHOSg: Model for the parameterisation of the equilibiurm constant for 0.5S2 + H2O = H2S + 0.5O2.
         default: 'Ohmoto97' Reaction (h) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
