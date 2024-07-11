@@ -8,22 +8,39 @@ This is how VolFe incorporates the effect of melt composition on the solubility 
 ### IN PROGRESS ###
 
 **carbon dioxide**: Model for the parameterisation of the CO2T solubility constant.
+
 - default: 'MORB_Dixon95' Bullet (5) of summary from Dixon et al. (1995).
+
 - 'Basalt_Dixon97' Eq. (7) from Dixon et al. (1997).
+
 - 'NorthArchBasalt_Dixon97' Eq. (8) from Dixon et al. (1997).
+
 - 'Basalt_Lesne11' Eq. (25,26) from Lesne et al. (2011).
+
 - 'VesuviusAlkaliBasalt_Lesne11' VES-9 in Table 4 from Lesne et al. (2011).
+
 - 'EtnaAlkaliBasalt_Lesne11' ETN-1 in Table 4 from Lesne et al. (2011).
+
 - 'StromboliAlkaliBasalt_Lense11' PST-9 in Table 4 from Lesne et al. (2011).
+
 - 'SunsetCraterAlkaliBasalt_Allison19' Sunset Crater in Table 4 from Allison et al. (2019).
+
 - 'SVFVBasalticAndesite_Allison19' SVFV in Table 4 from Allison et al. (2019).
+
 - 'ErebusPhonotephrite_Allison19' Erebus in Table 4 from Allison et al. (2019).
+
 - 'VesuviusPhonotephrite_Allison19' Vesuvius in Table 4 from Allison et al. (2019).
+
 - 'EtnaTrachybasalt_Allison19' Etna in Table 4 from Allison et al. (2019).
+
 - 'StromboliAlkaliBasalt_Allison19' Stromboli in Table 4 from Allison et al. (2019).
+
 - 'Basanite_Holloway94' Basanite in Table 5 from Holloway and Blank (1994).
+
 - 'Leucitite_Thibault94' Leucitite from Thibault & Holloway (1994).
+
 - 'TholeiiteBasalt_Allison22' N72 basalt in Table 2 from Allison et al. (2022).
+
 - 'Rhyolite_Blank93' Fig.2 caption from Blank et al. (1993).
 
     ### water: Model for the parameterisation for the H2O solubility constant.
