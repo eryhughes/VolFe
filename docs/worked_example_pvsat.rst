@@ -7,7 +7,7 @@ This is the pressure of vapor saturation (Pvsat) barometer and is often applied 
 
 VolFe calculates Pvsat, the melt speciation, and the vapor composition for a melt of given temperature and melt composition (including volatiles and fO2). 
 
-This calculation was outlined in detail Hughes et al. (2024) (schematic in figure below, Hughes et al. in prep).
+This calculation was outlined in detail `Hughes et al. (2024) <https://doi.org/10.2138/am-2023-8739>` (schematic in figure below, Hughes et al. in prep).
 
 .. figure:: figures/pvsatcalc.png
 
