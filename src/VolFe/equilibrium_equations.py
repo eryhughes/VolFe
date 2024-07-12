@@ -860,8 +860,8 @@ def jac_newton(x0,y0,constants,eqs,deriv,step,tol,maxiter=1000):
         diff1, diff2, wtg1,wtg2,wtg3 = eqs(guessx,guessy)
         if abs(diff1) < tol and abs(diff2) < tol:
             return guessx, guessy
-        elif np.isnan(float(guessx)) or np.isnan(float(guessy)):
-            print("nan encountered")
+        #elif np.isnan(float(guessx)) or np.isnan(float(guessy)):
+            #print("nan encountered")
         x0 = guessx
         y0 = guessy
         results1 = pd.DataFrame([[guessx, guessy,diff1,diff2,step]])
@@ -880,8 +880,8 @@ def jac_newton(x0,y0,constants,eqs,deriv,step,tol,maxiter=1000):
         diff1, diff2,wtg1,wtg2,wtg3 = eqs(guessx,guessy)
         if abs(diff1) < tol and abs(diff2) < tol:
             return guessx, guessy
-        elif np.isnan(float(guessx)) or np.isnan(float(guessy)):
-            print("nan encountered")
+        #elif np.isnan(float(guessx)) or np.isnan(float(guessy)):
+            #print("nan encountered")
         x0 = guessx
         y0 = guessy
         results1 = pd.DataFrame([[guessx, guessy,diff1,diff2,step]])
@@ -931,8 +931,8 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=100):
         diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(guessx,guessy,guessz)
         if abs(diff1) < tol and abs(diff2) < tol and abs(diff3) < tol:
             return guessx, guessy, guessz
-        elif np.isnan(float(guessx)) or np.isnan(float(guessy)) or np.isnan(float(guessz)):
-            print("nan encountered")
+        #elif np.isnan(float(guessx)) or np.isnan(float(guessy)) or np.isnan(float(guessz)):
+            #print("nan encountered")
         x0 = guessx
         y0 = guessy
         z0 = guessz
@@ -952,8 +952,8 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=100):
         diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(guessx,guessy,guessz)
         if abs(diff1) < tol and abs(diff2) < tol and abs(diff3) < tol:
             return guessx, guessy, guessz
-        elif np.isnan(float(guessx)) or np.isnan(float(guessy)) or np.isnan(float(guessz)):
-            print("nan encountered")
+        #elif np.isnan(float(guessx)) or np.isnan(float(guessy)) or np.isnan(float(guessz)):
+            #print("nan encountered")
         x0 = guessx
         y0 = guessy
         z0 = guessz

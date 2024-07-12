@@ -622,7 +622,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             if models.loc["output csv","option"] == "True":
                 results.to_csv('results_gassing_chemistry.csv', index=False, header=True)
             if models.loc["print status","option"] == "True":
-                print("solver failed, calculation aborted at P = ", PT["P"], datetime.datetime.now())
+                Warning("solver failed, calculation aborted at P = ", PT["P"], datetime.datetime.now())
             return results 
         
         # set melt composition for forward calculation
