@@ -1,7 +1,9 @@
 ===================================================================================
-Application to real data
+Applications
 ===================================================================================
 
-This is an example of how to use VolFe to explore a melt inclusion and/or matrix glass dataset for all the different types of calculations available, including plotting.
+These are examples how to use VolFe to explore natural data or model different systems.
 
-- :doc:`Example 5 <Examples/5 marianas>`: Example for a dataset from the Marianas arc (from Hughes et al., in prep).
+- :doc:`Example 5a <Examples/5a marianas>`: Example for a dataset from the Marianas arc (from Hughes et al., in prep).
+
+- :doc:`Example 5b <Examples/5b comparison>`: [in progress]
