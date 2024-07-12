@@ -1,5 +1,5 @@
 ===================================================================================
-Calculating degassing paths
+Degassing paths
 ===================================================================================
 
 As magmas rise to the surface, volatiles dissolved in the melt exsolve into the vapor phase.

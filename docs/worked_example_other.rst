@@ -1,5 +1,5 @@
 ===================================================================================
-Other calculation types
+Other calculations
 ===================================================================================
 
 There are other calculations in VolFe and new ones can be added!
