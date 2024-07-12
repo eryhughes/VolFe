@@ -15,7 +15,6 @@ This is the VolFe documentation
    code_structure
    current_mdv
    options
-   mv_combo
    references
 
 .. toctree::
