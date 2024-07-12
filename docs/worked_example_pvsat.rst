@@ -1,5 +1,5 @@
 ===================================================================================
-Pressure of vapor-saturation (Pvsat)
+Pressure of vapor-saturation
 ===================================================================================
 
 The dissolved volatile content of a melt in equilibrium with a vapor can be used as a barometer because the sum of the partial pressures of all the vapor species must equal the total pressure (REF). 
