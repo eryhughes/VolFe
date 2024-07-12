@@ -19,4 +19,4 @@ In this example we'll show you how to run this calculation for:
 
 - :doc:`Example 1c <Examples/1c. pvsat user_opt>`: Analyses in a csv file using user specified options.
 
-- :doc:`Example 1d <Examples/1d. pvsat X>`: Changing the identity of "X". [in progress]
+- :doc:`Example 1d <Examples/1d. pvsat X>`: Changing the identity of "X".
