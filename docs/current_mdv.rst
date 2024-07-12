@@ -20,4 +20,4 @@ This varies from which species are treated as insoluble in the melt to whether a
 
 - :doc:`Sulfide/sulfate content at sulfide/anhydrite saturation <mdv/saturation_conditions>`
 
-- :doc:`Calculation options <mdv/alculation_options>`
+- :doc:`Calculation options <mdv/calculation_options>`
