@@ -1,4 +1,10 @@
-### CURRENT SOLUBILITY CONSTANT FOR H2S 
+===================================================================================
+6a. Solubility constant
+===================================================================================
+
+You can add your own parameterisation to any of the model dependent variables. 
+Here, we show an example of adding a new parameterisation for the H2S solubility constant (CH2S, function name: C_H2S). 
+This is what the function for the current solubility constant for H2S looks like in “model_dependent_variables.py”:
 
 ###################################
 ### solubility constant for H2S ###
@@ -11,8 +17,20 @@ def C_H2S(run,PT,melt_wf,setup,species,models): # C_H2S = wmH2S/fH2S (ppm H2S, f
         K = 6.82 # fitted to basaltic andesite data from Moune+ 2009 CMP 157:691–707 and Lesne+ 2015 ChemGeol 418:104–116 
     return K
 
+In the current function, there are two options for H2S solubility basalt and basaltic andesite, using data from Moune et al. (2009) and Lesne et al. (2015) fitted in Hughes et al. (2024). 
+Let us say you have a new parameterisation that adheres to having wmH2S in ppm but fH2S is in kbar (this example is completely made up). 
+It depends on pressure, temperature, and melt composition using the form:
 
-### ADDING "my new amazing parameterisation" option
+ln⁡C=ln⁡〖C_0 〗-∆V(P-P_0 )/RT+∆H/R (1/T_0 -1/T)
+
+where ∆V = 10 cm3/mol, P0 = 1 bar, ∆H = -13 kJ/mol, T0 = 1400 K, and C0 depends on the composition of the melt through the anhydrous cation mole fractions according to:
+
+C_0=A*xSiO+B*xMgO+C*xK2O
+
+where A = 2.5, B = 6.8, and C = -9.0.
+The anhydrous cation fraction is calculated using the function “melt_cation_proportion(run,melt_wf,setup,species,"no","no")” in the melt_gas.py file: the first “no” means it does not include any volatiles and the second “no” means it ignores iron speciation. Similarly (i.e., with the same arguments and in the melt_gas.py file), “mg.melt_normalise_wf” calculates the normalised weight fraction, “mg.melt_mole_fraction” the mole fractions, and “mg.melt_single_O” the mole fraction on a single oxygen basis.
+
+Below is how the new parameterisation is added to C_H2S, called “my new amazing parameterisation”:
 
 ###################################
 ### solubility constant for H2S ###
@@ -23,7 +41,7 @@ def C_H2S(run,PT,melt_wf,setup,species,models): # C_H2S = wmH2S/fH2S (ppm H2S, f
         K = 10.23 # fitted to basalt data from Moune+ 2009 CMP 157:691–707 and Lesne+ 2015 ChemGeol 418:104–116
     elif model == "basaltic andesite":
         K = 6.82 # fitted to basaltic andesite data from Moune+ 2009 CMP 157:691–707 and Lesne+ 2015 ChemGeol 418:104–116 
-    elif model == "my new amazing parameterisation":
+    elif model == “my new amazing parameterisation”:
         P, T_K = PT['P'], PT['T']+273.15 # bars, K # extracts pressure in bars and temperature in ‘C from PT and convert temperature to K.
         tot, Si, Ti, Al, FeT, Fe2, Fe3, Mg, Mn, Ca, Na, K, P_, H, C = mg.melt_cation_proportion(run,melt_wf,setup,species,"no","no") # calculates cation mole fractions from the melt composition without volatiles in the melt and does not consider iron speciation (i.e., all Fe is FeO).
         A, B, C = 2.5, 6.8, -9. # sets the constants A, B, and C
@@ -36,5 +54,6 @@ def C_H2S(run,PT,melt_wf,setup,species,models): # C_H2S = wmH2S/fH2S (ppm H2S, f
         B = -((DV/(R*T_K))*(P-P0)) + (DH/R)*((1.0/T0) - (1.0/T_K)) # calculates PT term
         K = C0*gp.exp(B) # calculates solubility constant in ppmw/kbar
         K = K/1000. # converts fH2S in kbars to fH2S in bars
-    return K
+return K
 
+To use it, the “hydrogen sulfide” option in "models" would be set to “my new amazing parameterisation”.
