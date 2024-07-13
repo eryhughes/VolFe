@@ -293,8 +293,12 @@ def mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step,nr_tol,guesses): ### CHECK 
             
     if system in ["HOFe","HOFe","CHOFe","CHOXFe","SHOFe","SCHOFe","SCHOXFe"]: # contains H
         wm_H2Omol_, wm_OH_ = mg.wm_H2Omol_OH(PT,melt_wf,models)
+    else:
+        wm_H2Omol_, wm_OH_ = 0., 0.
     if system in ["COFe","COXFe","CHOFe","CHOXFe","SCHOFe","SCHOXFe"]: # contains C
         wm_CO2carb_, wm_CO2mol_ = mg.wm_CO32_CO2mol(PT,melt_wf,models)
+    else:
+        wm_CO2carb_, wm_CO2mol_ = 0., 0.
     
     wm_S6p_ = (wm_SO3_/mdv.species.loc["SO3","M"])*mdv.species.loc["S","M"]
 
@@ -376,9 +380,9 @@ def eq_H_melt(PT,melt_wf,models,nr_step,nr_tol): # equilibrium partitioning of H
 def eq_S_melt(PT,melt_wf,models):
     S6p_ST = mg.S6ST(PT,melt_wf,models)
     S2m_ST = 1. - S6p_ST
-    wm_S2m_ = S2m_ST*wt_S
-    wm_S6p_ = S6p_ST*wt_S
-    result = {"wm_S2m":wm_S2m_, "wm_S6p":wm_S6p}
+    wm_S2m_ = S2m_ST*melt_wf['ST']
+    wm_S6p_ = S6p_ST*melt_wf['ST']
+    result = {"wm_S2m":wm_S2m_, "wm_S6p":wm_S6p_}
     return result
     
 def eq_CH_melt(PT,melt_wf,models,nr_step,nr_tol,guesses):
@@ -635,7 +639,7 @@ def melt_speciation(PT,melt_wf,models,nr_step,nr_tol):
     M_H2S = mdv.species.loc['H2S','M']
     
     if system in ["COFe","COXFe","SOFe","SCOFe"]: # no H
-        wm_CH4_, wm_H2S_, xm_H2O_, wm_H2O_, wm_H2_ = 0.,0.,0.,0.,0.
+        wm_CH4_, wm_H2S_, xm_H2O_, wm_H2O_, wm_H2_, wm_H2Omol_, wm_OH_  = 0.,0.,0.,0.,0.,0.,0.
     if system in ["HOFe","HOXFe","SOFe","SHOFe"]: # no C
         wm_CH4_, xm_CO2_, wm_CO2_, wm_CO_, wm_CO2carb_, wm_CO2mol_ = 0.,0.,0.,0.,0.,0.
     if system in ["COFe","COXFe","HOFe","HOXFe","CHOFe","CHOXFe"]: # no S
@@ -655,14 +659,16 @@ def melt_speciation(PT,melt_wf,models,nr_step,nr_tol):
             xm_H2O_, wm_H2O_, wm_H2_ = eq_H_melt(PT,melt_wf,setup,models,nr_step,nr_tol)
         else:
             wm_H2O_, xm_H2O_ = melt_wf["H2OT"], mg.xm_H2O_so(melt_wf)
-    elif system in ["COFe","COXFe"]:
+    if system in ["COFe","COXFe",'SCOFe']:
         if models.loc['COH_species','option'] == 'yes_H2_CO_CH4_melt':    
-            xm_CO2_, wm_CO2_, wm_CO_ = eq_C_melt(PT,melt_wf,models)
+            result = eq_C_melt(PT,melt_wf,models)
+            xm_CO2_, wm_CO2_, wm_CO_ = result['xm_CO2'], result['wm_CO2'], result['wm_CO']
         else:
             wm_CO2_, xm_CO2_ = melt_wf["CO2"], mg.xm_CO2_so(melt_wf)
-    elif system == "SOFe":
-        wm_S2m_, wm_S6p = eq_S_melt(PT,melt_wf,models)
-    elif system in ["CHOFe","CHOXFe"]:
+    if system in ["SOFe",'SCOFe']:
+        result = eq_S_melt(PT,melt_wf,models)
+        wm_S2m_, wm_S6p_ = result['wm_S2m'],result['wm_S6p']
+    if system in ["CHOFe","CHOXFe"]:
         if models.loc['COH_species','option'] == 'yes_H2_CO_CH4_melt':    
             guesses = {"guessx":mg.xm_CO2_so(melt_wf), "guessy":mg.xm_H2OT_so(melt_wf)}
             xm_CO2_,xm_H2O_, A, B = eq_CH_melt(PT,melt_wf,models,nr_step,nr_tol,guesses)
@@ -670,22 +676,16 @@ def melt_speciation(PT,melt_wf,models,nr_step,nr_tol):
         else:
             wm_H2O_, xm_H2O_ = melt_wf["H2OT"], mg.xm_H2O_so(melt_wf)
             wm_CO2_, xm_CO2_ = melt_wf["CO2"], mg.xm_CO2_so(melt_wf)
-    elif system == "SHOFe":
+    if system == "SHOFe":
         xm_H2O_, wm_H2O_, wm_H2_, wm_S2m_, wm_S6p_, wm_H2S_ = eq_HS_melt(PT,melt_wf,models,nr_step,nr_tol)
-    elif system == "SCOFe":
-        if models.loc['COH_species','option'] == 'yes_H2_CO_CH4_melt':    
-            xm_CO2_, wm_CO2_, wm_CO_ = eq_C_melt(PT,melt_wf,setup,models)
-        else:
-            wm_CO2_, xm_CO2_ = melt_wf["CO2"], mg.xm_CO2_so(melt_wf)
-        wm_S2m_, wm_S6p = eq_S_melt(PT,melt_wf,models)        
-    elif system in ["SCHOFe","SCHOXFe"]:
+    if system in ["SCHOFe","SCHOXFe"]:
         guesses = {"guessx":mg.xm_CO2_so(melt_wf),"guessy":mg.xm_H2OT_so(melt_wf),"guessz":wt_S}
         xm_CO2_,xm_H2O_,wm_S2m_, A, B = eq_CHS_melt(PT,melt_wf,models,nr_step,nr_tol,guesses)
         Xm_t, wm_H2O_, wm_H2_, wm_CO2_, wm_CO_, wm_CH4_, wm_S2m_, wm_S6p_, wm_H2S_ = A
     
     if system in ["HOFe","HOFe","CHOFe","CHOXFe","SHOFe","SCHOFe","SCHOXFe"]: # contains H
         wm_H2Omol_, wm_OH_ = mg.wm_H2Omol_OH(PT,melt_wf,models)
-    if system in ["COFe","COXFe","CHOFe","CHOXFe","SCHOFe","SCHOXFe"]: # contains C
+    if system in ["COFe","COXFe","SCOFe","CHOFe","CHOXFe","SCHOFe","SCHOXFe"]: # contains C
         wm_CO2carb_, wm_CO2mol_ = mg.wm_CO32_CO2mol(PT,melt_wf,models)
     
     wm_SO3_ = (wm_S6p_*mdv.species.loc["SO3","M"])/mdv.species.loc["S","M"]
