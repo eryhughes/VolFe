@@ -23,7 +23,7 @@ def C_H2S(run,PT,melt_wf,setup,species,models): # C_H2S = wmH2S/fH2S (ppm H2S, f
         K = 10.23 # fitted to basalt data from Moune+ 2009 CMP 157:691–707 and Lesne+ 2015 ChemGeol 418:104–116
     elif model == "basaltic andesite":
         K = 6.82 # fitted to basaltic andesite data from Moune+ 2009 CMP 157:691–707 and Lesne+ 2015 ChemGeol 418:104–116 
-    elif model == “my new amazing parameterisation”:
+    elif model == "my new amazing parameterisation":
         P, T_K = PT['P'], PT['T']+273.15 # bars, K # extracts pressure in bars and temperature in ‘C from PT and convert temperature to K.
         tot, Si, Ti, Al, FeT, Fe2, Fe3, Mg, Mn, Ca, Na, K, P_, H, C = mg.melt_cation_proportion(run,melt_wf,setup,species,"no","no") # calculates cation mole fractions from the melt composition without volatiles in the melt and does not consider iron speciation (i.e., all Fe is FeO).
         A, B, C = 2.5, 6.8, -9. # sets the constants A, B, and C
