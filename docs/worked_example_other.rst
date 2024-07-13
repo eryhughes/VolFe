@@ -14,4 +14,4 @@ Here we show examples for a few that might be useful:
 
 - :doc:`Example 4d <Examples/4d. other_isobar>`: Calculate isobars for H2O-CO2.
 
-- :doc:`Example 4e <Examples/4e. other_error>`: Monte Carlo approach for errors on melt composition and *T* [in progress].
+- :doc:`Example 4e <Examples/4e. other_error>`: Monte Carlo approach for errors on melt composition.
