@@ -20,4 +20,4 @@ In this example we'll show you how to run this calculation for:
 
 - :doc:`Example 2d <Examples/2d. regas>`: Closed- and open-system CHOS regassing. [open-system part in progress]
 
-- :doc:`Example 2e <Examples/2e. degas_notCHOS>`: Closed-system degassing for different volatile systems (including noble gases). [in progress]
+- :doc:`Example 2e <Examples/2e. degas_notCHOS>`: Closed-system degassing for different volatile systems (including noble gases).
