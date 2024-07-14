@@ -860,7 +860,7 @@ def calc_sol_consts(setup,first_row=0,last_row=None,models=mdv.default_models):
         results_values_models = pd.DataFrame([[models.loc["species X","option"],models.loc["Hspeciation","option"], 
                 models.loc["fO2","option"], models.loc["NNObuffer","option"], models.loc["FMQbuffer","option"],
                  models.loc["carbon dioxide","option"], models.loc["water","option"], models.loc["hydrogen","option"], models.loc["sulfide","option"], models.loc["sulfate","option"], models.loc["hydrogen sulfide","option"], models.loc["methane","option"], models.loc["carbon monoxide","option"], models.loc["species X solubility","option"], models.loc["Cspeccomp","option"], models.loc["Hspeccomp","option"],datetime.datetime.now()]])
-        results_values_values = pd.DataFrame([[setup.loc[run,"Sample"],PT["P"],PT["T"],melt_comp["SiO2"]*100., melt_comp["TiO2"]*100., melt_comp["Al2O3"]*100., melt_comp["FeOT"]*100., melt_comp["MnO"]*100., melt_comp["MgO"]*100., melt_comp["CaO"]*100., melt_comp["Na2O"]*100., melt_comp["K2O"]*100., melt_comp["P2O5"]*100.,setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],setup.loc[run,"STppm"],melt_wf["Fe3FeT"],fO2_,log(C_CO32),log(C_H2OT),log(C_S2),log(C_S6),log(C_H2S),log(C_H2),log(C_CO),log(C_CH4),log(C_X),M_m]])
+        results_values_values = pd.DataFrame([[setup.loc[run,"Sample"],PT["P"],PT["T"],melt_comp["SiO2"]*100., melt_comp["TiO2"]*100., melt_comp["Al2O3"]*100., melt_comp["FeOT"]*100., melt_comp["MnO"]*100., melt_comp["MgO"]*100., melt_comp["CaO"]*100., melt_comp["Na2O"]*100., melt_comp["K2O"]*100., melt_comp["P2O5"]*100.,setup.loc[run,"H2O"],setup.loc[run,"CO2ppm"],setup.loc[run,"STppm"],melt_wf["Fe3FeT"],fO2_,math.log(C_CO32),math.log(C_H2OT),math.log(C_S2),math.log(C_S6),math.log(C_H2S),math.log(C_H2),math.log(C_CO),math.log(C_CH4),math.log(C_X),M_m]])
         results1 = pd.concat([results_values_values,results_values_models],axis=1)
     
         if n == first_row:
@@ -869,7 +869,7 @@ def calc_sol_consts(setup,first_row=0,last_row=None,models=mdv.default_models):
             results = pd.concat([results, results1])
         
         if models.loc["print status","option"] == "True":
-            print(n, setup.loc[run,"Sample"],log(C_CO32),log(C_H2OT),log(C_S2),log(C_S6),log(C_H2S),log(C_H2),log(C_CO),log(C_CH4),M_m)
+            print(n, setup.loc[run,"Sample"],math.log(C_CO32),math.log(C_H2OT),math.log(C_S2),math.log(C_S6),math.log(C_H2S),math.log(C_H2),math.log(C_CO),math.log(C_CH4),M_m)
     
     results.columns = results.iloc[0]
     results = results[1:]
@@ -886,7 +886,7 @@ def calc_fugacity_coefficients(setup,first_row=0,last_row=None,models=mdv.defaul
 
     # set up results table
     results_headers_models = pd.DataFrame([["y_CO2 opt","y_SO2 opt","y_H2S opt","y_H2 opt","y_O2 opt","y_S2 opt","y_CO opt","y_CH4 opt","y_H2O opt","y_OCS opt","y_X opt","Date"]])
-    results_headers_values = pd.DataFrame([["Sample","Pressure (bar)","T ('C)","yO2","yH2","yH2O","yS2","ySO2","yH2S","yCO2","yCO","yCH4","yOCS","yX"]])
+    results_headers_values = pd.DataFrame([["Sample","P_bar","T_C","yO2","yH2","yH2O","yS2","ySO2","yH2S","yCO2","yCO","yCH4","yOCS","yX"]])
     results_headers = pd.concat([results_headers_values,results_headers_models],axis=1)
     
     if last_row == None:
