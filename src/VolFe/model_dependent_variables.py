@@ -244,6 +244,8 @@ def make_df_and_add_model_defaults(models):
 
     ### water: Model for the parameterisation for the H2O solubility constant.
         default: 'Basalt_Hughes24' Hughes et al. (2024) AmMin 109(3):422-438 based on data compiliation from Allison et al. (2022) CMP 177(3):40 doi:10.1007/s00410-022-01903-y
+        Other options:
+        'Rhyolite_HughesIP' Fig.SX from Hughes et al. (in prep) based on data in Fig. 3 of Blank et al. (1993)
     
     hydrogen: Model for the parameterisation of the H2 solubility constant.
         default: 'Basalt_Hughes24' Basalt H2 in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
@@ -366,7 +368,7 @@ def make_df_and_add_model_defaults(models):
         'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
         'ideal' Treat H2S as ideal gas species, fugacity coefficient = 1 at all P.
 
-    y_H2: Model for the parameterisation of the SO2 fugacity coefficient.
+    y_H2: Model for the parameterisation of the H2 fugacity coefficient.
         default: 'Shaw64' Eq. (4) from Shaw & Wones (1964) AmJSci 262:918-929
         Other options:
         'ideal' Treat H2 as ideal gas species, fugacity coefficient = 1 at all P.
@@ -588,7 +590,7 @@ def C_H2O(PT,melt_wf,models=default_models):
     If "Hspeciation" = "none"
         default: 'Basalt_Hughes24' Fig.S2 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
         Other options:
-        'Rhyolite_HughesIP' Hughes et al. (in prep)
+        'Rhyolite_HughesIP' Fig.SX from Hughes et al. (in prep) based on data in Fig. 3 of Blank et al. (1993)
     
 
     Returns
@@ -600,7 +602,7 @@ def C_H2O(PT,melt_wf,models=default_models):
     model_solubility = models.loc["water","option"]
 
     if model_speciation == "none": ### C_H2O = (xmH2O)^2/fH2O ### (mole fraction)
-        if model_solubility == "Rhyolite_Hughes24": # Fig.SX from Hughes et al. (in prep) based on data in Fig. 3 of Blank et al. (1993)
+        if model_solubility == "Rhyolite_HughesIP": # Fig.SX from Hughes et al. (in prep) based on data in Fig. 3 of Blank et al. (1993)
             C = 5.3851E-06 
         elif model_solubility == "Basalt_Hughes24": # Fig.S2 from Hughes et al. (2024) based on data compilation from Allison et al. (2022) for basalts with H2O < 6 wt%
             C = 4.6114e-6
@@ -929,6 +931,7 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
         else:
             C = A*math.exp(B)
     elif model == "Rhyolite_Blank93": # Fig. 2 caption from Blank et al. (1993) 
+        R_ = 83.144621 # cm3 bar K−1 mol−1
         DV = 28. # cm3/mol ± 2
         DH = -27.2 # kJ/mole ±2.1 
         P0 = 1.0 # bar
