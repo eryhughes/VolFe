@@ -44,6 +44,8 @@ McKinney, W., 2010. Data Structures for Statistical Computing in Python. Proceed
 
 Moussallam et al. (2019)
 
+Meurer et al., 2017 Sympy
+
 Muth, M.J. and Wallace, P.J., 2022. Sulfur recycling in subduction zones and the oxygen fugacity of mafic arc magmas. Earth and Planetary Science Letters, 599, p.117836. https://doi.org/10.1016/j.epsl.2022.117836 
 
 O'Neill (1897)
@@ -61,8 +63,6 @@ Shaw & Wones (1964)
 Shi & Saxena (1992)
 
 Smythe et al. (2017)
-
-Sympy
 
 The pandas development team, 2024. pandas-dev/pandas: Pandas. https://doi.org/10.5281/zenodo.3509134 
 
