@@ -15,4 +15,4 @@ In this example we'll show you how to run this calculation for:
 
 - :doc:`Example 3b <Examples/3b. SfO2 csv>`: Analyses in a csv file using default options. 
 
-- :doc:`Example 3c <Examples/3c. SfO2 user_opt>`: Analyses in a csv file using user specified options.
+- :doc:`Example 3c <Examples/3c. SfO2 user_opt>`: Analyses in a csv file using user specified options. [in progress]
