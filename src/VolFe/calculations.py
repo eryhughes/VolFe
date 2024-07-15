@@ -341,20 +341,20 @@ def sulfur_saturation(PT,melt_wf,models): # melt weight fraction of ST and S6/ST
     StCSS = SCSS_/(1.-S6T)
     StCAS = SCAS_/S6T
     if wmS2 < SCSS_ and wmS6 < SCAS_:
-        sulfide_sat = "no"
-        sulfate_sat = "no"
+        sulfide_sat = "False"
+        sulfate_sat = "False"
         ST = wmST*1000000.
     elif wmS2 >= SCSS_ and wmS6 >= SCAS_:
-        sulfide_sat = "yes"
-        sulfate_sat = "yes"
+        sulfide_sat = "True"
+        sulfate_sat = "True"
         ST = min(StCSS,StCAS)
     elif wmS2 >= SCSS_ and wmS6 < SCAS_:
-        sulfide_sat = "yes"
-        sulfate_sat = "no"
+        sulfide_sat = "True"
+        sulfate_sat = "False"
         ST = StCSS
     elif wmS2 < SCSS_ and wmS6 >= SCAS_:
-        sulfide_sat = "no"
-        sulfate_sat = "yes"
+        sulfide_sat = "False"
+        sulfate_sat = "True"
         ST = StCAS
     else:
         sulfide_sat = "nan"
@@ -521,7 +521,7 @@ def P_sat_sulf_anh(PT,melt_wf,models,Ptol,nr_step,nr_tol):
     if Fe3T_sulf == "not possible":
         P_sat_sulf = ""
         Fe3T_sulf = ""
-        sulfide_sat = "no"
+        sulfide_sat = "False"
     else: 
         melt_wf["Fe3FeT"] = Fe3T_sulf
         ms_conc = eq.melt_speciation(PT,melt_wf,models,nr_step,nr_tol)
@@ -540,7 +540,7 @@ def P_sat_sulf_anh(PT,melt_wf,models,Ptol,nr_step,nr_tol):
             if Fe3T_sulf == "not possible":
                 P_sat_sulf = ""
                 Fe3T_sulf = ""
-                sulfide_sat = "no"
+                sulfide_sat = "False"
             else: 
                 melt_wf["Fe3FeT"] = Fe3T_sulf
                 ms_conc = eq.melt_speciation(PT,melt_wf,models,nr_step,nr_tol)
@@ -551,14 +551,14 @@ def P_sat_sulf_anh(PT,melt_wf,models,Ptol,nr_step,nr_tol):
         else:
             P_sat_sulf = guess0
             Fe3T_sulf,fO2_sulf,S6T_sulf,DFMQ_sulf,SCSS_ = S62_2_Fe3T(PT,melt_wf,models,"sulf")
-            sulfide_sat = "yes"
+            sulfide_sat = "True"
            
     # assume it is anhydrite saturated
     Fe3T_anh,fO2_anh,S6T_anh,DFMQ_anh,SCAS_ = S62_2_Fe3T(PT,melt_wf,models,"anh")
     if Fe3T_anh == "not possible":
         P_sat_anh = ""
         Fe3T_anh = ""
-        anhydrite_sat = "no"
+        anhydrite_sat = "False"
     else:  
         melt_wf["Fe3FeT"] = Fe3T_anh
         ms_conc = eq.melt_speciation(PT,melt_wf,models,nr_step,nr_tol)
@@ -577,7 +577,7 @@ def P_sat_sulf_anh(PT,melt_wf,models,Ptol,nr_step,nr_tol):
             if Fe3T_anh == "not possible":
                 P_sat_anh = ""
                 Fe3T_anh = ""
-                anhydrite_sat = "no"
+                anhydrite_sat = "False"
             else:  
                 melt_wf["Fe3FeT"] = Fe3T_anh
                 ms_conc = eq.melt_speciation(PT,melt_wf,models,nr_step,nr_tol)
@@ -588,7 +588,7 @@ def P_sat_sulf_anh(PT,melt_wf,models,Ptol,nr_step,nr_tol):
         else:
             P_sat_anh = guess0
             Fe3T_anh,fO2_anh,S6T_anh,DFMQ_anh,SCAS_ = S62_2_Fe3T(PT,melt_wf,models,"anh")
-            anhydrite_sat = "yes"
+            anhydrite_sat = "True"
     
     result = {"P_sat_sulf":P_sat_sulf,"P_sat_anh":P_sat_anh,"SCAS":SCAS_*1000000.,"SCSS":SCSS_*1000000.,"sulf_sat":sulfide_sat,"DFMQ_sulf":DFMQ_sulf,"fO2_sulf":fO2_sulf,"Fe3T_sulf":Fe3T_sulf,"S6T_sulf":S6T_sulf,"anh_sat":anhydrite_sat,"DFMQ_anh":DFMQ_anh,"fO2_anh":fO2_anh,"Fe3T_anh":Fe3T_anh,"S6T_anh":S6T_anh}          
 
@@ -628,7 +628,7 @@ def fO2_range_from_S(PT,melt_wf,models):
         Fe3Fe2_1 = mg.overtotal2ratio(Fe3FeT_1)
         DFMQ_1 = mg.fO22Dbuffer(PT,fO2_1,"FMQ",models)
     else:
-        sulfide_sat = "no"
+        sulfide_sat = "False"
         S6ST_1 = ""
         S6S2_1 = ""
         Fe3Fe2_1 = ""
@@ -645,7 +645,7 @@ def fO2_range_from_S(PT,melt_wf,models):
         Fe3Fe2_2 = mg.overtotal2ratio(Fe3FeT_2)
         DFMQ_2 = mg.fO22Dbuffer(PT,fO2_2,"FMQ",models)
     else:
-        anhydrite_sat = "no"
+        anhydrite_sat = "False"
         S6ST_2 = ""
         S6S2_2 = ""
         Fe3Fe2_2 = ""
@@ -680,7 +680,7 @@ def mass_vol_rho(PT,melt_wf,gas_mf,bulk_wf,models):
 ### mole fraction of elements in different species ###
 ######################################################
 
-def mf_S_species(melt_wf,gas_mf):
+def mf_S_species_old(melt_wf,gas_mf):
     # weight of S in each sulfur-bearing species
     W_S2m = melt_wf["ST"]*(1.-gas_mf["wt_g"])*(1.-melt_wf["S6ST"])
     W_SO4 = melt_wf["ST"]*(1.-gas_mf["wt_g"])*melt_wf["S6ST"]
@@ -699,18 +699,18 @@ def mf_S_species(melt_wf,gas_mf):
     mf_S = {"S2-":w_S2m, "SO42-":w_SO4, "SO2":w_SO2, "H2S":w_H2S, "S2": w_S2, "OCS": w_OCS}
     return mf_S
 
-def mf_S_species_new(comp):
+def mf_S_species(comp):
     # weight of S in each sulfur-bearing species
-    wtg = (comp["wt_g_wtpc"])/100.
+    wtg = (float(comp["wt_g_wtpc"].iloc[0]))/100.
     wtm = 1. - wtg
-    W_S2m = (comp["S2-_ppmw"]/1000000.)*wtm
-    W_SO4 = (comp["S6+_ppmw"]/1000000.)*wtm
-    W_H2Smol = (((comp["H2S_ppmw"]/1000000.)*mdv.species.loc["S","M"])/mdv.species.loc["H2S","M"])*wtm
-    Xg_t = (comp["xgO2_mf"]*mdv.species.loc["O2","M"]) + (comp["xgH2_mf"]*mdv.species.loc["H2","M"]) + (comp["xgH2O_mf"]*mdv.species.loc["H2O","M"]) + (comp["xgS2_mf"]*mdv.species.loc["S2","M"]) + (comp["xgSO2_mf"]*mdv.species.loc["SO2","M"]) + (comp["xgH2S_mf"]*mdv.species.loc["H2S","M"]) + (comp["xgCO_mf"]*mdv.species.loc["CO","M"]) + (comp["xgCO2_mf"]*mdv.species.loc["CO2","M"]) + (comp["xgCH4_mf"]*mdv.species.loc["CH4","M"]) + (comp["xgOCS_mf"]*mdv.species.loc["OCS","M"])
-    W_H2S = ((comp["xgH2S_mf"]*mdv.species.loc["S","M"])/Xg_t)*wtg
-    W_SO2 = ((comp["xgSO2_mf"]*mdv.species.loc["S","M"])/Xg_t)*wtg
-    W_S2 = ((comp["xgS2_mf"]*mdv.species.loc["S2","M"])/Xg_t)*wtg
-    W_OCS = ((comp["xgOCS_mf"]*mdv.species.loc["S","M"])/Xg_t)*wtg
+    W_S2m = (float(comp["S2-_ppmw"].iloc[0])/1000000.)*wtm
+    W_SO4 = (float(comp["S6+_ppmw"].iloc[0])/1000000.)*wtm
+    W_H2Smol = (((float(comp["H2S_ppmw"].iloc[0])/1000000.)*mdv.species.loc["S","M"])/mdv.species.loc["H2S","M"])*wtm
+    Xg_t = (float(comp["xgO2_mf"].iloc[0])*mdv.species.loc["O2","M"]) + (float(comp["xgH2_mf"].iloc[0])*mdv.species.loc["H2","M"]) + (float(comp["xgH2O_mf"].iloc[0])*mdv.species.loc["H2O","M"]) + (float(comp["xgS2_mf"].iloc[0])*mdv.species.loc["S2","M"]) + (float(comp["xgSO2_mf"].iloc[0])*mdv.species.loc["SO2","M"]) + (float(comp["xgH2S_mf"].iloc[0])*mdv.species.loc["H2S","M"]) + (float(comp["xgCO_mf"].iloc[0])*mdv.species.loc["CO","M"]) + (float(comp["xgCO2_mf"].iloc[0])*mdv.species.loc["CO2","M"]) + (float(comp["xgCH4_mf"].iloc[0])*mdv.species.loc["CH4","M"]) + (float(comp["xgOCS_mf"].iloc[0])*mdv.species.loc["OCS","M"])
+    W_H2S = ((float(comp["xgH2S_mf"].iloc[0])*mdv.species.loc["S","M"])/Xg_t)*wtg
+    W_SO2 = ((float(comp["xgSO2_mf"].iloc[0])*mdv.species.loc["S","M"])/Xg_t)*wtg
+    W_S2 = ((float(comp["xgS2_mf"].iloc[0])*mdv.species.loc["S2","M"])/Xg_t)*wtg
+    W_OCS = ((float(comp["xgOCS_mf"].iloc[0])*mdv.species.loc["S","M"])/Xg_t)*wtg
     W_total = W_S2m + W_SO4 + W_H2Smol + W_H2S + W_SO2 + W_S2 + W_OCS
     # weight and mole fraction of S in each sulfur-bearing species compared to total S
     w_S2m = W_S2m/W_total
@@ -725,17 +725,17 @@ def mf_S_species_new(comp):
 
 def mf_C_species(comp):
     # weight of C in each carbon-bearing species
-    wtg = (comp["wt_g_wtpc"])/100.
+    wtg = (float(comp["wt_g_wtpc"].iloc[0]))/100.
     wtm = 1. - wtg
-    W_COmol = (((comp["CO_ppmw"]/1000000.)*mdv.species.loc["C","M"])/mdv.species.loc["CO","M"])*wtm
-    W_CO2mol = (((comp["CO2mol_ppmw"]/1000000.)*mdv.species.loc["C","M"])/mdv.species.loc["CO2","M"])*wtm
-    W_carb = (((comp["CO32-_ppmw"]/1000000.)*mdv.species.loc["C","M"])/mdv.species.loc["CO2","M"])*wtm
-    W_CH4mol = (((comp["CH4_ppmw"]/1000000.)*mdv.species.loc["C","M"])/mdv.species.loc["CH4","M"])*wtm
-    Xg_t = (comp["xgO2_mf"]*mdv.species.loc["O2","M"]) + (comp["xgH2_mf"]*mdv.species.loc["H2","M"]) + (comp["xgH2O_mf"]*mdv.species.loc["H2O","M"]) + (comp["xgS2_mf"]*mdv.species.loc["S2","M"]) + (comp["xgSO2_mf"]*mdv.species.loc["SO2","M"]) + (comp["xgH2S_mf"]*mdv.species.loc["H2S","M"]) + (comp["xgCO_mf"]*mdv.species.loc["CO","M"]) + (comp["xgCO2_mf"]*mdv.species.loc["CO2","M"]) + (comp["xgCH4_mf"]*mdv.species.loc["CH4","M"]) + (comp["xgOCS_mf"]*mdv.species.loc["OCS","M"])
-    W_CO = ((comp["xgCO_mf"]*mdv.species.loc["C","M"])/Xg_t)*wtg
-    W_CO2 = ((comp["xgCO2_mf"]*mdv.species.loc["C","M"])/Xg_t)*wtg
-    W_CH4 = ((comp["xgCH4_mf"]*mdv.species.loc["C","M"])/Xg_t)*wtg
-    W_OCS = ((comp["xgOCS_mf"]*mdv.species.loc["C","M"])/Xg_t)*wtg
+    W_COmol = (((float(comp["CO_ppmw"].iloc[0])/1000000.)*mdv.species.loc["C","M"])/mdv.species.loc["CO","M"])*wtm
+    W_CO2mol = (((float(comp["CO2mol_ppmw"].iloc[0])/1000000.)*mdv.species.loc["C","M"])/mdv.species.loc["CO2","M"])*wtm
+    W_carb = (((float(comp["CO2carb_ppmw"].iloc[0])/1000000.)*mdv.species.loc["C","M"])/mdv.species.loc["CO2","M"])*wtm
+    W_CH4mol = (((float(comp["CH4_ppmw"].iloc[0])/1000000.)*mdv.species.loc["C","M"])/mdv.species.loc["CH4","M"])*wtm
+    Xg_t = (float(comp["xgO2_mf"].iloc[0])*mdv.species.loc["O2","M"]) + (float(comp["xgH2_mf"].iloc[0])*mdv.species.loc["H2","M"]) + (float(comp["xgH2O_mf"].iloc[0])*mdv.species.loc["H2O","M"]) + (float(comp["xgS2_mf"].iloc[0])*mdv.species.loc["S2","M"]) + (float(comp["xgSO2_mf"].iloc[0])*mdv.species.loc["SO2","M"]) + (float(comp["xgH2S_mf"].iloc[0])*mdv.species.loc["H2S","M"]) + (float(comp["xgCO_mf"].iloc[0])*mdv.species.loc["CO","M"]) + (float(comp["xgCO2_mf"].iloc[0])*mdv.species.loc["CO2","M"]) + (float(comp["xgCH4_mf"].iloc[0])*mdv.species.loc["CH4","M"]) + (float(comp["xgOCS_mf"].iloc[0])*mdv.species.loc["OCS","M"])
+    W_CO = ((float(comp["xgCO_mf"].iloc[0])*mdv.species.loc["C","M"])/Xg_t)*wtg
+    W_CO2 = ((float(comp["xgCO2_mf"].iloc[0])*mdv.species.loc["C","M"])/Xg_t)*wtg
+    W_CH4 = ((float(comp["xgCH4_mf"].iloc[0])*mdv.species.loc["C","M"])/Xg_t)*wtg
+    W_OCS = ((float(comp["xgOCS_mf"].iloc[0])*mdv.species.loc["C","M"])/Xg_t)*wtg
     W_total = W_COmol + W_CO2mol +  W_carb + W_CH4mol + W_CO + W_CO2 + W_CH4 + W_OCS
     # weight and mole fraction of C in each carbon-bearing species compared to total C
     w_COmol = W_COmol/W_total
@@ -754,18 +754,18 @@ def mf_C_species(comp):
 
 def mf_H_species(comp):
     # weight of H in each hydrogen-bearing species
-    wtg = (comp["wt_g_wtpc"])/100.
+    wtg = (float(comp["wt_g_wtpc"].iloc[0]))/100.
     wtm = 1. - wtg
-    W_H2mol = (comp["H2_ppmw"]/1000000.)*wtm
-    W_H2Omol = (((comp["H2Omol_ppmw"]/1000000.)*mdv.species.loc["H2","M"])/mdv.species.loc["H2O","M"])*wtm
-    W_OH = (((comp["OH_ppmw"]/1000000.)*mdv.species.loc["H","M"])/mdv.species.loc["OH","M"])*wtm
-    W_CH4mol = (((comp["CH4_ppmw"]/1000000.)*2.*mdv.species.loc["H2","M"])/mdv.species.loc["CH4","M"])*wtm
-    W_H2Smol = (((comp["H2S_ppmw"]/1000000.)*mdv.species.loc["H2","M"])/mdv.species.loc["H2S","M"])*wtm
-    Xg_t = (comp["xgO2_mf"]*mdv.species.loc["O2","M"]) + (comp["xgH2_mf"]*mdv.species.loc["H2","M"]) + (comp["xgH2O_mf"]*mdv.species.loc["H2O","M"])  + (comp["xgS2_mf"]*mdv.species.loc["S2","M"]) + (comp["xgSO2_mf"]*mdv.species.loc["SO2","M"]) + (comp["xgH2S_mf"]*mdv.species.loc["H2S","M"]) + (comp["xgCO_mf"]*mdv.species.loc["CO","M"]) + (comp["xgCO2_mf"]*mdv.species.loc["CO2","M"]) + (comp["xgCH4_mf"]*mdv.species.loc["CH4","M"]) + (comp["xgOCS_mf"]*mdv.species.loc["OCS","M"])
-    W_H2 = ((comp["xgH2_mf"]*mdv.species.loc["H2","M"])/Xg_t)*wtg
-    W_H2O = ((comp["xgH2O_mf"]*mdv.species.loc["H2","M"])/Xg_t)*wtg
-    W_CH4 = ((comp["xgCH4_mf"]*2.*mdv.species.loc["H2","M"])/Xg_t)*wtg
-    W_H2S = ((comp["xgH2S_mf"]*mdv.species.loc["H2","M"])/Xg_t)*wtg
+    W_H2mol = (float(comp["H2_ppmw"].iloc[0])/1000000.)*wtm
+    W_H2Omol = (((float(comp["H2Omol_ppmw"].iloc[0])/1000000.)*mdv.species.loc["H2","M"])/mdv.species.loc["H2O","M"])*wtm
+    W_OH = (((float(comp["OH_ppmw"].iloc[0])/1000000.)*mdv.species.loc["H","M"])/mdv.species.loc["OH","M"])*wtm
+    W_CH4mol = (((float(comp["CH4_ppmw"].iloc[0])/1000000.)*2.*mdv.species.loc["H2","M"])/mdv.species.loc["CH4","M"])*wtm
+    W_H2Smol = (((float(comp["H2S_ppmw"].iloc[0])/1000000.)*mdv.species.loc["H2","M"])/mdv.species.loc["H2S","M"])*wtm
+    Xg_t = (float(comp["xgO2_mf"].iloc[0])*mdv.species.loc["O2","M"]) + (float(comp["xgH2_mf"].iloc[0])*mdv.species.loc["H2","M"]) + (float(comp["xgH2O_mf"].iloc[0])*mdv.species.loc["H2O","M"])  + (float(comp["xgS2_mf"].iloc[0])*mdv.species.loc["S2","M"]) + (float(comp["xgSO2_mf"].iloc[0])*mdv.species.loc["SO2","M"]) + (float(comp["xgH2S_mf"].iloc[0])*mdv.species.loc["H2S","M"]) + (float(comp["xgCO_mf"].iloc[0])*mdv.species.loc["CO","M"]) + (float(comp["xgCO2_mf"].iloc[0])*mdv.species.loc["CO2","M"]) + (float(comp["xgCH4_mf"].iloc[0])*mdv.species.loc["CH4","M"]) + (float(comp["xgOCS_mf"].iloc[0])*mdv.species.loc["OCS","M"])
+    W_H2 = ((float(comp["xgH2_mf"].iloc[0])*mdv.species.loc["H2","M"])/Xg_t)*wtg
+    W_H2O = ((float(comp["xgH2O_mf"].iloc[0])*mdv.species.loc["H2","M"])/Xg_t)*wtg
+    W_CH4 = ((float(comp["xgCH4_mf"].iloc[0])*2.*mdv.species.loc["H2","M"])/Xg_t)*wtg
+    W_H2S = ((float(comp["xgH2S_mf"].iloc[0])*mdv.species.loc["H2","M"])/Xg_t)*wtg
     W_total = W_H2mol + W_H2Omol +  W_OH + W_CH4mol + W_H2Smol + W_H2 + W_H2O + W_CH4 + W_H2S
     # weight and mole fraction of H in each hydrogen-bearing species compared to total H
     w_H2mol = W_H2mol/W_total
@@ -1045,7 +1045,12 @@ def calc_pure_solubility(PT,melt_wf,models):
     
     return results
 
-
+def calc_isotopes(PT,comp,R,models,guesses,nr_step,nr_tol,run=0.):
+    comp_ = comp[run:run+1]
+    R_all_species_C, R_m_g_C = iso.i2s9("C",PT,comp_,R,models,guesses['C'],nr_step,nr_tol)
+    R_all_species_S, R_m_g_S = iso.i2s9("S",PT,comp_,R,models,guesses["S"],nr_step,nr_tol)
+    R_all_species_H, R_m_g_H = iso.i2s9("H",PT,comp_,R,models,guesses['H'],nr_step,nr_tol)
+    return R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_all_species_H,R_m_g_H
 
 ###########################################################################
 ### P given S content of melt after degassing given conditions of pvsat ### IN PROGRESS

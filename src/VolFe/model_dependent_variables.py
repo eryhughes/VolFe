@@ -37,6 +37,9 @@ default_models = [['COH_species','yes_H2_CO_CH4_melt'],['H2S_m','True'],['specie
               ['ideal_gas','False'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holland91'],['y_OCS','Shi92'],['y_X','ideal'],
               ['KHOg','Ohmoto97'],['KHOSg','Ohmoto97'],['KOSg','Ohmoto97'],['KOSg2','ONeill22'], ['KCOg','Ohmoto97'],['KCOHg','Ohmoto97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
               ['bulk_composition','melt-only'],['starting_P','Pvsat'],['gassing_style','closed'],['gassing_direction','degas'],['P_variation','polybaric'],['eq_Fe','yes'],['solve_species','OCS'],
+              ['beta_factors','Richet77'],['alpha_H_CH4v_CH4m','no fractionation'],['alpha_H_H2v_H2m','no fractionation'],['alpha_H_H2Ov_OHmm','no fractionation'],['alpha_H_H2Ov_H2Om','no fractionation'],
+              ['alpha_C_CH4v_CH4m','no fractionation'],['alpha_C_COv_COm','no fractionation'],['alpha_C_CO2v_CO2T','LeePP'],['alpha_C_CO2v_CO2m','Blank93'],['alpha_C_CO2v_CO32mm','LeePP'],
+              ['alpha_S_H2Sv_H2Sm','no fractionation'],['alpha_SO2_SO4','Fiege15'],['alpha_H2S_S','Fiege15'],
               ['density','DensityX'],['isotopes','no'],['T_variation','isothermal'],['crystallisation','no'],['mass_volume','mass'],['calc_sat','fO2_melt'],['bulk_O','exc_S'],['error',0.1],
               ['print status','False'],['output csv','True'],['setup','False'],['high precision','False']]
 # Create the pandas DataFrame
@@ -3564,45 +3567,62 @@ species = species.set_index('species')
 ################################################# ISOTOPE FRACTIONATION FACTORS #################################################
 #################################################################################################################################
 
-# beta factors from Richet et al. (1977) fitted to quadratic equation for 600 < T'C < 1300
+#############
+### vapor ###
+#############
 
-def beta_gas(PT,element):
-    t = 1./(PT["T"]+273.15)
-    if element == "S":
-        if species == "SO2":
-            a, b, c = 4872.56428, 0.76400, 0.99975
-        elif species == "S2":
-            a, b, c = 1708.22425, -0.76202, 1.00031
-        elif species == "OCS":
-            a, b, c = 980.75175, 1.74954, 0.99930 
-        elif species == "H2S":
-            a, b, c = 935.84901, 1.29355, 0.99969
-    if models.loc["beta_factors","option"] == "Richet77":
+def beta_gas(PT,element,species,models): # beta factors 
+    if models.loc["beta_factors","option"] == "Richet77": # from Richet et al. (1977) fitted to quadratic equation for 600 < T'C < 1300
+        t = 1./(PT["T"]+273.15)
+        if element == "S":
+            if species == "SO2":
+                a, b, c = 4872.56428, 0.76400, 0.99975
+            elif species == "S2":
+                a, b, c = 1708.22425, -0.76202, 1.00031
+            elif species == "OCS":
+                a, b, c = 980.75175, 1.74954, 0.99930 
+            elif species == "H2S":
+                a, b, c = 935.84901, 1.29355, 0.99969
+        if element == "H": # TO DO
+            if species == "H2O":
+                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+            elif species == "H2":
+                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+            elif species == "CH4":
+                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+            elif species == "H2S":
+                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+        if element == "C": # TO DO
+            if species == "CO2":
+                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+            elif species == "CO":
+                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+            elif species == "CH4":
+                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+            elif species == "OCS":
+                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
         value = a*t**2 + b*t + c
     return value
 
-def alpha_gas(element,A,B,PT):
-    beta_A = beta_gas(PT,element,A)
-    beta_B = beta_gas(PT,element,B) 
-    result = beta_A/beta_B
-    return result
+######################
+### Sulfur species ###
+######################
 
-def alpha_H2S_S(PT,models=default_models): # Fiege et al. (2015) Chemical Geology equation 8 - H2S fluid and S2- melt
+def alpha_S_H2Sv_S2mm(PT,comp,models): # alpha for 32/34S between H2S(v) and S2-(m)
     model = models.loc["alpha_H2S_S","option"]
-
-    if model == "Fiege15":
+    if model == "Fiege15": # Fiege et al. (2015) Chemical Geology eq. 8
         T_K = PT["T"] + 273.15
         lna103 = (10.84*((1000./T_K)**2)) - 2.5
+        print(lna103)
         if models.loc["high precision","option"] == "True":
             a = gp.exp(lna103/1000.)
         else:
             a = math.exp(lna103/1000.)
     return a
 
-def alpha_SO2_SO4(PT,models=default_models): # Fiege et al. (2015) Chemical Geology equation 9 - SO2 fluid and SO4 melt
+def alpha_S_SO2v_S6pm(PT,comp,models): # alpha for 32/34S between SO2(v) and S6+(m)
     model = models.loc["alpha_SO2_SO4","option"]
-
-    if model == "Fiege15":
+    if model == "Fiege15": # Fiege et al. (2015) Chemical Geology eq. 9
         T_K = PT["T"] + 273.15
         lna103 = (-0.42*((1000./T_K)**3)) - (2.133*((1000./T_K)**3)) - (0.105*(1000./T_K)) - 0.41
         if models.loc["high precision","option"] == "True":
@@ -3611,7 +3631,70 @@ def alpha_SO2_SO4(PT,models=default_models): # Fiege et al. (2015) Chemical Geol
             a = math.exp(lna103/1000.)
     return a
 
-def alpha_A_B(element,A,B,PT,models=default_models):
-    if A == "SO2" and B == "H2S":
-        a = alpha_gas(element,A,B,PT)
+def alpha_S_H2Sv_H2Sm(PT,comp,models): # alpha for 32/34S between H2S(v) and H2S(m)
+    model = models.loc["alpha_S_H2Sv_H2Sm","option"]
+    if model == "no fractionation": # 
+        a = 1.
+    return a
+
+######################
+### Carbon species ###
+######################
+
+def alpha_C_CO2v_CO32mm(PT,comp,models): # alpha for 13/12C between CO2(v) and CO32-(m)
+    model = models.loc["alpha_C_CO2v_CO32mm","option"]
+    if model == 'LeePP':
+        a = math.exp(2.9/1000.)
+    return a    
+
+def alpha_C_CO2v_CO2m(PT,comp,models): # alpha for 13/12C between CO2(v) and CO2mol(m)
+    model = models.loc["alpha_C_CO2v_CO2m","option"]
+    if model == 'Blank93':
+        a = 1.
+    return a
+
+def alpha_C_CO2v_CO2Tm(PT,comp,models): # alpha for 13/12C between CO2(v) and CO2T(m)
+    model = models.loc["alpha_C_CO2v_CO2T","option"]
+    if model == 'LeePP':
+        a = math.exp(2.9/1000.) # FIX THIS
+    return a
+
+def alpha_C_COv_COm(PT,comp,models): # alpha for 13/12C between CO(v) and COmol(m)
+    model = models.loc["alpha_C_COv_COm","option"]
+    if model == 'no fractionation':
+        a = 1.
+    return a
+
+def alpha_C_CH4v_CH4m(PT,comp,models): # alpha for 13/12C between CH4(v) and CH4mol(m)
+    model = models.loc["alpha_C_CH4v_CH4m","option"]
+    if model == 'no fractionation':
+        a = 1.
+    return a
+
+########################
+### Hydrogen species ###
+########################
+
+def alpha_H_H2Ov_H2Om(PT,comp,models):
+    model = models.loc["alpha_H_H2Ov_H2Om","option"]
+    if model == 'no fractionation':
+        a = 1.
+    return a
+
+def alpha_H_H2Ov_OHmm(PT,comp,models):
+    model = models.loc["alpha_H_H2Ov_OHmm","option"]
+    if model == 'no fractionation':
+        a = 1.
+    return a
+
+def alpha_H_H2v_H2m(PT,comp,models): # alpha for D/H between H2(v) and H2(m)
+    model = models.loc["alpha_H_H2v_H2m","option"]
+    if model == 'no fractionation':
+        a = 1.
+    return a
+
+def alpha_H_CH4v_CH4m(PT,comp,models): # alpha for D/H between CH4(v) and CH4(m)
+    model = models.loc["alpha_H_CH4v_CH4m","option"]
+    if model == 'no fractionation':
+        a = 1.
     return a

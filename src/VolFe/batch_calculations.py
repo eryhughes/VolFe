@@ -107,6 +107,19 @@ def results_table_sat(sulf_sat_result,PT,melt_wf,models):
     results_headers = pd.DataFrame([["SCSS_ppm","sulfide saturated","SCAS_ppm","anhydrite saturated","ST melt if sat","graphite saturated"]])
     results_values = pd.DataFrame([[sulf_sat_result["SCSS"],sulf_sat_result["sulfide_sat"],sulf_sat_result["SCAS"],sulf_sat_result["sulfate_sat"],sulf_sat_result["ST"],c.graphite_saturation(PT,melt_wf,models)]])
     return results_headers, results_values
+# isotopes
+def results_table_isotope_R(R,R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_all_species_H,R_m_g_H):
+    headers = pd.DataFrame(["R_ST","R_S_m","R_S_g","R_S_S2-","R_S_S2","R_S_OCS","R_S_H2S","R_S_SO2","R_S_S6+","R_S_H2Smol","a_S_g_m",
+                            "R_CT","R_C_m","R_C_g","R_C_CO2","R_C_CO","R_C_CH4",'R_C_OCS',"R_C_COmol","R_C_CH4mol","R_C_CO2mol","R_C_CO32-","a_C_g_m",
+                            "R_HT","R_H_m","R_H_g","R_H_H2O","R_H_H2","R_H_CH4","R_H_H2S","R_H_H2mol","R_H_CH4mol","R_H_H2Smol","R_H_H2Omol","R_H_OH-","a_C_g_m",])
+    values = pd.DataFrame([R['S'],R_m_g_S["R_m"],R_m_g_S["R_g"],R_all_species_S["A"],R_all_species_S["B"],R_all_species_S["C"],R_all_species_S["D"],R_all_species_S["E"],R_all_species_S["F"],R_all_species_S["G"],R_m_g_S["R_g"]/R_m_g_S["R_m"],
+                        R['C'],R_m_g_C["R_m"],R_m_g_C["R_g"],R_all_species_C["A"],R_all_species_C["B"],R_all_species_C["C"],R_all_species_C["D"],R_all_species_C["E"],R_all_species_C["F"],R_all_species_C["G"],R_all_species_C["H"],R_m_g_C["R_g"]/R_m_g_C["R_m"],
+                        R['H'],R_m_g_H["R_m"],R_m_g_H["R_g"],R_all_species_H["A"],R_all_species_H["B"],R_all_species_H["C"],R_all_species_H["D"],R_all_species_H["E"],R_all_species_H["F"],R_all_species_H["G"],R_all_species_H["H"],R_all_species_H["I"]],R_m_g_H["R_g"]/R_m_g_H["R_m"])
+    return headers, values
+#def results_table_isotope_a_D():
+#    return headers, values
+#def results_table_isotope_d():
+#    return headers, values
 
 
 ###############################
@@ -370,7 +383,7 @@ def calc_Pvsat(setup,models=mdv.default_models,first_row=0,last_row=None,p_tol=1
 ###################################
 ### cacluate re/degassing paths ###
 ###################################
-def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,dp_step=10.,psat_tol=0.1,dwtg=1.e-7,i_nr_step=1.e-1,i_nr_tol=1.-9):
+def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,dp_step=10.,psat_tol=0.1,dwtg=1.e-7,i_nr_step=1.e-1,i_nr_tol=1.-9,nr_step_eq=1.):
      
     """ 
     Calculates the pressure of vapor saturation for multiple melt compositions given volatile-free melt composition, volatile content, temperature, and an fO2 estimate.
@@ -586,7 +599,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             PT["T"] = T
         if P_sat_ > PT["P"] or models.loc["gassing_direction","option"] == "regas":  
             # work out equilibrium partitioning between melt and gas phase
-            xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step,nr_tol,guesses)
+            xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
             models = new_models
             # gas composition
             gas_mf = {"O2":xg["xg_O2"],"CO":xg["xg_CO"],"S2":xg["xg_S2"],"CO2":xg["xg_CO2"],"H2O":xg["xg_H2O"],"H2":xg["xg_H2"],"CH4":xg["xg_CH4"],"SO2":xg["xg_SO2"],"H2S":xg["xg_H2S"],"OCS":xg["xg_OCS"],"X":xg["xg_X"],"Xg_t":xg["Xg_t"],"wt_g":melt_and_gas["wt_g"]}
@@ -622,7 +635,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             if models.loc["output csv","option"] == "True":
                 results.to_csv('results_gassing_chemistry.csv', index=False, header=True)
             if models.loc["print status","option"] == "True":
-                Warning("solver failed, calculation aborted at P = ", PT["P"], datetime.datetime.now())
+                print("solver failed, calculation aborted at P = ", PT["P"], datetime.datetime.now())
             return results 
         
         # set melt composition for forward calculation
@@ -1066,6 +1079,49 @@ def calc_comp_error(setup,run,iterations,models=mdv.default_models):
         print(n, setup.loc[run,"Sample"],SiO2)
     
     return results
+
+################
+### isotopes ###
+################
+
+def calc_isotopes_gassing(comp,R_i,models=mdv.default_models,nr_step=1.e-1,nr_tol=1.-9):
+    
+    # initial composition
+    R = {}
+    # for sulfur
+    if "bulk 34S/32S" in R_i:
+        R["S"] = R_i["bulk 34S/32S"]
+    elif "bulk d34S" in R_i:
+        R["S"] = iso.delta2ratio("VCDT",34,"S",R_i["bulk d34S"])
+    # for carbon
+    if "bulk 13C/12C" in R_i:
+        R['C'] = R_i["bulk 13C/12C"]
+    elif "bulk d13C" in R_i:
+        R['C'] = iso.delta2ratio("VPDB",13,"C",R_i["bulk d13C"])
+    # for hydrogen
+    if "bulk D/H" in R_i:
+        R['H'] = R_i["bulk D/H"]
+    elif "bulk dD" in R_i:
+        R['H'] = iso.delta2ratio("VSMOW",2,"H",R_i["bulk dD"])
+
+    guesses = {"C":R["C"],"H":R["H"],"S":R["S"]}        
+
+    for i in range(0,len(comp),1):
+        PT = {"T":comp.loc[i,"T_C"],"P":comp.loc[i,"P_bar"]}
+        R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_all_species_H,R_m_g_H = c.calc_isotopes(PT,comp,R,models,guesses,nr_step,nr_tol,run=i)  
+        # store results
+        results_headers_table_isotopes, results_values_table_isotopes = results_table_isotope(R,R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_all_species_H,R_m_g_H)
+        results = pd.concat([results, results1])
+
+    results.columns = results.iloc[0]
+    results = results[1:]  
+    if models.loc["output csv","option"] == "True":
+        results.to_csv('results_gassing_isotope.csv', index=False, header=True)
+    
+    if models.loc["print status","option"] == "True":
+        print("done", datetime.datetime.now())
+
+    # new bulk composition for open vs. closed.
         
 
 
@@ -1124,30 +1180,6 @@ def P_sat_output_fS2(setup,models,first_row=0,last_row=None,p_tol=1.e-1,nr_step=
         if models.loc["print status","option"] == "True":
             print(n, setup.loc[run,"Sample"],PT["P"])
 
-################
-### isotopes ###
-################
-
-def isotopes(run,isotope_inputs,setup,models):
-
-    i_nr_step = gassing_inputs["i_nr_step"]
-    i_nr_tol = gassing_inputs["i_nr_tol"]
-    # calculating equilibrium isotopic fractionation?
-    if models.loc["isotopes","option"] == "yes":
-        if setup.loc[run,"bulk 34S/32S"] > 0.:
-            R_i = {"S": setup.loc[run,"bulk 34S/32S"]}
-        elif setup.loc[run,"bulk d34S"] >= 0.:
-            d = setup.loc[run,"bulk d34S"]
-            R_i = {"S": delta2ratio("VCDT",d)}
-        elif setup.loc[run,"bulk d34S"] <= 0.:
-            d = setup.loc[run,"bulk d34S"]
-            R_i = {"S": delta2ratio("VCDT",setup.loc[run,"bulk d34S"])}
-        else:
-            raise TypeError("input bulk isotope value for system or change 'isotopes' to 'no' in models")
-            return
-        R_S_SO4_, R_S_S2_ = iso.i2s2("S",PT,R_i,melt_wf)
-    else:
-        R_i = {"S":""}
 
 #########################
 ### Sulfate capacity ###
