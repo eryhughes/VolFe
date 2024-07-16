@@ -2,14 +2,12 @@
 
 import pandas as pd
 import numpy as np
+import warnings as w
 from scipy import optimize
 
 import VolFe.differential_equations as de
-#import differential_equations as de
 import VolFe.melt_gas as mg
-#import melt_gas as mg
 import VolFe.model_dependent_variables as mdv
-#import model_dependent_variables as mdv
 
 
 def set_system(melt_wf,models):
@@ -2601,8 +2599,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
 
     if xg_O2_ == 1.: # switch solve species once
         if solve_species == "OCS":
-            if models.loc["print status","option"] == "True":
-                print(PT["P"],": Switching solve species from OCS to OCH (first time)")
+            w.warn(PT["P"],": Switching solve species from OCS to OCH (first time)")
             solve_species = "OCH"
             models.loc["solve_species","option"] = "OCH"
             guessw_hold = guessw
@@ -2610,8 +2607,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
             guessz = guessw_hold # xgH2 is guessz
             xg_O2_, xg_CO_, xg_H2_ = jac_newton3(guessx,guessy,guessz,constants,f_SCHOFe,df_SCHOFe,nr_step,nr_tol)
         elif solve_species == "OHS":
-            if models.loc["print status","option"] == "True":
-                print(PT["P"],": Switching solve species from OHS to OCS (first time)")
+            w.warn(PT["P"],": Switching solve species from OHS to OCS (first time)")
             solve_species = "OCS"
             models.loc["solve_species","option"] = "OCS"
             guessw_hold = guessw
@@ -2619,8 +2615,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
             guessy = guessw_hold # xgCO is guessy
             xg_O2_, xg_CO_, xg_S2_ = jac_newton3(guessx,guessy,guessz,constants,f_SCHOFe,df_SCHOFe,nr_step,nr_tol)
         elif solve_species == "OCH":
-            if models.loc["print status","option"] == "True":
-                print(PT["P"],": Switching solve species from OCH to OHS (first time)")
+            w.warn(PT["P"],": Switching solve species from OCH to OHS (first time)")
             solve_species = "OHS"
             models.loc["solve_species","option"] = "OHS"
             guessw_hold = guessw
@@ -2632,8 +2627,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
     
     if xg_O2_ == 1.: # switch solve species second time
         if solve_species == "OCS":
-            if models.loc["print status","option"] == "True":
-                print(PT["P"],": Switching solve species from OCS to OCH (second time)")
+            w.warn(PT["P"],": Switching solve species from OCS to OCH (second time)")
             solve_species = "OCH"
             models.loc["solve_species","option"] = "OCH"
             guessw_hold = guessw
@@ -2641,8 +2635,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
             guessz = guessw_hold # xgH2 is guessz
             xg_O2_, xg_CO_, xg_H2_ = jac_newton3(guessx,guessy,guessz,constants,f_SCHOFe,df_SCHOFe,nr_step,nr_tol)
         elif solve_species == "OHS":
-            if models.loc["print status","option"] == "True":
-                print(PT["P"],": Switching solve species from OHS to OCS (second time)")
+            w.warn(PT["P"],": Switching solve species from OHS to OCS (second time)")
             solve_species = "OCS"
             models.loc["solve_species","option"] = "OCS"
             guessw_hold = guessw
@@ -2650,8 +2643,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
             guessy = guessw_hold # xgCO is guessy
             xg_O2_, xg_CO_, xg_S2_ = jac_newton3(guessx,guessy,guessz,constants,f_SCHOFe,df_SCHOFe,nr_step,nr_tol)
         elif solve_species == "OCH":
-            if models.loc["print status","option"] == "True":
-                print(PT["P"],": Switching solve species from OCH to OHS (second time)")
+            w.warn(PT["P"],": Switching solve species from OCH to OHS (second time)")
             solve_species = "OHS"
             models.loc["solve_species","option"] = "OHS"
             guessw_hold = guessw

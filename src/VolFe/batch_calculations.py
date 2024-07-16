@@ -5,6 +5,7 @@ from datetime import date
 import numpy as np
 import datetime
 import math as math
+import warnings as w
 
 import VolFe.melt_gas as mg
 import VolFe.equilibrium_equations as eq
@@ -109,17 +110,23 @@ def results_table_sat(sulf_sat_result,PT,melt_wf,models):
     return results_headers, results_values
 # isotopes
 def results_table_isotope_R(R,R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_all_species_H,R_m_g_H):
-    headers = pd.DataFrame(["R_ST","R_S_m","R_S_g","R_S_S2-","R_S_S2","R_S_OCS","R_S_H2S","R_S_SO2","R_S_S6+","R_S_H2Smol","a_S_g_m",
+    headers = pd.DataFrame([["R_ST","R_S_m","R_S_g","R_S_S2-","R_S_S2","R_S_OCS","R_S_H2S","R_S_SO2","R_S_S6+","R_S_H2Smol","a_S_g_m",
                             "R_CT","R_C_m","R_C_g","R_C_CO2","R_C_CO","R_C_CH4",'R_C_OCS',"R_C_COmol","R_C_CH4mol","R_C_CO2mol","R_C_CO32-","a_C_g_m",
-                            "R_HT","R_H_m","R_H_g","R_H_H2O","R_H_H2","R_H_CH4","R_H_H2S","R_H_H2mol","R_H_CH4mol","R_H_H2Smol","R_H_H2Omol","R_H_OH-","a_C_g_m",])
-    values = pd.DataFrame([R['S'],R_m_g_S["R_m"],R_m_g_S["R_g"],R_all_species_S["A"],R_all_species_S["B"],R_all_species_S["C"],R_all_species_S["D"],R_all_species_S["E"],R_all_species_S["F"],R_all_species_S["G"],R_m_g_S["R_g"]/R_m_g_S["R_m"],
-                        R['C'],R_m_g_C["R_m"],R_m_g_C["R_g"],R_all_species_C["A"],R_all_species_C["B"],R_all_species_C["C"],R_all_species_C["D"],R_all_species_C["E"],R_all_species_C["F"],R_all_species_C["G"],R_all_species_C["H"],R_m_g_C["R_g"]/R_m_g_C["R_m"],
-                        R['H'],R_m_g_H["R_m"],R_m_g_H["R_g"],R_all_species_H["A"],R_all_species_H["B"],R_all_species_H["C"],R_all_species_H["D"],R_all_species_H["E"],R_all_species_H["F"],R_all_species_H["G"],R_all_species_H["H"],R_all_species_H["I"]],R_m_g_H["R_g"]/R_m_g_H["R_m"])
+                            "R_HT","R_H_m","R_H_g","R_H_H2O","R_H_H2","R_H_CH4","R_H_H2S","R_H_H2mol","R_H_CH4mol","R_H_H2Smol","R_H_H2Omol","R_H_OH-","a_H_g_m"]])
+    values = pd.DataFrame([[R['S'],R_m_g_S["R_m"],R_m_g_S["R_g"],R_all_species_S["A"],R_all_species_S["B"],R_all_species_S["C"],R_all_species_S["D"],R_all_species_S["E"],R_all_species_S["F"],R_all_species_S["G"],R_m_g_S["R_g"]/R_m_g_S["R_m"],
+                           R['C'],R_m_g_C["R_m"],R_m_g_C["R_g"],R_all_species_C["A"],R_all_species_C["B"],R_all_species_C["C"],R_all_species_C["D"],R_all_species_C["E"],R_all_species_C["F"],R_all_species_C["G"],R_all_species_C["H"],R_m_g_C["R_g"]/R_m_g_C["R_m"],
+                           R['H'],R_m_g_H["R_m"],R_m_g_H["R_g"],R_all_species_H["A"],R_all_species_H["B"],R_all_species_H["C"],R_all_species_H["D"],R_all_species_H["E"],R_all_species_H["F"],R_all_species_H["G"],R_all_species_H["H"],R_all_species_H["I"],R_m_g_H["R_g"]/R_m_g_H["R_m"]]])
     return headers, values
 #def results_table_isotope_a_D():
 #    return headers, values
-#def results_table_isotope_d():
-#    return headers, values
+def results_table_isotope_d(R,R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_all_species_H,R_m_g_H):
+    headers = pd.DataFrame([["d_ST","d_S_m","d_S_g","d_S_S2-","d_S_S2","d_S_OCS","d_S_H2S","d_S_SO2","d_S_S6+","d_S_H2Smol","D_S_g_m",
+                            "d_CT","d_C_m","d_C_g","d_C_CO2","d_C_CO","d_C_CH4",'d_C_OCS',"d_C_COmol","d_C_CH4mol","d_C_CO2mol","d_C_CO32-","D_C_g_m",
+                            "d_HT","d_H_m","d_H_g","d_H_H2O","d_H_H2","d_H_CH4","d_H_H2S","d_H_H2mol","d_H_CH4mol","d_H_H2Smol","d_H_H2Omol","d_H_OH-","D_H_g_m"]])
+    values = pd.DataFrame([[iso.ratio2delta("VCDT",34,'S',R['S']),iso.ratio2delta("VCDT",34,'S',R_m_g_S["R_m"]),iso.ratio2delta("VCDT",34,'S',R_m_g_S["R_g"]),iso.ratio2delta("VCDT",34,'S',R_all_species_S["A"]),iso.ratio2delta("VCDT",34,'S',R_all_species_S["B"]),iso.ratio2delta("VCDT",34,'S',R_all_species_S["C"]),iso.ratio2delta("VCDT",34,'S',R_all_species_S["D"]),iso.ratio2delta("VCDT",34,'S',R_all_species_S["E"]),iso.ratio2delta("VCDT",34,'S',R_all_species_S["F"]),iso.ratio2delta("VCDT",34,'S',R_all_species_S["G"]),iso.alpha2Delta((R_m_g_S["R_g"]/R_m_g_S["R_m"])),
+                            iso.ratio2delta("VPDB",13,'C',R['C']),iso.ratio2delta("VPDB",13,'C',R_m_g_C["R_m"]),iso.ratio2delta("VPDB",13,'C',R_m_g_C["R_g"]),iso.ratio2delta("VPDB",13,'C',R_all_species_C["A"]),iso.ratio2delta("VPDB",13,'C',R_all_species_C["B"]),iso.ratio2delta("VPDB",13,'C',R_all_species_C["C"]),iso.ratio2delta("VPDB",13,'C',R_all_species_C["D"]),iso.ratio2delta("VPDB",13,'C',R_all_species_C["E"]),iso.ratio2delta("VPDB",13,'C',R_all_species_C["F"]),iso.ratio2delta("VPDB",13,'C',R_all_species_C["G"]),iso.ratio2delta("VPDB",13,'C',R_all_species_C["H"]),iso.alpha2Delta((R_m_g_C["R_g"]/R_m_g_C["R_m"])),
+                            iso.ratio2delta("VSMOW",2,'H',R['H']),iso.ratio2delta("VSMOW",2,'H',R_m_g_H["R_m"]),iso.ratio2delta("VSMOW",2,'H',R_m_g_H["R_g"]),iso.ratio2delta("VSMOW",2,'H',R_all_species_H["A"]),iso.ratio2delta("VSMOW",2,'H',R_all_species_H["B"]),iso.ratio2delta("VSMOW",2,'H',R_all_species_H["C"]),iso.ratio2delta("VSMOW",2,'H',R_all_species_H["D"]),iso.ratio2delta("VSMOW",2,'H',R_all_species_H["E"]),iso.ratio2delta("VSMOW",2,'H',R_all_species_H["F"]),iso.ratio2delta("VSMOW",2,'H',R_all_species_H["G"]),iso.ratio2delta("VSMOW",2,'H',R_all_species_H["H"]),iso.ratio2delta("VSMOW",2,'H',R_all_species_H["I"]),iso.alpha2Delta((R_m_g_H["R_g"]/R_m_g_H["R_m"]))]])
+    return headers, values
 
 
 ###############################
@@ -634,8 +641,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             results = results[1:]  
             if models.loc["output csv","option"] == "True":
                 results.to_csv('results_gassing_chemistry.csv', index=False, header=True)
-            if models.loc["print status","option"] == "True":
-                print("solver failed, calculation aborted at P = ", PT["P"], datetime.datetime.now())
+            w.warn("solver failed, calculation aborted at P = ", PT["P"], datetime.datetime.now())
             return results 
         
         # set melt composition for forward calculation
@@ -1084,7 +1090,7 @@ def calc_comp_error(setup,run,iterations,models=mdv.default_models):
 ### isotopes ###
 ################
 
-def calc_isotopes_gassing(comp,R_i,models=mdv.default_models,nr_step=1.e-1,nr_tol=1.-9):
+def calc_isotopes_gassing(comp,R_i,models=mdv.default_models,nr_step=1.,nr_tol=1.e-9):
     
     # initial composition
     R = {}
@@ -1104,14 +1110,20 @@ def calc_isotopes_gassing(comp,R_i,models=mdv.default_models,nr_step=1.e-1,nr_to
     elif "bulk dD" in R_i:
         R['H'] = iso.delta2ratio("VSMOW",2,"H",R_i["bulk dD"])
 
-    guesses = {"C":R["C"],"H":R["H"],"S":R["S"]}        
+    guesses = {"C":iso.iso_initial_guesses("C",R,comp),"H":iso.iso_initial_guesses("H",R,comp),"S":iso.iso_initial_guesses("S",R,comp)}        
 
     for i in range(0,len(comp),1):
         PT = {"T":comp.loc[i,"T_C"],"P":comp.loc[i,"P_bar"]}
         R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_all_species_H,R_m_g_H = c.calc_isotopes(PT,comp,R,models,guesses,nr_step,nr_tol,run=i)  
         # store results
-        results_headers_table_isotopes, results_values_table_isotopes = results_table_isotope(R,R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_all_species_H,R_m_g_H)
-        results = pd.concat([results, results1])
+        results_headers_table_isotopes_d, results_values_table_isotopes_d = results_table_isotope_d(R,R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_all_species_H,R_m_g_H)
+        results_headers_table_isotopes_R, results_values_table_isotopes_R = results_table_isotope_R(R,R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_all_species_H,R_m_g_H)
+        results_values = pd.concat([results_values_table_isotopes_R,results_values_table_isotopes_d],axis=1)
+        if i == 0:
+            results_headers = pd.concat([results_headers_table_isotopes_R,results_headers_table_isotopes_d],axis=1)
+            results = pd.concat([results_headers, results_values])
+        else:
+            results = pd.concat([results, results_values])
 
     results.columns = results.iloc[0]
     results = results[1:]  
@@ -1120,6 +1132,13 @@ def calc_isotopes_gassing(comp,R_i,models=mdv.default_models,nr_step=1.e-1,nr_to
     
     if models.loc["print status","option"] == "True":
         print("done", datetime.datetime.now())
+
+    results1 = results.reset_index(drop=True)
+    comp1 = comp.reset_index(drop=True)
+
+    results_ = pd.concat([results1,comp1],axis=1)
+
+    return results_
 
     # new bulk composition for open vs. closed.
         

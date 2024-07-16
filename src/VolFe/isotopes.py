@@ -40,6 +40,10 @@ def delta2ratio(standard,isotope,element,d):
     ratio = ((d/1000.)*reference) + reference
     return ratio
 
+def alpha2Delta(a):
+    D = 1000.*(1.-a)
+    return D
+
 #######################################################
 ########## calculating fractionation factors ##########
 #######################################################
@@ -72,8 +76,8 @@ def alphas_H(PT,comp,models): # all alphas against H2O in the vapor
     D = A/mdv.alpha_H_H2v_H2m(PT,comp,models) # H2mol(m)
     E = B/mdv.alpha_H_CH4v_CH4m(PT,comp,models) # CH4mol(m)
     F = C/mdv.alpha_H_H2Sv_H2Sm(PT,comp,models) # H2Smol(m)
-    G = 1./alpha_H_H2Ov_H2Omm(PT,comp,models) # H2OT(m)
-    H = 1./alpha_H_H2Ov_OHmm(PT,comp,models) # H2OT(m)
+    G = 1./mdv.alpha_H_H2Ov_H2Om(PT,comp,models) # H2OT(m)
+    H = 1./mdv.alpha_H_H2Ov_OHmm(PT,comp,models) # H2OT(m)
     values = {"H2":A,"CH4":B,"H2S":C,"H2mol":D,"CH4mol":E,"H2Smol":F,"H2Omol":G,"OH-":H}
     return values
 
@@ -84,8 +88,9 @@ def alphas_S(PT,comp,models): # all alphas against S2-(m)
     D = C*alpha_gas_using_beta("S","SO2","H2S",PT,models) # SO2(v)
     E = (C*D)/mdv.alpha_S_SO2v_S6pm(PT,comp,models) # S6+(m)
     F = mdv.alpha_S_H2Sv_H2Sm(PT,comp,models)/A # H2S(m)
-    values = {"H2S":A,"S2":B,"OCS":C,"SO2":D,"SO42-":E,"H2Smol":F}
+    values = {"S2":A,"OCS":B,"H2S":C,"SO2":D,"SO42-":E,"H2Smol":F}
     return values
+    
 
     
 #############################
@@ -93,7 +98,6 @@ def alphas_S(PT,comp,models): # all alphas against S2-(m)
 #############################
 
 def newton_raphson(x0,constants,e1,step,eqs,deriv,maxiter=100):
-
     def dx(x,eqs):
         f_ = eqs(x,constants)
         result =(abs(0-f_))
@@ -120,8 +124,8 @@ def newton_raphson(x0,constants,e1,step,eqs,deriv,maxiter=100):
         #while x0 < 0.:
         #    step = step/10.
         #    x0 = x0 - step*(f_/df_)
-        delta1 = dx(x0,eqs)      
-        if delta1 < e1:
+        delta1 = dx(x0,eqs)   
+        if abs(delta1) < e1:
             return x0
         results1 = pd.DataFrame([[x0,delta1,step]])
         results = pd.concat([results,results1], ignore_index=True)
@@ -210,8 +214,7 @@ def i2s9(element,PT,comp,R,models,guessx,nr_step,nr_tol):
     constants = alphas_,species_distribution_,R_i
    
     def isotope_distribution(l_a, constants):
-        alphas,species_distribution,R_i = constants
-        print(species_distribution)
+        alphas,species_distribution,R_initial = constants
         R_a = (species_distribution["A"] - l_a)/l_a
         R_b = alphas["B"]*R_a
         R_c = alphas["C"]*R_a
@@ -223,44 +226,7 @@ def i2s9(element,PT,comp,R,models,guessx,nr_step,nr_tol):
         R_i = alphas["I"]*R_a
         ratio = {'A':R_a,'B':R_b,"C":R_c,"D":R_d,"E":R_e,"F":R_f,"G":R_g,"H":R_h,"I":R_i}
         return ratio
-    
-    def av_m_g(element,l_a,constants):
-        
-        alphas,species_distribution,R_i = constants
-        ratio = isotope_distribution(l_a, constants)
-        
-        # heavy/total isotope ratio
-        R_a_ = ratio["A"]/(ratio["A"] + 1.)
-        R_b_ = ratio["B"]/(ratio["B"] + 1.)
-        R_c_ = ratio["C"]/(ratio["C"] + 1.)
-        R_d_ = ratio["D"]/(ratio["D"] + 1.)
-        R_e_ = ratio["E"]/(ratio["E"] + 1.)
-        R_f_ = ratio["F"]/(ratio["F"] + 1.)
-        R_g_ = ratio["G"]/(ratio["G"] + 1.)
-        R_h_ = ratio["H"]/(ratio["H"] + 1.)
-        R_i_ = ratio["I"]/(ratio["I"] + 1.)
-        
-        if element == "S":
-            h_m = R_a_*species_distribution["A"] + R_f_*species_distribution["F"] + R_g_*species_distribution["G"] # 34S melt (S2- + SO42- + H2Smol)
-            l_m = (1. - R_a_)*species_distribution["A"] + (1. - R_f_)*species_distribution["F"] + (1. - R_g_)*species_distribution["G"] # 32S melt (S2- + SO42- + H2Smol)
-            h_g = R_b_*species_distribution["B"] + R_c_*species_distribution["C"] + R_d_*species_distribution["D"] + R_e_*species_distribution["E"] # 32S gas (H2S + S2 + SO2 + OCS)
-            l_g = (1. - R_b_)*species_distribution["B"] + (1. - R_c_)*species_distribution["C"] + (1. - R_d_)*species_distribution["D"] + (1. - R_e_)*species_distribution["E"] # 32S gas (H2S + S2 + SO2 + OCS)
-        if element == "C":
-            h_m = R_e_*species_distribution["E"] + R_f_*species_distribution["F"] + R_g_*species_distribution["G"] + R_h_*species_distribution["H"] # 13C melt (COmol + CH4mol + CO2mol + CO32-mol)
-            l_m = (1. - R_e_)*species_distribution["E"] + (1. - R_f_)*species_distribution["F"] + (1. - R_g_)*species_distribution["G"] + (1. - R_h_)*species_distribution["H"] # 12C melt (COmol + CH4mol + CO2mol + CO32-mol)
-            h_g = R_b_*species_distribution["B"] + R_c_*species_distribution["C"] + R_d_*species_distribution["D"] + R_a_*species_distribution["A"] # 13C gas (CO + CH4 + OCS + CO2)
-            l_g = (1. - R_b_)*species_distribution["B"] + (1. - R_c_)*species_distribution["C"] + (1. - R_d_)*species_distribution["D"] + (1. - R_a_)*species_distribution["A"] # 12C gas (CO + CH4 + OCS + CO2)
-        if element == "H":
-            h_m = R_e_*species_distribution["E"] + R_f_*species_distribution["F"] + R_g_*species_distribution["G"] + R_h_*species_distribution["H"] + R_i_*species_distribution["I"] # D melt (H2mol + CH4mol + H2Smol + H2Omol + OH-)
-            l_m = (1. - R_e_)*species_distribution["E"] + (1. - R_f_)*species_distribution["F"] + (1. - R_g_)*species_distribution["G"] + (1. - R_h_)*species_distribution["H"] + (1. - R_i_)*species_distribution["I"] # H melt (H2mol + CH4mol + H2Smol + H2Omol + OH-)
-            h_g = R_b_*species_distribution["B"] + R_c_*species_distribution["C"] + R_d_*species_distribution["D"] + R_a_*species_distribution["A"] # D gas (H2 + CH4 + H2S + H2O)
-            l_g = (1. - R_b_)*species_distribution["B"] + (1. - R_c_)*species_distribution["C"] + (1. - R_d_)*species_distribution["D"] + (1. - R_a_)*species_distribution["A"] # H gas (H2 + CH4 + H2S + H2O)
-  
-        R_m = h_m/l_m
-        R_g = h_g/l_g
-        ratio_g_m = {"R_m":R_m,"R_g":R_g}
-        return ratio_g_m
-            
+
     def f(l_a, constants):
         alphas,species_distribution,R_i = constants
         R_a = (species_distribution["A"]/l_a) - 1.
@@ -309,7 +275,7 @@ def i2s9(element,PT,comp,R,models,guessx,nr_step,nr_tol):
         l_t = (R_i_/(R_i_ + 1.))
         result = -1.
         if T_b > 0.:
-            result = result -T_a*T_b*a_b/(l_a**2*(a_b*(T_a/l_a - 1.0) + 1.0)**2) 
+            result = result - T_a*T_b*a_b/(l_a**2*(a_b*(T_a/l_a - 1.0) + 1.0)**2) 
         if T_c > 0.:
             result = result - T_a*T_c*a_c/(l_a**2*(a_c*(T_a/l_a - 1.0) + 1.0)**2) 
         if T_d > 0.:    
@@ -328,8 +294,60 @@ def i2s9(element,PT,comp,R,models,guessx,nr_step,nr_tol):
     
     l_a = newton_raphson(guessx,constants,nr_tol,nr_step,f,df)
     result1 = isotope_distribution(l_a, constants)
-    result2 = av_m_g(element,l_a,constants)
+    result2 = av_m_g(element,result1,constants)
     return result1, result2
+
+def av_m_g(element,ratio,constants):
+        
+    alphas,species_distribution,R_i = constants
+        
+    # heavy/total isotope ratio
+    R_a_ = ratio["A"]/(ratio["A"] + 1.)
+    R_b_ = ratio["B"]/(ratio["B"] + 1.)
+    R_c_ = ratio["C"]/(ratio["C"] + 1.)
+    R_d_ = ratio["D"]/(ratio["D"] + 1.)
+    R_e_ = ratio["E"]/(ratio["E"] + 1.)
+    R_f_ = ratio["F"]/(ratio["F"] + 1.)
+    R_g_ = ratio["G"]/(ratio["G"] + 1.)
+    R_h_ = ratio["H"]/(ratio["H"] + 1.)
+    R_i_ = ratio["I"]/(ratio["I"] + 1.)
+        
+    if element == "S":
+        h_m = R_a_*species_distribution["A"] + R_f_*species_distribution["F"] + R_g_*species_distribution["G"] # 34S melt (S2- + SO42- + H2Smol)
+        l_m = (1. - R_a_)*species_distribution["A"] + (1. - R_f_)*species_distribution["F"] + (1. - R_g_)*species_distribution["G"] # 32S melt (S2- + SO42- + H2Smol)
+        h_g = R_b_*species_distribution["B"] + R_c_*species_distribution["C"] + R_d_*species_distribution["D"] + R_e_*species_distribution["E"] # 32S gas (H2S + S2 + SO2 + OCS)
+        l_g = (1. - R_b_)*species_distribution["B"] + (1. - R_c_)*species_distribution["C"] + (1. - R_d_)*species_distribution["D"] + (1. - R_e_)*species_distribution["E"] # 32S gas (H2S + S2 + SO2 + OCS)
+    if element == "C":
+        h_m = R_e_*species_distribution["E"] + R_f_*species_distribution["F"] + R_g_*species_distribution["G"] + R_h_*species_distribution["H"] # 13C melt (COmol + CH4mol + CO2mol + CO32-mol)
+        l_m = (1. - R_e_)*species_distribution["E"] + (1. - R_f_)*species_distribution["F"] + (1. - R_g_)*species_distribution["G"] + (1. - R_h_)*species_distribution["H"] # 12C melt (COmol + CH4mol + CO2mol + CO32-mol)
+        h_g = R_b_*species_distribution["B"] + R_c_*species_distribution["C"] + R_d_*species_distribution["D"] + R_a_*species_distribution["A"] # 13C gas (CO + CH4 + OCS + CO2)
+        l_g = (1. - R_b_)*species_distribution["B"] + (1. - R_c_)*species_distribution["C"] + (1. - R_d_)*species_distribution["D"] + (1. - R_a_)*species_distribution["A"] # 12C gas (CO + CH4 + OCS + CO2)
+    if element == "H":
+        h_m = R_e_*species_distribution["E"] + R_f_*species_distribution["F"] + R_g_*species_distribution["G"] + R_h_*species_distribution["H"] + R_i_*species_distribution["I"] # D melt (H2mol + CH4mol + H2Smol + H2Omol + OH-)
+        l_m = (1. - R_e_)*species_distribution["E"] + (1. - R_f_)*species_distribution["F"] + (1. - R_g_)*species_distribution["G"] + (1. - R_h_)*species_distribution["H"] + (1. - R_i_)*species_distribution["I"] # H melt (H2mol + CH4mol + H2Smol + H2Omol + OH-)
+        h_g = R_b_*species_distribution["B"] + R_c_*species_distribution["C"] + R_d_*species_distribution["D"] + R_a_*species_distribution["A"] # D gas (H2 + CH4 + H2S + H2O)
+        l_g = (1. - R_b_)*species_distribution["B"] + (1. - R_c_)*species_distribution["C"] + (1. - R_d_)*species_distribution["D"] + (1. - R_a_)*species_distribution["A"] # H gas (H2 + CH4 + H2S + H2O)
+  
+    R_m = h_m/l_m
+    R_g = h_g/l_g
+    ratio_g_m = {"R_m":R_m,"R_g":R_g}
+    return ratio_g_m
+
+def iso_initial_guesses(element,R,comp):
+    if element == "S":
+        species_distribution = c.mf_S_species(comp)
+        R_i = R["S"]
+        A = "S2-"
+    elif element == "C":
+        species_distribution = c.mf_C_species(comp)
+        R_i = R["C"]
+        A = "CO2"
+    elif element == "H":
+        species_distribution = c.mf_H_species(comp)
+        R_i = R["H"]
+        A = "H2O"
+    l_a = species_distribution[A]/(R_i + 1.)
+    return l_a
 
 
 ##################

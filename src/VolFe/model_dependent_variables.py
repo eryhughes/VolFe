@@ -37,7 +37,7 @@ default_models = [['COH_species','yes_H2_CO_CH4_melt'],['H2S_m','True'],['specie
               ['ideal_gas','False'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holland91'],['y_OCS','Shi92'],['y_X','ideal'],
               ['KHOg','Ohmoto97'],['KHOSg','Ohmoto97'],['KOSg','Ohmoto97'],['KOSg2','ONeill22'], ['KCOg','Ohmoto97'],['KCOHg','Ohmoto97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
               ['bulk_composition','melt-only'],['starting_P','Pvsat'],['gassing_style','closed'],['gassing_direction','degas'],['P_variation','polybaric'],['eq_Fe','yes'],['solve_species','OCS'],
-              ['beta_factors','Richet77'],['alpha_H_CH4v_CH4m','no fractionation'],['alpha_H_H2v_H2m','no fractionation'],['alpha_H_H2Ov_OHmm','no fractionation'],['alpha_H_H2Ov_H2Om','no fractionation'],
+              ['beta_factors','Richet77'],['alpha_H_CH4v_CH4m','no fractionation'],['alpha_H_H2v_H2m','no fractionation'],['alpha_H_H2Ov_OHmm','Rust04'],['alpha_H_H2Ov_H2Om','Rust04'],['alpha_H_H2Sv_H2Sm','no fractionation'],
               ['alpha_C_CH4v_CH4m','no fractionation'],['alpha_C_COv_COm','no fractionation'],['alpha_C_CO2v_CO2T','LeePP'],['alpha_C_CO2v_CO2m','Blank93'],['alpha_C_CO2v_CO32mm','LeePP'],
               ['alpha_S_H2Sv_H2Sm','no fractionation'],['alpha_SO2_SO4','Fiege15'],['alpha_H2S_S','Fiege15'],
               ['density','DensityX'],['isotopes','no'],['T_variation','isothermal'],['crystallisation','no'],['mass_volume','mass'],['calc_sat','fO2_melt'],['bulk_O','exc_S'],['error',0.1],
@@ -3583,24 +3583,24 @@ def beta_gas(PT,element,species,models): # beta factors
                 a, b, c = 980.75175, 1.74954, 0.99930 
             elif species == "H2S":
                 a, b, c = 935.84901, 1.29355, 0.99969
-        if element == "H": # TO DO
+        if element == "H":
             if species == "H2O":
-                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+                a, b, c = 635425., -61.78, 1.0197
             elif species == "H2":
-                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+                a, b, c = 150565., 211.22, 0.9355
             elif species == "CH4":
-                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+                a, b, c = 571003., -129.28, 1.0386
             elif species == "H2S":
-                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
-        if element == "C": # TO DO
+                a, b, c = 327635, -9.8154, 1.0004
+        if element == "C":
             if species == "CO2":
-                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+                a, b, c = 17637., 13.968, 0.9955
             elif species == "CO":
-                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+                a, b, c = 10080., 7.4637, 0.9978
             elif species == "CH4":
-                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+                a, b, c = 8527.5, 14.052, 0.9955
             elif species == "OCS":
-                a, b, c = 4872.56428, 0.76400, 0.99975 # FIX
+                a, b, c = 14572., 8.359, 0.9973
         value = a*t**2 + b*t + c
     return value
 
@@ -3613,11 +3613,12 @@ def alpha_S_H2Sv_S2mm(PT,comp,models): # alpha for 32/34S between H2S(v) and S2-
     if model == "Fiege15": # Fiege et al. (2015) Chemical Geology eq. 8
         T_K = PT["T"] + 273.15
         lna103 = (10.84*((1000./T_K)**2)) - 2.5
-        print(lna103)
         if models.loc["high precision","option"] == "True":
             a = gp.exp(lna103/1000.)
         else:
             a = math.exp(lna103/1000.)
+    elif model == "no fractionation":
+        a = 1.
     return a
 
 def alpha_S_SO2v_S6pm(PT,comp,models): # alpha for 32/34S between SO2(v) and S6+(m)
@@ -3629,6 +3630,8 @@ def alpha_S_SO2v_S6pm(PT,comp,models): # alpha for 32/34S between SO2(v) and S6+
             a = gp.exp(lna103/1000.)
         else:
             a = math.exp(lna103/1000.)
+    elif model == "no fractionation":
+        a = 1.
     return a
 
 def alpha_S_H2Sv_H2Sm(PT,comp,models): # alpha for 32/34S between H2S(v) and H2S(m)
@@ -3645,11 +3648,15 @@ def alpha_C_CO2v_CO32mm(PT,comp,models): # alpha for 13/12C between CO2(v) and C
     model = models.loc["alpha_C_CO2v_CO32mm","option"]
     if model == 'LeePP':
         a = math.exp(2.9/1000.)
+    elif model == "no fractionation":
+        a = 1.    
     return a    
 
 def alpha_C_CO2v_CO2m(PT,comp,models): # alpha for 13/12C between CO2(v) and CO2mol(m)
     model = models.loc["alpha_C_CO2v_CO2m","option"]
     if model == 'Blank93':
+        a = 1.
+    elif model == "no fractionation":
         a = 1.
     return a
 
@@ -3657,6 +3664,8 @@ def alpha_C_CO2v_CO2Tm(PT,comp,models): # alpha for 13/12C between CO2(v) and CO
     model = models.loc["alpha_C_CO2v_CO2T","option"]
     if model == 'LeePP':
         a = math.exp(2.9/1000.) # FIX THIS
+    elif model == "no fractionation":
+        a = 1.
     return a
 
 def alpha_C_COv_COm(PT,comp,models): # alpha for 13/12C between CO(v) and COmol(m)
@@ -3679,12 +3688,16 @@ def alpha_H_H2Ov_H2Om(PT,comp,models):
     model = models.loc["alpha_H_H2Ov_H2Om","option"]
     if model == 'no fractionation':
         a = 1.
+    elif model == 'Rust04':
+        a = 0.9896
     return a
 
 def alpha_H_H2Ov_OHmm(PT,comp,models):
     model = models.loc["alpha_H_H2Ov_OHmm","option"]
     if model == 'no fractionation':
         a = 1.
+    elif model == 'Rust04':
+        a = 1.0415
     return a
 
 def alpha_H_H2v_H2m(PT,comp,models): # alpha for D/H between H2(v) and H2(m)
@@ -3696,5 +3709,11 @@ def alpha_H_H2v_H2m(PT,comp,models): # alpha for D/H between H2(v) and H2(m)
 def alpha_H_CH4v_CH4m(PT,comp,models): # alpha for D/H between CH4(v) and CH4(m)
     model = models.loc["alpha_H_CH4v_CH4m","option"]
     if model == 'no fractionation':
+        a = 1.
+    return a
+
+def alpha_H_H2Sv_H2Sm(PT,comp,models): # alpha for D/H between H2S(v) and H2S(m)
+    model = models.loc["alpha_H_H2Sv_H2Sm","option"]
+    if model == "no fractionation": # 
         a = 1.
     return a

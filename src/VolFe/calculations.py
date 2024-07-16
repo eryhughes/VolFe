@@ -757,8 +757,8 @@ def mf_H_species(comp):
     wtg = (float(comp["wt_g_wtpc"].iloc[0]))/100.
     wtm = 1. - wtg
     W_H2mol = (float(comp["H2_ppmw"].iloc[0])/1000000.)*wtm
-    W_H2Omol = (((float(comp["H2Omol_ppmw"].iloc[0])/1000000.)*mdv.species.loc["H2","M"])/mdv.species.loc["H2O","M"])*wtm
-    W_OH = (((float(comp["OH_ppmw"].iloc[0])/1000000.)*mdv.species.loc["H","M"])/mdv.species.loc["OH","M"])*wtm
+    W_H2Omol = (((float(comp["H2Omol_wtpc"].iloc[0])/100.)*mdv.species.loc["H2","M"])/mdv.species.loc["H2O","M"])*wtm
+    W_OH = (((float(comp["OH_wtpc"].iloc[0])/100.)*0.5*mdv.species.loc["H2","M"])/mdv.species.loc["OH","M"])*wtm
     W_CH4mol = (((float(comp["CH4_ppmw"].iloc[0])/1000000.)*2.*mdv.species.loc["H2","M"])/mdv.species.loc["CH4","M"])*wtm
     W_H2Smol = (((float(comp["H2S_ppmw"].iloc[0])/1000000.)*mdv.species.loc["H2","M"])/mdv.species.loc["H2S","M"])*wtm
     Xg_t = (float(comp["xgO2_mf"].iloc[0])*mdv.species.loc["O2","M"]) + (float(comp["xgH2_mf"].iloc[0])*mdv.species.loc["H2","M"]) + (float(comp["xgH2O_mf"].iloc[0])*mdv.species.loc["H2O","M"])  + (float(comp["xgS2_mf"].iloc[0])*mdv.species.loc["S2","M"]) + (float(comp["xgSO2_mf"].iloc[0])*mdv.species.loc["SO2","M"]) + (float(comp["xgH2S_mf"].iloc[0])*mdv.species.loc["H2S","M"]) + (float(comp["xgCO_mf"].iloc[0])*mdv.species.loc["CO","M"]) + (float(comp["xgCO2_mf"].iloc[0])*mdv.species.loc["CO2","M"]) + (float(comp["xgCH4_mf"].iloc[0])*mdv.species.loc["CH4","M"]) + (float(comp["xgOCS_mf"].iloc[0])*mdv.species.loc["OCS","M"])
@@ -777,7 +777,7 @@ def mf_H_species(comp):
     w_H2O = W_H2O/W_total
     w_CH4 = W_CH4/W_total
     w_H2S = W_H2S/W_total
-    mf = {"H2mol":w_H2mol, "H2Omol":w_H2Omol, "OH":w_OH, "CH4mol":w_CH4mol, "H2Smol":w_H2S, "H2":w_H2, "H2O":w_H2O, "CH4":w_CH4, "H2S":w_H2S}
+    mf = {"H2mol":w_H2mol, "H2Omol":w_H2Omol, "OH-":w_OH, "CH4mol":w_CH4mol, "H2Smol":w_H2Smol, "H2":w_H2, "H2O":w_H2O, "CH4":w_CH4, "H2S":w_H2S}
     return mf
         
 ##############################################
