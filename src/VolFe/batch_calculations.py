@@ -390,7 +390,7 @@ def calc_Pvsat(setup,models=mdv.default_models,first_row=0,last_row=None,p_tol=1
 ###################################
 ### cacluate re/degassing paths ###
 ###################################
-def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,dp_step=10.,psat_tol=0.1,dwtg=1.e-7,i_nr_step=1.e-1,i_nr_tol=1.-9,nr_step_eq=1.):
+def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,dp_step=10.,psat_tol=0.1,dwtg=1.e-6,i_nr_step=1.e-1,i_nr_tol=1.-9,nr_step_eq=1.):
      
     """ 
     Calculates the pressure of vapor saturation for multiple melt compositions given volatile-free melt composition, volatile content, temperature, and an fO2 estimate.
@@ -580,8 +580,8 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
     # add some gas to the system if doing open-system regassing
     if models.loc["gassing_direction","option"] == "regas" and models.loc["gassing_style","option"] == "open":
         gas_mf = {"O2":mg.xg_O2(PT,melt_wf,models),"CO":mg.xg_CO(PT,melt_wf,models),"CO2":mg.xg_CO2(PT,melt_wf,models),"H2":mg.xg_H2(PT,melt_wf,models),"H2O":mg.xg_H2O(PT,melt_wf,models),"CH4":mg.xg_CH4(PT,melt_wf,models),"S2":mg.xg_S2(PT,melt_wf,models),"SO2":mg.xg_SO2(PT,melt_wf,models),"H2S":mg.xg_H2S(PT,melt_wf,models),"OCS":mg.xg_OCS(PT,melt_wf,models),"X":mg.xg_X(PT,melt_wf,models),"Xg_t":mg.Xg_tot(PT,melt_wf,models),"wt_g":0.}
-        wt_C, wt_H, wt_S, wt_X, wt_Fe, wt_O, Wt = c.new_bulk_regas_open(PT,melt_wf,bulk_wf,gas_mf,dwtg,models)
-        bulk_wf = {"C":wt_C,"H":wt_H,"O":wt_O,"S":wt_S,"Fe":wt_Fe,"X":wt_X,"Wt":Wt}
+        new_comp = c.new_bulk_regas_open(PT,melt_wf,bulk_wf,gas_mf,dwtg,models)
+        bulk_wf = {"C":new_comp['wt_C'],"H":new_comp['wt_H'],"O":new_comp['wt_O'],"S":new_comp['wt_S'],"Fe":new_comp['wt_Fe'],"X":new_comp['wt_X'],"Wt":new_comp['Wt']}
     
     # run over different pressures #
     number_of_step = 0.
@@ -641,7 +641,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             results = results[1:]  
             if models.loc["output csv","option"] == "True":
                 results.to_csv('results_gassing_chemistry.csv', index=False, header=True)
-            w.warn("solver failed, calculation aborted at P = ", PT["P"], datetime.datetime.now())
+            print("solver failed, calculation aborted at P = ", PT["P"], datetime.datetime.now())
             return results 
         
         # set melt composition for forward calculation
@@ -731,10 +731,10 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             elif models.loc["gassing_direction","option"] == "regas":
                 results_nbro = c.new_bulk_regas_open(PT,melt_wf,bulk_wf,gas_mf,dwtg,models)
                 bulk_wf = {"C":results_nbro["wt_C"],"H":results_nbro["wt_H"],"O":results_nbro["wt_O"],"S":results_nbro["wt_S"],"X":results_nbro["wt_X"],"Fe":results_nbro["wt_Fe"],"Wt":results_nbro["Wt"]}
-                melt_wf["CT"] = results_nbro["wm_C"]
-                melt_wf["HT"] = results_nbro["wm_H"]
-                melt_wf["ST"] = results_nbro["wm_S"]
-                melt_wf["XT"] = results_nbro["wm_X"]
+                #melt_wf["CT"] = results_nbro["wm_C"]
+                #melt_wf["HT"] = results_nbro["wm_H"]
+                #melt_wf["ST"] = results_nbro["wm_S"]
+                #melt_wf["XT"] = results_nbro["wm_X"]
         if models.loc["crystallisation","option"] == "yes":
             wt_C_ = bulk_wf["C"]
             wt_H_ = bulk_wf["H"]
