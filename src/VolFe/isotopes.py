@@ -58,27 +58,67 @@ def alpha_gas_using_beta(element,A,B,PT,models): # using beta values
 ### consistant alphas ###
 #########################
 
-def alphas_C(PT,comp,models): # all alphas against CO2 in the vapor
-    A = alpha_gas_using_beta("C","CO","CO2",PT,models) # CO(v)
-    B = alpha_gas_using_beta("C","CH4","CO2",PT,models) # CH4(v)
-    C = alpha_gas_using_beta("C","OCS","CO2",PT,models) # OCS(v)
-    D = A/mdv.alpha_C_COv_COm(PT,comp,models) # COmol(m)
-    E = B/mdv.alpha_C_CH4v_CH4m(PT,comp,models) # CH4mol(m)
-    F = 1./mdv.alpha_C_CO2v_CO2m(PT,comp,models) # CO2mol(m)
-    G = 1./mdv.alpha_C_CO2v_CO32mm(PT,comp,models) # CO32-(m)
-    values = {"CO":A,"CH4":B,"OCS":C,"COmol":D,"CH4mol":E,"CO2mol":F,"CO32-":G}
+def alphas_C(PT,comp,models):
+    if float(comp["wt_g_wtpc"].iloc[0]) > 0.:  # all alphas against CO2 in the vapor
+        A = alpha_gas_using_beta("C","CO","CO2",PT,models) # CO(v)-CO2(v)
+        B = alpha_gas_using_beta("C","CH4","CO2",PT,models) # CH4(v)-CO2(v)
+        C = alpha_gas_using_beta("C","OCS","CO2",PT,models) # OCS(v)-CO2(v)
+        D = A/mdv.alpha_C_COv_COm(PT,comp,models) # COmol(m)-CO2(v)
+        E = B/mdv.alpha_C_CH4v_CH4m(PT,comp,models) # CH4mol(m)-CO2(v)
+        F = 1./mdv.alpha_C_CO2v_CO2m(PT,comp,models) # CO2mol(m)-CO2(v)
+        G = 1./mdv.alpha_C_CO2v_CO32mm(PT,comp,models) # CO32-(m)-CO2(v)
+        values = {"CO":A,"CH4":B,"OCS":C,"COmol":D,"CH4mol":E,"CO2mol":F,"CO32-":G,"CO2":1.}
+    else:
+        a = alpha_gas_using_beta("C","CO","CO2",PT,models) # CO(v)
+        b = alpha_gas_using_beta("C","CH4","CO2",PT,models) # CH4(v)
+        c = alpha_gas_using_beta("C","OCS","CO2",PT,models) # OCS(v)      
+        if float(comp["CO2carb_ppmw"].iloc[0]) > 0.: # all alphas against CO32- in the melt
+            A = mdv.alpha_C_CO2v_CO32mm(PT,comp,models) # CO32-(m)
+            B = c/mdv.alpha_C_CO2v_CO2m(PT,comp,models) # CO2mol(m)
+            C_species1,C_species2 = "CO2mol","CO32-"
+        else: # all alphas against CO2mol in the melt
+            A = mdv.alpha_C_CO2v_CO2m(PT,comp,models) # CO2mol(m)
+            B = c/mdv.alpha_C_CO2v_CO32mm(PT,comp,models) # CO32-(m)
+            C_species1,C_species2 = "CO32-","CO2mol"
+        C = (a*A)/mdv.alpha_C_COv_COm(PT,comp,models) # COmol(m)
+        D = (b*A)/mdv.alpha_C_CH4v_CH4m(PT,comp,models) # CH4mol(m)
+        E = a/A
+        F = b/A
+        G = c/A
+        values = {C_species1:A,"COmol":B,"CH4mol":C,"CO2":A,"CO":E,"CH4":F,"OCS":G,C_species2:1.}   
     return values
 
-def alphas_H(PT,comp,models): # all alphas against H2O in the vapor
-    A = alpha_gas_using_beta("H","H2","H2O",PT,models) # H2(v)
-    B = alpha_gas_using_beta("H","CH4","H2O",PT,models) # CH4(v)
-    C = alpha_gas_using_beta("H","H2S","H2O",PT,models) # H2S(v)
-    D = A/mdv.alpha_H_H2v_H2m(PT,comp,models) # H2mol(m)
-    E = B/mdv.alpha_H_CH4v_CH4m(PT,comp,models) # CH4mol(m)
-    F = C/mdv.alpha_H_H2Sv_H2Sm(PT,comp,models) # H2Smol(m)
-    G = 1./mdv.alpha_H_H2Ov_H2Om(PT,comp,models) # H2OT(m)
-    H = 1./mdv.alpha_H_H2Ov_OHmm(PT,comp,models) # H2OT(m)
-    values = {"H2":A,"CH4":B,"H2S":C,"H2mol":D,"CH4mol":E,"H2Smol":F,"H2Omol":G,"OH-":H}
+def alphas_H(PT,comp,models): 
+    if float(comp["wt_g_wtpc"].iloc[0]) > 0.:  # all alphas against H2O in the vapor
+        A = alpha_gas_using_beta("H","H2","H2O",PT,models) # H2(v)
+        B = alpha_gas_using_beta("H","CH4","H2O",PT,models) # CH4(v)
+        C = alpha_gas_using_beta("H","H2S","H2O",PT,models) # H2S(v)
+        D = A/mdv.alpha_H_H2v_H2m(PT,comp,models) # H2mol(m)
+        E = B/mdv.alpha_H_CH4v_CH4m(PT,comp,models) # CH4mol(m)
+        F = C/mdv.alpha_H_H2Sv_H2Sm(PT,comp,models) # H2Smol(m)
+        G = 1./mdv.alpha_H_H2Ov_H2Om(PT,comp,models) # H2OT(m)
+        H = 1./mdv.alpha_H_H2Ov_OHmm(PT,comp,models) # H2OT(m)
+        values = {"H2":A,"CH4":B,"H2S":C,"H2mol":D,"CH4mol":E,"H2Smol":F,"H2Omol":G,"OH-":H,'H2O':1.}
+    else:
+        a = alpha_gas_using_beta("H","H2","H2O",PT,models) # H2(v)
+        b = alpha_gas_using_beta("H","CH4","H2O",PT,models) # CH4(v) 
+        c = alpha_gas_using_beta("H","H2S","H2O",PT,models) # H2S(v)   
+        if float(comp["H2Omol_wtpc"].iloc[0]) > 0.: # all alphas against H2Omol in the melt
+            A = mdv.alpha_H_H2Ov_H2Om(PT,comp,models) # H2Omol(m)
+            B = c/mdv.alpha_H_H2Ov_OHmm(PT,comp,models) # OH-(m)
+            H_species1,H_species2 = "OH-","H2Omol"
+        else: # all alphas against CO2mol in the melt
+            A = mdv.alpha_C_CO2v_CO2m(PT,comp,models) # OH-(m)
+            B = c/mdv.alpha_H_H2Ov_OHmm(PT,comp,models) # H2Omol(m)
+            H_species1,H_species2 = "H2Omol","OH-"
+        C = (a*A)/mdv.alpha_H_H2v_H2m(PT,comp,models) # H2mol(m)
+        D = (b*A)/mdv.alpha_H_CH4v_CH4m(PT,comp,models) # CH4mol(m)
+        E = (c*A)/mdv.alpha_H_CH4v_CH4m(PT,comp,models) # H2Smol(m)
+        F = a/A
+        G = b/A
+        H = c/A
+    values = {H_species1:A,"H2mol":B,"CH4mol":C,"H2Smol":D,"H2O":A,"H2":F,"CH4":G,"H2S":H,H_species2:1.}
+
     return values
 
 def alphas_S(PT,comp,models): # all alphas against S2-(m)
@@ -88,7 +128,7 @@ def alphas_S(PT,comp,models): # all alphas against S2-(m)
     D = C*alpha_gas_using_beta("S","SO2","H2S",PT,models) # SO2(v)
     E = (C*D)/mdv.alpha_S_SO2v_S6pm(PT,comp,models) # S6+(m)
     F = mdv.alpha_S_H2Sv_H2Sm(PT,comp,models)/A # H2S(m)
-    values = {"S2":A,"OCS":B,"H2S":C,"SO2":D,"SO42-":E,"H2Smol":F}
+    values = {"S2":A,"OCS":B,"H2S":C,"SO2":D,"SO42-":E,"H2Smol":F,'S2-':1.}
     return values
     
 
@@ -135,7 +175,7 @@ def newton_raphson(x0,constants,e1,step,eqs,deriv,maxiter=100):
 
 ### two isotopes, nine species
 
-def allocate_species(element,alphas,species_distribution):
+def allocate_species(element,comp,alphas,species_distribution):
     if element == "S":
         species = 'S2-'
         T_a = species_distribution[species]
@@ -154,8 +194,28 @@ def allocate_species(element,alphas,species_distribution):
         a_h, T_h = 1., 0.
         a_i, T_i = 1., 0.
     if element == "C":
-        species = 'CO2'
-        T_a = species_distribution[species]
+        if float(comp["wt_g_wtpc"].iloc[0]) > 0.:
+            species = 'CO2'
+            T_a = species_distribution[species]
+            species = 'CO2mol'
+            a_g, T_g = alphas[species],species_distribution[species]
+            species = 'CO32-'
+            a_h, T_h = alphas[species],species_distribution[species]
+        else:
+            if float(comp["CO2carb_ppmw"].iloc[0]) > 0.:
+                species = 'CO32-'
+                T_a = species_distribution[species]
+                species = 'CO2mol'
+                a_g, T_g = alphas[species],species_distribution[species]
+                species = 'CO2'
+                a_h, T_h = alphas[species],species_distribution[species]                
+            else:
+                species = 'CO2mol'
+                T_a = species_distribution[species]
+                species = 'CO2'
+                a_g, T_g = alphas[species],species_distribution[species]
+                species = 'CO32-2'
+                a_h, T_h = alphas[species],species_distribution[species]          
         species = 'CO'
         a_b, T_b = alphas[species],species_distribution[species]
         species = 'CH4'
@@ -166,14 +226,30 @@ def allocate_species(element,alphas,species_distribution):
         a_e, T_e = alphas[species],species_distribution[species]
         species = 'CH4mol'
         a_f, T_f = alphas[species],species_distribution[species]
-        species = 'CO2mol'
-        a_g, T_g = alphas[species],species_distribution[species]
-        species = 'CO32-'
-        a_h, T_h = alphas[species],species_distribution[species]
         a_i, T_i = 1., 0.
     if element == "H":
-        species = 'H2O'
-        T_a = species_distribution[species]
+        if float(comp["wt_g_wtpc"].iloc[0]) > 0.:
+            species = 'H2O'
+            T_a = species_distribution[species]
+            species = 'H2Omol'
+            a_h, T_h = alphas[species],species_distribution[species]
+            species = 'OH-'
+            a_i, T_i = alphas[species],species_distribution[species]
+        else:
+            if float(comp["H2Omol_wtpc"].iloc[0]) > 0.:
+                species = 'H2Omol'
+                T_a = species_distribution[species]
+                species = 'H2O'
+                a_h, T_h = alphas[species],species_distribution[species]
+                species = 'OH-'
+                a_i, T_i = alphas[species],species_distribution[species]
+            else:
+                species = 'OH-'
+                T_a = species_distribution[species]
+                species = 'H2Omol'
+                a_h, T_h = alphas[species],species_distribution[species]
+                species = 'H2O'
+                a_i, T_i = alphas[species],species_distribution[species]                
         species = 'H2'
         a_b, T_b = alphas[species],species_distribution[species]
         species = 'CH4'
@@ -186,10 +262,6 @@ def allocate_species(element,alphas,species_distribution):
         a_f, T_f = alphas[species],species_distribution[species]
         species = 'H2Smol'
         a_g, T_g = alphas[species],species_distribution[species]
-        species = 'H2Omol'
-        a_h, T_h = alphas[species],species_distribution[species]
-        species = 'OH-'
-        a_i, T_i = alphas[species],species_distribution[species]
     alphas_out = {'B':a_b,"C":a_c,"D":a_d,"E":a_e,"F":a_f,"G":a_g,"H":a_h,"I":a_i}
     species_distribution_out = {'A':T_a,'B':T_b,"C":T_c,"D":T_d,"E":T_e,"F":T_f,"G":T_g,"H":T_h,"I":T_i}
     return alphas_out, species_distribution_out
@@ -209,7 +281,7 @@ def i2s9(element,PT,comp,R,models,guessx,nr_step,nr_tol):
         species_distribution = c.mf_H_species(comp)
         R_i = R["H"]
     
-    alphas_, species_distribution_ = allocate_species(element,alphas,species_distribution)
+    alphas_, species_distribution_ = allocate_species(element,comp,alphas,species_distribution)
  
     constants = alphas_,species_distribution_,R_i
    
@@ -295,6 +367,27 @@ def i2s9(element,PT,comp,R,models,guessx,nr_step,nr_tol):
     l_a = newton_raphson(guessx,constants,nr_tol,nr_step,f,df)
     result1 = isotope_distribution(l_a, constants)
     result2 = av_m_g(element,result1,constants)
+    if float(comp["wt_g_wtpc"].iloc[0]) == 0.:
+        if element == "C":
+            A = result1["A"]
+            G = result1["G"]
+            H = result1["H"]     
+            if float(comp["CO2carb_ppmw"].iloc[0]) > 0.:
+                result["A"] = H 
+                result["H"] = A
+            else:
+                result["A"] = G
+                result["G"] = A
+        if element == "H":
+            A = result1["A"]
+            H = result1["H"]
+            I = result1["I"]         
+            if float(comp["H2Omol_wtpc"].iloc[0]) > 0.:
+                result["A"] = H
+                result["H"] = A
+            else:
+                result["A"] = G
+                result["G"] = A       
     return result1, result2
 
 def av_m_g(element,ratio,constants):
