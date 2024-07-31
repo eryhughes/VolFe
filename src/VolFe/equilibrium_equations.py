@@ -2599,7 +2599,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
 
     if xg_O2_ == 1.: # switch solve species once
         if solve_species == "OCS":
-            w.warn(PT["P"],": Switching solve species from OCS to OCH (first time)")
+            print(PT["P"],": Switching solve species from OCS to OCH (first time)")
             solve_species = "OCH"
             models.loc["solve_species","option"] = "OCH"
             guessw_hold = guessw
@@ -2607,7 +2607,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
             guessz = guessw_hold # xgH2 is guessz
             xg_O2_, xg_CO_, xg_H2_ = jac_newton3(guessx,guessy,guessz,constants,f_SCHOFe,df_SCHOFe,nr_step,nr_tol)
         elif solve_species == "OHS":
-            w.warn(PT["P"],": Switching solve species from OHS to OCS (first time)")
+            print(PT["P"],": Switching solve species from OHS to OCS (first time)")
             solve_species = "OCS"
             models.loc["solve_species","option"] = "OCS"
             guessw_hold = guessw
@@ -2615,7 +2615,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
             guessy = guessw_hold # xgCO is guessy
             xg_O2_, xg_CO_, xg_S2_ = jac_newton3(guessx,guessy,guessz,constants,f_SCHOFe,df_SCHOFe,nr_step,nr_tol)
         elif solve_species == "OCH":
-            w.warn(PT["P"],": Switching solve species from OCH to OHS (first time)")
+            print(PT["P"],": Switching solve species from OCH to OHS (first time)")
             solve_species = "OHS"
             models.loc["solve_species","option"] = "OHS"
             guessw_hold = guessw
@@ -2627,7 +2627,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
     
     if xg_O2_ == 1.: # switch solve species second time
         if solve_species == "OCS":
-            w.warn(PT["P"],": Switching solve species from OCS to OCH (second time)")
+            print(PT["P"],": Switching solve species from OCS to OCH (second time)")
             solve_species = "OCH"
             models.loc["solve_species","option"] = "OCH"
             guessw_hold = guessw
@@ -2635,7 +2635,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
             guessz = guessw_hold # xgH2 is guessz
             xg_O2_, xg_CO_, xg_H2_ = jac_newton3(guessx,guessy,guessz,constants,f_SCHOFe,df_SCHOFe,nr_step,nr_tol)
         elif solve_species == "OHS":
-            w.warn(PT["P"],": Switching solve species from OHS to OCS (second time)")
+            print(PT["P"],": Switching solve species from OHS to OCS (second time)")
             solve_species = "OCS"
             models.loc["solve_species","option"] = "OCS"
             guessw_hold = guessw
@@ -2643,7 +2643,7 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
             guessy = guessw_hold # xgCO is guessy
             xg_O2_, xg_CO_, xg_S2_ = jac_newton3(guessx,guessy,guessz,constants,f_SCHOFe,df_SCHOFe,nr_step,nr_tol)
         elif solve_species == "OCH":
-            w.warn(PT["P"],": Switching solve species from OCH to OHS (second time)")
+            print(PT["P"],": Switching solve species from OCH to OHS (second time)")
             solve_species = "OHS"
             models.loc["solve_species","option"] = "OHS"
             guessw_hold = guessw
