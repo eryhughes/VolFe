@@ -40,7 +40,7 @@ def set_system(melt_wf,models):
     return sys
 
 def initial_guesses(run,PT,melt_wf,setup,models,system): ### CHECK ###
-    starting_P = models.loc["starting_P","option"]
+    starting_P = models.loc["starting_P", "option"]
     #xenia = models.loc["xenia","option"]
     solve_species = models.loc["solve_species","option"]
     
