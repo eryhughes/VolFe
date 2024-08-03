@@ -130,8 +130,31 @@ def alphas_S(PT,comp,models): # all alphas against S2-(m)
     F = mdv.alpha_S_H2Sv_H2Sm(PT,comp,models)/A # H2S(m)
     values = {"S2":A,"OCS":B,"H2S":C,"SO2":D,"SO42-":E,"H2Smol":F,'S2-':1.}
     return values
-    
 
+##############
+### Simple ###
+##############
+    
+def simple_isotope_fractionation(D,db):
+    for n in range(0,1000,1):
+        F = 1. - (n/1000.)
+        dm_closed = db - D*(1.-F)
+        dv_closed = db + D*F
+        dm_open = db + D*math.log(F)
+        dv_open_inst = dm_open + D
+        if n == 0.:
+            dv_open = dv_open_inst
+        else:
+            dv_open = dv_open_inst*(1./n) + ((n-1.)/n)*dv_open
+        results1 = pd.DataFrame([[F,dm_closed,dv_closed,dm_open,dv_open_inst,dv_open]])
+        if n == 0.:
+            results_headers = pd.DataFrame([["F","dm_closed","dv_closed","dm_open","dv_open_inst","dv_open"]])
+            results = pd.concat([results_headers, results1])
+        else:
+            results = pd.concat([results, results1])
+    results.columns = results.iloc[0]
+    results = results[1:]  
+    return results
     
 #############################
 ### newton raphson solver ###
