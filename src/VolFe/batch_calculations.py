@@ -1150,6 +1150,86 @@ def calc_isotopes_gassing(comp,R_i,models=mdv.default_models,nr_step=1.,nr_tol=1
 #############################################################################################################################
 #############################################################################################################################
 
+# function to calculate SO2/H2S, S6+/ST, S2-CSS, S6+CAS, STCSS, STCAS, and ST with variable fO2
+def calc_sulfur_vfO2(fO2_start,fO2_end,setup,step_size=0.1,models=mdv.default_models):
+    PT = {"T":setup["T_C"],"P":setup["P_bar"]}
+    P = int(PT["P"])
+    T = int(PT["T"])
+    K1 = vf.KHOSg(PT)
+    K2 = vf.KOSg(PT)
+    melt_wf=vf.melt_comp(0.,setup)
+    melt_wf['CO2'] = setup.loc[0.,"CO2ppm"]/1000000.
+    melt_wf["H2OT"] = setup.loc[0.,"H2O"]/100.
+    melt_wf['CT'] = (melt_wf['CO2']/vf.species.loc['CO2','M'])*vf.species.loc['C','M']
+    melt_wf['HT'] = (melt_wf['H2OT']/vf.species.loc['H2O','M'])*(2.*vf.species.loc['H','M'])
+    fH2O = vf.f_H2O(PT,melt_wf,models)
+    end = int(((abs(fO2_end) + abs(fO2_start))/step_size)+1.)
+    for n in range(0,end,1):
+        fO2_FMQ = fO2_start+(n*step_size)
+        fO2 = vf.Dbuffer2fO2(PT,fO2_FMQ,"FMQ",models)
+        melt_wf['Fe3FeT'] = vf.fO22Fe3FeT(fO2,PT,melt_wf,models)
+        SO2_H2S = (K2*fO2**1.5)/(K1*fH2O)
+        SO2_ST = float(SO2_H2S/(SO2_H2S+1.))
+        CSO4 = vf.C_SO4(PT,melt_wf,models)
+        CS = vf.C_S(PT,melt_wf,models)
+        if models.loc["H2S_m","option"] == "False":
+            S6S2 = float((CSO4/CS)*fO2**2.)
+        elif models.loc["H2S_m","option"] == "True":
+            KHS = vf.KHOSg(PT,models)
+            CH2S = vf.C_H2S(PT,melt_wf,models)
+            CH2OT = vf.C_H2O(PT,melt_wf,models)
+            xmH2O = vf.xm_H2OT_so(melt_wf)
+            S6S2 = float((CSO4/((KHS*CH2S*(xmH2O**2./CH2OT)) + CS))*fO2**2.)
+        S6pST = S6S2/(S6S2+1.)
+        SCSS = vf.SCSS(PT,melt_wf,models)
+        SCAS = vf.SCAS(PT,melt_wf,models)
+        STCSS = SCSS/(1.-S6pST)
+        STCAS = SCAS/S6pST
+        if STCSS < STCAS:
+            ST = STCSS
+        else:
+            ST =  STCAS
+        ST_s2 = ST*(1.-S6pST)
+        ST_s6 =ST*(S6pST)
+        results1 = pd.DataFrame([[P,T,fH2O,fO2_FMQ,SO2_ST,S6pST,SCSS,SCAS,STCSS,STCAS,ST,ST_s2,ST_s6]])
+        if n == 0.:
+            results_headers = pd.DataFrame([["P","T","fH2O","fO2_FMQ","SO2/(SO2+H2S)","S6+/ST","SCSS","SCAS",'STCSS','STCAS','ST','ST_S2-','ST_S6+']])
+            results = pd.concat([results_headers, results1])
+        else:
+            results = pd.concat([results, results1])
+    results.columns = results.iloc[0]
+    results = results[1:]  
+    return results
+
+# function to calculate the SCSS and SCAS with varying melt composition
+def calc_sulfur_vcomp(setup,models=mdv.default_models):
+    for n in range(0,len(setup),1):
+        melt_wf=vf.melt_comp(n,setup)
+        PT = {"T":setup.loc[n,"T_C"],"P":setup.loc[n,"P_bar"]}
+        P = int(PT["P"])
+        T = int(PT["T"])
+        melt_wf['CO2'] = setup.loc[n,"CO2ppm"]/1000000.
+        melt_wf["H2OT"] = setup.loc[n,"H2O"]/100.
+        melt_wf['ST'] = setup.loc[n,"STppm"]/1000000.
+        melt_wf['CT'] = (melt_wf['CO2']/vf.species.loc['CO2','M'])*vf.species.loc['C','M']
+        melt_wf['HT'] = (melt_wf['H2OT']/vf.species.loc['H2O','M'])*(2.*vf.species.loc['H','M'])
+        melt_wf['Fe3FeT'] = setup.loc[n,"Fe3+FeT"]
+        fO2 = vf.f_O2(PT,melt_wf,models)
+        FMQ = vf.fO22Dbuffer(PT,fO2,"FMQ",models)
+        sulfsat = vf.sulfur_saturation(PT,melt_wf,models)
+        sulfide_capacity = vf.C_S(PT,melt_wf)
+        sulfate_capacity = vf.C_SO4(PT,melt_wf)
+        # result = {"SCSS":SCSS_,"StCSS":StCSS,"sulfide_sat":sulfide_sat, "SCAS":SCAS_, "StCAS":StCAS,"sulfate_sat":sulfate_sat,"ST":ST}
+        results1 = pd.DataFrame([[P,T,FMQ,sulfsat["SCSS"],sulfsat["StCSS"],sulfsat["SCAS"],sulfsat["StCAS"],setup.loc[n,"MgO"],sulfide_capacity,sulfate_capacity]])
+        if n == 0.:
+            results_headers = pd.DataFrame([["P","T","FMQ","SCSS","StCSS","SCAS","StCAS","MgO","Csulfide","Csulfate"]])
+            results = pd.concat([results_headers, results1])
+        else:
+            results = pd.concat([results, results1])
+    results.columns = results.iloc[0]
+    results = results[1:]  
+    return results
+
 ### NEEDS CHECKING ###        
 def P_sat_output_fS2(setup,models,first_row=0,last_row=None,p_tol=1.e-1,nr_step=1.,nr_tol=1.e-9):
     # set up results table
