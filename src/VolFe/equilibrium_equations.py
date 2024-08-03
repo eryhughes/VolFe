@@ -257,7 +257,7 @@ def mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step,nr_tol,guesses): ### CHECK 
         elif models.loc["COH_species","option"] == "yes_H2_CO_CH4_melt" and models.loc["H2S_m","option"] == "True":
             if solve_species == "scipy":
                 A,B,C,D = eq_SCHOFe_scipy(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species)
-            elif models.loc["Hspeciation","option"] == "none":
+            elif models.loc["Hspeciation","option"] in ["none",'none+regular','none+ideal']:
                 A,B,C,D, models, solve_species = eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species)
             elif models.loc["Hspeciation","option"] == "linear":
                 A,B,C,D = eq_SCHOFe_3(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species)
@@ -559,7 +559,7 @@ def eq_CHS_melt(PT,melt_wf,models,nr_step,nr_tol,guesses):
         Xm_t = xm_CO2_*M_CO2 + xm_H2O_*M_H2O + (1.0-xm_CO2_-xm_H2O_)*M_m_
         wm_H2O_ = (xm_H2O_*M_H2O)/Xm_t # weight fraction
         wm_CO2_ = (xm_CO2_*M_CO2)/Xm_t # weight fraction
-        if models.loc["Hspeciation","option"] == "none":
+        if models.loc["Hspeciation","option"] in ["none",'none+regular','none+ideal']:
             fH2O = (xm_H2O_**2.)/K2_
         elif models.loc["Hspeciation","option"] == "linear":
             fH2O = xm_H2O_/K2_
@@ -594,7 +594,7 @@ def eq_CHS_melt(PT,melt_wf,models,nr_step,nr_tol,guesses):
         return mbC, mbH, mbS, wt_m_C, wt_m_H, wt_m_S, wt_m_O
 
     def df_CHS(xm_CO2_,xm_H2O_,wm_S2m_,constants):
-        if models.loc["Hspeciation","option"] == "none":
+        if models.loc["Hspeciation","option"] in ["none",'none+regular','none+ideal']:
             dmbC_C = -M_C*(xm_CO2_*(-M_CO2 + M_m_)/(M_CO2*xm_CO2_ + M_H2O*xm_H2O_ + M_m_*(-xm_CO2_ - xm_H2O_ + 1.0))**2 + 1/(M_CO2*xm_CO2_ + M_H2O*xm_H2O_ + M_m_*(-xm_CO2_ - xm_H2O_ + 1.0)) + K12_*fO2**(-0.5)/(K11_*K9_*M_CO) + K13_*fO2**(-2.0)*(xm_H2O_**2.0/K2_)**2.0/(K10_*K11_*M_CH4))
             dmbC_H = -M_C*(xm_CO2_*(-M_H2O + M_m_)/(M_CO2*xm_CO2_ + M_H2O*xm_H2O_ + M_m_*(-xm_CO2_ - xm_H2O_ + 1.0))**2 + 4.0*K13_*fO2**(-2.0)*xm_CO2_*xm_H2O_**(-1.0)*(xm_H2O_**2.0/K2_)**2.0/(K10_*K11_*M_CH4))
             dmbC_S = 0.
