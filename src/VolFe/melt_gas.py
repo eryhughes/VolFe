@@ -53,7 +53,7 @@ def f_H2O(PT,melt_wf,models):
     """
 
     Hspeciation = models.loc["Hspeciation","option"]
-    if Hspeciation == "none": # fH2O = xmH2OT^2/CH2O
+    if Hspeciation in ["none",'none+ideal',"none+regular"]: # fH2O = xmH2OT^2/CH2O
         value = ((xm_H2OT_so(melt_wf))**2.0)/mdv.C_H2O(PT,melt_wf,models)
         return value
     elif Hspeciation == "linear": # fH2O = xmH2OT/CH2O
@@ -331,13 +331,13 @@ def xm_OH_so(PT,melt_wf,models):
     
     if Z == 0.0: 
         return 0.0
-    elif Hspeciation == "ideal": # ideal mixture from Silver & Stolper (1985) J. Geol. 93(2) 161-177
-        K = mdv.KHOm(T,melt_wf,models)
+    elif Hspeciation in ["ideal",'none+ideal']: # ideal mixture from Silver & Stolper (1985) J. Geol. 93(2) 161-177
+        K = mdv.KHOm(PT,melt_wf,models)
         return (0.5 - (0.25 - ((K - 4.0)/K)*(Z - Z**2.0))**0.5)/((K - 4.0)/(2.0*K)) 
     elif Hspeciation == "none": # all OH-
         return 0.0
     
-    elif Hspeciation == "regular": # else use regular solution model from Silver & Stolper (1989) J.Pet. 30(3)667-709
+    elif Hspeciation in ["regular","none+regular"]: # else use regular solution model from Silver & Stolper (1989) J.Pet. 30(3)667-709
         tol = 0.000001 #tolerance
         K = mdv.KHOm(PT,melt_wf,models)
         x0 = (0.5 - (0.25 - ((K - 4.0)/K)*(Z - Z**2.0))**0.5)/((K - 4.0)/(2.0*K))
@@ -351,11 +351,12 @@ def xm_H2Omol_so(PT,melt_wf,models):
 
 def wm_H2Omol_OH(PT,melt_wf,models): # wt fraction
     H2Omol = xm_H2Omol_so(PT,melt_wf,models)*mdv.species.loc["H2O","M"]
-    OH = xm_OH_so(PT,melt_wf,models)*mdv.species.loc["OH","M"]
+    OH_H2O = xm_OH_so(PT,melt_wf,models)*0.5*mdv.species.loc["H2O","M"]
     melt = xm_melt_so(melt_wf)*M_m_SO(melt_wf)
-    CO2T = xm_CO2_so(melt_wf)
-    wm_H2Omol = H2Omol/(H2Omol + OH + melt + CO2T)
-    wm_OH = OH/(H2Omol + OH + melt + CO2T)
+    CO2T = xm_CO2_so(melt_wf)*mdv.species.loc["CO2","M"]
+    wm_H2Omol = H2Omol/(H2Omol + OH_H2O + melt + CO2T)
+    wm_OH_H2O = OH_H2O/(H2Omol + OH_H2O + melt + CO2T)
+    wm_OH = ((wm_OH_H2O/mdv.species.loc["H2O","M"])*2.)*mdv.species.loc["OH","M"]
     return wm_H2Omol, wm_OH
 
 #########################
@@ -384,7 +385,7 @@ def wm_CO32_CO2mol(PT,melt_wf,models): # wt fraction
     melt = xm_melt_so(melt_wf)*M_m_SO(melt_wf)
     H2OT = xm_H2OT_so(melt_wf)*mdv.species.loc["H2O","M"]
     wm_CO2mol = CO2mol/(CO2mol + CO2carb + H2OT + melt)
-    wm_CO2carb = CO2carb/(CO2mol + CO2carb + H2OT + melt)   
+    wm_CO2carb = CO2carb/(CO2mol + CO2carb + H2OT + melt)
     return wm_CO2carb, wm_CO2mol 
 
 ##########################
