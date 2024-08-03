@@ -604,7 +604,7 @@ def C_H2O(PT,melt_wf,models=default_models):
     model_speciation = models.loc["Hspeciation","option"]
     model_solubility = models.loc["water","option"]
 
-    if model_speciation == "none": ### C_H2O = (xmH2O)^2/fH2O ### (mole fraction)
+    if model_speciation in ["none",'none+ideal','none+regular']: ### C_H2O = (xmH2O)^2/fH2O ### (mole fraction)
         if model_solubility == "Rhyolite_HughesIP": # Fig.SX from Hughes et al. (in prep) based on data in Fig. 3 of Blank et al. (1993)
             C = 5.3851E-06 
         elif model_solubility == "Basalt_Hughes24": # Fig.S2 from Hughes et al. (2024) based on data compilation from Allison et al. (2022) for basalts with H2O < 6 wt%
