@@ -5,7 +5,7 @@ import pandas as pd
 import os
 
 
-def test_degassing_simple():
+def test_degassing_simple_fails(capsys):
     "simple test of degassing function"
     my_analysis = {
         "Sample": "Sari15-04-33",
@@ -30,8 +30,12 @@ def test_degassing_simple():
     my_analysis = pd.DataFrame(my_analysis, index=[0])
     degas1 = vf.calc_gassing(my_analysis)
 
-    # check that the output is correct here
-    # This fails on my laptop after 10 bar
+    assert degas1.shape == (386, 177)
+
+    # This reads the terminal output and checks the failed solver message is present
+    terminal_output = capsys.readouterr()
+
+    assert "solver failed, calculation aborted" in terminal_output.out
 
     os.remove("results_gassing_chemistry.csv")
     os.remove("results_jacnewton3.csv")
