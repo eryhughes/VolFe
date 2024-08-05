@@ -12,11 +12,11 @@ Melt gas
 
 "melt_gas.py" hosts functions for calculating properties of the melt and gas at a set of conditions (e.g., *P* and *T*): so these are the forward calculations. Broadly, this includes things like: 
 
-- Fugacities (f_i), partial pressures (p_i), and mole fraction in the vapor (xg_i) of vapor species given *P*, *T* and volatile concentration in the melt.
+- Fugacities (f\ :sub:`i`), partial pressures (p\ :sub:`i`), and mole fraction in the vapor (xg\ :sub:`i`) of vapor species given *P*, *T* and volatile concentration in the melt.
 
 - Coverting melt composition between mass and mole fractions, based on cations, oxides, single oxygen, etc.
 
-- Calculating melt speciation for oxidised carbon, oxidised hydrogen, sulfur, and iron given *P*, *T*, dissovled volatile concentration, and *f*O2.
+- Calculating melt speciation for oxidised carbon, oxidised hydrogen, sulfur, and iron given *P*, *T*, dissovled volatile concentration, and *f*\O\ :sub:`2`.
 
 
 Model dependent variables
@@ -31,13 +31,13 @@ More information can be found on the :doc:`model dependent variables <current_md
 
 - Functions to calculate solubility, speciation, and equilibrium constants; fugacity coefficients; SCSS and SCAS; and melt density.
 
-- Functions to convert between *f*O2 and Fe3+/FeT, and *f*O2 buffers.
+- Functions to convert between *f*\O\ :sub:`2` and Fe3+/FeT, and *f*\O\ :sub:`2` buffers.
 
 
 Equilibrium and differential equations
 ------
 
-“equilibrium_equations.py” contains the functions to calculate the equilibrium concentration and speciation of volatiles in melt ± vapor and the proportions of melt and vapor given *P*, *T*, and the bulk composition of the system.
+"equilibrium_equations.py" contains the functions to calculate the equilibrium concentration and speciation of volatiles in melt ± vapor and the proportions of melt and vapor given *P*, *T*, and the bulk composition of the system.
 These are iterative calculations, which are solved using Jacobian matrix/Newton-Raphson approach (solvers and initial guesses are also in this file).
 
 The associated differential equations required for the solver are contained in “differential_equations.py”, where the symbolic differentiation was done using SymPy (Meurer et al., 2017).
@@ -58,13 +58,13 @@ Firstly, there are functions for calculating properties about the system, such a
 
 Secondly, its calculation types that do not necessarily have independent variables of *P*, *T*, and bulk composition (as in "equilibrium_equations.py"), such as:
 
-- *T*, melt composition (including *f*O2 estimate), vapor-saturated: calculate *Pv*sat and the melt/vapor composition and speciation.
+- *T*, melt composition (including *f*\O\ :sub:`2` estimate), vapor-saturated: calculate *Pv*\sat and the melt/vapor composition and speciation.
 
-- *T*, melt composition, vapor+sulfide+anhydrite-saturated, ± *P*: calculate *f*O2 ± *P* and the melt/vapor composition and speciation.
+- *T*, melt composition, vapor+sulfide+anhydrite-saturated, ± *P*: calculate *f*\O\ :sub:`2` ± *P* and the melt/vapor composition and speciation.
 
-- *T*, melt composition, vapor+(sulfide or anhydrite)-saturated, ± *P*: calculate *f*O2 ± *P* and the melt/vapor composition and speciation.
+- *T*, melt composition, vapor+(sulfide or anhydrite)-saturated, ± *P*: calculate *f*\O\ :sub:`2` ± *P* and the melt/vapor composition and speciation.
 
-- *T*, *P*, *f*O2, CO2-eq, H2O-eq, vapor±(sulfide and/or anhydrite)-saturation = calculate how much sulfur can dissolve in the melt.
+- *T*, *P*, *f*\O\ :sub:`2`, CO2-eq, H2O-eq, vapor±(sulfide and/or anhydrite)-saturation = calculate how much sulfur can dissolve in the melt.
 
 - *T*, *P*, volatile-free composition, assuming only H2O and CO2: calculate concentrations of H2O and CO2 in the melt (i.e., isobars).
 
@@ -73,5 +73,5 @@ Batch calculations
 -----
 
 "batch_calculations.py" joins calculations together to enable them to be run for multiple conditions. 
-This might be to create a degassing calculations (i.e., run over multiple *P*) and or *Pv*sat for a whole spreadsheet of calculations. 
+This might be to create a degassing calculations (i.e., run over multiple *P*) and or *Pv*\sat for a whole spreadsheet of calculations. 
 More details can be found in the Worked Examples.

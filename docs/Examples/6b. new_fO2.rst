@@ -6,46 +6,50 @@ To add a new parameterisation for Fe3+/FeT to fO2 dependence involves creating a
 
 Here is an example for Borisov et al. (2018):
 
-def FefO2_Borisov18_terms(run,PT,melt_wf,setup,species,models): # Borisov et al. (2018) CMP 173
-    
-    T_K = PT['T']+273.15
-    
-    a = 0.207
-    
-    # melt mole fraction with no volatiles and all Fe as FeOT
-    
-    tot,Si, Ti, Al, FeOT, FeO, Fe2O3, Mg, Mn, Ca, Na, K, P, H2O, CO2, S, X = mg.melt_mole_fraction(run,melt_wf,setup,species,models,"no","no")  
-    
-    B = (4633.3/T_K -0.445*Si - 0.900*Ti + 1.532*Mg + 0.314*Ca + 2.030*Na + 3.355*K - 4.851*P - 3.081*Si*Al -  4.370*Si*Mg - 1.852)
-    
-    return a, B
+.. code-block:: python
 
-Then, the new parameterisation must be added to the functions “fO22Fe3FeT” and “f_O2” in the “model_dependent_variables.py” file, which is shown here for Borisov et al. (2018):
+    def FefO2_Borisov18_terms(run,PT,melt_wf,setup,species,models): # Borisov et al. (2018) CMP 173
+        
+        T_K = PT['T']+273.15
+        
+        a = 0.207
+        
+        # melt mole fraction with no volatiles and all Fe as FeOT
+        
+        tot,Si, Ti, Al, FeOT, FeO, Fe2O3, Mg, Mn, Ca, Na, K, P, H2O, CO2, S, X = mg.melt_mole_fraction(run,melt_wf,setup,species,models,"no","no")  
+        
+        B = (4633.3/T_K -0.445*Si - 0.900*Ti + 1.532*Mg + 0.314*Ca + 2.030*Na + 3.355*K - 4.851*P - 3.081*Si*Al -  4.370*Si*Mg - 1.852)
+        
+        return a, B
 
-def fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models): # converting fO2 to Fe3/FeT
-    
-    model = models.loc["fO2","option"]
-    
-    T_K = PT['T']+273.15      
-    
-    if model == "Borisov18": # Borisov et al. (2018) CMP 173:
-        
-        a,B = FefO2_Borisov18_terms(run,PT,melt_wf,setup,species,models)
-        
-        Fe3Fe2 = 10.**(a*gp.log10(fO2) + B)
-        
-        return Fe3Fe2/(Fe3Fe2 + 1.0)
+Then, the new parameterisation must be added to the functions ``fO22Fe3FeT`` and ``f_O2`` in the ``model_dependent_variables.py`` file, which is shown here for Borisov et al. (2018):
 
-def f_O2(run,PT,melt_wf,setup,species,models):
+.. code-block:: python
+
+    def fO22Fe3FeT(fO2,run,PT,melt_wf,setup,species,models): # converting fO2 to Fe3/FeT
+        
+        model = models.loc["fO2","option"]
+        
+        T_K = PT['T']+273.15      
+        
+        if model == "Borisov18": # Borisov et al. (2018) CMP 173:
+            
+            a,B = FefO2_Borisov18_terms(run,PT,melt_wf,setup,species,models)
+            
+            Fe3Fe2 = 10.**(a*gp.log10(fO2) + B)
+            
+            return Fe3Fe2/(Fe3Fe2 + 1.0)
     
-    model = models.loc["fO2","option"]    
-    
-    if model == "Borisov18": # Borisov et al. (2018) CMP 173
+    def f_O2(run,PT,melt_wf,setup,species,models):
         
-        F = mg.Fe3Fe2(melt_wf)
+        model = models.loc["fO2","option"]    
         
-        a,B = FefO2_Borisov18_terms(run,PT,melt_wf,setup,species,models)
-        
-        fO2 = 10.**((gp.log10(F) - B)/a)
-        
-        return fO2
+        if model == "Borisov18": # Borisov et al. (2018) CMP 173
+            
+            F = mg.Fe3Fe2(melt_wf)
+            
+            a,B = FefO2_Borisov18_terms(run,PT,melt_wf,setup,species,models)
+            
+            fO2 = 10.**((gp.log10(F) - B)/a)
+            
+            return fO2
