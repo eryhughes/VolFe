@@ -504,7 +504,7 @@ def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,d
 
     # set system and initial guesses
     system = eq.set_system(melt_wf,models)
-    guesses = eq.initial_guesses(run,PT,melt_wf,setup,models,system)    
+    guesses = eq.initial_guesses(run,PT,melt_wf,setup,models,system)
 
     # create results
     results_headers_table_sample_name, results_values_table_sample_name = results_table_sample_name(setup,run)
@@ -559,6 +559,8 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                 dp_step = 10.
             else:
                 dp_step = 1.
+    else:
+        dp_step_choice = "user"
 
     if models.loc["P_variation","option"] == "polybaric":
         # pressure ranges and options
@@ -640,35 +642,25 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             # work out equilibrium partitioning between melt and gas phase
             xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
             models = new_models
-            #if xg["xg_O2"] == 1.0:
-            #    print('solver failed, decreasing original step size by factor 10')
-            #    guesses = guesses_original
-            #    oldP = P + dp_step
-            #    dp_step = dp_step/10.
-            #    if dp_step < 1.:
-            #        results.columns = results.iloc[0]
-            #        results = results[1:]  
-            #        if models.loc["output csv","option"] == "True":
-            #            results.to_csv('results_gassing_chemistry.csv', index=False, header=True)
-            #        print("solver failed, calculation aborted at P = ", PT["P"], datetime.datetime.now())
-            #        return results
-            #    newP = oldP - dp_step
-            #    if newP < 1.:
-            #        newP = 1.
-            #    PT["P"] = newP
-            #    xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
-            #    models = new_models
-            #if xg["xg_O2"] == 1.0:
-                #print('solver failed, increasing original step size by factor 10')
-                #guesses = guesses_original
-                #oldP = P + dp_step
-                #dp_step = dp_step*100.
-                #newP = oldP - dp_step
-                #if newP < 1.:
-                #    newP = 1.
-                #PT["P"] = newP
-                #xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
-                #models = new_models
+            if xg["xg_O2"] == 1.0:
+                guesses = eq.initial_guesses(run,PT,melt_wf,setup,models,system)
+                xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
+                models = new_models
+            if xg["xg_O2"] == 1.0:
+                guesses = guesses_original
+                oldP = P + dp_step
+                if dp_step < 1. or dp_step == 1.:
+                    print('solver failed, increasing step size by factor 10')
+                    dp_step = dp_step*10.
+                else:
+                    print('solver failed, decreasing step size by factor 10')
+                    dp_step = dp_step/10.
+                newP = oldP - dp_step
+                if newP < 1.:
+                    newP = 1.
+                PT["P"] = newP
+                xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
+                models = new_models
             if xg["xg_O2"] == 1.0:
                 results.columns = results.iloc[0]
                 results = results[1:]  
