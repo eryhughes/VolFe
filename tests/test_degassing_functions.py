@@ -72,11 +72,11 @@ def test_degas_df_default(capsys):
     assert result.loc[0,"P_bar"] == pytest.approx(3863.5831334191394)
     assert result.loc[0,"fO2_DFMQ"] == pytest.approx(0.7203532684511362)
     assert result.loc[0,"CO2T_ppmw"] == pytest.approx(1475.9979291041839)
-    #assert result.loc[0,"xgS2_mf"] == pytest.approx(0.0006722975341518086)
+    assert result.loc[0,"xgS2_mf"] == pytest.approx(0.0006722975341518086)
     assert result.loc[len(result)-1,'P_bar'] == 1.0
     assert result.loc[len(result)-1,"fO2_DFMQ"] == pytest.approx(-0.08720880727594427)
     assert result.loc[len(result)-1,"CO2T_ppmw"] == pytest.approx(0.006361991861169213)
-    #assert result.loc[len(result)-1,"xgS2_mf"] == pytest.approx(1.3633089495821218e-05)
+    assert result.loc[len(result)-1,"xgS2_mf"] == pytest.approx(1.3633089495821218e-05)
 
 #def test_degas_df_sat_sulf(capsys):
 #    "simple test of calc_gassing function"
