@@ -186,4 +186,37 @@ def test_pvsat_df_FeOT_DNNO_Fe3FeT(capsys):
     assert result1.loc[0,"P_bar"] == pytest.approx(337.80934489140867)
     assert result1.loc[0,"fO2_DFMQ"] == pytest.approx(0.5346132659807692)
 
+def test_pvsat_df_FeOT_Fe3FeT_useroptions(capsys):
+    "simple test of calc_pvsat function using FeOT and Fe3FeT with user defined options"
+    
+    my_analysis = {'Sample':'TN273-01D-01-01',
+           'T_C': 1200., # Temperature in 'C
+           'SiO2': 56.98, # wt%
+           'TiO2': 1.66, # wt%
+           'Al2O3': 15.52, # wt%
+           'FeOT': 9.47, # wt%
+           'MnO': 0.24, # wt%
+           'MgO': 2.96, # wt%
+           'CaO': 6.49, # wt%
+           'Na2O': 4.06, # wt%
+           'K2O': 0.38, # wt%
+           'P2O5': 0.22, # wt%
+           'H2O': 1.88, # wt%
+           'CO2ppm': 13., # ppm
+           'STppm': 362.83, # ppm
+           'Xppm': 0., # ppm
+           'Fe3FeT': 0.171} # mole or weight fraction (they're the same)
+
+    my_analysis = pd.DataFrame(my_analysis, index=[0])
+
+    # choose the options I want - everything else will use the default options
+    my_models = [['carbon dioxide','Basalt_Dixon97'],['hydrogen sulfide','BasalticAndesite_Hughes24'],['y_S2','ideal']]
+
+    # turn to dataframe with correct column headers and indexes    
+    my_models = vf.make_df_and_add_model_defaults(my_models)
+
+    result1 = vf.calc_Pvsat(my_analysis,models=my_models)
+
+    assert result1.loc[0,"P_bar"] == pytest.approx(287.6382594073333)
+    assert result1.loc[0,"fO2_DFMQ"] == pytest.approx(0.5333295952804473)
 
