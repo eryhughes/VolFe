@@ -136,6 +136,23 @@ def alphas_S(PT,comp,models): # all alphas against S2-(m)
 ##############
     
 def simple_isotope_fractionation(D,db):
+    """ 
+    Calculates isotopic composition of melt and vapor during closed- and open-system degassing for a constant fractionation factor.
+
+
+    Parameters
+    ----------
+    D: float
+        Float of cap-delta Fractionation factor between vapor and melt in per mil.
+    
+    db: float
+        Float initial little-delta isotope value of bulk system in per mil.
+
+    Returns
+    -------
+    Dataframe.
+
+    """
     for n in range(0,1000,1):
         F = 1. - (n/1000.)
         dm_closed = db - D*(1.-F)
