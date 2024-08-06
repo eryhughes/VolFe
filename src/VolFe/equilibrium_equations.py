@@ -891,7 +891,7 @@ def jac_newton(x0,y0,constants,eqs,deriv,step,tol,maxiter=1000):
     guessx,guessy = 1.,1.
     return guessx,guessy
 
-def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=100):
+def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=50):
 # create results table
     results = pd.DataFrame([["guessx","guessy","guessz","diff1","diff2","diff3","step"]])  
     diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(x0,y0,z0)
