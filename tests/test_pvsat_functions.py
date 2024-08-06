@@ -2,6 +2,7 @@
 
 import VolFe as vf
 import pandas as pd
+import pytest
 import os
 
 
@@ -30,8 +31,8 @@ def test_pvsat_df_FeOT_Fe3FeT(capsys):
 
     result1 = vf.calc_Pvsat(my_analysis)
 
-    assert result1.loc[0,"P_bar"] == 337.80934489140867
-    assert result1.loc[0,"fO2_DFMQ"] == 0.5346132659807692
+    assert result1.loc[0,"P_bar"] == pytest.approx(337.80934489140867)
+    assert result1.loc[0,"fO2_DFMQ"] == pytest.approx(0.5346132659807692)
 
 def test_pvsat_df_Fe2O3T_DFMQ(capsys):
     "simple test of calc_pvsat function using Fe2O3T and DFMQ"
@@ -60,8 +61,8 @@ def test_pvsat_df_Fe2O3T_DFMQ(capsys):
     # runs the calculation
     result1 = vf.calc_Pvsat(my_analysis)
 
-    assert result1.loc[0,"P_bar"] == 317.2180305487919
-    assert result1.loc[0,"Fe3+/FeT"] == 0.13998995667087746
+    assert result1.loc[0,"P_bar"] == pytest.approx(317.2180305487919)
+    assert result1.loc[0,"Fe3+/FeT"] == pytest.approx(0.13998995667087746)
 
 
 def test_pvsat_df_FeO_Fe2O3(capsys):
@@ -91,8 +92,8 @@ def test_pvsat_df_FeO_Fe2O3(capsys):
     # runs the calculation
     result1 = vf.calc_Pvsat(my_analysis)
 
-    assert result1.loc[0,"P_bar"] == 436.4296485406602
-    assert result1.loc[0,"fO2_DFMQ"] == 1.227099405389815
+    assert result1.loc[0,"P_bar"] == pytest.approx(436.4296485406602)
+    assert result1.loc[0,"fO2_DFMQ"] == pytest.approx(1.227099405389815)
 
 def test_pvsat_df_FeOT_DNNO(capsys):
     "simple test of calc_pvsat function using FeOT and DNNO"
@@ -121,8 +122,8 @@ def test_pvsat_df_FeOT_DNNO(capsys):
     # runs the calculation
     result1 = vf.calc_Pvsat(my_analysis)
 
-    assert result1.loc[0,"P_bar"] == 451.9452953846255
-    assert result1.loc[0,"Fe3+/FeT"] == 0.26742007392545164
+    assert result1.loc[0,"P_bar"] == pytest.approx(451.9452953846255)
+    assert result1.loc[0,"Fe3+/FeT"] == pytest.approx(0.26742007392545164)
 
 def test_pvsat_df_FeOT_S6ST(capsys):
     "simple test of calc_pvsat function using FeOT and S6+/ST"
@@ -151,8 +152,8 @@ def test_pvsat_df_FeOT_S6ST(capsys):
     # runs the calculation
     result1 = vf.calc_Pvsat(my_analysis)
 
-    assert result1.loc[0,"P_bar"] == 395.6435433141458
-    assert result1.loc[0,"Fe3+/FeT"] == 1.0129274022003445
+    assert result1.loc[0,"P_bar"] == pytest.approx(395.6435433141458)
+    assert result1.loc[0,"Fe3+/FeT"] == pytest.approx(1.0129274022003445)
 
 def test_pvsat_df_FeOT_DNNO_Fe3FeT(capsys):
     "simple test of calc_pvsat function using FeOT, DNNO, and Fe3+/FeT"
@@ -182,7 +183,7 @@ def test_pvsat_df_FeOT_DNNO_Fe3FeT(capsys):
     # runs the calculation
     result1 = vf.calc_Pvsat(my_analysis)
 
-    assert result1.loc[0,"P_bar"] == 337.80934489140867
-    assert result1.loc[0,"Fe3+/FeT"] == 0.5346132659807692
+    assert result1.loc[0,"P_bar"] == pytest.approx(337.80934489140867)
+    assert result1.loc[0,"Fe3+/FeT"] == pytest.approx(0.5346132659807692)
 
 
