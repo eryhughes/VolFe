@@ -809,7 +809,8 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             bulk_wf = {"C":wt_C_*(1./(1.-Xst)),"H":wt_H_*(1./(1.-Xst)),"O":wt_O_*(1./(1.-Xst)),"S":wt_S_*(1./(1.-Xst)),"X":wt_X_*(1./(1.-Xst)),"Fe":wt_Fe_*(1./(1.-Xst)),"Wt":wt_*(1.-Xst)}
     
     results.columns = results.iloc[0]
-    results = results[1:]  
+    results = results[1:]
+    results.reset_index(drop=True,inplace=True)  
     if models.loc["output csv","option"] == "True":
         results.to_csv('results_gassing_chemistry.csv', index=False, header=True)
     
