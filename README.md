@@ -1,3 +1,5 @@
+[![](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+
 Welcome to VolFe! an open-source framework for calculating melt-vapour equilibria including silicate melt, carbon, hydrogen, sulfur and noble gases. 
 
 This work is currently in preparation for publication. 
