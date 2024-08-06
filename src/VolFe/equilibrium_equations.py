@@ -289,6 +289,8 @@ def mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step,nr_tol,guesses): ### CHECK 
             xg_O2_,xg_CO_,xg_S2_,xg_X_,xg_H2_,xg_H2O_,xg_CO2_,xg_OCS_,xg_SO2_,xg_H2S_,xg_CH4_,Xg_t,wm_CO2_,wm_CH4_,wm_CO_,wm_H2O_,wm_H2_,wm_SO3_,wm_S_,wm_H2S_,wm_ST_,wm_X_,xm_H2O_,xm_CO2_,Xm_t,Fe32,Fe3T,S62,S6T,wt_g = eq_SCHOXFe(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species) # SCHOXFe system
             Xm_t_ox,mbX, mbY, mbZ, wt_g_O, wt_g_C, wt_g_H, wt_g_S, mbW, wt_g_X,wt_O_, wt_C_, wt_H_, wt_S_, wt_X_ = "","","","","","","","","","","","","","",""
             
+    melt_wf["CO2"] = wm_CO2_
+    melt_wf["H2OT"] = wm_H2O_
     if system in ["HOFe","HOFe","CHOFe","CHOXFe","SHOFe","SCHOFe","SCHOXFe"]: # contains H
         wm_H2Omol_, wm_OH_ = mg.wm_H2Omol_OH(PT,melt_wf,models)
     else:
@@ -939,25 +941,46 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=100):
         if(n % 50==0):
             results.to_csv('results_jacnewton3.csv', index=False, header=False)
 
-    step = step0/10.
+    #step = step0/10.
+    #x0, y0, z0 = x00, y00, z00
+    #for iter in range(maxiter):
+    #    deriv_ = deriv(x0,y0,z0,constants)
+    #    guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
+    #    while guessx < 0.0 or guessy < 0.0 or guessz < 0.0:
+    #        step = step/10.
+    #        guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
+    #    diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(guessx,guessy,guessz)
+    #    if abs(diff1) < tol and abs(diff2) < tol and abs(diff3) < tol:
+    #        return guessx, guessy, guessz
+    #    #elif np.isnan(float(guessx)) or np.isnan(float(guessy)) or np.isnan(float(guessz)):
+    #        #print("nan encountered")
+    #    x0 = guessx
+    #    y0 = guessy
+    #    z0 = guessz
+    #    results1 = pd.DataFrame([[guessx, guessy,guessz,diff1,diff2,diff3,step]])
+    #    results = pd.concat([results, results1], ignore_index=True)
+    #    results.to_csv('results_jacnewton3.csv', index=False, header=False)
+
     x0, y0, z0 = x00, y00, z00
-    for iter in range(maxiter):
-        deriv_ = deriv(x0,y0,z0,constants)
-        guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
-        while guessx < 0.0 or guessy < 0.0 or guessz < 0.0:
-            step = step/10.
+    for iter in range(9):
+        step = step0 - (step0/10.)
+        for iter in range(maxiter):
+            deriv_ = deriv(x0,y0,z0,constants)
             guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
-        diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(guessx,guessy,guessz)
-        if abs(diff1) < tol and abs(diff2) < tol and abs(diff3) < tol:
-            return guessx, guessy, guessz
-        #elif np.isnan(float(guessx)) or np.isnan(float(guessy)) or np.isnan(float(guessz)):
-            #print("nan encountered")
-        x0 = guessx
-        y0 = guessy
-        z0 = guessz
-        results1 = pd.DataFrame([[guessx, guessy,guessz,diff1,diff2,diff3,step]])
-        results = pd.concat([results, results1], ignore_index=True)
-        results.to_csv('results_jacnewton3.csv', index=False, header=False)
+            while guessx < 0.0 or guessy < 0.0 or guessz < 0.0:
+                step = step/10.
+                guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
+            diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(guessx,guessy,guessz)
+            if abs(diff1) < tol and abs(diff2) < tol and abs(diff3) < tol:
+                return guessx, guessy, guessz
+            #elif np.isnan(float(guessx)) or np.isnan(float(guessy)) or np.isnan(float(guessz)):
+                #print("nan encountered")
+            x0 = guessx
+            y0 = guessy
+            z0 = guessz
+            results1 = pd.DataFrame([[guessx, guessy,guessz,diff1,diff2,diff3,step]])
+            results = pd.concat([results, results1], ignore_index=True)
+            results.to_csv('results_jacnewton3.csv', index=False, header=False)
     
     guessx,guessy,guessz = 1.,1.,1.
     return guessx,guessy,guessz
