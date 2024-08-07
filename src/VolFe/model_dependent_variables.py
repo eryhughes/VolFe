@@ -1753,7 +1753,7 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
         output = ss.calculate_F2015_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']))
         SCSS = float(output["SCSS2_ppm"])
     elif model == "Liu21_pss": # Liu et al. (2021) FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-        output = ss.calculate_Liu2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe_FeNiCu_Sulf=1., H2O_Liq=float(100.*melt_wf['H2OT']), Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi, Fe3Fet_Liq=Fe3FeT)
+        output = ss.calculate_Liu2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']), Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi, Fe3Fet_Liq=Fe3FeT)
         SCSS = float(output["SCSS2_ppm"])
     elif model == "ONeill22_pss": # O'Neill & Mavrogenes (2022) FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_OM2022_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi)
