@@ -371,7 +371,7 @@ def fO2_P_VSA(PT,melt_wf,models,nr_step,nr_tol,Ptol):
         difference = abs(guess - mg.p_tot(PT,melt_wf,models))
         return difference
 
-    def fO2_S(run,PT,melt_wf,setup,models):
+    def fO2_S(PT,melt_wf,models):
         SCSS_ = mdv.SCSS(PT,melt_wf,models)/1000000.
         SCAS_ = mdv.SCAS(PT,melt_wf,models)/1000000.
         CSO4 = mdv.C_SO4(PT,melt_wf,models)/1000000.
@@ -391,14 +391,15 @@ def fO2_P_VSA(PT,melt_wf,models,nr_step,nr_tol,Ptol):
     
     guess0 = 40000. # initial guess for pressure
     PT["P"] = guess0
+    melt_wf["Fe3FeT"] = 0.1
     fO2_, ST_ = fO2_S(PT,melt_wf,models)
     melt_wf["ST"] = ST_
     melt_wf["Fe3FeT"] = mdv.fO22Fe3FeT(fO2_,PT,melt_wf,models)
     ms_conc = eq.melt_speciation(PT,melt_wf,models,nr_step,nr_tol)
     ms_frac = melt_species_ratios(ms_conc)
-    melt_wf["H2OT"] = ms_cont["wm_H2O"]
-    melt_wf["CO2"] = ms_cont["wm_CO2"]
-    melt_wf["S2-"] = ms_cont["wm_S2m"]
+    melt_wf["H2OT"] = ms_conc["wm_H2O"]
+    melt_wf["CO2"] = ms_conc["wm_CO2"]
+    melt_wf["S2-"] = ms_conc["wm_S2m"]
     delta1 = Pdiff(guess0,melt_wf,models)
     while delta1 > Ptol :
         delta1 = Pdiff(guess0,melt_wf,models)
@@ -426,7 +427,8 @@ def fO2_P_VSA(PT,melt_wf,models,nr_step,nr_tol,Ptol):
 
 def P_VSA(PT,melt_wf,models,nr_step,nr_tol,Ptol):
     
-    #P_sat, pVSA_conc, pVSA_frac = fO2_P_VSA(PT,melt_wf,models,nr_step,nr_tol,Ptol)
+    P_sat, pVSA_conc, pVSA_frac = fO2_P_VSA(PT,melt_wf,models,nr_step,nr_tol,Ptol)
+    Fe3_FT = pVSA_frac['Fe3_FT']
     
     def Pdiff(guess,melt_wf,models):
         PT["P"] = guess
@@ -436,6 +438,7 @@ def P_VSA(PT,melt_wf,models,nr_step,nr_tol,Ptol):
     guess0 = 40000. # initial guess for pressure
     PT["P"] = guess0
     melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT,melt_wf,models)
+    
     if melt_wf["Fe3FeT"] < Fe3_FT:
         SCSS_ = mdv.SCSS(PT,melt_wf,models)/1000000.
         S6T = mg.S6ST(PT,melt_wf,models)
@@ -1051,6 +1054,35 @@ def calc_isotopes(PT,comp,R,models,guesses,nr_step,nr_tol,run=0.):
     R_all_species_S, R_m_g_S = iso.i2s9("S",PT,comp_,R,models,guesses["S"],nr_step,nr_tol)
     R_all_species_H, R_m_g_H = iso.i2s9("H",PT,comp_,R,models,guesses['H'],nr_step,nr_tol)
     return R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_all_species_H,R_m_g_H
+
+# function to calculate the SCSS and SCAS with varying melt composition
+def calc_sulfur_vcomp(setup,models=mdv.default_models):
+    for n in range(0,len(setup),1):
+        melt_wf=vf.melt_comp(n,setup)
+        PT = {"T":setup.loc[n,"T_C"],"P":setup.loc[n,"P_bar"]}
+        P = int(PT["P"])
+        T = int(PT["T"])
+        melt_wf['CO2'] = setup.loc[n,"CO2ppm"]/1000000.
+        melt_wf["H2OT"] = setup.loc[n,"H2O"]/100.
+        melt_wf['ST'] = setup.loc[n,"STppm"]/1000000.
+        melt_wf['CT'] = (melt_wf['CO2']/vf.species.loc['CO2','M'])*vf.species.loc['C','M']
+        melt_wf['HT'] = (melt_wf['H2OT']/vf.species.loc['H2O','M'])*(2.*vf.species.loc['H','M'])
+        melt_wf['Fe3FeT'] = setup.loc[n,"Fe3+FeT"]
+        fO2 = vf.f_O2(PT,melt_wf,models)
+        FMQ = vf.fO22Dbuffer(PT,fO2,"FMQ",models)
+        sulfsat = vf.sulfur_saturation(PT,melt_wf,models)
+        sulfide_capacity = vf.C_S(PT,melt_wf)
+        sulfate_capacity = vf.C_SO4(PT,melt_wf)
+        # result = {"SCSS":SCSS_,"StCSS":StCSS,"sulfide_sat":sulfide_sat, "SCAS":SCAS_, "StCAS":StCAS,"sulfate_sat":sulfate_sat,"ST":ST}
+        results1 = pd.DataFrame([[P,T,FMQ,sulfsat["SCSS"],sulfsat["StCSS"],sulfsat["SCAS"],sulfsat["StCAS"],setup.loc[n,"MgO"],sulfide_capacity,sulfate_capacity]])
+        if n == 0.:
+            results_headers = pd.DataFrame([["P","T","FMQ","SCSS","StCSS","SCAS","StCAS","MgO","Csulfide","Csulfate"]])
+            results = pd.concat([results_headers, results1])
+        else:
+            results = pd.concat([results, results1])
+    results.columns = results.iloc[0]
+    results = results[1:]  
+    return results
 
 ###########################################################################
 ### P given S content of melt after degassing given conditions of pvsat ### IN PROGRESS
