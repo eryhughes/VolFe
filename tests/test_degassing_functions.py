@@ -5,6 +5,17 @@ import pandas as pd
 import pytest
 
 
+# tests to complete
+# 2a sulf sat
+# 2b closed-system wtg
+# 2c open-system degas
+# 2d closed regas
+# 2d open regas
+# 2e Ar basalt
+# 2e Ne basalt
+# 2e Ar rhyolite
+
+
 def test_degas_df_default():
     "simple test of calc_gassing function"
 
@@ -122,3 +133,112 @@ def test_degas_df_closed_CO2i():
     assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(-0.1334627142973961)
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.11187099769675689)
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(2.3080542012091533e-05)
+
+#def test_degas_df_closed_wtg():
+#    "simple test of calc_gassing function with closed-system degassing and wtg"
+
+#    my_analysis = {'Sample':'Sari15-04-33',
+#           'T_C': 1200., # Temperature in 'C
+#           'SiO2': 47.89, # wt%
+#           'TiO2': 0.75, # wt%
+#           'Al2O3': 16.74, # wt%
+#           'FeOT': 9.43, # wt%
+#           'MnO': 0.18, # wt%
+#           'MgO': 5.92, # wt%
+#           'CaO': 11.58, # wt%
+#           'Na2O': 2.14, # wt%
+#           'K2O': 0.63, # wt%
+#           'P2O5': 0.17, # wt%
+#           'H2O': 4.17, # wt%
+#           'CO2ppm': 1487., # ppm
+#           'STppm': 1343.5, # ppm
+#           'Xppm': 0., # ppm
+#           'Fe3FeT': 0.195,
+#           'wt_g': 3.} # wt% vapor in equilibrium with the melt
+
+#    my_analysis = pd.DataFrame(my_analysis, index=[0])
+
+    # choose the options I want - everything else will use the default options
+#    my_models = [['bulk_composition','melt+vapor_wtg']]
+
+    # turn to dataframe with correct column headers and indexes    
+#    my_models = vf.make_df_and_add_model_defaults(my_models)
+
+#    result = vf.calc_gassing(my_analysis,models=my_models)
+
+#    assert result.loc[0, "P_bar"] == pytest.approx(3863.5831334191394)
+#    assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.7203532684511362)
+#    assert result.loc[0, "CO2T_ppmw"] == pytest.approx(1475.9979291041839)
+#    assert result.loc[0, "xgS2_mf"] == pytest.approx(0.0006722975341518086)
+#    assert result.loc[len(result) - 1, "P_bar"] == 1.0
+#    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.7588141360313543)
+#    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx()
+#    assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx()
+
+def test_degas_df_HSO():
+    "simple test of calc_gassing function for HSO system"
+
+    my_analysis = {'Sample':'Sari15-04-33',
+           'T_C': 1200., # Temperature in 'C
+           'SiO2': 47.89, # wt%
+           'TiO2': 0.75, # wt%
+           'Al2O3': 16.74, # wt%
+           'FeOT': 9.43, # wt%
+           'MnO': 0.18, # wt%
+           'MgO': 5.92, # wt%
+           'CaO': 11.58, # wt%
+           'Na2O': 2.14, # wt%
+           'K2O': 0.63, # wt%
+           'P2O5': 0.17, # wt%
+           'H2O': 2., # wt%
+           'CO2ppm': 0., # ppm
+           'STppm': 1000., # ppm
+           'Xppm': 0., # ppm
+           'Fe3FeT': 0.195}
+
+    my_analysis = pd.DataFrame(my_analysis, index=[0])
+
+    result = vf.calc_gassing(my_analysis)
+
+    assert result.loc[0, "P_bar"] == pytest.approx(406.37228244941497)
+    assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.6391885514882905)
+    assert result.loc[0, "CO2T_ppmw"] == 0.0
+    assert result.loc[0, "xgS2_mf"] == pytest.approx(0.008314410934512158)
+    assert result.loc[len(result) - 1, "P_bar"] == 1.0
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(-0.09058551042920904)
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == 0.0
+    assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(3.5233776095813517e-05)
+
+def test_degas_df_CSO():
+    "simple test of calc_gassing function for CSO system"
+
+    my_analysis = {'Sample':'Sari15-04-33',
+           'T_C': 1200., # Temperature in 'C
+           'SiO2': 47.89, # wt%
+           'TiO2': 0.75, # wt%
+           'Al2O3': 16.74, # wt%
+           'FeOT': 9.43, # wt%
+           'MnO': 0.18, # wt%
+           'MgO': 5.92, # wt%
+           'CaO': 11.58, # wt%
+           'Na2O': 2.14, # wt%
+           'K2O': 0.63, # wt%
+           'P2O5': 0.17, # wt%
+           'H2O': 0., # wt%
+           'CO2ppm': 500., # ppm
+           'STppm': 1000., # ppm
+           'Xppm': 0., # ppm
+           'Fe3FeT': 0.195}
+
+    my_analysis = pd.DataFrame(my_analysis, index=[0])
+
+    result = vf.calc_gassing(my_analysis)
+
+    assert result.loc[0, "P_bar"] == pytest.approx(1098.0598069382127)
+    assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.6565341610092759)
+    assert result.loc[0, "CO2T_ppmw"] == pytest.approx(495.5956612185359)
+    assert result.loc[0, "xgS2_mf"] == pytest.approx(0.0026586642922226352)
+    assert result.loc[len(result) - 1, "P_bar"] == 1.0
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(-0.03611792004490333)
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.13291287430638418)
+    assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(0.01615449833076651)
