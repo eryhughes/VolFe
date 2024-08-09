@@ -680,6 +680,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             if xg["xg_O2"] == 1.0:
                 results.columns = results.iloc[0]
                 results = results[1:]  
+                results.reset_index(drop=True,inplace=True)
                 if models.loc["output csv","option"] == "True":
                     results.to_csv('results_gassing_chemistry.csv', index=False, header=True)
                 print("solver failed, calculation aborted at P = ", PT["P"], datetime.datetime.now())
