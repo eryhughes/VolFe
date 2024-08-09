@@ -821,7 +821,7 @@ def newton_raphson(x0,constants,e1,step,eqs,deriv):
 
 #jac_newton(1,1,test_f,test_df,1)
 
-def jac_newton(x0,y0,constants,eqs,deriv,step,tol,maxiter=50):
+def jac_newton(x0,y0,constants,eqs,deriv,step,tol,maxiter=1000):
 
     # create results table
     results = pd.DataFrame([["guessx","guessy","diff1","diff2","step"]])  
