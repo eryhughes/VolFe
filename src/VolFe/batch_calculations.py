@@ -578,20 +578,20 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                 answer = round(answer*dp_step)
                 initial = round(answer+dp_step)
         if models.loc["gassing_direction","option"] == "degas":
-            step = int(-1*dp_step) # pressure step in bars
+            #step = int(-1*dp_step) # pressure step in bars
             final = 0
         elif models.loc["gassing_direction","option"] == "regas":
-            step = int(dp_step)
+            #step = int(dp_step)
             final = int(setup.loc[run,"final_P"])
     elif models.loc["T_variation","option"] == "polythermal": # temperature ranges and options
         PT["P"] = setup.loc[run,"P_bar"]
         final = int(setup.loc[run,"final_T"])
         if setup.loc[run,"final_T"] > setup.loc[run,"T_C"]:
             initial = int(round(PT["T"])) 
-            step = int(dp_step) # temperature step in 'C
+            #step = int(dp_step) # temperature step in 'C
         elif setup.loc[run,"final_T"] < setup.loc[run,"T_C"]:
             initial = int(round(PT["T"]))
-            step = int(-1.*dp_step) # temperature step in 'C
+            #step = int(-1.*dp_step) # temperature step in 'C
     
     # add some gas to the system if doing open-system regassing
     if models.loc["gassing_direction","option"] == "regas" and models.loc["gassing_style","option"] == "open":
@@ -621,14 +621,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                     dp_step = 10.
                 else:
                     dp_step = 1.
-
-        if models.loc["gassing_style","option"] == "open": # check melt is still vapor-saturated
-            if models.loc["COH_species","option"] == "H2O-CO2 only":  
-                P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(PT,melt_wf,models,psat_tol,nr_step,nr_tol)
-                conc = {"wm_H2O":P_sat_H2O_CO2_result["wm_H2O"], "wm_CO2":P_sat_H2O_CO2_result["wm_CO2"], "wm_H2":0., "wm_CO":0., "wm_CH4":0., "wm_H2S":0., "wm_S2m":0., "wm_S6p":0., "ST": 0.}
-                frac = c.melt_species_ratios(conc)
-            else:
-                P_sat_, conc, frac = c.P_sat(PT,melt_wf,models,psat_tol,nr_step,nr_tol)
+        
         if models.loc["P_variation","option"] == "polybaric": 
             #P = i - dp_step
             P = PT["P"] - dp_step
@@ -638,29 +631,52 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         elif models.loc["T_variation","option"] == "polythermal":
             T = i - dp_step
             PT["T"] = T
+        
+        if models.loc["gassing_style","option"] == "open": # check melt is still vapor-saturated
+            PT_ = {'P':PT['P'],'T':PT['T']}
+            if models.loc["COH_species","option"] == "H2O-CO2 only":  
+                P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(PT_,melt_wf,models,psat_tol,nr_step,nr_tol)
+                conc = {"wm_H2O":P_sat_H2O_CO2_result["wm_H2O"], "wm_CO2":P_sat_H2O_CO2_result["wm_CO2"], "wm_H2":0., "wm_CO":0., "wm_CH4":0., "wm_H2S":0., "wm_S2m":0., "wm_S6p":0., "ST": 0.}
+                frac = c.melt_species_ratios(conc)
+            else:
+                P_sat_, conc, frac = c.P_sat(PT_,melt_wf,models,psat_tol,nr_step,nr_tol)
+            checkingP = PT['P']
+            while P_sat_ < checkingP:
+                checkingP = checkingP - dp_step
+                PT_['P'] = checkingP
+                if models.loc["COH_species","option"] == "H2O-CO2 only":  
+                    P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(PT_,melt_wf,models,psat_tol,nr_step,nr_tol)
+                    conc = {"wm_H2O":P_sat_H2O_CO2_result["wm_H2O"], "wm_CO2":P_sat_H2O_CO2_result["wm_CO2"], "wm_H2":0., "wm_CO":0., "wm_CH4":0., "wm_H2S":0., "wm_S2m":0., "wm_S6p":0., "ST": 0.}
+                    frac = c.melt_species_ratios(conc)
+                else:
+                    P_sat_, conc, frac = c.P_sat(PT_,melt_wf,models,psat_tol,nr_step,nr_tol)
+            PT['P'] = checkingP
+    
         if P_sat_ > PT["P"] or models.loc["gassing_direction","option"] == "regas":  
             # work out equilibrium partitioning between melt and gas phase
             xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
             models = new_models
             if xg["xg_O2"] == 1.0:
+                print('tried resetting guesses')
                 guesses = eq.initial_guesses(run,PT,melt_wf,setup,models,system)
                 xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
                 models = new_models
-            if xg["xg_O2"] == 1.0:
-                guesses = guesses_original
-                oldP = P + dp_step
-                if dp_step < 1. or dp_step == 1.:
-                    print('solver failed, increasing step size by factor 10')
-                    dp_step = dp_step*10.
-                else:
-                    print('solver failed, decreasing step size by factor 10')
-                    dp_step = dp_step/10.
-                newP = oldP - dp_step
-                if newP < 1.:
-                    newP = 1.
-                PT["P"] = newP
-                xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
-                models = new_models
+            if models.loc["gassing_style","option"] == "closed":
+                if xg["xg_O2"] == 1.0:
+                    guesses = guesses_original
+                    oldP = P + dp_step
+                    if dp_step < 1. or dp_step == 1.:
+                        print('solver failed, increasing step size by factor 10')
+                        dp_step = dp_step*10.
+                    else:
+                        print('solver failed, decreasing step size by factor 10')
+                        dp_step = dp_step/10.
+                    newP = oldP - dp_step
+                    if newP < 1.:
+                        newP = 1.
+                    PT["P"] = newP
+                    xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
+                    models = new_models
             if xg["xg_O2"] == 1.0:
                 results.columns = results.iloc[0]
                 results = results[1:]  
@@ -670,27 +686,24 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                 return results
             # gas composition
             gas_mf = {"O2":xg["xg_O2"],"CO":xg["xg_CO"],"S2":xg["xg_S2"],"CO2":xg["xg_CO2"],"H2O":xg["xg_H2O"],"H2":xg["xg_H2"],"CH4":xg["xg_CH4"],"SO2":xg["xg_SO2"],"H2S":xg["xg_H2S"],"OCS":xg["xg_OCS"],"X":xg["xg_X"],"Xg_t":xg["Xg_t"],"wt_g":melt_and_gas["wt_g"]}
-        else: # NEEDS SORTING ###
-            conc = eq.melt_speciation(PT,melt_wf,models,nr_step,nr_tol)
-            frac = c.melt_species_ratios(conc)
+        #else: # NEEDS SORTING ###
+            #conc = eq.melt_speciation(PT,melt_wf,models,nr_step,nr_tol)
+            #frac = c.melt_species_ratios(conc)
             #wm_ST_ = wm_S_ + wm_S6p_
             #S62 = S6T/S2m_ST
             #Fe3T = melt_wf["Fe3FeT"]
             #Fe32 = mg.overtotal2ratio(Fe3T)
-            xg = {"xg_O2":0., "xg_H2":0., "xg_S2":0., "xg_H2O":0., "xg_CO":0., "xg_CO2":0., "xg_SO2":0., "xg_CH4":0., "xg_H2S":0., "xg_OCS":0., "xg_X":0., "Xg_t":0.}
-            melt_and_gas["wt_g_O"] = 0.
-            melt_and_gas["wt_g_C"] = 0.
-            melt_and_gas["wt_g_H"] = 0.
-            melt_and_gas["wt_g_S"] = 0.
-            melt_and_gas["wt_g_X"] = 0.
-            melt_and_gas["wt_g"] = 0.
-            guesses = eq.initial_guesses(run,PT,melt_wf,setup,models,system)
-            solve_species = "na"
-            gas_mf = {"O2":xg["xg_O2"],"CO":xg["xg_CO"],"S2":xg["xg_S2"],"CO2":xg["xg_CO2"],"H2O":xg["xg_H2O"],"H2":xg["xg_H2"],"CH4":xg["xg_CH4"],"SO2":xg["xg_SO2"],"H2S":xg["xg_H2S"],"OCS":xg["xg_OCS"],"X":xg["xg_X"],"Xg_t":xg["Xg_t"],"wt_g":melt_and_gas["wt_g"]}
+            #xg = {"xg_O2":0., "xg_H2":0., "xg_S2":0., "xg_H2O":0., "xg_CO":0., "xg_CO2":0., "xg_SO2":0., "xg_CH4":0., "xg_H2S":0., "xg_OCS":0., "xg_X":0., "Xg_t":0.}
+            #if number_of_step == 1:
+            #    melt_and_gas = {}
+            #melt_and_gas["wt_g_O"],melt_and_gas["wt_g_C"],melt_and_gas["wt_g_H"],melt_and_gas["wt_g_S"],melt_and_gas["wt_g_X"],melt_and_gas["wt_g"] = 0.,0.,0.,0.,0.
+            #guesses = eq.initial_guesses(run,PT,melt_wf,setup,models,system)
+            #solve_species = "na"
+            #gas_mf = {"O2":xg["xg_O2"],"CO":xg["xg_CO"],"S2":xg["xg_S2"],"CO2":xg["xg_CO2"],"H2O":xg["xg_H2O"],"H2":xg["xg_H2"],"CH4":xg["xg_CH4"],"SO2":xg["xg_SO2"],"H2S":xg["xg_H2S"],"OCS":xg["xg_OCS"],"X":xg["xg_X"],"Xg_t":xg["Xg_t"],"wt_g":melt_and_gas["wt_g"]}
         
         if P_sat_ > PT["P"] or models.loc["gassing_direction","option"] == "regas": 
             if models.loc["gassing_style","option"] == "open" and models.loc["gassing_direction","option"] == "degas": 
-                if i == initial:
+                if number_of_step == 1:
                     gas_mf_all = gas_mf
                 else:
                     gas_mf_all = c.gas_comp_all_open(gas_mf,gas_mf_all,models)
@@ -776,6 +789,12 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                 Wt_ = bulk_wf['Wt']
                 if results_me["wm_C"] < 1.e-6: # 1 ppm C
                     results_me["wm_C"] = 0.
+                if results_me["wm_H"] < 1.e-6: # 1 ppm H
+                    results_me["wm_H"] = 0.
+                if results_me["wm_S"] < 1.e-6: # 1 ppm S
+                    results_me["wm_S"] = 0.
+                if results_me["wm_X"] < 1.e-6: # 1 ppm X
+                    results_me["wm_X"] = 0.
                 bulk_wf = {"C":results_me["wm_C"],"H":results_me["wm_H"],"O":results_me["wm_O"],"S":results_me["wm_S"],"X":results_me["wm_X"],"Fe":results_me["wm_Fe"],"Wt":(Wt_*(1. - melt_and_gas["wt_g"]))}
                 melt_wf["CT"] = results_me["wm_C"]
                 melt_wf["HT"] = results_me["wm_H"]
