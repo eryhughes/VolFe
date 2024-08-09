@@ -8,7 +8,6 @@ import pytest
 # tests to complete
 # 2a sulf sat
 # 2b closed-system wtg
-# 2c open-system degas
 # 2d closed regas
 # 2d open regas
 # 2e Ar basalt
@@ -174,6 +173,40 @@ def test_degas_df_closed_CO2i():
 #    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.7588141360313543)
 #    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx()
 #    assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx()
+
+def test_degas_df_open():
+    "simple test of calc_gassing function for open-system degassing"
+
+    my_analysis = {'Sample':'Sari15-04-33',
+           'T_C': 1200., # Temperature in 'C
+           'SiO2': 47.89, # wt%
+           'TiO2': 0.75, # wt%
+           'Al2O3': 16.74, # wt%
+           'FeOT': 9.43, # wt%
+           'MnO': 0.18, # wt%
+           'MgO': 5.92, # wt%
+           'CaO': 11.58, # wt%
+           'Na2O': 2.14, # wt%
+           'K2O': 0.63, # wt%
+           'P2O5': 0.17, # wt%
+           'H2O': 1., # wt%
+           'CO2ppm': 50., # ppm
+           'STppm': 100, # ppm
+           'Xppm': 0., # ppm
+           'Fe3FeT': 0.195}
+
+    my_analysis = pd.DataFrame(my_analysis, index=[0])
+
+    result = vf.calc_gassing(my_analysis)
+
+    assert result.loc[0, "P_bar"] == pytest.approx(199.78358397995052)
+    assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.63390049438501)
+    assert result.loc[0, "CO2T_ppmw"] == pytest.approx(49.54358631280869)
+    assert result.loc[0, "xgS2_mf"] == pytest.approx(0.00018482167916692897)
+    assert result.loc[len(result) - 1, "P_bar"] == 1.0
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.6315427057280116)
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == 0.0
+    assert result.loc[len(result) - 1, "xgS2_mf"] == 0.0
 
 def test_degas_df_HSO():
     "simple test of calc_gassing function for HSO system"
