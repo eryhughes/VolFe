@@ -385,7 +385,7 @@ def test_degas_df_CHOAr_rhyolite():
     # turn to dataframe with correct column headers and indexes    
     my_models = vf.make_df_and_add_model_defaults(my_models)
 
-    result = vf.calc_gassing(my_analysis, model=my_models)
+    result = vf.calc_gassing(my_analysis, models=my_models)
 
     assert result.loc[0, "P_bar"] == pytest.approx(1363.4483591372611)
     assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.6630423937635648)
