@@ -282,3 +282,36 @@ def test_degas_df_CSO():
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.13291287430638418)
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(0.01615449833076651)
 
+def test_degas_df_CHOAr():
+    "simple test of calc_gassing function for CHOAr system"
+
+    my_analysis = {'Sample':'Sari15-04-33',
+           'T_C': 1200., # Temperature in 'C
+           'SiO2': 47.89, # wt%
+           'TiO2': 0.75, # wt%
+           'Al2O3': 16.74, # wt%
+           'FeOT': 9.43, # wt%
+           'MnO': 0.18, # wt%
+           'MgO': 5.92, # wt%
+           'CaO': 11.58, # wt%
+           'Na2O': 2.14, # wt%
+           'K2O': 0.63, # wt%
+           'P2O5': 0.17, # wt%
+           'H2O': 2., # wt%
+           'CO2ppm': 500., # ppm
+           'STppm': 0., # ppm
+           'Xppm': 10., # ppm <<< treating this as Ar
+           'Fe3FeT': 0.195}
+
+    my_analysis = pd.DataFrame(my_analysis, index=[0])
+
+    result = vf.calc_gassing(my_analysis)
+
+    assert result.loc[0, "P_bar"] == pytest.approx(1460.1133014759528)
+    assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.6653926960786709)
+    assert result.loc[0, "CO2T_ppmw"] == pytest.approx(495.7596295369173)
+    assert result.loc[0, "xgX_mf"] == pytest.approx(0.08571694089111581)
+    assert result.loc[len(result) - 1, "P_bar"] == 70.0
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.7115340646298742)
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.5743842239770661)
+    assert result.loc[len(result) - 1, "xgX_mf"] == pytest.approx(0.00039491054832845393)
