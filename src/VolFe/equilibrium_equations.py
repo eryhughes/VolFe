@@ -656,7 +656,8 @@ def melt_speciation(PT,melt_wf,models,nr_step,nr_tol):
     
     if system in ["HOFe","HOXFe"]:
         if models.loc['COH_species','option'] == 'yes_H2_CO_CH4_melt':
-            xm_H2O_, wm_H2O_, wm_H2_ = eq_H_melt(PT,melt_wf,setup,models,nr_step,nr_tol)
+            result = eq_H_melt(PT,melt_wf,models,nr_step,nr_tol)
+            xm_H2O_, wm_H2O_, wm_H2_ = result["xm_H2O"], result["wm_H2O"], result["wm_H2"]
         else:
             wm_H2O_, xm_H2O_ = melt_wf["H2OT"], mg.xm_H2O_so(melt_wf)
     if system in ["COFe","COXFe",'SCOFe']:
@@ -820,7 +821,7 @@ def newton_raphson(x0,constants,e1,step,eqs,deriv):
 
 #jac_newton(1,1,test_f,test_df,1)
 
-def jac_newton(x0,y0,constants,eqs,deriv,step,tol,maxiter=1000):
+def jac_newton(x0,y0,constants,eqs,deriv,step,tol,maxiter=50):
 
     # create results table
     results = pd.DataFrame([["guessx","guessy","diff1","diff2","step"]])  
@@ -869,25 +870,45 @@ def jac_newton(x0,y0,constants,eqs,deriv,step,tol,maxiter=1000):
         if(n % 50==0):
             results.to_csv('results_jacnewton2.csv', index=False, header=False) 
 
-    step = step0/10.
-    x0, y0 = x00, y00
-    for iter in range(maxiter):
-        deriv_ = deriv(x0,y0,constants)
-        guessx, guessy, J = x2jac(step,deriv_,eqs,x0,y0)
-        while guessx < 0.0 or guessy < 0.0:
-            step = step/10.
+    #step = step0/10.
+    #x0, y0 = x00, y00
+    #for iter in range(maxiter):
+    #    deriv_ = deriv(x0,y0,constants)
+    #    guessx, guessy, J = x2jac(step,deriv_,eqs,x0,y0)
+    #    while guessx < 0.0 or guessy < 0.0:
+    #        step = step/10.
+    #        guessx, guessy, J = x2jac(step,deriv_,eqs,x0,y0)
+    #    diff1, diff2,wtg1,wtg2,wtg3 = eqs(guessx,guessy)
+    #    if abs(diff1) < tol and abs(diff2) < tol:
+    #        return guessx, guessy
+    #    #elif np.isnan(float(guessx)) or np.isnan(float(guessy)):
+    #        #print("nan encountered")
+    #    x0 = guessx
+    #    y0 = guessy
+    #    results1 = pd.DataFrame([[guessx, guessy,diff1,diff2,step]])
+    #    results = pd.concat([results, results1], ignore_index=True)
+    #    results.to_csv('results_jacnewton2.csv', index=False, header=False)
+
+    for iter in range(9):
+        step = step0 - (step0/10.)
+        x0, y0 = x00, y00
+        for iter in range(maxiter):
+            deriv_ = deriv(x0,y0,constants)
             guessx, guessy, J = x2jac(step,deriv_,eqs,x0,y0)
-        diff1, diff2,wtg1,wtg2,wtg3 = eqs(guessx,guessy)
-        if abs(diff1) < tol and abs(diff2) < tol:
-            return guessx, guessy
-        #elif np.isnan(float(guessx)) or np.isnan(float(guessy)):
-            #print("nan encountered")
-        x0 = guessx
-        y0 = guessy
-        results1 = pd.DataFrame([[guessx, guessy,diff1,diff2,step]])
-        results = pd.concat([results, results1], ignore_index=True)
-        results.to_csv('results_jacnewton2.csv', index=False, header=False)
-    
+            while guessx < 0.0 or guessy < 0.0:
+                step = step/10.
+                guessx, guessy, J = x2jac(step,deriv_,eqs,x0,y0)
+            diff1, diff2,wtg1,wtg2,wtg3 = eqs(guessx,guessy)
+            if abs(diff1) < tol and abs(diff2) < tol:
+                return guessx, guessy
+            #elif np.isnan(float(guessx)) or np.isnan(float(guessy)):
+                #print("nan encountered")
+            x0 = guessx
+            y0 = guessy
+            results1 = pd.DataFrame([[guessx, guessy,diff1,diff2,step]])
+            results = pd.concat([results, results1], ignore_index=True)
+            results.to_csv('results_jacnewton2.csv', index=False, header=False)
+
     guessx,guessy = 1.,1.
     return guessx,guessy
 
