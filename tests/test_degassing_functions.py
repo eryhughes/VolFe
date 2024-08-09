@@ -197,7 +197,13 @@ def test_degas_df_open():
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
-    result = vf.calc_gassing(my_analysis)
+    # choose the options I want - everything else will use the default options
+    my_models = [['gassing_style','open']]
+
+    # turn to dataframe with correct column headers and indexes    
+    my_models = vf.make_df_and_add_model_defaults(my_models)
+
+    result = vf.calc_gassing(my_analysis,models=my_models)
 
     assert result.loc[0, "P_bar"] == pytest.approx(199.78358397995052)
     assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.63390049438501)
@@ -275,3 +281,4 @@ def test_degas_df_CSO():
     assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(-0.03611792004490333)
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.13291287430638418)
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(0.01615449833076651)
+
