@@ -10,10 +10,8 @@ import pytest
 # 2b closed-system wtg
 # 2d closed regas
 # 2d open regas
-# 2e Ar basalt
 # 2e Ne basalt
 # 2e Ar rhyolite
-
 
 def test_degas_df_default():
     "simple test of calc_gassing function"
@@ -282,8 +280,8 @@ def test_degas_df_CSO():
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.13291287430638418)
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(0.01615449833076651)
 
-def test_degas_df_CHOAr():
-    "simple test of calc_gassing function for CHOAr system"
+def test_degas_df_CHOAr_basalt():
+    "simple test of calc_gassing function for CHOAr system in basalt"
 
     my_analysis = {'Sample':'Sari15-04-33',
            'T_C': 1200., # Temperature in 'C
@@ -315,3 +313,85 @@ def test_degas_df_CHOAr():
     assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.7115340646298742)
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.5743842239770661)
     assert result.loc[len(result) - 1, "xgX_mf"] == pytest.approx(0.00039491054832845393)
+
+
+def test_degas_df_CHONe_basalt():
+    "simple test of calc_gassing function for CHONe system in basalt"
+
+    my_analysis = {'Sample':'Sari15-04-33',
+           'T_C': 1200., # Temperature in 'C
+           'SiO2': 47.89, # wt%
+           'TiO2': 0.75, # wt%
+           'Al2O3': 16.74, # wt%
+           'FeOT': 9.43, # wt%
+           'MnO': 0.18, # wt%
+           'MgO': 5.92, # wt%
+           'CaO': 11.58, # wt%
+           'Na2O': 2.14, # wt%
+           'K2O': 0.63, # wt%
+           'P2O5': 0.17, # wt%
+           'H2O': 2., # wt%
+           'CO2ppm': 500., # ppm
+           'STppm': 0., # ppm
+           'Xppm': 10., # ppm <<< treating this as Ar
+           'Fe3FeT': 0.195}
+
+    my_analysis = pd.DataFrame(my_analysis, index=[0])
+
+    # choose the options I want - everything else will use the default options
+    my_models = [['species X','Ne'],['species X solubility','Ne_Basalt_HughesIP']]
+
+    # turn to dataframe with correct column headers and indexes    
+    my_models = vf.make_df_and_add_model_defaults(my_models)
+
+    # run calculation
+    result = vf.calc_gassing(my_analysis,models=my_models)
+
+    assert result.loc[0, "P_bar"] == pytest.approx(1404.7646337241717)
+    assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.6640482770575096)
+    assert result.loc[0, "CO2T_ppmw"] == pytest.approx(495.7479166646544)
+    assert result.loc[0, "xgX_mf"] == pytest.approx(0.047331318077006045)
+    assert result.loc[len(result) - 1, "P_bar"] == 120.
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.6941924132550827)
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(1.3001260013356675)
+    assert result.loc[len(result) - 1, "xgX_mf"] == pytest.approx(0.001026819006300385)
+
+def test_degas_df_CHOAr_rhyolite():
+    "simple test of calc_gassing function for CHONe system in rhyolite"
+
+    my_analysis = {'Sample':'Sari15-04-33',
+           'T_C': 1200., # Temperature in 'C
+           'SiO2': 47.89, # wt%
+           'TiO2': 0.75, # wt%
+           'Al2O3': 16.74, # wt%
+           'FeOT': 9.43, # wt%
+           'MnO': 0.18, # wt%
+           'MgO': 5.92, # wt%
+           'CaO': 11.58, # wt%
+           'Na2O': 2.14, # wt%
+           'K2O': 0.63, # wt%
+           'P2O5': 0.17, # wt%
+           'H2O': 2., # wt%
+           'CO2ppm': 500., # ppm
+           'STppm': 0., # ppm
+           'Xppm': 10., # ppm <<< treating this as Ar
+           'Fe3FeT': 0.195}
+
+    my_analysis = pd.DataFrame(my_analysis, index=[0])
+
+    # choose the options I want - everything else will use the default options
+    my_models = [['species X solubility','Ar_Rhyolite_HughesIP']]
+
+    # turn to dataframe with correct column headers and indexes    
+    my_models = vf.make_df_and_add_model_defaults(my_models)
+
+    result = vf.calc_gassing(my_analysis, model=my_models)
+
+    assert result.loc[0, "P_bar"] == pytest.approx(1363.4483591372611)
+    assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.6630423937635648)
+    assert result.loc[0, "CO2T_ppmw"] == pytest.approx(495.7391411775598)
+    assert result.loc[0, "xgX_mf"] == pytest.approx(0.01666896481627928)
+    assert result.loc[len(result) - 1, "P_bar"] == 120.
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.7004837361155927)
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.9697530002782397)
+    assert result.loc[len(result) - 1, "xgX_mf"] == pytest.approx(0.0004647839509440657)
