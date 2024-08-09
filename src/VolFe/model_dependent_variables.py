@@ -323,18 +323,18 @@ def make_df_and_add_model_defaults(models):
         'Fortin15' Eq. (7) Fortin et al. (2015) GCA 160:100-116 doi:10.1016/j.gca.2015.03.022
         'Liu21' Eq. (2) Liu et al. (2021) Chem.Geol. 559:119913 doi:10.1016.j.chemgeo.2020.119913
         'Fortin15_pss' Fortin et al. (2015) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-        'Liu21_pss' Liu et al. (2021) assuming pure FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-        'ONeill22_pss' O'Neill & Mavrogenes (2022) assuming pure FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-        'ONeill21_pss' O'Neill (2021) assuming pure FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-        'Smythe17_pss' Smythe et al. (2017) assuming pure FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        'Liu21_pss' Liu et al. (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        'ONeill21_pss' O'Neill (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        'ONeill22_pss' O'Neill & Mavrogenes (2022) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        'Smythe17_pss' Smythe et al. (2017) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     
     SCAS: Model for parameterisation of the sulfate content at anhydrite saturation (S6+CAS).
-        default: 'Zajacz19' Eq. (8-14) Zajacz & Tsay (2019) GCA 261:288-304 doi:10.1016/j.gca.2019.07.007
+        default: 'Chowdhury19' Eq. (8) using Table 5 in Chowdhury & Dasgupta (2019) Chem.Geol. 522:162-174 doi:10.1016/j.chemgeo.2019.05.020
         Other options:
-        'Chowdhury19' Eq. (8) using Table 5 in Chowdhury & Dasgupta (2019) Chem.Geol. 522:162-174 doi:10.1016/j.chemgeo.2019.05.020
+        'Zajacz19' Eq. (8-14) Zajacz & Tsay (2019) GCA 261:288-304 doi:10.1016/j.gca.2019.07.007
         'Liu23' Eq. (4) Liu et al. (2023) GCA 349:135-145 doi:10.1016/j.gca.2023.04.007
-        'Chowdhury19_pss' Chowdhury & Dasgupta (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         'Zajacz19_pss' Zajacz and Tsay (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        'Chowdhury19_pss' Chowdhury & Dasgupta (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     
     sulfur_saturation: Is sulfur allowed to form sulfide or anhydrite if sulfur content of the melt reaches saturation levels for these phases?
         default: 'False' melt ± vapor are the only phases present - results are metastable with respect to sulfide and anhydrite if they could saturate.
@@ -1508,6 +1508,16 @@ def C_X(PT,melt_wf,models=default_models): # C_X = wmX/fX (ppm)
 
     return K
 
+########################
+### solubility of Cl ###    
+########################
+def C_Cl(PT,melt_wf):
+    melt_comp = vf.melt_cation_proportion(melt_wf,"no","no")
+    P = PT['P']/10000. # bar to GPa
+    T = PT['T'] + 273.15 # 'C to 'K
+    logC = 1.601 + (4470*melt_comp['Ca'] - 3430*melt_comp['Si'] + 2592*melt_comp['FeT'] - 4092*melt_comp['K'] - 894*P)/T
+    C = float(10.**logC)
+    return C
 
 #################################################################################################################################
 ################################################ solid/liquid volatile saturation ###############################################
@@ -1612,13 +1622,13 @@ def SCAS(PT,melt_wf,models=default_models):
     
     elif model == "Chowdhury19_pss": # Chowdhury & Dasgupta (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_CD2019_SCAS(df=comp, T_K=T, H2O_Liq=float(100.*melt_wf['H2OT']), Fe3Fet_Liq=None, P_kbar=None)
-        S6CAS = float(output["SCAS6_ppm"])
+        S6CAS = float(output["SCAS6_ppm"].iloc[0])
     elif model == "Zajacz19_pss": # Zajacz and Tsay (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_ZT2022_SCAS(df=comp, T_K=T, H2O_Liq=float(100.*melt_wf['H2OT']), Fe3Fet_Liq=None, P_kbar=None)
-        S6CAS = float(output["SCAS6_ppm"])
+        S6CAS = float(output["SCAS6_ppm"].iloc[0])
     elif model == "Masotta15_pss": # Masotta and Kepler (2015) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_MK2015_SCAS(df=comp, T_K=T, H2O_Liq=float(100.*melt_wf['H2OT']), Fe3Fet_Liq=None, P_kbar=None)
-        S6CAS = float(output["SCAS6_ppm"])
+        S6CAS = float(output["SCAS6_ppm"].iloc[0])
     
     return S6CAS
 
@@ -1745,25 +1755,25 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
     
     elif model == "pss_Li22": # Li and Zhang (2022) assuming pure FeS using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_LiZhang2022_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']), Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi, Fe3Fet_Liq=Fe3FeT)
-        SCSS = float(output["SCSS_Tot"])
+        SCSS = float(output["SCSS2_ppm"].iloc[0])
     elif model == "pss_Blanchard21": # Blanchard et al. (2021) assuming pure FeS using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_B2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']), Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi,  Fe3Fet_Liq=Fe3FeT)
-        SCSS = float(output["SCSS_Tot"])
+        SCSS = float(output["SCSS2_ppm"].iloc[0])
     elif model == "Fortin15_pss": # Fortin et al. (2015) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_F2015_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']))
-        SCSS = float(output["SCSS2_ppm"])
+        SCSS = float(output["SCSS2_ppm"].iloc[0])
     elif model == "Liu21_pss": # Liu et al. (2021) FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_Liu2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']), Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi, Fe3Fet_Liq=Fe3FeT)
-        SCSS = float(output["SCSS2_ppm"])
+        SCSS = float(output["SCSS2_ppm"].iloc[0])
     elif model == "ONeill22_pss": # O'Neill & Mavrogenes (2022) FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_OM2022_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi)
-        SCSS = float(output["SCSS2_ppm"])
+        SCSS = float(output["SCSS2_ppm"].iloc[0])
     elif model == "ONeill21_pss": # O'Neill (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_O2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi)
-        SCSS = float(output["SCSS2_ppm"])
+        SCSS = float(output["SCSS2_ppm"].iloc[0])
     elif model == "Smythe17_pss": # Smythe et al. (2017) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_S2017_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi, H2O_Liq=float(100.*melt_wf['H2OT']))
-        SCSS = float(output["SCSS2_ppm_ideal_Smythe2017"])
+        SCSS = float(output["SCSS2_ppm_ideal_Smythe2017"].iloc[0])
     return SCSS
 
 #################################################################################################################################
@@ -3723,5 +3733,44 @@ def alpha_H_H2Sv_H2Sm(PT,comp,models): # alpha for D/H between H2S(v) and H2S(m)
 
 ### REFERENCES ###
 
-#def get_references(models=default_models):
-#    return
+def get_references(models=default_models):
+    quick_ref={}
+    doi={}
+    full_ref={}
+    
+    # Fe speciation
+    if models.loc['fO2','option'] == 'Kress91A':
+        quick_ref['Fe speciation'] = 'Eq. (A-5, A-6) in Kress and Carmichael (1991)'
+        doi['Fe speciation'] = '10.1007/BF00307328'
+        full_ref['Fe speciation'] = 'Kress, V.C. and Carmichael, I.S., 1991. The compressibility of silicate liquids containing Fe 2 O 3 and the effect of composition, temperature, oxygen fugacity and pressure on their redox states. Contributions to Mineralogy and Petrology, 108, pp.82-92.'
+    elif models.loc['fO2','option'] == 'Kress91':
+        quick_ref['Fe speciation'] = 'Eq. (7) in Kress and Carmichael (1991)'
+        doi['Fe speciation'] = '10.1007/BF00307328'
+        full_ref['Fe speciation'] = 'Kress, V.C. and Carmichael, I.S., 1991. The compressibility of silicate liquids containing Fe 2 O 3 and the effect of composition, temperature, oxygen fugacity and pressure on their redox states. Contributions to Mineralogy and Petrology, 108, pp.82-92.'
+    elif models.loc['fO2','option'] == 'ONeill18':
+        quick_ref['Fe speciation'] = 'Eq. (9a) in ONeill et al. (2018)'
+        doi['Fe speciation'] = '10.1016/j.epsl.2018.10.0020012-821X'
+        full_ref['Fe speciation'] = 'ONeill, H.S.C., Berry, A.J. and Mallmann, G., 2018. The oxidation state of iron in Mid-Ocean Ridge Basaltic (MORB) glasses: Implications for their petrogenesis and oxygen fugacities. Earth and Planetary Science Letters, 504, pp.152-162.'
+    elif models.loc['fO2','option'] == 'Borisov18':
+        quick_ref['Fe speciation'] = 'Eq. (4) from Borisov et al. (2018)'
+        doi['Fe speciation'] = '10.1007/s00410-018-1524-8'
+        full_ref['Fe speciation'] = 'Borisov, A., Behrens, H. and Holtz, F., 2018. Ferric/ferrous ratio in silicate melts: a new model for 1 atm data with special emphasis on the effects of melt composition. Contributions to Mineralogy and Petrology, 173, pp.1-15.'
+
+    # NNO buffer
+    if models.loc['NNObuffer','option'] == 'Frost91':
+        quick_ref['NNO buffer'] = 'Frost (1991)'
+        doi['NNO buffer'] = '10.1515/9781501508684-004'
+
+    # FMQ buffer
+    if models.loc['FMQbuffer','option'] == 'Frost91':
+        quick_ref['FMQ buffer'] = 'Frost (1991)'
+        doi['FMQ buffer'] = '10.1515/9781501508684-004'
+    elif models.loc['FMQbuffer','option'] == 'ONeill87':
+        quick_ref['FMQ buffer'] = 'ONeill (1897)'
+        doi['FMQ buffer'] = ''
+
+    quick_ref = pd.DataFrame.from_dict(quick_ref, orient='columns')
+    doi = pd.DataFrame.from_dict(doi, orient='columns')
+    full_ref = pd.DataFrame.from_dict(full_ref, orient='columns')
+    
+    return quick_ref,doi,full_ref
