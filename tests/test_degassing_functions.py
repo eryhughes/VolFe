@@ -10,8 +10,6 @@ import pytest
 # 2b closed-system wtg
 # 2d closed regas
 # 2d open regas
-# 2e Ne basalt
-# 2e Ar rhyolite
 
 def test_degas_df_default():
     "simple test of calc_gassing function"
@@ -50,38 +48,38 @@ def test_degas_df_default():
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(1.36331e-05)
 
 
-#def test_degas_df_sat_sulf():
-#    "simple test of calc_gassing function with sulfur saturation"
+def test_degas_df_sat_sulf():
+    "simple test of calc_gassing function with sulfur saturation"
 
-#    my_analysis = {'Sample':'Sari15-04-33',
-#           'T_C': 1200., # Temperature in 'C
-#           'SiO2': 47.89, # wt%
-#           'TiO2': 0.75, # wt%
-#           'Al2O3': 16.74, # wt%
-#           'FeOT': 9.43, # wt%
-#           'MnO': 0.18, # wt%
-#           'MgO': 5.92, # wt%
-#           'CaO': 11.58, # wt%
-#           'Na2O': 2.14, # wt%
-#           'K2O': 0.63, # wt%
-#           'P2O5': 0.17, # wt%
-#           'H2O': 4.17, # wt%
-#           'CO2ppm': 1487., # ppm
-#           'STppm': 1343.5, # ppm
-#           'Xppm': 0., # ppm
-#           'Fe3FeT': 0.195}
+    my_analysis = {'Sample':'Sari15-04-33',
+           'T_C': 1200., # Temperature in 'C
+           'SiO2': 47.89, # wt%
+           'TiO2': 0.75, # wt%
+           'Al2O3': 16.74, # wt%
+           'FeOT': 9.43, # wt%
+           'MnO': 0.18, # wt%
+           'MgO': 5.92, # wt%
+           'CaO': 11.58, # wt%
+           'Na2O': 2.14, # wt%
+           'K2O': 0.63, # wt%
+           'P2O5': 0.17, # wt%
+           'H2O': 4.17, # wt%
+           'CO2ppm': 1487., # ppm
+           'STppm': 1343.5, # ppm
+           'Xppm': 0., # ppm
+           'Fe3FeT': 0.195}
 
-#    my_analysis = pd.DataFrame(my_analysis, index=[0])
+    my_analysis = pd.DataFrame(my_analysis, index=[0])
 
     # Choose the options I want to change for the calculation - everything else will use the default options
-#    my_models = [['sulfur_saturation','True']]
+    my_models = [['sulfur_saturation','True']]
 
     # turn to dataframe with correct column headers and indexes
-#    my_models = vf.make_df_and_add_model_defaults(my_models)
+    my_models = vf.make_df_and_add_model_defaults(my_models)
 
-#    result = vf.calc_gassing(my_analysis,models=my_models)
+    result = vf.calc_gassing(my_analysis,models=my_models)
 
-#    assert result.loc[0,"P_bar"] == pytest.approx(3848.9041360851006)
+    assert result.loc[0,"P_bar"] == pytest.approx(3848.9041360851006)
 #    assert result.loc[0,"fO2_DFMQ"] == pytest.approx(0.7200378919508879)
 #    assert result.loc[0,"CO2T_ppmw"] == pytest.approx(1475.9913934875094)
 #    assert result.loc[0,"xgS2_mf"] == pytest.approx(0.00038774672125415206)
