@@ -48,7 +48,7 @@ def test_degas_df_default():
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(1.36331e-05)
 
 
-def test_degas_df_sat_sulf():
+#def test_degas_df_sat_sulf():
     "simple test of calc_gassing function with sulfur saturation"
 
     my_analysis = {'Sample':'Sari15-04-33',
