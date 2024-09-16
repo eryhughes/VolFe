@@ -514,8 +514,8 @@ def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,d
     results_headers_table_sat, results_values_table_sat = results_table_sat(sulf_sat_result,PT,melt_wf,models)
     results_headers_table_melt_vol = results_table_melt_vol() # "H2OT-eq_wtpc","CO2T-eq_ppmw","ST_ppmw","X_ppmw"
     results_values_table_melt_vol = pd.DataFrame([[wm_H2Oeq*100.,wm_CO2eq*1000000.,conc["wm_ST"]*1000000.,melt_wf["XT"]*1000000.]])
-    results_headers_table_wtg_etc = pd.DataFrame([["wt_g_wtpc","wt_g_O_wtf","wt_g_C_wtf","wt_g_H_wtf","wt_g_S_wtf","wt_g_X_wtf","wt_O_wtpc","wt_C_wtpc","wt_H_wtpc","wt_S_wtpc","wt_X_wtpc","Solving species"]])
-    results_values_table_wtg_etc = pd.DataFrame([[bulk_comp["wt_g"]*100.,"","","","","",bulk_wf["O"]*100.,bulk_wf["C"]*100.,bulk_wf["H"]*100.,bulk_wf["S"]*100.,bulk_wf["X"]*100.,""]])
+    results_headers_table_wtg_etc = pd.DataFrame([["wt_g_wtpc","wt_g_O_wtf","wt_g_C_wtf","wt_g_H_wtf","wt_g_S_wtf","wt_g_X_wtf","wt_O_wtpc","wt_C_wtpc","wt_H_wtpc","wt_S_wtpc","wt_X_wtpc","Solving species",'mass balance C','mass balance O','mass balance H','mass balance S']])
+    results_values_table_wtg_etc = pd.DataFrame([[bulk_comp["wt_g"]*100.,"","","","","",bulk_wf["O"]*100.,bulk_wf["C"]*100.,bulk_wf["H"]*100.,bulk_wf["S"]*100.,bulk_wf["X"]*100.,"","","","",""]])
     if models.loc["gassing_style","option"] == "open" and models.loc["gassing_direction","option"] == "degas":
         results_headers_table_open_all_gas = results_table_open_all_gas()
         results_values_table_open_all_gas = pd.DataFrame([[mg.xg_O2(PT,melt_wf,models),mg.xg_H2(PT,melt_wf,models),mg.xg_H2O(PT,melt_wf,models),mg.xg_S2(PT,melt_wf,models),mg.xg_SO2(PT,melt_wf,models),mg.xg_H2S(PT,melt_wf,models),mg.xg_CO2(PT,melt_wf,models),mg.xg_CO(PT,melt_wf,models),mg.xg_CH4(PT,melt_wf,models),mg.xg_OCS(PT,melt_wf,models),mg.xg_X(PT,melt_wf,models),mg.gas_CS(PT,melt_wf,models)]])
@@ -654,12 +654,12 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
     
         if P_sat_ > PT["P"] or models.loc["gassing_direction","option"] == "regas":  
             # work out equilibrium partitioning between melt and gas phase
-            xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
+            xg, conc, melt_and_gas, guesses, new_models, solve_species, mass_balance = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
             models = new_models
             if xg["xg_O2"] == 1.0:
                 print('tried resetting guesses')
                 guesses = eq.initial_guesses(run,PT,melt_wf,setup,models,system)
-                xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
+                xg, conc, melt_and_gas, guesses, new_models, solve_species, mass_balance = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
                 models = new_models
             if models.loc["gassing_style","option"] == "closed":
                 if xg["xg_O2"] == 1.0:
@@ -675,7 +675,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                     if newP < 1.:
                         newP = 1.
                     PT["P"] = newP
-                    xg, conc, melt_and_gas, guesses, new_models, solve_species = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
+                    xg, conc, melt_and_gas, guesses, new_models, solve_species, mass_balance = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
                     models = new_models
             if xg["xg_O2"] == 1.0:
                 results.columns = results.iloc[0]
@@ -753,7 +753,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         results_headers_table_f_p_xg_y_M_C_K_d, results_values_table_f_p_xg_y_M_C_K_d = results_table_f_p_xg_y_M_C_K_d(PT,melt_wf,models)
         results_headers_table_sat, results_values_table_sat = results_table_sat(sulf_sat_result,PT,melt_wf,models)
         results_values_table_melt_vol = pd.DataFrame([[wm_H2Oeq*100.,wm_CO2eq*1000000.,conc["wm_ST"]*1000000.,melt_wf["XT"]*1000000.]])
-        results_values_table_wtg_etc = pd.DataFrame([[melt_and_gas["wt_g"]*100.,melt_and_gas["wt_g_O"],melt_and_gas["wt_g_C"],melt_and_gas["wt_g_H"],melt_and_gas["wt_g_S"],melt_and_gas["wt_g_X"],melt_and_gas["wt_O"]*100.,melt_and_gas["wt_C"]*100.,melt_and_gas["wt_H"]*100.,melt_and_gas["wt_S"]*100.,melt_and_gas["wt_X"]*100.,solve_species]])
+        results_values_table_wtg_etc = pd.DataFrame([[melt_and_gas["wt_g"]*100.,melt_and_gas["wt_g_O"],melt_and_gas["wt_g_C"],melt_and_gas["wt_g_H"],melt_and_gas["wt_g_S"],melt_and_gas["wt_g_X"],melt_and_gas["wt_O"]*100.,melt_and_gas["wt_C"]*100.,melt_and_gas["wt_H"]*100.,melt_and_gas["wt_S"]*100.,melt_and_gas["wt_X"]*100.,solve_species,mass_balance['C'],mass_balance['O'],mass_balance['H'],mass_balance['S']]])
         if models.loc["gassing_style","option"] == "open" and models.loc["gassing_direction","option"] == "degas":
             results_values_table_open_all_gas = pd.DataFrame([[gas_mf_all["O2"],gas_mf_all["H2"],gas_mf_all["H2O"],gas_mf_all["S2"],gas_mf_all["SO2"],gas_mf_all["H2S"],gas_mf_all["CO2"],gas_mf_all["CO"],gas_mf_all["CH4"],gas_mf_all["OCS"],gas_mf_all["X"],mg.gas_CS_alt(gas_mf_all)]])
             results1 = pd.concat([results_values_table_sample_name,results_values_table_melt_comp_etc,results_values_table_melt_vol,results_values_table_sat,results_values_table_f_p_xg_y_M_C_K_d,results_values_table_wtg_etc,results_values_table_open_all_gas,results_values_table_model_options],axis=1)
@@ -1894,7 +1894,7 @@ def titratingS(run,cooling_inputs,setup,models):
         #guessx, guessy, guessz = eq.initial_guesses(run,PT,melt_wf,setup,models,system)
         guessx, guessy, guessz = 3.28098558298437E-10,0.0485362525980284,0.
         #PT["P"] = setup.loc[run,"P_bar"]
-        xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, Xg_t, xm_H2O_, xm_CO2_, Xm_t, Xm_t_ox, wm_H2O_, wm_H2_, wm_CO2_, wm_CO_, wm_CH4_, wm_S_, wm_SO3_, wm_H2S_, wm_ST_, Fe32, Fe3T, S62, S6T, wt_g_O, wt_g_C, wt_g_H, wt_g_S, wt_g, wt_O_, wt_C_, wt_H_, wt_S_, guessx, guessy, guessz, guessw = eq.mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,models,nr_step,nr_tol,guessx,guessy,guessz,guessw)
+        xg, melt, melt_and_gas, guesses, models, solve_species, mass_balance = eq.mg_equilibrium(run,PT,melt_wf,bulk_wf,models,nr_step,nr_tol,guesses)
         guessz = 0.00139401157503231
         
     # create results table
@@ -1960,7 +1960,7 @@ mg.KD1(run,PT,setup,models),mg.KHOg(PT,models),mg.KHOm(run,PT,melt_wf,setup,mode
             wt_g,wt_g_O,wt_g_C,wt_g_H,wt_g_S  = 0.,"","","",""
             wt_O_,wt_C_,wt_H_,wt_S_ = wt_O, wt_C, wt_H, wt_S
         else:
-            xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, Xg_t, xm_H2O_, xm_CO2_, Xm_t, Xm_t_ox, wm_H2O_, wm_H2_, wm_CO2_, wm_CO_, wm_CH4_, wm_S_, wm_SO3_, wm_H2S_, wm_ST_, Fe32, Fe3T, S62, S6T, wt_g_O, wt_g_C, wt_g_H, wt_g_S, wt_g, wt_O_, wt_C_, wt_H_, wt_S_, guessx, guessy, guessz, guessw = eq.mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,models,nr_step,nr_tol,guessx,guessy,guessz,guessw)
+            xg, melt, melt_and_gas, guesses, models, solve_species, mass_balance = eq.mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,models,nr_step,nr_tol,guessx,guessy,guessz,guessw)
             melt_wf["Fe3FeT"] = Fe3T
         
         # check for sulfur saturation and display warning in outputs
@@ -2111,7 +2111,7 @@ def Xpc_S_degassed(first_row,last_row,inputs,setup,models):
             PT["P"] = P
             if P_sat_ > PT["P"]:  
                 # work out equilibrium partitioning between melt and gas phase
-                xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, xg_X_, Xg_t, xm_H2O_, xm_CO2_, Xm_t, wm_H2O_, wm_H2_, wm_CO2_, wm_CO_, wm_CH4_, wm_S_, wm_SO3_, wm_H2S_, wm_ST_, wm_X_, Fe32, Fe3T, S62, S6T, wt_g_O, wt_g_C, wt_g_H, wt_g_S, wt_g_X, wt_g, wt_O_, wt_C_, wt_H_, wt_S_, wt_X_, guessx, guessy, guessz, guessw = eq.mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,models,nr_step,nr_tol,guessx,guessy,guessz,guessw)
+                xg, melt, melt_and_gas, guesses, models, solve_species, mass_balance = eq.mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,models,nr_step,nr_tol,guessx,guessy,guessz,guessw)
                 # gas composition
                 gas_mf = {"O2":xg_O2_,"CO":xg_CO_,"S2":xg_S2_,"CO2":xg_CO2_,"H2O":xg_H2O_,"H2":xg_H2_,"CH4":xg_CH4_,"SO2":xg_SO2_,"H2S":xg_H2S_,"OCS":xg_OCS_,"X":xg_X_,"Xg_t":Xg_t,"wt_g":wt_g}
             
@@ -2137,7 +2137,7 @@ def Xpc_S_degassed(first_row,last_row,inputs,setup,models):
             PT["P"] = P
             if P_sat_ > PT["P"]:  
                 # work out equilibrium partitioning between melt and gas phase
-                xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, xg_X_, Xg_t, xm_H2O_, xm_CO2_, Xm_t, wm_H2O_, wm_H2_, wm_CO2_, wm_CO_, wm_CH4_, wm_S_, wm_SO3_, wm_H2S_, wm_ST_, wm_X_, Fe32, Fe3T, S62, S6T, wt_g_O, wt_g_C, wt_g_H, wt_g_S, wt_g_X, wt_g, wt_O_, wt_C_, wt_H_, wt_S_, wt_X_, guessx, guessy, guessz, guessw = eq.mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,models,nr_step,nr_tol,guessx,guessy,guessz,guessw)
+                xg, melt, melt_and_gas, guesses, models, solve_species, mass_balance = eq.mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,models,nr_step,nr_tol,guessx,guessy,guessz,guessw)
                 # gas composition
                 gas_mf = {"O2":xg_O2_,"CO":xg_CO_,"S2":xg_S2_,"CO2":xg_CO2_,"H2O":xg_H2O_,"H2":xg_H2_,"CH4":xg_CH4_,"SO2":xg_SO2_,"H2S":xg_H2S_,"OCS":xg_OCS_,"X":xg_X_,"Xg_t":Xg_t,"wt_g":wt_g}
             
@@ -2319,7 +2319,7 @@ def fO2_at_1bar(first_row,last_row,inputs,setup,models):
             PT["P"] = P
             if P_sat_ > PT["P"]:  
                 # work out equilibrium partitioning between melt and gas phase
-                xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, xg_X_, Xg_t, xm_H2O_, xm_CO2_, Xm_t, wm_H2O_, wm_H2_, wm_CO2_, wm_CO_, wm_CH4_, wm_S_, wm_SO3_, wm_H2S_, wm_ST_, wm_X_, Fe32, Fe3T, S62, S6T, wt_g_O, wt_g_C, wt_g_H, wt_g_S, wt_g_X, wt_g, wt_O_, wt_C_, wt_H_, wt_S_, wt_X_, guessx, guessy, guessz, guessw = eq.mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,models,nr_step,nr_tol,guessx,guessy,guessz,guessw)
+                xg, melt, melt_and_gas, guesses, models, solve_species, mass_balance = eq.mg_equilibrium(run,PT,melt_wf,bulk_wf,setup,models,nr_step,nr_tol,guessx,guessy,guessz,guessw)
                 # gas composition
                 gas_mf = {"O2":xg_O2_,"CO":xg_CO_,"S2":xg_S2_,"CO2":xg_CO2_,"H2O":xg_H2O_,"H2":xg_H2_,"CH4":xg_CH4_,"SO2":xg_SO2_,"H2S":xg_H2S_,"OCS":xg_OCS_,"X":xg_X_,"Xg_t":Xg_t,"wt_g":wt_g}
             
