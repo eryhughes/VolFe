@@ -42,6 +42,6 @@ setup(
     ],
     python_requires=">=3.7",
     extras_require={
-        "dev": ["pytest", "sympy"],
+        "dev": ["pytest", "pytest-cov", "sympy"],
     },
 )
