@@ -22,40 +22,30 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{matrix.python-version}}
-
-    - name: Install dependencies
+        
+    - name: Install my package and dependencies
       run: |
         python -m pip install --upgrade pip
-
-
-    - name: Install my package
-      run: |
-        python -m pip install .
-
-    - name: Install test dependencies
-      run: |
-        pip install flake8 pytest coverage
+        python -m pip install '.[dev]'
 
     - name: Test with pytest
       run: |
-        coverage run -m pytest
+        python -m pytest
 
-    - name: Clean up coverage data
-      run: |
-        # This is a workaround for the fact that the `[coverage:paths]` section
-        # of `setup.cfg` is not actually applies until we run `combine`; so we
-        # rename the report such that we can then "combine" it.
-        mv .coverage .coverage.hack
-        coverage combine
-        coverage report
+    # - name: Clean up coverage data
+    #   run: |
+    #     # This is a workaround for the fact that the `[coverage:paths]` section
+    #     # of `setup.cfg` is not actually applies until we run `combine`; so we
+    #     # rename the report such that we can then "combine" it.
+    #     mv .coverage .coverage.hack
+    #     coverage combine
+    #     coverage report
 
-    - uses: codecov/codecov-action@v3
+    # - uses: codecov/codecov-action@v3
 
     # - name: Build
     #   run: |
     #     python setup.py sdist bdist_wheel
-
-
 
 
   deploy:
