@@ -1084,6 +1084,41 @@ def calc_sulfur_vcomp(setup,models=mdv.default_models):
     results = results[1:]  
     return results
 
+##########################
+### check mass balance ###
+##########################
+
+def check_mass_balance(xg,melt,melt_and_gas):
+    # molecular masses
+    M_H = mdv.species.loc['H','M']
+    M_C = mdv.species.loc['C','M']
+    M_O = mdv.species.loc['O','M']
+    M_S = mdv.species.loc['S','M']
+    M_Fe = mdv.species.loc['Fe','M']
+    M_O2 = mdv.species.loc['O2','M']
+    M_CO = mdv.species.loc['CO','M']
+    M_OH = mdv.species.loc['OH','M']
+    M_H2O = mdv.species.loc['H2O','M']
+    M_H2 = mdv.species.loc['H2','M']
+    M_CO2 = mdv.species.loc['CO2','M']
+    M_CH4 = mdv.species.loc['CH4','M']
+    M_S2 = mdv.species.loc['S2','M']
+    M_SO2 = mdv.species.loc['SO2','M']
+    M_SO3 = mdv.species.loc['SO3','M']
+    M_H2S = mdv.species.loc['H2S','M']
+    M_FeO = mdv.species.loc['FeO','M']
+    M_FeO15 = mdv.species.loc['FeO1.5','M']
+    M_OCS = mdv.species.loc['OCS','M']
+
+    mb_C = melt_and_gas['wt_C'] - (((melt_and_gas['wt_g']*(((xg['xg_CO2']+xg['xg_CO']+xg['xg_CH4']+xg['xg_OCS'])/xg['Xg_t']) - (melt['wm_CO2']/M_CO2) - (melt['wm_CH4']/M_CH4) - (melt['wm_CO']/M_CO))) + (melt['wm_CO2']/M_CO2) + (melt['wm_CH4']/M_CH4) + (melt['wm_CO']/M_CO))*M_C)
+    mb_O = melt_and_gas['wt_O'] - (((melt_and_gas['wt_g']*(((2.0*xg['xg_CO2'] + xg['xg_CO'] + 2.0*xg['xg_O2'] + xg['xg_H2O'] + 2.0*xg['xg_SO2'] + xg['xg_OCS'] )/xg['Xg_t']) - (melt['wm_H2O']/M_H2O) - ((2.0*melt['wm_CO2'])/M_CO2) - (3.0*melt['wm_SO3']/M_SO3) - (melt['wm_CO']/M_CO))) + (melt['wm_H2O']/M_H2O) + ((2.0*melt['wm_CO2'])/M_CO2) + (3.0*melt['wm_SO3']/M_SO3) + (melt['wm_CO']/M_CO) + (melt_and_gas['wt_Fe']/M_Fe)*((1.5*melt['Fe32']+1.0)/(melt['Fe32']+1.0)))*M_O)
+    mb_H = melt_and_gas['wt_H'] - (((melt_and_gas['wt_g']*(((xg['xg_H2O']+xg['xg_H2']+2.0*xg['xg_CH4']+xg['xg_H2S'])/xg['Xg_t']) - (melt['wm_H2O']/M_H2O) - (melt['wm_H2']/M_H2) - (2.*melt['wm_CH4']/M_CH4) - (melt['wm_H2S']/M_H2S))) + (melt['wm_H2O']/M_H2O) + (melt['wm_H2']/M_H2) + (2.*melt['wm_CH4']/M_CH4) + (melt['wm_H2S']/M_H2S))*(2.0*M_H))
+    mb_S = melt_and_gas['wt_S'] - (((melt_and_gas['wt_g']*(((xg['xg_SO2']+2.0*xg['xg_S2']+xg['xg_H2S']+xg['xg_OCS'])/xg['Xg_t']) - (melt['wm_S']/M_S) - (melt['wm_SO3']/M_SO3) - (melt['wm_H2S']/M_H2S))) + (melt['wm_S']/M_S) + (melt['wm_SO3']/M_SO3) + (melt['wm_H2S']/M_H2S))*M_S)
+
+    mb = {'C':mb_C,'O':mb_O,'H':mb_H,'S':mb_S}
+
+    return mb
+
 ###########################################################################
 ### P given S content of melt after degassing given conditions of pvsat ### IN PROGRESS
 ###########################################################################
