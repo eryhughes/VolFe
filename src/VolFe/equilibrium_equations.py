@@ -8,6 +8,7 @@ from scipy import optimize
 import VolFe.differential_equations as de
 import VolFe.melt_gas as mg
 import VolFe.model_dependent_variables as mdv
+import VolFe.calculations as c
 
 
 def set_system(melt_wf,models):
@@ -304,12 +305,17 @@ def mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step,nr_tol,guesses): ### CHECK 
 
     xg = {"xg_O2":xg_O2_, "xg_H2":xg_H2_, "xg_S2":xg_S2_, "xg_H2O":xg_H2O_, "xg_CO":xg_CO_, "xg_CO2":xg_CO2_, "xg_SO2":xg_SO2_, "xg_CH4":xg_CH4_, "xg_H2S":xg_H2S_, "xg_OCS":xg_OCS_, "xg_X":xg_X_, "Xg_t":Xg_t}
     melt = {"xm_H2O":xm_H2O_, "xm_CO2":xm_CO2_, "Xm_t":Xm_t, "wm_H2O":wm_H2O_, "wm_H2Omol":wm_H2Omol_, "wm_OH":wm_OH_,"wm_H2":wm_H2_, "wm_CO2":wm_CO2_, "wm_CO2carb":wm_CO2carb_, "wm_CO2mol":wm_CO2mol_, "wm_CO":wm_CO_, "wm_CH4":wm_CH4_, "wm_S":wm_S_,"wm_S2m":wm_S_, "wm_SO3":wm_SO3_,"wm_S6p":wm_S6p_, "wm_H2S":wm_H2S_, "wm_ST":wm_ST_, "wm_X":wm_X_, "Fe32":Fe32, "Fe3T":Fe3T, "S62":S62, "S6T":S6T}
-    melt_and_gas = {"wt_g_O":wt_g_O, "wt_g_C":wt_g_C, "wt_g_H":wt_g_H, "wt_g_S":wt_g_S, "wt_g_X":wt_g_X, "wt_g":wt_g, "wt_O":wt_O_, "wt_C":wt_C_, "wt_H":wt_H_, "wt_S":wt_S_, "wt_X":wt_X_,}
+    melt_and_gas = {"wt_g_O":wt_g_O, "wt_g_C":wt_g_C, "wt_g_H":wt_g_H, "wt_g_S":wt_g_S, "wt_g_X":wt_g_X, "wt_g":wt_g, "wt_O":wt_O_, "wt_C":wt_C_, "wt_H":wt_H_, "wt_S":wt_S_, "wt_X":wt_X_, 'wt_Fe':bulk_wf['Fe']}
+
+    # chech mass balance
+    mass_balance = c.check_mass_balance(xg,melt,melt_and_gas)
+
     guesses["guessx"] = guessx
     guesses["guessy"] = guessy
     guesses["guessz"] = guessz
     guesses["guessw"] = guessw
-    return xg, melt, melt_and_gas, guesses, models, solve_species
+
+    return xg, melt, melt_and_gas, guesses, models, solve_species, mass_balance
 
 
 #################################################
