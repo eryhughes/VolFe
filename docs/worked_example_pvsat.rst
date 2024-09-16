@@ -2,8 +2,8 @@
 Pressure of vapor-saturation
 ===================================================================================
 
-The dissolved volatile content of a melt in equilibrium with a vapor can be used as a barometer because the sum of the partial pressures of all the vapor species must equal the total pressure (REF). 
-This is the pressure of vapor saturation (Pvsat) barometer and is often applied to melt inclusions to calculate magma storage depths (REF) and sub-aqueous matrix glasses to calculate eruption depths (REF). 
+The dissolved volatile content of a melt in equilibrium with a vapor can be used as a barometer because the sum of the partial pressures of all the vapor species must equal the total pressure (e.g., Anderson et al., 1989; Blundy & Cashman, 2009). 
+This is the pressure of vapor saturation (Pvsat) barometer and is often applied to melt inclusions to calculate magma storage depths (e.g., Black and Andrews, 2020; Camejo-Harry et al., 2019, 2018; Colman et al., 2015; Wanless et al., 2015; Wieser et al., 2021) and sub-aqueous matrix glasses to calculate eruption depths (e.g., Belgrano et al., 2021; Coombs et al., 2006; Lund et al., 2018; Seaman et al., 2004). 
 
 VolFe calculates Pvsat, the melt speciation, and the vapor composition for a melt of given temperature and melt composition (including volatiles and fO2). 
 
