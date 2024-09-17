@@ -1,0 +1,55 @@
+[build-system]
+requires = ['setuptools>=40.8.0']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = "VolFe"
+dynamic = ["version"]
+description = "VolFe"
+readme = "README.md"
+requires-python = ">=3.7"
+authors = [
+    { name = "Ery Hughes", email = "ery.c.hughes@gmail.com" },
+]
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "datetime",
+    "densityx",
+    "gmpy2",
+    "numpy<2",
+    "pandas",
+    "PySulfSat",
+    "scipy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "sympy",
+]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinxcontrib-bibtex",
+    "nbsphinx",
+    "ipykernel"
+]
+
+[project.urls]
+Homepage = "https://github.com/eryhughes/VolFe"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "VolFe.__version__"}
+
+[tool.black]
+line-length = 88
+
+[tool.pytest.ini_options]
+pythonpath = "."
