@@ -45,6 +45,9 @@ Homepage = "https://github.com/eryhughes/VolFe"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.dynamic]
+version = {attr = "VolFe.__version__"}
+
 [tool.black]
 line-length = 88
 
