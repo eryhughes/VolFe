@@ -568,24 +568,18 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         if starting_P == "set":
             initial = int(setup.loc[run,"P_bar"])
         else:
-            if models.loc["gassing_style","option"] == "closed":
-                if models.loc["gassing_direction","option"] == "degas":
-                    answer = PT["P"]/dp_step
-                    answer = round(answer)
-                    initial = round(answer*dp_step)
-                elif models.loc["gassing_direction","option"] == "regas":
-                    answer = PT["P"]/dp_step
-                    answer = round(answer)
-                    answer = round(answer*dp_step)
-                    initial = round(answer+dp_step)
-            elif models.loc["gassing_style","option"] == "open":
-                if models.loc["gassing_direction","option"] == "degas":
-                    initial = math.floor(PT["P"])
-                elif models.loc["gassing_direction","option"] == "regas": 
-                    initial = math.ceil(PT["P"])
+            if models.loc["gassing_direction","option"] == "degas":
+                answer = math.floor(PT["P"]/dp_step)
+                initial = round(answer*dp_step)
+            elif models.loc["gassing_direction","option"] == "regas":
+                answer = round.ceil(PT["P"]/dp_step)
+                initial = round(answer*dp_step)
         if models.loc["gassing_direction","option"] == "degas":
             #step = int(-1*dp_step) # pressure step in bars
-            final = 0
+            if "final_P" in setup:
+                final = int(setup.loc[run,"final_P"])
+            else:
+                final = 1.
         elif models.loc["gassing_direction","option"] == "regas":
             #step = int(dp_step)
             final = int(setup.loc[run,"final_P"])
@@ -628,7 +622,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                 else:
                     dp_step = 1.
         
-        if number_of_step == 1.:
+        if number_of_step == 1. and dp_step == 1.:
             dp_step = 0.
         
         if models.loc["gassing_direction","option"] == "regas":
