@@ -260,7 +260,9 @@ def mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step,nr_tol,guesses): ### CHECK 
             elif models.loc["Hspeciation","option"] == "linear":
                 A,B,C,D = eq_SCHOFe_3(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species)
             xg_O2_, xg_H2_, xg_S2_, xg_H2O_, xg_CO_, xg_CO2_, xg_SO2_, xg_CH4_, xg_H2S_, xg_OCS_, Xg_t, xm_H2O_, xm_CO2_, wm_S_, wm_SO3_, Xm_t, Xm_t_ox, Fe32, Fe3T, S62, S6T, wm_H2O_, wm_CO2_, wm_ST_, wm_H2S_, wm_H2_, wm_CH4_, wm_CO_ = B
-            if solve_species == "OHS":
+            if solve_species == "OCS":
+                guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_S2_, xg_H2_
+            elif solve_species == "OHS":
                 guessx, guessy, guessz, guessw = xg_O2_, xg_H2_, xg_S2_, xg_CO_ 
             elif solve_species == "OCH":
                 guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_H2_, xg_S2_
