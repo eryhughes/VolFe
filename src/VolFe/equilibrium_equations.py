@@ -90,7 +90,16 @@ def initial_guesses(run,PT,melt_wf,setup,models,system): ### CHECK ###
             guessy = mg.xg_CO(PT,melt_wf,models) 
             guessz = mg.xg_X(PT,melt_wf,models)
     elif system == "SCHOFe" or system == "SCHOXFe":
-        if solve_species == "OHS":
+        if solve_species in ["OCS"]:
+            if starting_P == "set":
+                guessy = setup.loc[run,"xg_CO"]
+                guessz = setup.loc[run,"xg_S2"]
+                guessw = 0.
+            else:
+                guessy = mg.xg_CO(PT,melt_wf,models) 
+                guessz = mg.xg_S2(PT,melt_wf,models)
+                guessw = mg.xg_H2(PT,melt_wf,models)
+        elif solve_species == "OHS":
             if starting_P == "set":
                 guessy = setup.loc[run,"xg_H2"]
                 guessz = setup.loc[run,"xg_S2"]
