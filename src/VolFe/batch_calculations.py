@@ -572,7 +572,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                 answer = math.floor(PT["P"]/dp_step)
                 initial = round(answer*dp_step)
             elif models.loc["gassing_direction","option"] == "regas":
-                answer = round.ceil(PT["P"]/dp_step)
+                answer = math.ceil(PT["P"]/dp_step)
                 initial = round(answer*dp_step)
         if models.loc["gassing_direction","option"] == "degas":
             #step = int(-1*dp_step) # pressure step in bars
