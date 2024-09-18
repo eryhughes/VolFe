@@ -426,7 +426,7 @@ def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,d
     psat_tol: float
         Required tolerance for convergence of Pvsat in bars. Default = 0.1
     dwtg: float
-        Amount of gas to add at each step if regassing in an open-system in wt fraction total system. Default = 1.e-7
+        Amount of gas to add at each step if regassing in an open-system in wt fraction total system. Default = 1.e-6
     i_nr_step: float
         Step-size for newton-raphson convergence for isotopes (can be increased if there are problems with convergence). Default = 1e.-1
     i_nr_tol: float
@@ -452,7 +452,7 @@ def calc_gassing(setup,models=mdv.default_models,run=0,nr_step=1.,nr_tol=1.e-9,d
     if models.loc["fO2","option"] != "Kress91A":
         raise TypeError("Change 'fO2' option in models to 'Kress91A' (other fO2 options are not currently supported)")
 
-    # set T, volatile composition of the melt, and tolerances
+    # set T and volatile composition of the melt
     PT={"T":setup.loc[run,"T_C"]}
     melt_wf = mg.melt_comp(run,setup)
     melt_wf['CO2'] = setup.loc[run,"CO2ppm"]/1000000.
@@ -568,15 +568,21 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         if starting_P == "set":
             initial = int(setup.loc[run,"P_bar"])
         else:
-            if models.loc["gassing_direction","option"] == "degas":
-                answer = PT["P"]/dp_step
-                answer = round(answer)
-                initial = round(answer*dp_step)
-            elif models.loc["gassing_direction","option"] == "regas":
-                answer = PT["P"]/dp_step
-                answer = round(answer)
-                answer = round(answer*dp_step)
-                initial = round(answer+dp_step)
+            if models.loc["gassing_style","option"] == "closed":
+                if models.loc["gassing_direction","option"] == "degas":
+                    answer = PT["P"]/dp_step
+                    answer = round(answer)
+                    initial = round(answer*dp_step)
+                elif models.loc["gassing_direction","option"] == "regas":
+                    answer = PT["P"]/dp_step
+                    answer = round(answer)
+                    answer = round(answer*dp_step)
+                    initial = round(answer+dp_step)
+            elif models.loc["gassing_style","option"] == "open":
+                if models.loc["gassing_direction","option"] == "degas":
+                    initial = math.floor(PT["P"])
+                elif models.loc["gassing_direction","option"] == "regas": 
+                    initial = math.ceil(PT["P"])
         if models.loc["gassing_direction","option"] == "degas":
             #step = int(-1*dp_step) # pressure step in bars
             final = 0
@@ -622,6 +628,12 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                 else:
                     dp_step = 1.
         
+        if number_of_step == 1.:
+            dp_step = 0.
+        
+        if models.loc["gassing_direction","option"] == "regas":
+            dp_step = -1.*dp_step
+        
         if models.loc["P_variation","option"] == "polybaric": 
             #P = i - dp_step
             P = PT["P"] - dp_step
@@ -631,7 +643,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         elif models.loc["T_variation","option"] == "polythermal":
             T = i - dp_step
             PT["T"] = T
-        
+
         if models.loc["gassing_style","option"] == "open": # check melt is still vapor-saturated
             PT_ = {'P':PT['P'],'T':PT['T']}
             if models.loc["COH_species","option"] == "H2O-CO2 only":  
@@ -640,17 +652,18 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                 frac = c.melt_species_ratios(conc)
             else:
                 P_sat_, conc, frac = c.P_sat(PT_,melt_wf,models,psat_tol,nr_step,nr_tol)
-            checkingP = PT['P']
-            while P_sat_ < checkingP:
-                checkingP = checkingP - dp_step
-                PT_['P'] = checkingP
-                if models.loc["COH_species","option"] == "H2O-CO2 only":  
-                    P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(PT_,melt_wf,models,psat_tol,nr_step,nr_tol)
-                    conc = {"wm_H2O":P_sat_H2O_CO2_result["wm_H2O"], "wm_CO2":P_sat_H2O_CO2_result["wm_CO2"], "wm_H2":0., "wm_CO":0., "wm_CH4":0., "wm_H2S":0., "wm_S2m":0., "wm_S6p":0., "ST": 0.}
-                    frac = c.melt_species_ratios(conc)
-                else:
-                    P_sat_, conc, frac = c.P_sat(PT_,melt_wf,models,psat_tol,nr_step,nr_tol)
-            PT['P'] = checkingP
+            if models.loc["gassing_direction","option"] == "degas":
+                checkingP = PT['P']
+                while P_sat_ < checkingP:
+                    checkingP = checkingP - dp_step
+                    PT_['P'] = checkingP
+                    if models.loc["COH_species","option"] == "H2O-CO2 only":  
+                        P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(PT_,melt_wf,models,psat_tol,nr_step,nr_tol)
+                        conc = {"wm_H2O":P_sat_H2O_CO2_result["wm_H2O"], "wm_CO2":P_sat_H2O_CO2_result["wm_CO2"], "wm_H2":0., "wm_CO":0., "wm_CH4":0., "wm_H2S":0., "wm_S2m":0., "wm_S6p":0., "ST": 0.}
+                        frac = c.melt_species_ratios(conc)
+                    else:
+                        P_sat_, conc, frac = c.P_sat(PT_,melt_wf,models,psat_tol,nr_step,nr_tol)
+                PT['P'] = checkingP
     
         if P_sat_ > PT["P"] or models.loc["gassing_direction","option"] == "regas":  
             # work out equilibrium partitioning between melt and gas phase
@@ -819,7 +832,11 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             wt_ = bulk_wf["Wt"]
             Xst = setup.loc[run,"crystallisation_pc"]/100.
             bulk_wf = {"C":wt_C_*(1./(1.-Xst)),"H":wt_H_*(1./(1.-Xst)),"O":wt_O_*(1./(1.-Xst)),"S":wt_S_*(1./(1.-Xst)),"X":wt_X_*(1./(1.-Xst)),"Fe":wt_Fe_*(1./(1.-Xst)),"Wt":wt_*(1.-Xst)}
-    
+            
+        if models.loc["gassing_direction","option"] == "regas":
+            if (PT["P"] + dp_step) >= final:
+                break
+
     results.columns = results.iloc[0]
     results = results[1:]
     results.reset_index(drop=True,inplace=True)  
