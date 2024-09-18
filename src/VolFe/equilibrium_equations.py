@@ -986,14 +986,16 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=50):
     #    results.to_csv('results_jacnewton3.csv', index=False, header=False)
 
     x0, y0, z0 = x00, y00, z00
+    step = step0 - (step0/10.)
     for iter in range(9):
-        step = step0 - (step0/10.)
         for iter in range(maxiter):
             deriv_ = deriv(x0,y0,z0,constants)
             guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
             while guessx < 0.0 or guessy < 0.0 or guessz < 0.0 or guessx > 1.0 or guessy > 1.0 or guessz > 1.0:
-                step = step/10.
-                guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
+                x0, y0, z0 = x00, y00, z00
+                break
+                #step = step/10.
+                #guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
             diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(guessx,guessy,guessz)
             if abs(diff1) < tol and abs(diff2) < tol and abs(diff3) < tol:
                 return guessx, guessy, guessz
@@ -1005,6 +1007,7 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=50):
             results1 = pd.DataFrame([[guessx, guessy,guessz,diff1,diff2,diff3,step]])
             results = pd.concat([results, results1], ignore_index=True)
             results.to_csv('results_jacnewton3.csv', index=False, header=False)
+        step = step - (step0/10.)
     
     guessx,guessy,guessz = 1.,1.,1.
     return guessx,guessy,guessz
