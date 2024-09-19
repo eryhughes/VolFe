@@ -658,7 +658,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                     else:
                         P_sat_, conc, frac = c.P_sat(PT_,melt_wf,models,psat_tol,nr_step,nr_tol)
                 PT['P'] = checkingP
-    
+
         if P_sat_ > PT["P"] or models.loc["gassing_direction","option"] == "regas":  
             # work out equilibrium partitioning between melt and gas phase
             xg, conc, melt_and_gas, guesses, new_models, solve_species, mass_balance = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
