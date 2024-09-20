@@ -1566,7 +1566,7 @@ def SCAS(PT,melt_wf,models=default_models):
     if model == "Chowdhury19": # Eq. (8) using Table 5 in Chowdhury & Dasgupta (2019) Chem.Geol. 522:162-174 doi:10.1016/j.chemgeo.2019.05.020
         # sulfate content (ppm) at anhydrite saturation [T in K]
         # mole fraction melt composition including water but all Fe as FeOT
-        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
+        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no") # different molecular weights used to original paper
         tot = 100.*melt_comp["mol_tot"]
         a = -13.23
         b = -0.50
@@ -1592,7 +1592,7 @@ def SCAS(PT,melt_wf,models=default_models):
                            
     elif model == "Zajacz19": # Eq. (8-14) Zajacz & Tsay (2019) GCA 261:288-304 doi:10.1016/j.gca.2019.07.007
         # mole fraction melt composition including water but all Fe as FeOT
-        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
+        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no") # different molecular weights used to original paper
         tot = 100.*melt_comp["mol_tot"]
         if melt_comp["Na2O"] + melt_comp["K2O"] + melt_comp["CaO"] >= melt_comp["Al2O3"]:
             P_Rhyo = 3.11*(melt_comp["Na2O"]+melt_comp["K2O"]+melt_comp["CaO"]-melt_comp["Al2O3"])
@@ -1692,16 +1692,16 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
     if "sulf_XNi" in melt_wf:
         sulf_XNi = melt_wf["sulf_XNi"]       
     else:
-        sulf_XNi = 0.
+        sulf_XNi = None
 
     if model in ["ONeill21","ONeill21dil","ONeill21hyd"]: # O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
         R = 8.31441
         P = (1.0e-4)*P_bar # pressure in GPa
         if models.loc["high precision","option"] == "True":
-            D = (137778.0 - 91.66*T + 8.474*T*gp.log(T)) # J/mol Eq. (10.45)
+            D = (137778.0 - 91.666*T + 8.474*T*gp.log(T)) # J/mol Eq. (10.45)
         else:
-            D = (137778.0 - 91.66*T + 8.474*T*math.log(T)) # J/mol Eq. (10.45)
-        sulfide_comp = sulf_XFe # assumes the sulfide is pure FeS (no Ni, Cu, etc.)
+            D = (137778.0 - 91.666*T + 8.474*T*math.log(T)) # J/mol Eq. (10.45)
+        sulfide_comp = sulf_XFe
         if model == "ONeill21": # Eq. (10.34, 10.43, 10.45, 10.46) 
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) no volatiles
             melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
@@ -1737,9 +1737,9 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
             SCSS = math.exp(lnS)
         
     elif model == "Fortin15": # Eq. (7) Fortin et al. (2015) GCA 160:100-116 doi:10.1016/j.gca.2015.03.022
-        # Mole fractions in the melt on cationic lattice (all Fe as FeOT) and water
-        melt_comp = mg.melt_cation_proportion(melt_wf,"water","no")
-        lnS = 34.784 - (5772.3/T) - 346.54*((0.0001*PT["P"])/T) - 20.393*melt_comp["H"] - 25.499*melt_comp["Si"] - 18.344*melt_comp["Ti"] - 27.381*melt_comp["Al"] - 17.275*melt_comp["Fe"] - 22.398*melt_comp["Mg"] - 20.378*melt_comp["Ca"] - 18.954*melt_comp["Na"] - 32.195*melt_comp["K"]
+        # Mole fractions in the melt on cationic lattice (all Fe as FeOT) and water - molecular masses used are different to spreadsheet attached to paper
+        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
+        lnS = 34.7837 - (5772.322/T) - 346.5377*((0.0001*PT["P"])/T) - 20.3934*melt_comp["H2O"] - 25.4986*melt_comp["SiO2"] - 18.3435*melt_comp["TiO2"] - 27.3807*melt_comp["Al2O3"] - 17.2752*melt_comp["FeOT"] - 22.3975*melt_comp["MgO"] - 20.3778*melt_comp["CaO"] - 18.9539*melt_comp["Na2O"] - 32.1944*melt_comp["K2O"]
         if models.loc["high precision","option"] == "True":
             SCSS = gp.exp(lnS)
         else:
