@@ -952,9 +952,11 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=50):
         n = n+1.
         deriv_ = deriv(x0,y0,z0,constants)
         guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
-        while guessx < 0.0 or guessy < 0.0 or guessz < 0.0 or guessx > 1.0 or guessy > 1.0 or guessz > 1.0:
+        if guessx < 0.0 or guessy < 0.0 or guessz < 0.0 or guessx > 1.0 or guessy > 1.0 or guessz > 1.0:
             step = step/10.
             guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
+        if guessx < 0.0 or guessy < 0.0 or guessz < 0.0 or guessx > 1.0 or guessy > 1.0 or guessz > 1.0 and step:
+            break
         diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(guessx,guessy,guessz)
         if abs(diff1) < tol and abs(diff2) < tol and abs(diff3) < tol:
             return guessx, guessy, guessz
@@ -989,14 +991,16 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=50):
     #    results.to_csv('results_jacnewton3.csv', index=False, header=False)
 
     x0, y0, z0 = x00, y00, z00
+    step = step - (step0/10.)
     for iter in range(9):
-        step = step0 - (step0/10.)
         for iter in range(maxiter):
             deriv_ = deriv(x0,y0,z0,constants)
             guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
             while guessx < 0.0 or guessy < 0.0 or guessz < 0.0 or guessx > 1.0 or guessy > 1.0 or guessz > 1.0:
-                step = step/10.
-                guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
+                x0, y0, z0 = x00, y00, z00
+                break
+                #step = step/10.
+                #guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
             diff1, diff2, diff3, wtg1,wtg2,wtg3,wtg4 = eqs(guessx,guessy,guessz)
             if abs(diff1) < tol and abs(diff2) < tol and abs(diff3) < tol:
                 return guessx, guessy, guessz
@@ -1008,6 +1012,7 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=50):
             results1 = pd.DataFrame([[guessx, guessy,guessz,diff1,diff2,diff3,step]])
             results = pd.concat([results, results1], ignore_index=True)
             results.to_csv('results_jacnewton3.csv', index=False, header=False)
+        step = step - (step0/10.)
     
     guessx,guessy,guessz = 1.,1.,1.
     return guessx,guessy,guessz
@@ -2702,7 +2707,18 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
             guessy = guessz_hold # xgH2 is guessy
             guessz = guessw_hold # xgS2 is guess z
             xg_O2_, xg_H2_, xg_S2_ = jac_newton3(guessx,guessy,guessz,constants,f_SCHOFe,df_SCHOFe,nr_step,nr_tol)
-
+    
+    if xg_O2_ == 1.: # go to original solve species
+        if solve_species == "OCS":
+            solve_species = "OCH"
+            models.loc["solve_species","option"] = "OCH"
+        elif solve_species == "OHS":
+            solve_species = "OCS"
+            models.loc["solve_species","option"] = "OCS"
+        elif solve_species == "OCH":
+            solve_species = "OHS"
+            models.loc["solve_species","option"] = "OHS"
+   
     if solve_species == "OCS":
         results1 = xg_O2_, xg_CO_, xg_S2_
         results2 = mg_SCHOFe(xg_O2_,xg_CO_,xg_S2_)
