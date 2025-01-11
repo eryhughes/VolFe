@@ -603,11 +603,13 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
     number_of_step = 0.
     
     PT['P'] = initial
+    last_successful_P = math.floor(PT["P"])
     while PT["P"] > 1.:
     #for i in range(initial,final,step): # P is pressure in bars or T is temperature in 'C
         number_of_step = number_of_step + 1.
         eq_Fe = models.loc["eq_Fe","option"]
-        guesses_original = guesses # store original guesses in case the calculation needs to be restarted
+        #guesses_original = guesses # store original guesses in case the calculation needs to be restarted
+        original_guessx, original_guessy, original_guessz, original_guessw = guesses['guessx'], guesses['guessy'], guesses['guessz'], guesses['guessw']
 
         if dp_step_choice == "auto":
             if models.loc["gassing_style","option"] == "open":
@@ -622,7 +624,9 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
                 else:
                     dp_step = 1.
         
-        if number_of_step == 1. and dp_step == 1.:
+        if number_of_step == 1.:
+            if dp_step_choice == "user":
+                dp_step_user = dp_step
             dp_step = 0.
         
         if models.loc["gassing_direction","option"] == "regas":
@@ -663,25 +667,49 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
             # work out equilibrium partitioning between melt and gas phase
             xg, conc, melt_and_gas, guesses, new_models, solve_species, mass_balance = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
             models = new_models
-            if xg["xg_O2"] == 1.0:
-                print('tried resetting guesses')
-                guesses = eq.initial_guesses(run,PT,melt_wf,setup,models,system)
-                xg, conc, melt_and_gas, guesses, new_models, solve_species, mass_balance = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
-                models = new_models
+            #if xg["xg_O2"] == 1.0:
+            #    print('tried resetting guesses')
+            #    guesses = eq.initial_guesses(run,PT,melt_wf,setup,models,system)
+            #    xg, conc, melt_and_gas, guesses, new_models, solve_species, mass_balance = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
+            #    models = new_models
             if models.loc["gassing_style","option"] == "closed":
+                #if xg["xg_O2"] == 1.0:
+                #    current_melt = {'SiO2': melt_wf["SiO2"], 'TiO2': melt_wf["TiO2"], 'Al2O3': melt_wf["Al2O3"], 'FeOT': melt_wf["FeOT"], 'Fe2O3T': melt_wf["Fe2O3T"], 'FeO': melt_wf["FeO"], 'Fe2O3': melt_wf["Fe2O3"], 'MgO': melt_wf["MgO"], 'MnO': melt_wf["MnO"], 'CaO': melt_wf["CaO"], 'Na2O': melt_wf["Na2O"], 'K2O': melt_wf["K2O"], 'P2O5': melt_wf["P2O5"], 'logfO2_i': melt_wf["logfO2_i"], 'Fe3FeT_i': melt_wf["Fe3FeT_i"], 'DNNO': melt_wf["DNNO"], 'DFMQ': melt_wf["DFMQ"], 'S6ST_i': melt_wf["S6ST_i"], "ST":melt_wf["ST"],"CO2":melt_wf["CO2"],"H2OT":melt_wf["H2OT"],"HT":melt_wf["HT"],"CT":melt_wf["CT"], "XT":melt_wf["XT"]}
+                #    P_sat_, conc, frac = c.P_sat(PT,current_melt,models,psat_tol,nr_step,nr_tol)
                 if xg["xg_O2"] == 1.0:
-                    guesses = guesses_original
-                    oldP = P + dp_step
+                    guesses = {'guessx':original_guessx, 'guessy':original_guessy, 'guessz':original_guessz, 'guessw':original_guessw}
                     if dp_step < 1. or dp_step == 1.:
-                        print('solver failed, increasing step size by factor 10')
+                        if PT['P'] <= 10.:
+                            PT["P"] = 1.
+                            xg, conc, melt_and_gas, guesses, new_models, solve_species, mass_balance = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
+                            models = new_models
+                            if xg["xg_O2"] == 1.0:
+                                results.columns = results.iloc[0]
+                                results = results[1:]  
+                                results.reset_index(drop=True,inplace=True)
+                                if models.loc["output csv","option"] == "True":
+                                    results.to_csv('results_gassing_chemistry.csv', index=False, header=True) 
+                                print("solver failed, calculation aborted at P = ", PT["P"], datetime.datetime.now())
+                                return results                          
+                        print('solver failed at P = ', PT['P'], 'with dp_step = ', dp_step,', increasing step size by factor 10')
                         dp_step = dp_step*10.
                     else:
-                        print('solver failed, decreasing step size by factor 10')
+                        print('solver failed at P = ', PT['P'], 'with dp_step = ', dp_step,', decreasing step size by factor 10')
                         dp_step = dp_step/10.
-                    newP = oldP - dp_step
+                    newP = last_successful_P - dp_step
                     if newP < 1.:
                         newP = 1.
                     PT["P"] = newP
+                    guesses = {'guessx':original_guessx, 'guessy':original_guessy, 'guessz':original_guessz, 'guessw':original_guessw}
+                    xg, conc, melt_and_gas, guesses, new_models, solve_species, mass_balance = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
+                    models = new_models
+            if xg["xg_O2"] == 1.0:
+                if dp_step > 1.:
+                    print('solver failed at P = ', PT['P'], 'with dp_step = ', dp_step,', decreasing step size to 1 bar')
+                    dp_step = 1.
+                    newP = last_successful_P - dp_step
+                    PT["P"] = newP
+                    guesses = {'guessx':original_guessx, 'guessy':original_guessy, 'guessz':original_guessz, 'guessw':original_guessw}
                     xg, conc, melt_and_gas, guesses, new_models, solve_species, mass_balance = eq.mg_equilibrium(PT,melt_wf,bulk_wf,models,nr_step_eq,nr_tol,guesses)
                     models = new_models
             if xg["xg_O2"] == 1.0:
@@ -830,6 +858,12 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
         if models.loc["gassing_direction","option"] == "regas":
             if (PT["P"] + dp_step) >= final:
                 break
+        
+        if number_of_step == 1.:
+            if dp_step_choice == "user":
+                dp_step = dp_step_user
+        
+        last_successful_P = PT['P']
 
     results.columns = results.iloc[0]
     results = results[1:]
