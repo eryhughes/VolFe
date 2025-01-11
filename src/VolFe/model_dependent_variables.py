@@ -1327,7 +1327,7 @@ def C_H2(PT,melt_wf,models=default_models): # C_H2 = wmH2/fH2 (wtppm)
         #lnK0 = -11.4 # T0 = 1400 'C, P0 = 100 kPa for mole fraction H2
         lnK0 = -0.9624 # for ppm H2 (fitted in excel)
         DV = 10.6 # cm3/mol
-    elif model == "Basalt_Hughes24": # Andesite in Table S4 from Hughes et al. (2024) based on experimental data from Hirschmann et al. (2012)
+    elif model == "Andesite_Hughes24": # Andesite in Table S4 from Hughes et al. (2024) based on experimental data from Hirschmann et al. (2012)
         #lnK0 = -10.6 # T0 = 1400 'C, P0 = 100 kPa for mole fraction H2
         lnK0 = -0.1296 # for ppm H2 (fitted in excel)
         DV = 11.3 # cm3/mol
@@ -1505,6 +1505,9 @@ def C_X(PT,melt_wf,models=default_models): # C_X = wmX/fX (ppm)
         #K = 1.37 # degassed at a similar depth to H2OT at 3wt%
         #K = 100.
         K = 35.
+    
+    else:
+        K = float(model)
 
     return K
 
@@ -2392,8 +2395,10 @@ def CORK(PT,p0,a,b,c,d,models):
     z = (P_kb*V)/(R*T_K)
     A = a/(b*R*pow(T_K,1.5))
     B = (b*P_kb)/(R*T_K)
-        
-    if models.loc["high precision","option"] == "True":
+    
+    if z < B:
+        value = 1.
+    elif models.loc["high precision","option"] == "True":
         ln_y = z - 1.0 - gp.log(z-B) - A*gp.log(1.0 + (B/z)) + ln_y_virial
         value = gp.exp(ln_y)
     else:
@@ -3516,7 +3521,7 @@ def melt_density(PT,melt_wf,models=default_models): # g/cm3
         melt_dx = pd.DataFrame([["sample", melt_comp["SiO2"], melt_comp["TiO2"], melt_comp["Al2O3"], melt_comp["FeO"], melt_comp["Fe2O3"], melt_comp["MgO"], melt_comp["CaO"], melt_comp["Na2O"], melt_comp["K2O"], melt_comp["H2O"],P,T]])
         melt_dx.columns = ["Sample_ID","SiO2","TiO2","Al2O3","FeO","Fe2O3","MgO","CaO","Na2O","K2O","H2O","P","T"]
         output = dx.Density(melt_dx)
-        density = output.loc[0,"Density_g_per_cm3"]
+        density = output.loc[0,"density_g_per_cm"]
     return density
 
 #################################################################################################################################
