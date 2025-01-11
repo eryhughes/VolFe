@@ -1505,7 +1505,6 @@ def C_X(PT,melt_wf,models=default_models): # C_X = wmX/fX (ppm)
         #K = 1.37 # degassed at a similar depth to H2OT at 3wt%
         #K = 100.
         K = 35.
-    
     else:
         K = float(model)
 
@@ -1569,7 +1568,7 @@ def SCAS(PT,melt_wf,models=default_models):
     if model == "Chowdhury19": # Eq. (8) using Table 5 in Chowdhury & Dasgupta (2019) Chem.Geol. 522:162-174 doi:10.1016/j.chemgeo.2019.05.020
         # sulfate content (ppm) at anhydrite saturation [T in K]
         # mole fraction melt composition including water but all Fe as FeOT
-        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
+        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no") # different molecular weights used to original paper
         tot = 100.*melt_comp["mol_tot"]
         a = -13.23
         b = -0.50
@@ -1595,7 +1594,7 @@ def SCAS(PT,melt_wf,models=default_models):
                            
     elif model == "Zajacz19": # Eq. (8-14) Zajacz & Tsay (2019) GCA 261:288-304 doi:10.1016/j.gca.2019.07.007
         # mole fraction melt composition including water but all Fe as FeOT
-        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
+        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no") # different molecular weights used to original paper
         tot = 100.*melt_comp["mol_tot"]
         if melt_comp["Na2O"] + melt_comp["K2O"] + melt_comp["CaO"] >= melt_comp["Al2O3"]:
             P_Rhyo = 3.11*(melt_comp["Na2O"]+melt_comp["K2O"]+melt_comp["CaO"]-melt_comp["Al2O3"])
@@ -1695,16 +1694,16 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
     if "sulf_XNi" in melt_wf:
         sulf_XNi = melt_wf["sulf_XNi"]       
     else:
-        sulf_XNi = 0.
+        sulf_XNi = None
 
     if model in ["ONeill21","ONeill21dil","ONeill21hyd"]: # O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
         R = 8.31441
         P = (1.0e-4)*P_bar # pressure in GPa
         if models.loc["high precision","option"] == "True":
-            D = (137778.0 - 91.66*T + 8.474*T*gp.log(T)) # J/mol Eq. (10.45)
+            D = (137778.0 - 91.666*T + 8.474*T*gp.log(T)) # J/mol Eq. (10.45)
         else:
-            D = (137778.0 - 91.66*T + 8.474*T*math.log(T)) # J/mol Eq. (10.45)
-        sulfide_comp = sulf_XFe # assumes the sulfide is pure FeS (no Ni, Cu, etc.)
+            D = (137778.0 - 91.666*T + 8.474*T*math.log(T)) # J/mol Eq. (10.45)
+        sulfide_comp = sulf_XFe
         if model == "ONeill21": # Eq. (10.34, 10.43, 10.45, 10.46) 
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) no volatiles
             melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
@@ -1740,9 +1739,9 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
             SCSS = math.exp(lnS)
         
     elif model == "Fortin15": # Eq. (7) Fortin et al. (2015) GCA 160:100-116 doi:10.1016/j.gca.2015.03.022
-        # Mole fractions in the melt on cationic lattice (all Fe as FeOT) and water
-        melt_comp = mg.melt_cation_proportion(melt_wf,"water","no")
-        lnS = 34.784 - (5772.3/T) - 346.54*((0.0001*PT["P"])/T) - 20.393*melt_comp["H"] - 25.499*melt_comp["Si"] - 18.344*melt_comp["Ti"] - 27.381*melt_comp["Al"] - 17.275*melt_comp["Fe"] - 22.398*melt_comp["Mg"] - 20.378*melt_comp["Ca"] - 18.954*melt_comp["Na"] - 32.195*melt_comp["K"]
+        # Mole fractions in the melt on cationic lattice (all Fe as FeOT) and water - molecular masses used are different to spreadsheet attached to paper
+        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
+        lnS = 34.7837 - (5772.322/T) - 346.5377*((0.0001*PT["P"])/T) - 20.3934*melt_comp["H2O"] - 25.4986*melt_comp["SiO2"] - 18.3435*melt_comp["TiO2"] - 27.3807*melt_comp["Al2O3"] - 17.2752*melt_comp["FeOT"] - 22.3975*melt_comp["MgO"] - 20.3778*melt_comp["CaO"] - 18.9539*melt_comp["Na2O"] - 32.1944*melt_comp["K2O"]
         if models.loc["high precision","option"] == "True":
             SCSS = gp.exp(lnS)
         else:
@@ -2395,7 +2394,7 @@ def CORK(PT,p0,a,b,c,d,models):
     z = (P_kb*V)/(R*T_K)
     A = a/(b*R*pow(T_K,1.5))
     B = (b*P_kb)/(R*T_K)
-    
+
     if z < B:
         value = 1.
     elif models.loc["high precision","option"] == "True":
@@ -3573,209 +3572,3 @@ species = [['H',1.008,1.,0.,1.,'','','',''],
 # Create the pandas DataFrame
 species = pd.DataFrame(species,columns=['species','M','overall_charge','no_O','cat_charge','no_cat','no_an','Tcr','Pcr'])
 species = species.set_index('species')
-
-#############################################################################################################################
-#############################################################################################################################
-################################################# IN DEVELOPMENT BELOW HERE #################################################
-#############################################################################################################################
-#############################################################################################################################
-
-#################################################################################################################################
-################################################# ISOTOPE FRACTIONATION FACTORS #################################################
-#################################################################################################################################
-
-#############
-### vapor ###
-#############
-
-def beta_gas(PT,element,species,models): # beta factors 
-    if models.loc["beta_factors","option"] == "Richet77": # from Richet et al. (1977) fitted to quadratic equation for 600 < T'C < 1300
-        t = 1./(PT["T"]+273.15)
-        if element == "S":
-            if species == "SO2":
-                a, b, c = 4872.56428, 0.76400, 0.99975
-            elif species == "S2":
-                a, b, c = 1708.22425, -0.76202, 1.00031
-            elif species == "OCS":
-                a, b, c = 980.75175, 1.74954, 0.99930 
-            elif species == "H2S":
-                a, b, c = 935.84901, 1.29355, 0.99969
-        if element == "H":
-            if species == "H2O":
-                a, b, c = 635425., -61.78, 1.0197
-            elif species == "H2":
-                a, b, c = 150565., 211.22, 0.9355
-            elif species == "CH4":
-                a, b, c = 571003., -129.28, 1.0386
-            elif species == "H2S":
-                a, b, c = 327635, -9.8154, 1.0004
-        if element == "C":
-            if species == "CO2":
-                a, b, c = 17637., 13.968, 0.9955
-            elif species == "CO":
-                a, b, c = 10080., 7.4637, 0.9978
-            elif species == "CH4":
-                a, b, c = 8527.5, 14.052, 0.9955
-            elif species == "OCS":
-                a, b, c = 14572., 8.359, 0.9973
-        value = a*t**2 + b*t + c
-    return value
-
-######################
-### Sulfur species ###
-######################
-
-def alpha_S_H2Sv_S2mm(PT,comp,models): # alpha for 32/34S between H2S(v) and S2-(m)
-    model = models.loc["alpha_H2S_S","option"]
-    if model == "Fiege15": # Fiege et al. (2015) Chemical Geology eq. 8
-        T_K = PT["T"] + 273.15
-        lna103 = (10.84*((1000./T_K)**2)) - 2.5
-        if models.loc["high precision","option"] == "True":
-            a = gp.exp(lna103/1000.)
-        else:
-            a = math.exp(lna103/1000.)
-    elif model == "no fractionation":
-        a = 1.
-    return a
-
-def alpha_S_SO2v_S6pm(PT,comp,models): # alpha for 32/34S between SO2(v) and S6+(m)
-    model = models.loc["alpha_SO2_SO4","option"]
-    if model == "Fiege15": # Fiege et al. (2015) Chemical Geology eq. 9
-        T_K = PT["T"] + 273.15
-        lna103 = (-0.42*((1000./T_K)**3)) - (2.133*((1000./T_K)**3)) - (0.105*(1000./T_K)) - 0.41
-        if models.loc["high precision","option"] == "True":
-            a = gp.exp(lna103/1000.)
-        else:
-            a = math.exp(lna103/1000.)
-    elif model == "no fractionation":
-        a = 1.
-    return a
-
-def alpha_S_H2Sv_H2Sm(PT,comp,models): # alpha for 32/34S between H2S(v) and H2S(m)
-    model = models.loc["alpha_S_H2Sv_H2Sm","option"]
-    if model == "no fractionation": # 
-        a = 1.
-    return a
-
-######################
-### Carbon species ###
-######################
-
-def alpha_C_CO2v_CO32mm(PT,comp,models): # alpha for 13/12C between CO2(v) and CO32-(m)
-    model = models.loc["alpha_C_CO2v_CO32mm","option"]
-    if model == 'LeePP':
-        a = math.exp(2.9/1000.)
-    elif model == "no fractionation":
-        a = 1.    
-    return a    
-
-def alpha_C_CO2v_CO2m(PT,comp,models): # alpha for 13/12C between CO2(v) and CO2mol(m)
-    model = models.loc["alpha_C_CO2v_CO2m","option"]
-    if model == 'Blank93':
-        a = 1.
-    elif model == "no fractionation":
-        a = 1.
-    return a
-
-def alpha_C_CO2v_CO2Tm(PT,comp,models): # alpha for 13/12C between CO2(v) and CO2T(m)
-    model = models.loc["alpha_C_CO2v_CO2T","option"]
-    if model == 'LeePP':
-        a = math.exp(2.9/1000.) # FIX THIS
-    elif model == "no fractionation":
-        a = 1.
-    return a
-
-def alpha_C_COv_COm(PT,comp,models): # alpha for 13/12C between CO(v) and COmol(m)
-    model = models.loc["alpha_C_COv_COm","option"]
-    if model == 'no fractionation':
-        a = 1.
-    return a
-
-def alpha_C_CH4v_CH4m(PT,comp,models): # alpha for 13/12C between CH4(v) and CH4mol(m)
-    model = models.loc["alpha_C_CH4v_CH4m","option"]
-    if model == 'no fractionation':
-        a = 1.
-    return a
-
-########################
-### Hydrogen species ###
-########################
-
-def alpha_H_H2Ov_H2Om(PT,comp,models):
-    model = models.loc["alpha_H_H2Ov_H2Om","option"]
-    if model == 'no fractionation':
-        a = 1.
-    elif model == 'Rust04':
-        a = 0.9896
-    return a
-
-def alpha_H_H2Ov_OHmm(PT,comp,models):
-    model = models.loc["alpha_H_H2Ov_OHmm","option"]
-    if model == 'no fractionation':
-        a = 1.
-    elif model == 'Rust04':
-        a = 1.0415
-    return a
-
-def alpha_H_H2v_H2m(PT,comp,models): # alpha for D/H between H2(v) and H2(m)
-    model = models.loc["alpha_H_H2v_H2m","option"]
-    if model == 'no fractionation':
-        a = 1.
-    return a
-
-def alpha_H_CH4v_CH4m(PT,comp,models): # alpha for D/H between CH4(v) and CH4(m)
-    model = models.loc["alpha_H_CH4v_CH4m","option"]
-    if model == 'no fractionation':
-        a = 1.
-    return a
-
-def alpha_H_H2Sv_H2Sm(PT,comp,models): # alpha for D/H between H2S(v) and H2S(m)
-    model = models.loc["alpha_H_H2Sv_H2Sm","option"]
-    if model == "no fractionation": # 
-        a = 1.
-    return a
-
-
-### REFERENCES ###
-
-def get_references(models=default_models):
-    quick_ref={}
-    doi={}
-    full_ref={}
-    
-    # Fe speciation
-    if models.loc['fO2','option'] == 'Kress91A':
-        quick_ref['Fe speciation'] = 'Eq. (A-5, A-6) in Kress and Carmichael (1991)'
-        doi['Fe speciation'] = '10.1007/BF00307328'
-        full_ref['Fe speciation'] = 'Kress, V.C. and Carmichael, I.S., 1991. The compressibility of silicate liquids containing Fe 2 O 3 and the effect of composition, temperature, oxygen fugacity and pressure on their redox states. Contributions to Mineralogy and Petrology, 108, pp.82-92.'
-    elif models.loc['fO2','option'] == 'Kress91':
-        quick_ref['Fe speciation'] = 'Eq. (7) in Kress and Carmichael (1991)'
-        doi['Fe speciation'] = '10.1007/BF00307328'
-        full_ref['Fe speciation'] = 'Kress, V.C. and Carmichael, I.S., 1991. The compressibility of silicate liquids containing Fe 2 O 3 and the effect of composition, temperature, oxygen fugacity and pressure on their redox states. Contributions to Mineralogy and Petrology, 108, pp.82-92.'
-    elif models.loc['fO2','option'] == 'ONeill18':
-        quick_ref['Fe speciation'] = 'Eq. (9a) in ONeill et al. (2018)'
-        doi['Fe speciation'] = '10.1016/j.epsl.2018.10.0020012-821X'
-        full_ref['Fe speciation'] = 'ONeill, H.S.C., Berry, A.J. and Mallmann, G., 2018. The oxidation state of iron in Mid-Ocean Ridge Basaltic (MORB) glasses: Implications for their petrogenesis and oxygen fugacities. Earth and Planetary Science Letters, 504, pp.152-162.'
-    elif models.loc['fO2','option'] == 'Borisov18':
-        quick_ref['Fe speciation'] = 'Eq. (4) from Borisov et al. (2018)'
-        doi['Fe speciation'] = '10.1007/s00410-018-1524-8'
-        full_ref['Fe speciation'] = 'Borisov, A., Behrens, H. and Holtz, F., 2018. Ferric/ferrous ratio in silicate melts: a new model for 1 atm data with special emphasis on the effects of melt composition. Contributions to Mineralogy and Petrology, 173, pp.1-15.'
-
-    # NNO buffer
-    if models.loc['NNObuffer','option'] == 'Frost91':
-        quick_ref['NNO buffer'] = 'Frost (1991)'
-        doi['NNO buffer'] = '10.1515/9781501508684-004'
-
-    # FMQ buffer
-    if models.loc['FMQbuffer','option'] == 'Frost91':
-        quick_ref['FMQ buffer'] = 'Frost (1991)'
-        doi['FMQ buffer'] = '10.1515/9781501508684-004'
-    elif models.loc['FMQbuffer','option'] == 'ONeill87':
-        quick_ref['FMQ buffer'] = 'ONeill (1897)'
-        doi['FMQ buffer'] = ''
-
-    quick_ref = pd.DataFrame.from_dict(quick_ref, orient='columns')
-    doi = pd.DataFrame.from_dict(doi, orient='columns')
-    full_ref = pd.DataFrame.from_dict(full_ref, orient='columns')
-    
-    return quick_ref,doi,full_ref

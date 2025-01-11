@@ -132,13 +132,13 @@ def test_degas_df_closed_CO2i():
     assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.7203532684511362)
     assert result.loc[0, "CO2T_ppmw"] == pytest.approx(1475.9979291041839)
     assert result.loc[0, "xgS2_mf"] == pytest.approx(0.0006722975341518086)
-    assert result.loc[len(result) - 1, "P_bar"] == 1.0
-    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(-0.1334627142973961)
+    assert result.loc[len(result) - 1, "P_bar"] == 3.0
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(-0.09899649250168707)
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(
-        0.11187099769675689
+        0.33989935002108057
     )
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(
-        2.3080542012091533e-05
+        5.67343267164686e-05
     )
 
 
