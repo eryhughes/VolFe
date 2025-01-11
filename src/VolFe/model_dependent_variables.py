@@ -1492,19 +1492,8 @@ def C_X(PT,melt_wf,models=default_models): # C_X = wmX/fX (ppm)
         K = 0.1504 # fitted assuming Ne is an ideal gas... i.e. yNe = 1.
     elif model == "Ne_Rhyolite_HughesIP": # Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
         K = 0.8464 # fitted assuming Ne is an ideal gas... i.e. yNe = 1.
-    
-    ### WORK IN PROGRESS ###
-    elif model == "test": 
-        #K = 40. # similar to H2O
-        #K = 6. # similar to S @ DFMQ+1.25
-        #K = 21. # similar to S @ DFMQ+3
-        #K = 155 # similar to S @ DFMQ0
-        #K = 918005 # similar to S @DFMQ-3
-        #K = 10.23 # similar to H2S
-        #K = 0.51 # similar to CO32-
-        #K = 1.37 # degassed at a similar depth to H2OT at 3wt%
-        #K = 100.
-        K = 35.
+    else:
+        K = float(model)
 
     return K
 
