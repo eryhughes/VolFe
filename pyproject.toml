@@ -16,13 +16,13 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "datetime",
-    "densityx",
-    "gmpy2",
+    "datetime=5.5",
+    "densityx=1.2.0",
+    "gmpy2=2.2.1",
     "numpy<2",
-    "pandas",
-    "PySulfSat",
-    "scipy",
+    "pandas=2.2.3",
+    "PySulfSat=1.0.6",
+    "scipy=1.14.1",
 ]
 
 [project.optional-dependencies]
