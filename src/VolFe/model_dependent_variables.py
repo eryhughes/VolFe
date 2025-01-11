@@ -1327,7 +1327,7 @@ def C_H2(PT,melt_wf,models=default_models): # C_H2 = wmH2/fH2 (wtppm)
         #lnK0 = -11.4 # T0 = 1400 'C, P0 = 100 kPa for mole fraction H2
         lnK0 = -0.9624 # for ppm H2 (fitted in excel)
         DV = 10.6 # cm3/mol
-    elif model == "Basalt_Hughes24": # Andesite in Table S4 from Hughes et al. (2024) based on experimental data from Hirschmann et al. (2012)
+    elif model == "Andesite_Hughes24": # Andesite in Table S4 from Hughes et al. (2024) based on experimental data from Hirschmann et al. (2012)
         #lnK0 = -10.6 # T0 = 1400 'C, P0 = 100 kPa for mole fraction H2
         lnK0 = -0.1296 # for ppm H2 (fitted in excel)
         DV = 11.3 # cm3/mol
