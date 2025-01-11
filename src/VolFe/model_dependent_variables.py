@@ -3507,7 +3507,7 @@ def melt_density(PT,melt_wf,models=default_models): # g/cm3
         melt_dx = pd.DataFrame([["sample", melt_comp["SiO2"], melt_comp["TiO2"], melt_comp["Al2O3"], melt_comp["FeO"], melt_comp["Fe2O3"], melt_comp["MgO"], melt_comp["CaO"], melt_comp["Na2O"], melt_comp["K2O"], melt_comp["H2O"],P,T]])
         melt_dx.columns = ["Sample_ID","SiO2","TiO2","Al2O3","FeO","Fe2O3","MgO","CaO","Na2O","K2O","H2O","P","T"]
         output = dx.Density(melt_dx)
-        density = output.loc[0,"Density_g_per_cm3"]
+        density = output.loc[0,"density_g_per_cm"]
     return density
 
 #################################################################################################################################
