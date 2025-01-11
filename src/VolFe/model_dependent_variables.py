@@ -2382,7 +2382,9 @@ def CORK(PT,p0,a,b,c,d,models):
     A = a/(b*R*pow(T_K,1.5))
     B = (b*P_kb)/(R*T_K)
         
-    if models.loc["high precision","option"] == "True":
+    if z < B:
+        value = 1.
+    elif models.loc["high precision","option"] == "True":
         ln_y = z - 1.0 - gp.log(z-B) - A*gp.log(1.0 + (B/z)) + ln_y_virial
         value = gp.exp(ln_y)
     else:
