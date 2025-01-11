@@ -949,7 +949,7 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=50):
         n = n+1.
         deriv_ = deriv(x0,y0,z0,constants)
         guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
-        if guessx < 0.0 or guessy < 0.0 or guessz < 0.0 or guessx > 1.0 or guessy > 1.0 or guessz > 1.0 and step:
+        if guessx < 0.0 or guessy < 0.0 or guessz < 0.0 or guessx > 1.0 or guessy > 1.0 or guessz > 1.0:
             step = step/10.
             guessx, guessy, guessz, J = x3jac(step,deriv_,eqs,x0,y0,z0,constants)
         if guessx < 0.0 or guessy < 0.0 or guessz < 0.0 or guessx > 1.0 or guessy > 1.0 or guessz > 1.0 and step:
@@ -988,7 +988,7 @@ def jac_newton3(x0,y0,z0,constants,eqs,deriv,step,tol,maxiter=50):
     #    results.to_csv('results_jacnewton3.csv', index=False, header=False)
 
     x0, y0, z0 = x00, y00, z00
-    step = step0 - (step0/10.)
+    step = step - (step0/10.)
     for iter in range(9):
         for iter in range(maxiter):
             deriv_ = deriv(x0,y0,z0,constants)
@@ -2704,7 +2704,18 @@ def eq_SCHOFe_2(PT,bulk_wf,melt_wf,models,nr_step,nr_tol,guesses,solve_species):
             guessy = guessz_hold # xgH2 is guessy
             guessz = guessw_hold # xgS2 is guess z
             xg_O2_, xg_H2_, xg_S2_ = jac_newton3(guessx,guessy,guessz,constants,f_SCHOFe,df_SCHOFe,nr_step,nr_tol)
-
+    
+    if xg_O2_ == 1.: # go to original solve species
+        if solve_species == "OCS":
+            solve_species = "OCH"
+            models.loc["solve_species","option"] = "OCH"
+        elif solve_species == "OHS":
+            solve_species = "OCS"
+            models.loc["solve_species","option"] = "OCS"
+        elif solve_species == "OCH":
+            solve_species = "OHS"
+            models.loc["solve_species","option"] = "OHS"
+   
     if solve_species == "OCS":
         results1 = xg_O2_, xg_CO_, xg_S2_
         results2 = mg_SCHOFe(xg_O2_,xg_CO_,xg_S2_)
