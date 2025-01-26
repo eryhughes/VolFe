@@ -7,7 +7,7 @@ name = "VolFe"
 dynamic = ["version"]
 description = "VolFe"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 authors = [
     { name = "Ery Hughes", email = "ery.c.hughes@gmail.com" },
 ]
