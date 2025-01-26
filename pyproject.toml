@@ -22,7 +22,7 @@ dependencies = [
     "numpy<2",
     "pandas==2.2.3",
     "PySulfSat==1.0.6",
-    "scipy==1.14.1",
+    "scipy",
 ]
 
 [project.optional-dependencies]
