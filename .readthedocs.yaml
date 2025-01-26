@@ -7,7 +7,7 @@ build:
 
 python:
   install:
-    - method: pip business
+    - method:pip business
       path: .[docs]
 
 sphinx:
