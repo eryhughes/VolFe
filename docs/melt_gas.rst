@@ -5,4 +5,4 @@ Functions for calculating properties of the melt and gas at a set of conditions 
 --------------------
 
 .. automodule:: VolFe.melt_gas
-:members:
+    :members:

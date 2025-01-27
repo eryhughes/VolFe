@@ -5,4 +5,4 @@ Functions for calculating various model dependent variables given a set of condi
 --------------------
 
 .. automodule:: VolFe.model_dependent_variables
-:members:
+    :members:
