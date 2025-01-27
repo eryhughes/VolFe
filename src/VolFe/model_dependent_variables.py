@@ -702,11 +702,13 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
 
     
     Model options
-    -------------
+
     default: 'MORB_Dixon95' Bullet (5) of summary from Dixon et al. (1995) JPet 36(6):1607-1631 doi:10.1093/oxfordjournals.petrology.a037267
+    
     Other options:
-    'Basalt_Dixon97' Eq. (7) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
-    'NorthArchBasalt_Dixon97' Eq. (8) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
+    
+    - 'Basalt_Dixon97' Eq. (7) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
+    - 'NorthArchBasalt_Dixon97' Eq. (8) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
     'Basalt_Lesne11' Eq. (25,26) from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
     'VesuviusAlkaliBasalt_Lesne11' VES-9 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
     'EtnaAlkaliBasalt_Lesne11' ETN-1 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
