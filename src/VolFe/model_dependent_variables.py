@@ -700,6 +700,7 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
     -------
     Solubility constant for CO2 as <class 'mpfr'>
 
+    
     Model options
     -------------
     default: 'MORB_Dixon95' Bullet (5) of summary from Dixon et al. (1995) JPet 36(6):1607-1631 doi:10.1093/oxfordjournals.petrology.a037267
@@ -711,7 +712,7 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
     'EtnaAlkaliBasalt_Lesne11' ETN-1 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
     'StromboliAlkaliBasalt_Lense11' PST-9 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
     'SunsetCraterAlkaliBasalt_Allison19' Sunset Crater in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
-    'SVFVBasalticAndesite_Allison19' SVFV in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+    'SFVFBasalticAndesite_Allison19' SVFV in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
     'ErebusPhonotephrite_Allison19' Erebus in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
     'VesuviusPhonotephrite_Allison19' Vesuvius in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
     'EtnaTrachybasalt_Allison19' Etna in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
@@ -799,7 +800,7 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
             C = A*gp.exp(B)
         else:
             C = A*math.exp(B)
-    elif model == "StromboliAlkaliBasalt_Lesne11": # PST-9 in Table 4 of Lesne et al. (2011) CMP 162:153-168
+    elif model == "StromboliAlkaliBasalt_Lense11": # PST-9 in Table 4 of Lesne et al. (2011) CMP 162:153-168
         DV = 6.0 # cm3/mol
         P0 = 1000.0 # bar
         if models.loc["high precision","option"] == "True":

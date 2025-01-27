@@ -4,14 +4,14 @@ Dependencies
 
 VolFe requires the following dependencies to run:
 
-- Pandas (The pandas development team, 2024; McKinney, 2010)
+- Pandas v2.2.3 (The pandas development team, 2024; McKinney, 2010)
 
-- Numpy (Harris et al., 2020)
+- Numpy <v2 (Harris et al., 2020)
 
-- gmpy2
+- gmpy2 v2.2.1
 
-- datetime
+- datetime v5.5
 
-- PySulfSat (Wieser & Gleeson, 2023)
+- PySulfSat v1.0.6 (Wieser & Gleeson, 2023)
 
-- DensityX (Iacovino & Till, 2019)
+- DensityX v1.2.0 (Iacovino & Till, 2019)
