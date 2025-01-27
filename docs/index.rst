@@ -32,3 +32,4 @@ This is the VolFe documentation
    :caption: Detailed Code Documentation
 
    melt_gas
+   model_dependent_variables
