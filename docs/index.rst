@@ -26,3 +26,9 @@ This is the VolFe documentation
    worked_example_other
    worked_example_realdata
    add_your_own
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Detailed Code Documentation
+
+   melt_gas
