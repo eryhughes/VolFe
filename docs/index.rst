@@ -29,7 +29,10 @@ This is the VolFe documentation
 
 .. toctree::
    :maxdepth: 2
-   :caption: Detailed Code Documentation
+   :caption: API Reference
 
    melt_gas
    model_dependent_variables
+   equilibrium_equations
+   calculations
+   batch_calculations

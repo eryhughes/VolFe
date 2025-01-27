@@ -1,4 +1,4 @@
-API Reference
+Melt-gas
 =============
 
 Functions for calculating properties of the melt and gas at a set of conditions (e.g., P and T): so these are the forward calculations.
