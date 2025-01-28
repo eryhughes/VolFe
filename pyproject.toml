@@ -9,7 +9,7 @@ description = "VolFe"
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
-    { name = "Ery Hughes", email = "ery.c.hughes@gmail.com" },
+    { name = "Ery Hughes, Pip Liggins, Penny Wieser", email = "ery.c.hughes@gmail.com" },
 ]
 classifiers = [
     "Operating System :: OS Independent",
