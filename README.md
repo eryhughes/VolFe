@@ -8,7 +8,7 @@ Hughes, E.C., Liggins, P., Wieser, P. and Stolper, E.M., 2024. VolFe: an open-so
 For more information and worked examples, see the ReadTheDocs page:
 https://volfe.readthedocs.io/en/latest/
 
-VolFe can be installed using pip or from GitHub (see notes below about installing an editable version).
+VolFe can be installed using pip from PyPI or from GitHub (see notes below about installing an editable version).
 
 ## Development
 
