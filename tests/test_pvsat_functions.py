@@ -25,8 +25,7 @@ def test_pvsat_df_FeOT_Fe3FeT():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 0.0,  # ppm
-        "Fe3FeT": 0.155,
-    }  # mole or weight fraction (they're the same)
+        "Fe3FeT": 0.155}  # mole or weight fraction (they're the same)
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
@@ -56,8 +55,7 @@ def test_pvsat_df_Fe2O3T_DFMQ():
         "CO2ppm": 13.0,
         "STppm": 362.83,
         "Xppm": 0.0,
-        "DFMQ": 0.0,
-    }  # DFMQ instead of Fe3+/FeT
+        "DFMQ": 0.0}  # DFMQ instead of Fe3+/FeT
 
     # Turn the dictionary into a pandas dataframe, setting the index to 0.
     my_analysis = pd.DataFrame(my_analysis, index=[0])
@@ -89,8 +87,7 @@ def test_pvsat_df_FeO_Fe2O3():
         "H2O": 1.88,
         "CO2ppm": 13.0,
         "STppm": 362.83,
-        "Xppm": 0.0,
-    }
+        "Xppm": 0.0}
 
     # Turn the dictionary into a pandas dataframe, setting the index to 0.
     my_analysis = pd.DataFrame(my_analysis, index=[0])
@@ -122,8 +119,7 @@ def test_pvsat_df_FeOT_DNNO():
         "CO2ppm": 13.0,
         "STppm": 362.83,
         "Xppm": 0.0,
-        "DNNO": 1.0,
-    }
+        "DNNO": 1.0}
 
     # Turn the dictionary into a pandas dataframe, setting the index to 0.
     my_analysis = pd.DataFrame(my_analysis, index=[0])
@@ -155,8 +151,7 @@ def test_pvsat_df_FeOT_S6ST():
         "CO2ppm": 13.0,
         "STppm": 362.83,
         "Xppm": 0.0,
-        "S6ST": 0.23,
-    }
+        "S6ST": 0.23}
 
     # Turn the dictionary into a pandas dataframe, setting the index to 0.
     my_analysis = pd.DataFrame(my_analysis, index=[0])
@@ -189,8 +184,7 @@ def test_pvsat_df_FeOT_DNNO_Fe3FeT():
         "STppm": 362.83,
         "Xppm": 0.0,
         "DNNO": 1.0,
-        "Fe3FeT": 0.155,
-    }
+        "Fe3FeT": 0.155}
 
     # Turn the dictionary into a pandas dataframe, setting the index to 0.
     my_analysis = pd.DataFrame(my_analysis, index=[0])
@@ -225,8 +219,7 @@ def test_pvsat_df_FeOT_Fe3FeT_useroptions():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 0.0,  # ppm
-        "Fe3FeT": 0.155,
-    }  # mole or weight fraction (they're the same)
+        "Fe3FeT": 0.155}  # mole or weight fraction (they're the same)
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
@@ -266,8 +259,7 @@ def test_pvsat_df_X_Ar_bas():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 20.0,  # ppm *** 20 ppm "X" added**
-        "Fe3FeT": 0.155,
-    }
+        "Fe3FeT": 0.155}
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
@@ -297,8 +289,7 @@ def test_pvsat_df_X_Ar_rhy():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 20.0,  # ppm *** 20 ppm "X" added**
-        "Fe3FeT": 0.155,
-    }
+        "Fe3FeT": 0.155}
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
@@ -335,8 +326,7 @@ def test_pvsat_df_X_Ne_bas():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 20.0,  # ppm *** 20 ppm "X" added**
-        "Fe3FeT": 0.155,
-    }
+        "Fe3FeT": 0.155}
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
@@ -373,8 +363,7 @@ def test_pvsat_df_X_Ne_rhy():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 20.0,  # ppm *** 20 ppm "X" added**
-        "Fe3FeT": 0.155,
-    }
+        "Fe3FeT": 0.155}
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
