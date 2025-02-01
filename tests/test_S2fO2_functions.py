@@ -6,7 +6,7 @@ import pytest
 
 
 def test_S2fO2_df_pvsat():
-    "simple test of calc_melt_S_oxybarometer function at Pvsat"
+    "simple test of calc_melt_S_oxybarometer function at Pvsat using example 3a"
 
     # Define the melt composition and T as a dictionary.
     my_analysis = {
@@ -33,14 +33,14 @@ def test_S2fO2_df_pvsat():
 
     result1 = vf.calc_melt_S_oxybarometer(my_analysis)
 
-    assert result1.loc[0, "P (bar) sulf"] == pytest.approx(3209.679275636066)
-    assert result1.loc[0, "DFMQ-sulfide"] == pytest.approx(0.9059440119597797)
+    assert result1.loc[0, "P (bar) sulf"] == pytest.approx(3209.621469)
+    assert result1.loc[0, "DFMQ-sulfide"] == pytest.approx(0.905499)
     assert result1.loc[0, "P (bar) anh"] == ""
     assert result1.loc[0, "DFMQ-sulfate"] == ""
 
 
 def test_S2fO2_df_P():
-    "simple test of calc_melt_S_oxybarometer function at given P"
+    "simple test of calc_melt_S_oxybarometer function at given P using example 3a"
 
     # Define the melt composition, P, and T as a dictionary.
     my_analysis = {
@@ -71,13 +71,13 @@ def test_S2fO2_df_P():
     result = vf.calc_melt_S_oxybarometer(my_analysis)
 
     assert result.loc[0, "P (bar) sulf"] == pytest.approx(1000.0)
-    assert result.loc[0, "DFMQ-sulfide"] == pytest.approx(1.1588609007298638)
+    assert result.loc[0, "DFMQ-sulfide"] == pytest.approx(1.158861)
     assert result.loc[0, "P (bar) anh"] == pytest.approx(1000.0)
     assert result.loc[0, "DFMQ-sulfate"] == ""
 
 
 def test_S2fO2_df_Xsulf():
-    "simple test of calc_melt_S_oxybarometer function with sulfide composition"
+    "simple test of calc_melt_S_oxybarometer function with sulfide composition using example 3a"
 
     # Define the melt composition, sulfide composition, and T as a dictionary.
     my_analysis = {
@@ -108,8 +108,8 @@ def test_S2fO2_df_Xsulf():
     # runs the calculation
     result = vf.calc_melt_S_oxybarometer(my_analysis)
 
-    assert result.loc[0, "P (bar) sulf"] == pytest.approx(3223.517523236548)
-    assert result.loc[0, "DFMQ-sulfide"] == pytest.approx(1.0232307813783903)
+    assert result.loc[0, "P (bar) sulf"] == pytest.approx(3223.517523)
+    assert result.loc[0, "DFMQ-sulfide"] == pytest.approx(1.023231)
     assert result.loc[0, "P (bar) anh"] == ""
     assert result.loc[0, "DFMQ-sulfate"] == ""
 

@@ -6,7 +6,7 @@ import pytest
 
 
 def test_pvsat_df_FeOT_Fe3FeT():
-    "simple test of calc_pvsat function using FeOT and Fe3FeT"
+    "simple test of calc_pvsat function using FeOT and Fe3FeT using example 1a"
 
     my_analysis = {
         "Sample": "TN273-01D-01-01",
@@ -25,19 +25,19 @@ def test_pvsat_df_FeOT_Fe3FeT():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 0.0,  # ppm
-        "Fe3FeT": 0.171,
+        "Fe3FeT": 0.155,
     }  # mole or weight fraction (they're the same)
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
     result1 = vf.calc_Pvsat(my_analysis)
 
-    assert result1.loc[0, "P_bar"] == pytest.approx(337.8093)
-    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.534613)
+    assert result1.loc[0, "P_bar"] == pytest.approx(327.991628)
+    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.2895328090001543)
 
 
 def test_pvsat_df_Fe2O3T_DFMQ():
-    "simple test of calc_pvsat function using Fe2O3T and DFMQ"
+    "simple test of calc_pvsat function using Fe2O3T and DFMQ using example 1a"
 
     my_analysis = {
         "Sample": "TN273-01D-01-01",
@@ -70,7 +70,7 @@ def test_pvsat_df_Fe2O3T_DFMQ():
 
 
 def test_pvsat_df_FeO_Fe2O3():
-    "simple test of calc_pvsat function using FeO and Fe2O3"
+    "simple test of calc_pvsat function using FeO and Fe2O3 using example 1a"
 
     my_analysis = {
         "Sample": "TN273-01D-01-01",
@@ -103,7 +103,7 @@ def test_pvsat_df_FeO_Fe2O3():
 
 
 def test_pvsat_df_FeOT_DNNO():
-    "simple test of calc_pvsat function using FeOT and DNNO"
+    "simple test of calc_pvsat function using FeOT and DNNO using example 1a"
 
     my_analysis = {
         "Sample": "TN273-01D-01-01",
@@ -136,7 +136,7 @@ def test_pvsat_df_FeOT_DNNO():
 
 
 def test_pvsat_df_FeOT_S6ST():
-    "simple test of calc_pvsat function using FeOT and S6+/ST"
+    "simple test of calc_pvsat function using FeOT and S6+/ST using example 1a"
 
     my_analysis = {
         "Sample": "TN273-01D-01-01",
@@ -189,7 +189,7 @@ def test_pvsat_df_FeOT_DNNO_Fe3FeT():
         "STppm": 362.83,
         "Xppm": 0.0,
         "DNNO": 1.0,
-        "Fe3FeT": 0.171,
+        "Fe3FeT": 0.155,
     }
 
     # Turn the dictionary into a pandas dataframe, setting the index to 0.
@@ -201,12 +201,12 @@ def test_pvsat_df_FeOT_DNNO_Fe3FeT():
     ):
         result1 = vf.calc_Pvsat(my_analysis)
 
-    assert result1.loc[0, "P_bar"] == pytest.approx(337.8093)
-    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.5346133)
+    assert result1.loc[0, "P_bar"] == pytest.approx(317.218)
+    assert result1.loc[0, "Fe3+/FeT"] == pytest.approx(0.139989957)
 
 
 def test_pvsat_df_FeOT_Fe3FeT_useroptions():
-    "simple test of calc_pvsat function using FeOT and Fe3FeT with user defined options"
+    "simple test of calc_pvsat function using FeOT and Fe3FeT with user defined options using example 1c"
 
     my_analysis = {
         "Sample": "TN273-01D-01-01",
@@ -225,7 +225,7 @@ def test_pvsat_df_FeOT_Fe3FeT_useroptions():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 0.0,  # ppm
-        "Fe3FeT": 0.171,
+        "Fe3FeT": 0.155,
     }  # mole or weight fraction (they're the same)
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
@@ -242,12 +242,12 @@ def test_pvsat_df_FeOT_Fe3FeT_useroptions():
 
     result1 = vf.calc_Pvsat(my_analysis, models=my_models)
 
-    assert result1.loc[0, "P_bar"] == pytest.approx(287.63826)
-    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.5333296)
+    assert result1.loc[0, "P_bar"] == pytest.approx(276.3818821024127)
+    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.28821169956216863)
 
 
 def test_pvsat_df_X_Ar_bas():
-    "simple test of calc_pvsat function including X as Ar in basalt"
+    "simple test of calc_pvsat function including X as Ar in basalt using example 1d"
 
     my_analysis = {
         "Sample": "TN273-01D-01-01",
@@ -266,19 +266,19 @@ def test_pvsat_df_X_Ar_bas():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 20.0,  # ppm *** 20 ppm "X" added**
-        "Fe3FeT": 0.171,
+        "Fe3FeT": 0.155,
     }
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
     result1 = vf.calc_Pvsat(my_analysis)
 
-    assert result1.loc[0, "P_bar"] == pytest.approx(587.298)
-    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.540953)
+    assert result1.loc[0, "P_bar"] == pytest.approx(577.029568497839)
+    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.2958643716536322)
 
 
 def test_pvsat_df_X_Ar_rhy():
-    "simple test of calc_pvsat function including X as Ar in rhyolite"
+    "simple test of calc_pvsat function including X as Ar in rhyolite using example 1d"
 
     my_analysis = {
         "Sample": "TN273-01D-01-01",
@@ -297,7 +297,7 @@ def test_pvsat_df_X_Ar_rhy():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 20.0,  # ppm *** 20 ppm "X" added**
-        "Fe3FeT": 0.171,
+        "Fe3FeT": 0.155,
     }
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
@@ -311,12 +311,12 @@ def test_pvsat_df_X_Ar_rhy():
     # runs the calculation
     result1 = vf.calc_Pvsat(my_analysis, models=my_models)
 
-    assert result1.loc[0, "P_bar"] == pytest.approx(383.1374)
-    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.5357705)
+    assert result1.loc[0, "P_bar"] == pytest.approx(373.2244253765395)
+    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.2906881461282058)
 
 
 def test_pvsat_df_X_Ne_bas():
-    "simple test of calc_pvsat function including X as Ne in basalt"
+    "simple test of calc_pvsat function including X as Ne in basalt using example 1d"
 
     my_analysis = {
         "Sample": "TN273-01D-01-01",
@@ -335,7 +335,7 @@ def test_pvsat_df_X_Ne_bas():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 20.0,  # ppm *** 20 ppm "X" added**
-        "Fe3FeT": 0.171,
+        "Fe3FeT": 0.155,
     }
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
@@ -349,12 +349,12 @@ def test_pvsat_df_X_Ne_bas():
     # runs the calculation
     result1 = vf.calc_Pvsat(my_analysis, models=my_models)
 
-    assert result1.loc[0, "P_bar"] == pytest.approx(470.388)
-    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.5379914)
+    assert result1.loc[0, "P_bar"] == pytest.approx(460.29011983497435)
+    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.29290531466108316)
 
 
 def test_pvsat_df_X_Ne_rhy():
-    "simple test of calc_pvsat function including X as Ne in rhyolite"
+    "simple test of calc_pvsat function including X as Ne in rhyolite using example 1d"
 
     my_analysis = {
         "Sample": "TN273-01D-01-01",
@@ -373,7 +373,7 @@ def test_pvsat_df_X_Ne_rhy():
         "CO2ppm": 13.0,  # ppm
         "STppm": 362.83,  # ppm
         "Xppm": 20.0,  # ppm *** 20 ppm "X" added**
-        "Fe3FeT": 0.171,
+        "Fe3FeT": 0.155,
     }
 
     my_analysis = pd.DataFrame(my_analysis, index=[0])
@@ -387,5 +387,5 @@ def test_pvsat_df_X_Ne_rhy():
     # runs the calculation
     result1 = vf.calc_Pvsat(my_analysis, models=my_models)
 
-    assert result1.loc[0, "P_bar"] == pytest.approx(361.3744)
-    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.5352152)
+    assert result1.loc[0, "P_bar"] == pytest.approx(351.50722668976147)
+    assert result1.loc[0, "fO2_DFMQ"] == pytest.approx(0.2901337404698259)
