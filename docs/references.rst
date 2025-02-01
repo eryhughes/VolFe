@@ -10,6 +10,8 @@ Brounce, M.N., Kelley, K.A., and Cottrell, E. (2014) Variations in Fe3+/ΣFe of 
 
 Brounce, M.N., Kelley, K.A., Stern, R., Martinez, F., and Cottrell, E. (2016) The Fina Nagu volcanic complex: Unusual submarine arc volcanism in the rapidly deforming southern Mariana margin. Geochemistry, Geophysics, Geosystems, 17, 4078–4091, https://doi.org/10.1002/2016GC006457
 
+Cottrell, E., Birner, S.K., Brounce, M., Davis, F.A., Waters, L.E. and Kelley, K.A., 2021. Oxygen fugacity across tectonic settings. Magma redox geochemistry, pp.33-61. https://doi.org/10.1002/9781119473206.ch3
+
 Chowdhury, P. and Dasgupta, R., 2019. Effect of sulfate on the basaltic liquidus and sulfur Concentration at Anhydrite Saturation (SCAS) of hydrous basalts–Implications for sulfur cycle in subduction zones. Chemical Geology, 522, pp.162-174. https://doi.org/10.1016/j.chemgeo.2019.05.020
 
 Fortin, M.A., Riddle, J., Desjardins-Langlais, Y. and Baker, D.R., 2015. The effect of water on the sulfur concentration at sulfide saturation (SCSS) in natural melts. Geochimica et Cosmochimica Acta, 160, pp.100-116. https://doi.org/10.1016/j.gca.2015.03.022
