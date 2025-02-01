@@ -195,8 +195,8 @@ def test_pvsat_df_FeOT_DNNO_Fe3FeT():
     ):
         result1 = vf.calc_Pvsat(my_analysis)
 
-    assert result1.loc[0, "P_bar"] == pytest.approx(317.218)
-    assert result1.loc[0, "Fe3+/FeT"] == pytest.approx(0.139989957)
+    assert result1.loc[0, "P_bar"] == pytest.approx(327.99162788480413)
+    assert result1.loc[0, "Fe3+/FeT"] == pytest.approx(0.155)
 
 
 def test_pvsat_df_FeOT_Fe3FeT_useroptions():

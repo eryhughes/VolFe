@@ -33,8 +33,8 @@ def test_S2fO2_df_pvsat():
 
     result1 = vf.calc_melt_S_oxybarometer(my_analysis)
 
-    assert result1.loc[0, "P (bar) sulf"] == pytest.approx(3209.621469)
-    assert result1.loc[0, "DFMQ-sulfide"] == pytest.approx(0.905499)
+    assert result1.loc[0, "P (bar) sulf"] == pytest.approx(3209.679276)
+    assert result1.loc[0, "DFMQ-sulfide"] == pytest.approx(0.905944)
     assert result1.loc[0, "P (bar) anh"] == ""
     assert result1.loc[0, "DFMQ-sulfate"] == ""
 

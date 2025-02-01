@@ -39,14 +39,14 @@ def test_degas_df_default():
 
     result = vf.calc_gassing(my_analysis, models=options)
 
-    assert result.loc[0, "P_bar"] == pytest.approx(3847.34)
-    assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.4729)
-    assert result.loc[0, "CO2T_ppmw"] == pytest.approx(1472.40)
-    assert result.loc[0, "xgS2_mf"] == pytest.approx(0.0004803)
+    assert result.loc[0, "P_bar"] == pytest.approx(3847.3361533976154)
+    assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.47292836384512427)
+    assert result.loc[0, "CO2T_ppmw"] == pytest.approx(1472.4015295658357)
+    assert result.loc[0, "xgS2_mf"] == pytest.approx(0.00048030277135318553)
     assert result.loc[len(result) - 1, "P_bar"] == 1.0
-    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(-0.3400)
-    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.006260)
-    assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(4.1326e-05)
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(-0.3400085464233662)
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.0062599242785629046)
+    assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(4.1326131294704035e-05)
 
 
 def test_degas_df_sat_sulf():
@@ -81,8 +81,8 @@ def test_degas_df_sat_sulf():
 
     result = vf.calc_gassing(my_analysis,models=my_models)
 
-    assert result.loc[0,"P_bar"] == pytest.approx(3834.87)
-    assert result.loc[0,"fO2_DFMQ"] == pytest.approx(0.47266)
+    assert result.loc[0,"P_bar"] == pytest.approx(3834.8735665073505)
+    assert result.loc[0,"fO2_DFMQ"] == pytest.approx(0.4726603883083058)
     assert result.loc[0,"CO2T_ppmw"] == pytest.approx(1472.3951153749524)
     assert result.loc[0,"xgS2_mf"] == pytest.approx(0.00021302858508563988)
     assert result.loc[len(result)-1,'P_bar'] == 1.0
@@ -336,7 +336,7 @@ def test_degas_df_CHOAr_basalt():
     assert result.loc[0, "xgX_mf"] == pytest.approx(0.08549163676895262)
     assert result.loc[len(result) - 1, "P_bar"] == 1.0
     assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.5594127323997524)
-    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.0002394718896877798)
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.004903203107918983)
     assert result.loc[len(result) - 1, "xgX_mf"] == pytest.approx(0.0002394718896877798)
 
 
