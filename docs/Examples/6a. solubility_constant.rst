@@ -21,16 +21,16 @@ This is what the function for the current solubility constant for H\ :sub:`2`\ S
             K = 6.82 # fitted to basaltic andesite data from Moune+ 2009 CMP 157:691–707 and Lesne+ 2015 ChemGeol 418:104–116 
         return K
 
-In the current function, there are two options for H2S solubility basalt and basaltic andesite, using data from Moune et al. (2009) and Lesne et al. (2015) fitted in Hughes et al. (2024). 
+In the current function, there are two options for H\ :sub:`H2S` S solubility basalt and basaltic andesite, using data from Moune et al. (2009) and Lesne et al. (2015) fitted in Hughes et al. (2024). 
 
-Let us say you have a new parameterisation that adheres to having wmH2S in ppm but fH2S is in kbar (this example is completely made up). 
+Let us say you have a new parameterisation that adheres to having *w*\ :sup:`m`\ :sub:`H2S` in ppm but *f*\ :sub:`H2S` is in kbar (this example is completely made up). 
 It depends on pressure, temperature, and melt composition using the form:
 
-ln\ *C* = ln\ *C*\ :sub:`0` - ∆\ *V*(*P* - *P*\ :sub:`0`)/\ *RT* + ∆\ *H*/\ *R*(1/\ *T*\ :sub:`0` - 1/\ *T*)
+ln\ *C* = ln\ *C*\ :sub:`0` -- ∆\ *V*\ (*P* - *P*\ :sub:`0`\ )/\ *RT* + ∆\ *H*\ /\ *R*\ (1/\ *T*\ :sub:`0` -- 1/\ *T*)
 
-where ∆\ *V* = 10 cm3/mol, *P*\ 0 = 1 bar, ∆\ *H* = -13 kJ/mol, *T*\ :sub:`0` = 1400 K, and *C*\ :sub:`0` depends on the composition of the melt through the anhydrous cation mole fractions according to:
+where ∆\ *V* = 10 cm\ :sup:`3`\ /mol, *P*\ :sub:`0` = 1 bar, ∆\ *H* = -13 kJ/mol, *T*\ :sub:`0` = 1400 K, and *C*\ :sub:`0` depends on the composition of the melt through the anhydrous cation mole fractions according to:
 
-*C*\ 0 = *A*\ *x*\ :sub:`SiO2` + *B*\ *x*\ :sub:`MgO` + *D*\ *x*\ :sub:`K2O`
+*C*\ :sub:`0` = *A*\ *x*\ :sub:`SiO2` + *B*\ *x*\ :sub:`MgO` + *D*\ *x*\ :sub:`K2O`
 
 where *A* = 2.5, *B* = 6.8, and *D* = -9.0.
 
