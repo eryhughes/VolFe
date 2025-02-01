@@ -30,11 +30,13 @@ import VolFe.calculations as c
 ###############################
 ### building results tables ###
 ###############################
+
 # outputing sample name
 def results_table_sample_name(setup,run):
     results_headers = pd.DataFrame([["sample"]])
     results_values = pd.DataFrame([[setup.loc[run,"Sample"]]])
     return results_headers, results_values
+
 # outputting melt composition, T, P
 def results_table_melt_comp_etc(PT,melt_comp,conc,frac,melt_wf):
     results_headers = pd.DataFrame([["T_C","P_bar",
@@ -58,9 +60,11 @@ def results_table_melt_comp_etc(PT,melt_comp,conc,frac,melt_wf):
                 conc["wm_H2O"]*100.,conc["wm_OH"]*100,conc["wm_H2Omol"]*100.,conc["wm_H2"]*1000000.,conc["wm_CH4"]*1000000.,conc["wm_CO2"]*1000000.,conc["wm_CO2mol"]*1000000,conc["wm_CO2carb"]*1000000,conc["wm_CO"]*1000000.,conc["wm_S2m"]*1000000.,conc["wm_S6p"]*1000000.,conc["wm_H2S"]*1000000.,
                 frac["H2O_HT"], frac["H2_HT"], frac["CH4_HT"], frac["H2S_HT"], frac["CO2_CT"], frac["CO_CT"], frac["CH4_CT"], frac["S2m_ST"], frac["S6p_ST"], frac["H2S_ST"],melt_wf["Fe3FeT"],melt_wf["sulf_XFe"],melt_wf["sulf_XCu"],melt_wf["sulf_XNi"]]])
     return results_headers, results_values
+
 def results_table_melt_vol():
     results_headers = pd.DataFrame([["H2OT-eq_wtpc","CO2T-eq_ppmw","ST_ppmw","X_ppmw"]])
     return results_headers
+
 # outputting model options used in the calculation
 def results_table_model_options(models): 
     results_headers = pd.DataFrame([["setup opt","COH_species opt","H2S_m opt","species X opt","Hspeciation opt",
@@ -132,25 +136,24 @@ def results_table_isotope_d(R,R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_
 ###############################
 ### options from setup file ###
 ###############################
-def options_from_setup(run: float, models: pd.DataFrame, setup:pd.DataFrame) -> pd.DataFrame:
+def options_from_setup(run, models, setup):
     """ 
     Allows model options to be read from the setup file rather than models file.
 
 
     Parameters
     ----------
-    run
+    run: float
         Integer of the row in the setup file to read from (note the first row under the headers is row 0).   
-    setup 
-        Dataframe with melt compositions to be used, require header using the same labels as row labels from models file if you want to use that option.
-    models
+    models: pd.DataFrame
         Dataframe of models.csv file.
+    setup: pd.DataFrame
+        Dataframe with melt compositions to be used, require header using the same labels as row labels from models file if you want to use that option.
 
     Returns
     -------
-    models
+    pd.DataFrame
         Dataframe of models.csv file with the options updated from the setup file.
-
     """
     if models.loc["setup","option"] == "False":
         return models
