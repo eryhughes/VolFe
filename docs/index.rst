@@ -31,8 +31,8 @@ This is the VolFe documentation
    :maxdepth: 2
    :caption: API Reference
 
-   API/melt_gas
-   API/model_dependent_variables
-   API/equilibrium_equations
-   API/calculations
-   API/batch_calculations
+   melt_gas
+   model_dependent_variables
+   equilibrium_equations
+   calculations
+   batch_calculations
