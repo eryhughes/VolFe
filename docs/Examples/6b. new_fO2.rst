@@ -1,8 +1,8 @@
 ===================================================================================
-6b. Fe3+/FeT to fO2 dependence
+6b. Fe\ :sup:`3+`\ /Fe\ :sub:`T` to *f*\ \ :sub:`O2` dependence
 ===================================================================================
 
-To add a new parameterisation for Fe3+/FeT to fO2 dependence involves creating a new “terms” function, which details how any parameters depend on pressure, temperature, melt composition, etc. 
+To add a new parameterisation for Fe\ :sup:`3+`\ /Fe\ :sub:`T` to *f*\ \ :sub:`O2` dependence involves creating a new “terms” function, which details how any parameters depend on pressure, temperature, melt composition, etc. 
 
 Here is an example for Borisov et al. (2018):
 
