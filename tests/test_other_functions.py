@@ -6,7 +6,7 @@ import pytest
 
 
 def test_other_df_y():
-    "simple test of calc_fugacity_coefficients function"
+    "simple test of calc_fugacity_coefficients function using example 4a"
 
     # Define conditions T as a dictionary.
     my_analysis = {
@@ -26,7 +26,7 @@ def test_other_df_y():
 
 
 def test_other_df_C():
-    "simple test of calc_sol_consts function"
+    "simple test of calc_sol_consts function using example 4b"
 
     # Define the melt composition, fO2 estimate, and T as a dictionary.
     my_analysis = {
@@ -47,7 +47,7 @@ def test_other_df_C():
         "CO2ppm": 1487.0,  # ppm
         "STppm": 1343.5,  # ppm
         "Xppm": 0.0,  # ppm
-        "Fe3FeT": 0.195,
+        "Fe3FeT": 0.177,
     }
 
     # Turn the dictionary into a pandas dataframe, setting the index to 0.
@@ -56,12 +56,12 @@ def test_other_df_C():
     result = vf.calc_sol_consts(my_analysis)
 
     assert result.loc[0, "ln[C_CH4]"] == pytest.approx(-4.499333)
-    assert result.loc[0, "ln[C_S6+]"] == pytest.approx(29.742992)
+    assert result.loc[0, "ln[C_S6+]"] == pytest.approx(29.764955489655186)
     assert result.loc[0, "ln[C_H2OT]"] == pytest.approx(-12.286979)
 
 
 def test_other_df_puresol():
-    "simple test of calc_pure_solubility"
+    "simple test of calc_pure_solubility using example 4c"
 
     # Define the melt composition, fO2 estimate, and T as a dictionary.
     my_analysis = {
@@ -77,7 +77,7 @@ def test_other_df_puresol():
         "Na2O": 2.14,  # wt%
         "K2O": 0.63,  # wt%
         "P2O5": 0.17,  # wt%
-        "Fe3FeT": 0.195,
+        "Fe3FeT": 0.177,
         "initial_P": 5000.0,
     }  # bar
 
@@ -91,7 +91,7 @@ def test_other_df_puresol():
 
 
 def test_other_df_puresol_useropt():
-    "simple test of calc_pure_solubility with user defined options"
+    "simple test of calc_pure_solubility with user defined options using example 4c"
 
     # Define the melt composition, fO2 estimate, and T as a dictionary.
     my_analysis = {
@@ -127,7 +127,7 @@ def test_other_df_puresol_useropt():
 
 
 def test_other_df_isobar():
-    "simple test of calc_isobar"
+    "simple test of calc_isobar using example 4d"
 
     # Define the melt composition, fO2 estimate, and T as a dictionary.
     my_analysis = {
@@ -143,7 +143,7 @@ def test_other_df_isobar():
         "Na2O": 2.14,  # wt%
         "K2O": 0.63,  # wt%
         "P2O5": 0.17,  # wt%
-        "Fe3FeT": 0.195,
+        "Fe3FeT": 0.177,
         "initial_P": 5000.0,
     }  # bar
 
