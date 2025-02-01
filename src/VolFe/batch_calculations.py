@@ -132,23 +132,24 @@ def results_table_isotope_d(R,R_all_species_S,R_m_g_S,R_all_species_C,R_m_g_C,R_
 ###############################
 ### options from setup file ###
 ###############################
-def options_from_setup(run,models,setup):
+def options_from_setup(run: float, models: pd.DataFrame, setup:pd.DataFrame) -> pd.DataFrame:
     """ 
     Allows model options to be read from the setup file rather than models file.
 
 
     Parameters
     ----------
-    run: float
+    run
         Integer of the row in the setup file to read from (note the first row under the headers is row 0).   
-    setup: pandas.DataFrame
+    setup 
         Dataframe with melt compositions to be used, require header using the same labels as row labels from models file if you want to use that option.
-    models: pandas.DataFrame
+    models
         Dataframe of models.csv file.
 
     Returns
     -------
-    results: pandas.DataFrame
+    models
+        Dataframe of models.csv file with the options updated from the setup file.
 
     """
     if models.loc["setup","option"] == "False":
