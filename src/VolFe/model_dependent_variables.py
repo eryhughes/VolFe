@@ -738,7 +738,7 @@ def C_CO3(PT,melt_wf,models=default_models): ### C_CO2,T = xmCO2,T/fCO2 ### (mol
     
     Model options
     -------------
-    -'MORB_Dixon95' [default] Bullet (5) of summary from Dixon et al. (1995) JPet 36(6):1607-1631 doi:10.1093/oxfordjournals.petrology.a037267
+    - 'MORB_Dixon95' [default] Bullet (5) of summary from Dixon et al. (1995) JPet 36(6):1607-1631 doi:10.1093/oxfordjournals.petrology.a037267
     - 'Basalt_Dixon97' Eq. (7) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
     - 'NorthArchBasalt_Dixon97' Eq. (8) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
     - 'Basalt_Lesne11' Eq. (25,26) from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
@@ -1108,6 +1108,7 @@ def C_S(PT,melt_wf,models=default_models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (we
     float
         Solubility constant for S2- as <class 'mpfr'>
 
+        
     Model options
     -------------
     - 'ONeill21dil' [default] Eq. (10.34) inc. H2O dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
@@ -2547,7 +2548,7 @@ def Q_SS(PT,Tr,Pcr,models):
 
     Returns
     -------
-    float
+    str
         Calculated values for A, B, C, D, P0, integral0   
     '''   
     P = PT['P']
