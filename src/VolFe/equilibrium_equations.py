@@ -11,6 +11,23 @@ import VolFe.calculations as c
 
 
 def set_system(melt_wf,models):
+    '''
+    Identify which volatiles are present in the system
+
+    Parameters
+    ----------
+    melt_wf: dictionary
+        Dictionary of weight fraction of melt composition
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+
+    Returns
+    -------
+    str
+        string indicating which volatiles are present in the system
+    '''
     wt_H = melt_wf["HT"]
     wt_C = melt_wf["CT"]
     wt_S = melt_wf["ST"]
@@ -40,6 +57,35 @@ def set_system(melt_wf,models):
     return sys
 
 def initial_guesses(run,PT,melt_wf,setup,models,system): ### CHECK ###
+    '''
+    Calculate initial guesses for the degassing calculation
+
+    Parameters
+    ----------
+    run: float
+        index of row that is being used in calculation
+
+    PT: dict
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+
+    melt_wf: dict
+        Dictionary of weight fraction of melt composition
+    
+    setup: pandas.Dataframe
+        Input dataframe of melt composition(s)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    system: str
+        String inficating volatiles in the system
+
+
+    Returns
+    -------
+    dict
+        dictionary of initial guesses
+    '''
     starting_P = models.loc["starting_P", "option"]
     #xenia = models.loc["xenia","option"]
     solve_species = models.loc["solve_species","option"]
