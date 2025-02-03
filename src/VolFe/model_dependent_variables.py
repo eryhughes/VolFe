@@ -216,306 +216,306 @@ def make_df_and_add_model_defaults(models):
     ### Specifying species ###
     
     COH_species: Specifying what COH species are present in the melt and vapor.
-    - 'yes_H2_CO_CH4_melt' [default] Include H2mol (if H present), COmol (if C present) and/or CH4mol (if H and C present) as dissolved melt species.
-    - 'no_H2_CO_CH4_melt' H2, CO and/or CH4 are insoluble in the melt but they are still present in the vapor (H2 in the vapor if H present, CO in the vapor if C present, CH4 in the vapor if both H and C present).
-    - 'H2O-CO2 only' The only species present in the vapor are H2O and CO2 and in the melt are H2OT and CO2T (i.e., no CO, H2, and/or CH4 in the melt or vapor).
+        - 'yes_H2_CO_CH4_melt' [default] Include H2mol (if H present), COmol (if C present) and/or CH4mol (if H and C present) as dissolved melt species.
+        - 'no_H2_CO_CH4_melt' H2, CO and/or CH4 are insoluble in the melt but they are still present in the vapor (H2 in the vapor if H present, CO in the vapor if C present, CH4 in the vapor if both H and C present).
+        - 'H2O-CO2 only' The only species present in the vapor are H2O and CO2 and in the melt are H2OT and CO2T (i.e., no CO, H2, and/or CH4 in the melt or vapor).
         
     H2S_m: Is H2S a dissolved melt species.
-    - 'True' [default] Include H2Smol as a dissolved melt species. 
-    - 'False' H2Smol is insoluble in the melt.
+        - 'True' [default] Include H2Smol as a dissolved melt species. 
+        - 'False' H2Smol is insoluble in the melt.
         
     species X: Chemical identity of species X, which defines its atomic mass.
-    - 'Ar' [default] Species X is argon (i.e., atomic mass of ~40).
-    - 'Ne' Species X is Ne (i.e., atomic mass of ~20).
-    Other noble gases not currently supported, but we can add them if you get in touch!
+        - 'Ar' [default] Species X is argon (i.e., atomic mass of ~40).
+        - 'Ne' Species X is Ne (i.e., atomic mass of ~20).
+        Other noble gases not currently supported, but we can add them if you get in touch!
     
     Hspeciation:
-    - 'none' [default] Oxidised H in the melt only occurs as H2O species (i.e., no OH-).
-    Only one option available currently, included for future development.
+        - 'none' [default] Oxidised H in the melt only occurs as H2O species (i.e., no OH-).
+        Only one option available currently, included for future development.
 
     
     ### Oxygen fugacity ###
 
     fO2: Model for parameterisation of relationship between fO2 and Fe3+/FeT
-    - 'Kress91A' [default] Eq. (A-5, A-6) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
-    - 'Kress91' Eq. (7) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
-    - 'ONeill18' Eq. (9a) in O'Neill et al. (2018) EPSL 504:152-162 doi:10.1016/j.epsl.2018.10.0020012-821X
-    - 'Borisov18' Eq. (4) from Borisov et al. (2018) CMP 173:98 doi:10.1007/s00410-018-1524-8  
+        - 'Kress91A' [default] Eq. (A-5, A-6) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
+        - 'Kress91' Eq. (7) in Kress and Carmichael (1991) CMP 108:82-92 doi:10.1007/BF00307328
+        - 'ONeill18' Eq. (9a) in O'Neill et al. (2018) EPSL 504:152-162 doi:10.1016/j.epsl.2018.10.0020012-821X
+        - 'Borisov18' Eq. (4) from Borisov et al. (2018) CMP 173:98 doi:10.1007/s00410-018-1524-8  
 
     NNObuffer: Model for the parameterisation for the fO2 value of the NNO buffer.
-    - 'Frost91' [default] Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
-    Only one option available currently, included for future development.
+        - 'Frost91' [default] Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
+        Only one option available currently, included for future development.
 
     FMQbuffer: Model for the parameterisation for the fO2 value of the FMQ buffer.
-    - 'Frost91' [default] FM[beta]Q in Table 1 of Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
-    - 'ONeill87' O'Neill (1897) AmMin 72(1-2):67-75
+        - 'Frost91' [default] FM[beta]Q in Table 1 of Frost (1991) in "Oxide Minerals: Petrologic and Magnetic Significance" doi:10.1515/9781501508684-004
+        - 'ONeill87' O'Neill (1897) AmMin 72(1-2):67-75
 
     
     ### Models for solubility and speciation constants ###
 
     carbon dioxide: Model for the parameterisation of the CO2T solubility constant.
-    - 'MORB_Dixon95' [default] Bullet (5) of summary from Dixon et al. (1995) JPet 36(6):1607-1631 doi:10.1093/oxfordjournals.petrology.a037267
-    - 'Basalt_Dixon97' Eq. (7) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
-    - 'NorthArchBasalt_Dixon97' Eq. (8) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
-    - 'Basalt_Lesne11' Eq. (25,26) from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
-    - 'VesuviusAlkaliBasalt_Lesne11' VES-9 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
-    - 'EtnaAlkaliBasalt_Lesne11' ETN-1 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
-    - 'StromboliAlkaliBasalt_Lense11' PST-9 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
-    - 'SunsetCraterAlkaliBasalt_Allison19' Sunset Crater in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
-    - 'SVFVBasalticAndesite_Allison19' SVFV in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
-    - 'ErebusPhonotephrite_Allison19' Erebus in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
-    - 'VesuviusPhonotephrite_Allison19' Vesuvius in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
-    - 'EtnaTrachybasalt_Allison19' Etna in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
-    - 'StromboliAlkaliBasalt_Allison19' Stromboli in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
-    - 'Basanite_Holloway94' Basanite in Table 5 from Holloway and Blank (1994) RiMG 30:187-230 doi:10.1515/9781501509674-012
-    - 'Leucitite_Thibault94' Leucitite from Thibault & Holloway (1994) CMP 116:216-224 doi:10.1007/BF00310701
-    - 'TholeiiteBasalt_Allison22' N72 basalt in Table 2 from Allison et al. (2022) CMP 177:40 doi:10.1007/s00410-022-01903-y
-    - 'Rhyolite_Blank93' Fig.2 caption from Blank et al. (1993) EPSL 119:27-36 doi:10.1016/0012-821X(93)90004-S
+        - 'MORB_Dixon95' [default] Bullet (5) of summary from Dixon et al. (1995) JPet 36(6):1607-1631 doi:10.1093/oxfordjournals.petrology.a037267
+        - 'Basalt_Dixon97' Eq. (7) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
+        - 'NorthArchBasalt_Dixon97' Eq. (8) from Dixon et al. (1997) AmMin 82(3-4)368-378 doi:10.2138/am-1997-3-415
+        - 'Basalt_Lesne11' Eq. (25,26) from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+        - 'VesuviusAlkaliBasalt_Lesne11' VES-9 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+        - 'EtnaAlkaliBasalt_Lesne11' ETN-1 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+        - 'StromboliAlkaliBasalt_Lense11' PST-9 in Table 4 from Lesne et al. (2011) CMP 162:153-168 doi:10.1007/s00410-010-0585-0
+        - 'SunsetCraterAlkaliBasalt_Allison19' Sunset Crater in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        - 'SVFVBasalticAndesite_Allison19' SVFV in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        - 'ErebusPhonotephrite_Allison19' Erebus in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        - 'VesuviusPhonotephrite_Allison19' Vesuvius in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        - 'EtnaTrachybasalt_Allison19' Etna in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        - 'StromboliAlkaliBasalt_Allison19' Stromboli in Table 4 from Allison et al. (2019) CMP 174:58 doi:10.1007/s00410-019-1592-4 
+        - 'Basanite_Holloway94' Basanite in Table 5 from Holloway and Blank (1994) RiMG 30:187-230 doi:10.1515/9781501509674-012
+        - 'Leucitite_Thibault94' Leucitite from Thibault & Holloway (1994) CMP 116:216-224 doi:10.1007/BF00310701
+        - 'TholeiiteBasalt_Allison22' N72 basalt in Table 2 from Allison et al. (2022) CMP 177:40 doi:10.1007/s00410-022-01903-y
+        - 'Rhyolite_Blank93' Fig.2 caption from Blank et al. (1993) EPSL 119:27-36 doi:10.1016/0012-821X(93)90004-S
 
     water: Model for the parameterisation for the H2O solubility constant.
-    - 'Basalt_Hughes24' [default] Hughes et al. (2024) AmMin 109(3):422-438 based on data compiliation from Allison et al. (2022) CMP 177(3):40 doi:10.1007/s00410-022-01903-y
-    - 'Rhyolite_HughesIP' Fig.SX from Hughes et al. (in prep) based on data in Fig. 3 of Blank et al. (1993)
+        - 'Basalt_Hughes24' [default] Hughes et al. (2024) AmMin 109(3):422-438 based on data compiliation from Allison et al. (2022) CMP 177(3):40 doi:10.1007/s00410-022-01903-y
+        - 'Rhyolite_HughesIP' Fig.SX from Hughes et al. (in prep) based on data in Fig. 3 of Blank et al. (1993)
     
     hydrogen: Model for the parameterisation of the H2 solubility constant.
-    - 'Basalt_Hughes24' [default] Basalt H2 in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
-    - 'Andesite_Hughes24' Andesite H2 in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+        - 'Basalt_Hughes24' [default] Basalt H2 in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+        - 'Andesite_Hughes24' Andesite H2 in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
     
     sulfide: Model for the parameterisation for the *S2- solubility constant (all calibrated over wide range of silicate melt compositions).
-    - 'ONeill21dil' [default] Eq. (10.34) inc. H2O dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
-    - 'ONeill21' Eq. (10.34) ex. H2O dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
-    - 'ONeill21hyd' (hydrous) Eq. (10.34, 10.49) from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
-    - 'Boulliung23eq6' Eq. (6) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
-    - 'Boulliung23eq7' Eq. (7) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9 
+        - 'ONeill21dil' [default] Eq. (10.34) inc. H2O dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+        - 'ONeill21' Eq. (10.34) ex. H2O dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+        - 'ONeill21hyd' (hydrous) Eq. (10.34, 10.49) from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+        - 'Boulliung23eq6' Eq. (6) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
+        - 'Boulliung23eq7' Eq. (7) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9 
     
     sulfate: Model for the parameterisation of the S6+ solubility constant (all calibrated over wide range of silicate melt compositions).
-    - 'ONeill22dil' [default] Eq. (12a) inc. H2O dilution from O'Neill & Mavrogenes (2022) GCA 334:368-382 10.1016/j.gca.2022.06.020
-    - 'ONeill22' Eq. (12a) without H2O dilution from O'Neill & Mavrogenes (2022) GCA 334:368-382 doi:10.1016/j.gca.2022.06.020
-    - 'Boulliung22nP' (no P-dependence) Eq. (5) from Boulliung & Wood (2023) GCA 343:420 doi:10.1016/j.gca.2022.11.025
-    - 'Boulliung22wP' (inc. P-dependece) Eq. (5) from Boulliung & Wood (2023) GCA 343:420 doi:10.1016/j.gca.2022.11.025 and Eq. (8) for P from Boulliung & Wood (2022) GCA 336:150-164 doi:10.1016/j.gca.2022.08.032
-    - 'Boulliung23eq9' Eq. (9) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
-    - 'Boulliung23eq11' Eq. (11) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
+        - 'ONeill22dil' [default] Eq. (12a) inc. H2O dilution from O'Neill & Mavrogenes (2022) GCA 334:368-382 10.1016/j.gca.2022.06.020
+        - 'ONeill22' Eq. (12a) without H2O dilution from O'Neill & Mavrogenes (2022) GCA 334:368-382 doi:10.1016/j.gca.2022.06.020
+        - 'Boulliung22nP' (no P-dependence) Eq. (5) from Boulliung & Wood (2023) GCA 343:420 doi:10.1016/j.gca.2022.11.025
+        - 'Boulliung22wP' (inc. P-dependece) Eq. (5) from Boulliung & Wood (2023) GCA 343:420 doi:10.1016/j.gca.2022.11.025 and Eq. (8) for P from Boulliung & Wood (2022) GCA 336:150-164 doi:10.1016/j.gca.2022.08.032
+        - 'Boulliung23eq9' Eq. (9) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
+        - 'Boulliung23eq11' Eq. (11) from Boulliung & Wood (2023) CMP 178:56 doi:10.1007/s00410-023-02033-9
     
     hydrogen sulfide: Model for the parameterisation for the H2S solubility constant.
-    - 'Basalt_Hughes24' [default] Fig.S6 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
-    - 'BasalticAndesite_Hughes24' Fig.S6 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+        - 'Basalt_Hughes24' [default] Fig.S6 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+        - 'BasalticAndesite_Hughes24' Fig.S6 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
     
     methane: Model for the parameterisation of the CH4 solubility constant.
-    - 'Basalt_Ardia13' [default] Eq. (7a) from Ardia et al. (2013) GCA 114:52-71 doi:10.1016/j.gca.2013.03.028
-    - Only one option available currently, included for future development.
+        - 'Basalt_Ardia13' [default] Eq. (7a) from Ardia et al. (2013) GCA 114:52-71 doi:10.1016/j.gca.2013.03.028
+        - Only one option available currently, included for future development.
 
     carbon monoxide: Model for the parameterisation of the CO solubility constant.
-    - 'Basalt_Hughes24' [default] CO in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
-    Only one option available currently, included for future development.
+        - 'Basalt_Hughes24' [default] CO in Table S4 from Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+        Only one option available currently, included for future development.
 
     species X solubility: Model for the parameterisation of the X solubility constant. 
-    - 'Ar_Basalt_HughesIP' [default] Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
-    - 'Ar_Rhyolite_HughesIP' Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
-    - 'Ne_Basalt_HughesIP' Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
-    - 'Ne_Rhyolite_HughesIP' Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
-    - [user specified number] (User can type a number that will be used instead (i.e., a constant value))
+        - 'Ar_Basalt_HughesIP' [default] Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+        - 'Ar_Rhyolite_HughesIP' Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+        - 'Ne_Basalt_HughesIP' Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+        - 'Ne_Rhyolite_HughesIP' Hughes et al. (in prep) based on data from Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
+        - [user specified number] (User can type a number that will be used instead (i.e., a constant value))
     
     Cspeccomp: Model for the parameterisation of the speciation constant for CO2mol and CO32- in the melt.
-    - 'Basalt' [default] Assume all oxidised carbon in the melt is present as carbonate ions.
-    - 'Andesite_Botcharnikov06' Eq. (8) from Botcharnikov et al. (2006) Chem.Geol. 229(1-3)125-143 doi:10.1016/j.chemgeo.2006.01.016
-    - 'Dacite_Botcharnikov06' Botcharnikov et al. (2006) Chem.Geol. 229(1-3)125-143 doi:10.1016/j.chemgeo.2006.01.016
-    - 'Rhyolite' Assume all oxidised carbon in the melt is present as molecular CO2.
+        - 'Basalt' [default] Assume all oxidised carbon in the melt is present as carbonate ions.
+        - 'Andesite_Botcharnikov06' Eq. (8) from Botcharnikov et al. (2006) Chem.Geol. 229(1-3)125-143 doi:10.1016/j.chemgeo.2006.01.016
+        - 'Dacite_Botcharnikov06' Botcharnikov et al. (2006) Chem.Geol. 229(1-3)125-143 doi:10.1016/j.chemgeo.2006.01.016
+        - 'Rhyolite' Assume all oxidised carbon in the melt is present as molecular CO2.
     
     Hspeccomp: Model for the parameterisation of the speciation constant for H2Omol and OH- in the melt, either assuming ideal or regular solution models.
-    - 'MORB_HughesIP' [default] [ideal solution only] Eq. SX in Hughes et al. (in prep) 
-    - 'MORB_Dixon95' [regular solution only] Table 5 of Dixon et al. (1995) JPet 36(6):1607-1631 doi:10.1093/oxfordjournals.petrology.a037267
-    - 'AlkaliBasalt_Lesne10' [regular solution only] Eq. (24-27) Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
-    - 'StromboliAlkaliBasalt_Lesne10' Eq. (15) [ideal solution] or PST-9 in Table 5 [regular solution] from Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
-    - 'VesuviusAlkaliBasalt_Lesne10' Eq. (16) [ideal solution] or VES-9 in Table 5 [regular solution] from Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
-    - 'EtnaAlkaliBasalt_Lesne10' Eq. (17) [ideal solution] or ETN-1 in Table 5 [regular solution] from Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
-    - 'Andesite_Botcharnikov06' [ideal solution only] Eq (7) from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143 doi:10.1016/j.chemgeo.2006.01.016
-    - 'Albite_Silver89' Fig. 8 [ideal solution only] or in the text [regular solution] from Silver & Stolper (1989) J.Pet 30(3)667-709 doi:10.1093/petrology/30.3.667
-    - 'Rhyolite_Zhang97' [ideal solution only] Eq. (9) from Zhang et al. (1997) GCA 61(15):3089-3100 doi:10.1016/S0016-7037(97)00151-8
+        - 'MORB_HughesIP' [default] [ideal solution only] Eq. SX in Hughes et al. (in prep) 
+        - 'MORB_Dixon95' [regular solution only] Table 5 of Dixon et al. (1995) JPet 36(6):1607-1631 doi:10.1093/oxfordjournals.petrology.a037267
+        - 'AlkaliBasalt_Lesne10' [regular solution only] Eq. (24-27) Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
+        - 'StromboliAlkaliBasalt_Lesne10' Eq. (15) [ideal solution] or PST-9 in Table 5 [regular solution] from Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
+        - 'VesuviusAlkaliBasalt_Lesne10' Eq. (16) [ideal solution] or VES-9 in Table 5 [regular solution] from Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
+        - 'EtnaAlkaliBasalt_Lesne10' Eq. (17) [ideal solution] or ETN-1 in Table 5 [regular solution] from Lesne et al. (2010) CMP 162:133-151 doi:10.1007/s00410-010-0588-x
+        - 'Andesite_Botcharnikov06' [ideal solution only] Eq (7) from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143 doi:10.1016/j.chemgeo.2006.01.016
+        - 'Albite_Silver89' Fig. 8 [ideal solution only] or in the text [regular solution] from Silver & Stolper (1989) J.Pet 30(3)667-709 doi:10.1093/petrology/30.3.667
+        - 'Rhyolite_Zhang97' [ideal solution only] Eq. (9) from Zhang et al. (1997) GCA 61(15):3089-3100 doi:10.1016/S0016-7037(97)00151-8
 
             
     ### Saturation conditions ###
 
     SCSS: Model for parameterisation of the sulfide content at sulfide saturation (S2-CSS).
-    - 'ONeill21hyd' [default] Eq. (10.34, 10.43, 10.45, 10.46, 10.49) from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
-    - 'ONeill21' Eq. (10.34, 10.43, 10.45, 10.46) excluding water dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
-    - 'ONeill21dil' Eq. (10.34, 10.43, 10.45, 10.46) including water dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
-    - 'Liu07' Eq. (9) in Liu et al. (2007) GCA 71:1783-1799 doi:10.1016/j.gca.2007.01.004
-    - 'Fortin15' Eq. (7) Fortin et al. (2015) GCA 160:100-116 doi:10.1016/j.gca.2015.03.022
-    - 'Liu21' Eq. (2) Liu et al. (2021) Chem.Geol. 559:119913 doi:10.1016.j.chemgeo.2020.119913
-    - 'Fortin15_pss' Fortin et al. (2015) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-    - 'Liu21_pss' Liu et al. (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-    - 'ONeill21_pss' O'Neill (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-    - 'ONeill22_pss' O'Neill & Mavrogenes (2022) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-    - 'Smythe17_pss' Smythe et al. (2017) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        - 'ONeill21hyd' [default] Eq. (10.34, 10.43, 10.45, 10.46, 10.49) from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+        - 'ONeill21' Eq. (10.34, 10.43, 10.45, 10.46) excluding water dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+        - 'ONeill21dil' Eq. (10.34, 10.43, 10.45, 10.46) including water dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
+        - 'Liu07' Eq. (9) in Liu et al. (2007) GCA 71:1783-1799 doi:10.1016/j.gca.2007.01.004
+        - 'Fortin15' Eq. (7) Fortin et al. (2015) GCA 160:100-116 doi:10.1016/j.gca.2015.03.022
+        - 'Liu21' Eq. (2) Liu et al. (2021) Chem.Geol. 559:119913 doi:10.1016.j.chemgeo.2020.119913
+        - 'Fortin15_pss' Fortin et al. (2015) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        - 'Liu21_pss' Liu et al. (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        - 'ONeill21_pss' O'Neill (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        - 'ONeill22_pss' O'Neill & Mavrogenes (2022) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        - 'Smythe17_pss' Smythe et al. (2017) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     
     SCAS: Model for parameterisation of the sulfate content at anhydrite saturation (S6+CAS).
-    - 'Chowdhury19' [default] Eq. (8) using Table 5 in Chowdhury & Dasgupta (2019) Chem.Geol. 522:162-174 doi:10.1016/j.chemgeo.2019.05.020
-    - 'Zajacz19' Eq. (8-14) Zajacz & Tsay (2019) GCA 261:288-304 doi:10.1016/j.gca.2019.07.007
-    - 'Liu23' Eq. (4) Liu et al. (2023) GCA 349:135-145 doi:10.1016/j.gca.2023.04.007
-    - 'Zajacz19_pss' Zajacz and Tsay (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-    - 'Chowdhury19_pss' Chowdhury & Dasgupta (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        - 'Chowdhury19' [default] Eq. (8) using Table 5 in Chowdhury & Dasgupta (2019) Chem.Geol. 522:162-174 doi:10.1016/j.chemgeo.2019.05.020
+        - 'Zajacz19' Eq. (8-14) Zajacz & Tsay (2019) GCA 261:288-304 doi:10.1016/j.gca.2019.07.007
+        - 'Liu23' Eq. (4) Liu et al. (2023) GCA 349:135-145 doi:10.1016/j.gca.2023.04.007
+        - 'Zajacz19_pss' Zajacz and Tsay (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        - 'Chowdhury19_pss' Chowdhury & Dasgupta (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     
     sulfur_saturation: Is sulfur allowed to form sulfide or anhydrite if sulfur content of the melt reaches saturation levels for these phases?
-    - 'False' [default] melt ± vapor are the only phases present - results are metastable with respect to sulfide and anhydrite if they could saturate.
-    - 'True' If saturation conditions for sulfide or anhydrite are met, melt sulfur content reflects this.
+        - 'False' [default] melt ± vapor are the only phases present - results are metastable with respect to sulfide and anhydrite if they could saturate.
+        - 'True' If saturation conditions for sulfide or anhydrite are met, melt sulfur content reflects this.
     
     graphite_saturation: Is graphite allowed to form if the carbon content of the melt reaches saturation levels for graphite?
-    - 'False' [default] melt ± vapor are the only phases present - results are metastable with respect to graphite if it could saturate.
-    - 'True' If saturation conditions for graphite are met, melt carbon content reflects this.
+        - 'False' [default] melt ± vapor are the only phases present - results are metastable with respect to graphite if it could saturate.
+        - 'True' If saturation conditions for graphite are met, melt carbon content reflects this.
            
     ### Fugacity coefficients ###
           
     ideal_gas: Treat all vapor species as ideal gases (i.e., all fugacity coefficients = 1 at all P).
-    - 'False' [default] At least some of the vapor species are not treated as ideal gases. 
-    - 'True' All fugacity coefficients = 1 at all P.
+        - 'False' [default] At least some of the vapor species are not treated as ideal gases. 
+        - 'True' All fugacity coefficients = 1 at all P.
     
     y_CO2: Model for the parameterisation of the CO2 fugacity coefficient.
-    - 'Shi92' [default] Shi & Saxena (1992) AmMin 77(9-10):1038-1049
-    - 'Holland91' Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
-    - 'ideal' Treat CO2 as ideal gas species, fugacity coefficient = 1 at all P.
+        - 'Shi92' [default] Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        - 'Holland91' Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
+        - 'ideal' Treat CO2 as ideal gas species, fugacity coefficient = 1 at all P.
 
     y_SO2: Model for the parameterisation of the SO2 fugacity coefficient.
-    - 'Shi92_Hughes23' [default] Fig.S1 Hughes et al. (2023) JGSL 180(3) doi:10.1144/jgs2021-12
-    - 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
-    - 'ideal' Treat SO2 as ideal gas species, fugacity coefficient = 1 at all P.
+        - 'Shi92_Hughes23' [default] Fig.S1 Hughes et al. (2023) JGSL 180(3) doi:10.1144/jgs2021-12
+        - 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        - 'ideal' Treat SO2 as ideal gas species, fugacity coefficient = 1 at all P.
 
     y_H2S: Model for the parameterisation of the H2S fugacity coefficient.
-    - 'Shi92_Hughes24' [default] Fig.S1 Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
-    - 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
-    - 'ideal' Treat H2S as ideal gas species, fugacity coefficient = 1 at all P.
+        - 'Shi92_Hughes24' [default] Fig.S1 Hughes et al. (2024) AmMin 109(3):422-438 doi:10.2138/am-2023-8739
+        - 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        - 'ideal' Treat H2S as ideal gas species, fugacity coefficient = 1 at all P.
 
     y_H2: Model for the parameterisation of the H2 fugacity coefficient.
-    - 'Shaw64' [default] Eq. (4) from Shaw & Wones (1964) AmJSci 262:918-929
-    - 'ideal' Treat H2 as ideal gas species, fugacity coefficient = 1 at all P.
+        - 'Shaw64' [default] Eq. (4) from Shaw & Wones (1964) AmJSci 262:918-929
+        - 'ideal' Treat H2 as ideal gas species, fugacity coefficient = 1 at all P.
 
     y_O2: Model for the parameterisation of the O2 fugacity coefficient.
-    - 'Shi92' [default] Shi & Saxena (1992) AmMin 77(9-10):1038-1049
-    - 'ideal' Treat O2 as ideal gas species, fugacity coefficient = 1 at all P.
+        - 'Shi92' [default] Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        - 'ideal' Treat O2 as ideal gas species, fugacity coefficient = 1 at all P.
 
     y_S2: Model for the parameterisation of the O2 fugacity coefficient.
-    - 'Shi92' [default] Shi & Saxena (1992) AmMin 77(9-10):1038-1049
-    - 'ideal' Treat S2 as ideal gas species, fugacity coefficient = 1 at all P.
+        - 'Shi92' [default] Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        - 'ideal' Treat S2 as ideal gas species, fugacity coefficient = 1 at all P.
 
     y_CO: Model for the parameterisation of the CO fugacity coefficient.
-    - 'Shi92' [default] Shi & Saxena (1992) AmMin 77(9-10):1038-1049
-    - 'ideal' Treat CO as ideal gas species, fugacity coefficient = 1 at all P.        
+        - 'Shi92' [default] Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        - 'ideal' Treat CO as ideal gas species, fugacity coefficient = 1 at all P.        
 
     y_CH4: Model for the parameterisation of the CH4 fugacity coefficient.
-    - 'Shi92' [default] Shi & Saxena (1992) AmMin 77(9-10):1038-1049
-    - 'ideal' Treat CH4 as ideal gas species, fugacity coefficient = 1 at all P.    
+        - 'Shi92' [default] Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        - 'ideal' Treat CH4 as ideal gas species, fugacity coefficient = 1 at all P.    
 
     y_H2O: Model for the parameterisation of the H2O fugacity coefficient.
-    - 'Holland91' [default] Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
-    - 'ideal' Treat H2O as ideal gas species, fugacity coefficient = 1 at all P.    
+        - 'Holland91' [default] Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
+        - 'ideal' Treat H2O as ideal gas species, fugacity coefficient = 1 at all P.    
     
     y_OCS: Model for the parameterisation of the OCS fugacity coefficient.
-    - 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
-    - 'ideal' Treat OCS as ideal gas species, fugacity coefficient = 1 at all P.            
+        - 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
+        - 'ideal' Treat OCS as ideal gas species, fugacity coefficient = 1 at all P.            
 
     y_X: Model for the parameterisation of the X fugacity coefficient.
-    - 'ideal' Treat X as ideal gas species, fugacity coefficient = 1 at all P.
-    Only one option available currently, included for future development.  
+        - 'ideal' Treat X as ideal gas species, fugacity coefficient = 1 at all P.
+        Only one option available currently, included for future development.  
           
         
     ### Equilibrium constants ###
     
     KHOg: Model for the parameterisation of the equilibiurm constant for H2 + 0.5O2 = H2O.
-    - 'Ohmoto97' [default] Reaction (d) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
-    Only one option available currently, included for future development.
+        - 'Ohmoto97' [default] Reaction (d) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
+        Only one option available currently, included for future development.
 
     KHOSg: Model for the parameterisation of the equilibiurm constant for 0.5S2 + H2O = H2S + 0.5O2.
-    - 'Ohmoto97' [default] Reaction (h) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
-    - 'no H2S' Stops H2S forming in the vapor (K = 0).
+        - 'Ohmoto97' [default] Reaction (h) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
+        - 'no H2S' Stops H2S forming in the vapor (K = 0).
     
     KOSg: Model for the parameterisation of the equilibiurm constant for 0.5S2 + O2 = SO2.
-    - 'Ohmoto97' [default] Reaction (f) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
-    - 'no SO2' Stops SO2 forming in the vapor (K = 0). As a by-product, OCS will also stop forming.
+        - 'Ohmoto97' [default] Reaction (f) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
+        - 'no SO2' Stops SO2 forming in the vapor (K = 0). As a by-product, OCS will also stop forming.
 
     KOSg2: Model for the parameterisation of the equilibiurm constant for 0.5S2 + 1.5O2 = SO3.
-    - 'ONeill2' [default] Eq. (6b) from O'Neill & Mavrogenes (2022) GCA 334:368-382 doi:10.1016/j.gca.2022.06.020
-    Only one option available currently, included for future development.
+        - 'ONeill2' [default] Eq. (6b) from O'Neill & Mavrogenes (2022) GCA 334:368-382 doi:10.1016/j.gca.2022.06.020
+        Only one option available currently, included for future development.
 
     KOCg: Model for the parameterisation of the equilibiurm constant for CO + 0.5O2 = CO2.
-    'Ohmoto97' [default] Reaction (c) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
-    Only one option available currently, included for future development. 
+        'Ohmoto97' [default] Reaction (c) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
+        Only one option available currently, included for future development. 
 
     KCOHg: Model for the parameterisation of the equilibiurm constant for CH4 + 2O2 = CO2 + 2H2O.
-    'Ohmoto97' [default] Reaction (e) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
-    -'no CH4' Stops CH4 forming in the vapor (K = large number).
+        'Ohmoto97' [default] Reaction (e) in Table 1 from Ohmoto & Kerrick (1977) AmJSci 277:1013-1044
+        -'no CH4' Stops CH4 forming in the vapor (K = large number).
 
     KOCSg: Model for the parameterisation of the equilibiurm constant for OCS.
-    - 'Moussallam19' [default] Eq. (8) for 2CO2 + OCS ⇄ 3CO + SO2 in Moussallam et al. (2019) EPSL 520:260-267 doi:10.1016/j.epsl.2019.05.036 for 
-    - 'no OCS' Stops OCS forming in the vapor (K = large number).  
+        - 'Moussallam19' [default] Eq. (8) for 2CO2 + OCS ⇄ 3CO + SO2 in Moussallam et al. (2019) EPSL 520:260-267 doi:10.1016/j.epsl.2019.05.036 for 
+        - 'no OCS' Stops OCS forming in the vapor (K = large number).  
 
     KCOs: Model for the parameterisation of the equilibiurm constant for Cgrahite + O2 = CO2.
-    - 'Holloway92' [default] Eq. (3) KI in Holloway et al. (1992) EuropeanJ.Mineralogy 4(1):105-114.
-    Only one option available currently, included for future development.
+        - 'Holloway92' [default] Eq. (3) KI in Holloway et al. (1992) EuropeanJ.Mineralogy 4(1):105-114.
+        Only one option available currently, included for future development.
 
     carbonylsulfide: Reaction equilibrium KOCSg is for. 
-    - 'COS' [default] 2CO2 + OCS ⇄ 3CO + SO2
-    Only one option available currently, included for future development.
+        - 'COS' [default] 2CO2 + OCS ⇄ 3CO + SO2
+        Only one option available currently, included for future development.
 
         
     ### Degassing calculation ###
 
     bulk_composition: Specifying what the inputted melt composition (i.e., dissolved volatiles and fO2-estimate) corresponds to for the degassing calculation
-    -'melt-only' [default] The inputted melt composition (i.e., dissolved volatiles) represents the bulk system - there is no vapor present. The fO2-estimate is calculated at Pvsat for this melt composition.
-    - 'melt+vapor_wtg' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. The amount of vapor as weight fraction gas (wtg) is specified in the inputs. The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input composition.
-    - 'melt+vapor_initialCO2' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. The initial CO2 content of the melt (i.e., before degassing) is specified in the inputs. The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input composition. The amount of vapor present is calculated using the given initial CO2.
+        -'melt-only' [default] The inputted melt composition (i.e., dissolved volatiles) represents the bulk system - there is no vapor present. The fO2-estimate is calculated at Pvsat for this melt composition.
+        - 'melt+vapor_wtg' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. The amount of vapor as weight fraction gas (wtg) is specified in the inputs. The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input composition.
+        - 'melt+vapor_initialCO2' The inputted melt composition (i.e., dissolved volatiles) is in equilibrium with a vapor phase. The initial CO2 content of the melt (i.e., before degassing) is specified in the inputs. The bulk system composition will be calculated by calculating Pvsat and the vapor composition given the input composition. The amount of vapor present is calculated using the given initial CO2.
     
     starting_P: Determing the starting pressure for a degassing calculation.
-    - 'Pvsat' [default] Calculation starts at Pvsat for the inputted melt composition (i.e., dissolved volatiles).
-    - 'set' Calculation starts at the pressure specified in the inputs (using P_bar, pressure in bars).
+        - 'Pvsat' [default] Calculation starts at Pvsat for the inputted melt composition (i.e., dissolved volatiles).
+        - 'set' Calculation starts at the pressure specified in the inputs (using P_bar, pressure in bars).
     
     gassing_style: Does the bulk composition of the system (including oxygen) remain constant during the re/degassing 
     calculation.
-    - 'closed' [default] The bulk composition of the system (inc. oxygen) is constant during re/degassing calculation - vapor and melt remain in chemical equilibrium throughout.
-    - 'open' At each pressure-step, the vapor in equilibrium with the melt is removed (or added for regassing), such that the bulk composition of the system changes. This does not refer to being buffered in terms of fO2.
+        - 'closed' [default] The bulk composition of the system (inc. oxygen) is constant during re/degassing calculation - vapor and melt remain in chemical equilibrium throughout.
+        - 'open' At each pressure-step, the vapor in equilibrium with the melt is removed (or added for regassing), such that the bulk composition of the system changes. This does not refer to being buffered in terms of fO2.
     
     gassing_direction: Is pressure increasing or decreasing from the starting perssure.
-    - 'degas' [default] Pressure progressively decreases from starting pressure for isothermal, polybaric calculations (i.e., degassing).
-    - 'regas' Pressure progressively increases from starting pressure for isothermal, polybaric calculations (i.e., regassing).
+        - 'degas' [default] Pressure progressively decreases from starting pressure for isothermal, polybaric calculations (i.e., degassing).
+        - 'regas' Pressure progressively increases from starting pressure for isothermal, polybaric calculations (i.e., regassing).
     
     P_variation: Is pressure varying during the calculation?
-    - 'polybaric' [default] Pressure progressively changes during the calculation.
-    Only one option available currently, included for future development.
+        - 'polybaric' [default] Pressure progressively changes during the calculation.
+        Only one option available currently, included for future development.
     
     T_variation: Is temperature varying during the calculation?
-    - 'isothermal' [default] Temperature is constant during the calculation.
-    Only one option available currently, included for future development.
+        - 'isothermal' [default] Temperature is constant during the calculation.
+        Only one option available currently, included for future development.
     
     # WHY DID I THINK THIS WAS USEFUL #
     eq_Fe: Does iron in the melt equilibrate with fO2.
-    - 'yes' [default] Iron equilibrates with fO2
-    Only one option available currently, included for future development.
+        - 'yes' [default] Iron equilibrates with fO2
+        Only one option available currently, included for future development.
     
     solve_species: What species are used to solve the equilibrium equations? This should not need to be changed unless the solver is struggling.
-    - 'OCS' [default] Guess mole fractions of O2, CO, and S2 in the vapor to solve the equilibrium equations.
-    - 'OHS' Guess mole fractions of O2, H2, and S2 in the vapor to solve the equilibrium equations.
-    - 'OCH' Guess mole fractions of O2, CO, and H2 in the vapor to solve the equilibrium equations.
+        - 'OCS' [default] Guess mole fractions of O2, CO, and S2 in the vapor to solve the equilibrium equations.
+        - 'OHS' Guess mole fractions of O2, H2, and S2 in the vapor to solve the equilibrium equations.
+        - 'OCH' Guess mole fractions of O2, CO, and H2 in the vapor to solve the equilibrium equations.
 
         
     ### Other ###
 
     density: Model for parameterisation of melt density
-    - 'DensityX' [default] DensityX from Iacovino & Till (2019) Volcanica 2(1):1-10 doi:10.30909/vol.02.01.0110
-    Only one option available currently, included for future development.
+        - 'DensityX' [default] DensityX from Iacovino & Till (2019) Volcanica 2(1):1-10 doi:10.30909/vol.02.01.0110
+        Only one option available currently, included for future development.
 
     setup: Specifies whether model options are specified in the models or setup dataframe. 
-    - 'False' [default] All model options are specified in the models dataframe.
-    - 'True' Some of the model options are specified in the setup dataframe.
+        - 'False' [default] All model options are specified in the models dataframe.
+        - 'True' Some of the model options are specified in the setup dataframe.
     
     print status: Specifies whether some sort of status information during the calculation is outputted to let you know progress.
-    - 'False' [default] No information about calculation progress is printed.
-    - 'True' Some information about calculation progress is printed.
+        - 'False' [default] No information about calculation progress is printed.
+        - 'True' Some information about calculation progress is printed.
 
     output csv: Specicies whether a csv of the outputted dataframe is saved at the end of the calculation.
-    - 'True' [default] csv is outputted
-    - 'False' csv is not outputted
+        - 'True' [default] csv is outputted
+        - 'False' csv is not outputted
 
     high precision: Is high preicision used for calculations?
         TRUE OR FALSE WHAT PRECISION IS IT USING
-    - 'False' [default] normal precision used for calculations
-    - 'True' high precision used
+        - 'False' [default] normal precision used for calculations
+        - 'True' high precision used
 
             
     ### In development ###
@@ -2115,7 +2115,7 @@ def KCOs(PT,models=default_models):
     Model options for KCOs
     -------------
     - 'Holloway92' [default] Eq (3) KI in Holloway et al. (1992) Eur J. Mineral. 4:105-114
-    - Only one option available currently, included for future development.
+    Only one option available currently, included for future development.
 
     """
 

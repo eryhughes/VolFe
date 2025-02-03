@@ -29,29 +29,32 @@ import VolFe.equilibrium_equations as eq
 def f_H2O(PT,melt_wf,models):
     
     """ 
-    Calculates fugacity of water in the vapor from concentration of water in the melt
+    Calculates fugacity of water in the vapor from concentration (mole fraction) of water in the melt
 
 
     Parameters
     ----------
-    PT: pandas.DataFrame
-        Dataframe of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
         
-    melt_wf: pandas.DataFrame
-        Dataframe of melt composition. WHAT.
-        
-    species: pandas.DataFrame
-        Dataframe of species.csv file.
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
     
     models: pandas.DataFrame
-        Dataframe of models.csv file.
+        Dataframe of models option. Minimum requirement is dataframe with index of “Hspeciation” and column label of “option”
 
     Returns
     -------
-    fH2O in bars as <class 'mpfr'>
+    float
+        fH2O in bars as <class 'mpfr'>
+
+    
+    Model options for Hspeciation
+    --------------------------
+    - 'none' [default]
+    Only one option available currently, included for future development.
 
     """
-
     Hspeciation = models.loc["Hspeciation","option"]
     if Hspeciation in ["none",'none+ideal',"none+regular"]: # fH2O = xmH2OT^2/CH2O
         value = ((xm_H2OT_so(melt_wf))**2.0)/mdv.C_H2O(PT,melt_wf,models)
@@ -64,6 +67,30 @@ def f_H2O(PT,melt_wf,models):
         return value
     
 def f_CO2(PT,melt_wf,models):
+    """ 
+    Calculates fugacity of CO2 in the vapor from concentration (mole fraction) of total CO2 in the melt
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option. Minimum requirement is dataframe with index of “carbon dioxide” and column label of “option”
+
+    Returns
+    -------
+    float
+        fCO2 in bars as <class 'mpfr'>
+
+    
+    See C_CO2 for model options for carbon dioxide
+
+    """
     CO3model = models.loc["carbon dioxide","option"]
     wm_CO2 = 100.*melt_wf['CO2']
     if CO3model == "Shishkina14": # wtppm CO2 modified from Shishkina et al. (2014) Chem. Geol. 388:112-129
@@ -73,35 +100,182 @@ def f_CO2(PT,melt_wf,models):
     return f
 
 def f_S2(PT,melt_wf,models): # wtppm S2- NOT mole fraction due to parameterisation by O'Neill (2020)
+    """ 
+    Calculates fugacity of S2 in the vapor from concentration (weight fraction) of *S2- in the melt
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        fS2 in bars as <class 'mpfr'>
+
+    """
     K = mdv.C_S(PT,melt_wf,models)/1000000.
     fS2 = ((melt_wf["S2-"]/K)**2.)*mdv.f_O2(PT,melt_wf,models)
     return fS2
     
 def f_H2(PT,melt_wf,models):
+    """ 
+    Calculates fugacity of H2 in the vapor from fH2O and fO2
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        fH2 in bars as <class 'mpfr'>
+
+    """
     K = mdv.KHOg(PT,models)
     return f_H2O(PT,melt_wf,models)/(K*mdv.f_O2(PT,melt_wf,models)**0.5)
 
 def f_CO(PT,melt_wf,models):
+    """ 
+    Calculates fugacity of CO in the vapor from fCO2 and fO2
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        fCO in bars as <class 'mpfr'>
+
+    """
     K = mdv.KCOg(PT,models)
     return f_CO2(PT,melt_wf,models)/(K*mdv.f_O2(PT,melt_wf,models)**0.5)
 
 def f_H2S(PT,melt_wf,models):
+    """ 
+    Calculates fugacity of H2S in the vapor from fS2, fH2O, and fO2
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        fH2S in bars as <class 'mpfr'>
+
+    """
     K = mdv.KHOSg(PT,models)
     return (K*f_S2(PT,melt_wf,models)**0.5*f_H2O(PT,melt_wf,models))/mdv.f_O2(PT,melt_wf,models)**0.5
 
 def f_SO2(PT,melt_wf,models):
+    """ 
+    Calculates fugacity of SO2 in the vapor from fS2 and fO2
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        fSO2 in bars as <class 'mpfr'>
+
+    """
     K = mdv.KOSg(PT,models)
     return K*mdv.f_O2(PT,melt_wf,models)*f_S2(PT,melt_wf,models)**0.5
 
 def f_SO3(PT,melt_wf,models):
+    # Work in progress
     K = mdv.KOSg2(PT,models)
     return K*(mdv.f_O2(PT,melt_wf,models))**1.5*(f_S2(PT,melt_wf,models))**0.5
 
 def f_CH4(PT,melt_wf,models):
+    """ 
+    Calculates fugacity of CH4 in the vapor from fCO2, fH2O, and fO2
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        fCH4 in bars as <class 'mpfr'>
+
+    """
     K = mdv.KCOHg(PT,models)
     return (f_CO2(PT,melt_wf,models)*f_H2O(PT,melt_wf,models)**2.0)/(K*mdv.f_O2(PT,melt_wf,models)**2.0)
 
 def f_OCS(PT,melt_wf,models):
+    """ 
+    Calculates fugacity of OCS in the vapor from fCO2, fH2O, and fH2S or fSO2
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        fOCS in bars as <class 'mpfr'>
+
+    """
     OCSmodel = models.loc["carbonylsulfide","option"]
     K = mdv.KOCSg(PT,models)
     if OCSmodel == "COHS":
@@ -116,6 +290,27 @@ def f_OCS(PT,melt_wf,models):
             return 0.0
         
 def f_X(PT,melt_wf,models):
+    """ 
+    Calculates fugacity of X in the vapor from concentration (weight fraction) of X in the melt
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        fX in bars as <class 'mpfr'>
+
+    """
     K = mdv.C_X(PT,melt_wf,models)/1000000.
     f_X = melt_wf["XT"]/K
     return f_X
@@ -127,18 +322,90 @@ def f_X(PT,melt_wf,models):
 
 # buffers
 def fO22Dbuffer(PT,fO2,buffer,models):
+    """ 
+    Converts fO2 value to value relative to buffer
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+
+    fO2: float
+        fO2 in bars
+
+    buffer: str
+        Buffer of interest: NNO or FMQ
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        Value relative to buffer
+
+    """
     if buffer == "NNO":
         return math.log10(fO2) - mdv.NNO(PT,models)
     elif buffer == "FMQ":
         return math.log10(fO2) - mdv.FMQ(PT,models)
+
 def Dbuffer2fO2(PT,D,buffer,model):
+    """ 
+    Converts value relative to buffer to fO2
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+
+    D: float
+        fO2 value relative to buffer
+
+    buffer: str
+        Buffer of interest: NNO or FMQ
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        fO2 in bars
+
+    """
     if buffer == "NNO":
         return 10.0**(D + mdv.NNO(PT,model))
     elif buffer == "FMQ":
         return 10.0**(D + mdv.FMQ(PT,model))
         
 def S6S2_2_fO2(S62,melt_wf,PT,models):
+    """ 
+    Converts S6+/ST to fO2
 
+
+    Parameters
+    ----------
+    S62: float
+        S6+/ST in melt
+
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T".  
+
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        fO2 in bars
+
+    """
     def calc_fO2(S62,melt_wf,PT,models):
         CSO4 = mdv.C_SO4(PT,melt_wf,models)/1000000.
         CS = mdv.C_S(PT,melt_wf,models)/1000000.
@@ -186,29 +453,291 @@ def S6S2_2_fO2(S62,melt_wf,PT,models):
 ########################
 
 def p_H2(PT,melt_wf,models):
+    """ 
+    Converts fH2 to partial pressure of H2 (pH2)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        pH2 in bars
+
+    """
     return f_H2(PT,melt_wf,models)/mdv.y_H2(PT,models)
+
 def p_H2O(PT,melt_wf,models):
+    """ 
+    Converts fH2O to partial pressure of H2O (pH2O)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        pH2O in bars
+
+    """
     return f_H2O(PT,melt_wf,models)/mdv.y_H2O(PT,models)
+
 def p_O2(PT,melt_wf,models):
+    """ 
+    Converts fO2 to partial pressure of O2 (pO2)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        pO in bars
+
+    """
     return mdv.f_O2(PT,melt_wf,models)/mdv.y_O2(PT,models)
+
 def p_SO2(PT,melt_wf,models):
+    """ 
+    Converts fSO2 to partial pressure of SO2 (pSO2)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        pSO2 in bars
+
+    """
     return f_SO2(PT,melt_wf,models)/mdv.y_SO2(PT,models)
+
 def p_S2(PT,melt_wf,models):
+    """ 
+    Converts fS2 to partial pressure of S2 (pS2)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        pS2 in bars
+
+    """
     return f_S2(PT,melt_wf,models)/mdv.y_S2(PT,models)
+
 def p_H2S(PT,melt_wf,models):
+    """ 
+    Converts fH2S to partial pressure of H2S (pH2S)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        pH2S in bars
+
+    """
     return f_H2S(PT,melt_wf,models)/mdv.y_H2S(PT,models)
+
 def p_CO2(PT,melt_wf,models):
+    """ 
+    Converts fCO2 to partial pressure of CO2 (pCO2)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        pH2 in bars
+
+    """
     return f_CO2(PT,melt_wf,models)/mdv.y_CO2(PT,models)
+
 def p_CO(PT,melt_wf,models):
+    """ 
+    Converts fCO to partial pressure of CO (pCO)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        pCO in bars
+
+    """
     return f_CO(PT,melt_wf,models)/mdv.y_CO(PT,models)
+
 def p_CH4(PT,melt_wf,models):
+    """ 
+    Converts fCH4 to partial pressure of CH4 (pCH4)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        pCH4 in bars
+
+    """
     return f_CH4(PT,melt_wf,models)/mdv.y_CH4(PT,models)
+
 def p_OCS(PT,melt_wf,models):
+    """ 
+    Converts fOCS to partial pressure of OCS (pOCS)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        pOCS in bars
+
+    """
     return f_OCS(PT,melt_wf,models)/mdv.y_OCS(PT,models)
+
 def p_X(PT,melt_wf,models):
+    """ 
+    Converts fX to partial pressure of X (pX)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        pX in bars
+
+    """
     return f_X(PT,melt_wf,models)/mdv.y_X(PT,models)
 
 def p_tot(PT,melt_wf,models):
+    """ 
+    Calculate total pressure by summing partial pressure of all vapor species
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        total P in bars
+
+    """
     return p_H2(PT,melt_wf,models) + p_H2O(PT,melt_wf,models) + p_O2(PT,melt_wf,models) + p_SO2(PT,melt_wf,models) + p_S2(PT,melt_wf,models) + p_H2S(PT,melt_wf,models) + p_CO2(PT,melt_wf,models) + p_CO(PT,melt_wf,models) + p_CH4(PT,melt_wf,models) + p_OCS(PT,melt_wf,models) + p_X(PT,melt_wf,models)
 
 
@@ -217,28 +746,291 @@ def p_tot(PT,melt_wf,models):
 ############################
 
 def xg_H2(PT,melt_wf,models):
+    """ 
+    Converts pH2 to mole fraction of H2 in the vapor
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of H2 in the vapor
+
+    """
     return p_H2(PT,melt_wf,models)/PT['P']
+
 def xg_H2O(PT,melt_wf,models):
+    """ 
+    Converts pH2O to mole fraction of H2O in the vapor
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of H2O in the vapor
+
+    """
     return p_H2O(PT,melt_wf,models)/PT['P']
+
 def xg_O2(PT,melt_wf,models):
+    """ 
+    Converts pO2 to mole fraction of O2 in the vapor
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of O2 in the vapor
+
+    """
     return p_O2(PT,melt_wf,models)/PT['P']
+
 def xg_SO2(PT,melt_wf,models):
+    """ 
+    Converts pSO2 to mole fraction of SO2 in the vapor
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of SO2 in the vapor
+
+    """
     return p_SO2(PT,melt_wf,models)/PT['P']
+
 def xg_S2(PT,melt_wf,models):
+    """ 
+    Converts pS2 to mole fraction of S2 in the vapor
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of S2 in the vapor
+
+    """
     return p_S2(PT,melt_wf,models)/PT['P']
+
 def xg_H2S(PT,melt_wf,models):
+    """ 
+    Converts pH2S to mole fraction of H2S in the vapor
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of H2S in the vapor
+
+    """
     return p_H2S(PT,melt_wf,models)/PT['P']
+
 def xg_CO2(PT,melt_wf,models):
+    """ 
+    Converts pCO2 to mole fraction of CO2 in the vapor
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of CO2 in the vapor
+
+    """
     return p_CO2(PT,melt_wf,models)/PT['P']
+
 def xg_CO(PT,melt_wf,models):
+    """ 
+    Converts pCO to mole fraction of CO in the vapor
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of CO in the vapor
+
+    """
     return p_CO(PT,melt_wf,models)/PT['P']
+
 def xg_CH4(PT,melt_wf,models):
+    """ 
+    Converts pCH4 to mole fraction of CH4 in the vapor
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of CH4 in the vapor
+
+    """
     return p_CH4(PT,melt_wf,models)/PT['P']
+
 def xg_OCS(PT,melt_wf,models):
+    """ 
+    Converts pOCS to mole fraction of OCS in the vapor
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of OCS in the vapor
+
+    """
     return p_OCS(PT,melt_wf,models)/PT['P']
+
 def xg_X(PT,melt_wf,models):
+    """ 
+    Converts pX to mole fraction of X in the vapor
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of X in the vapor
+
+    """
     return p_X(PT,melt_wf,models)/PT['P']
+
 def Xg_tot(PT,melt_wf,models):
+    """ 
+    "mass" of vapor Sums over all vapor species (mole fraction)*(molecular mass)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        "mass" of vapor based on mole fraction * molecular mass
+
+    """
     species_X = models.loc["species X","option"]
     Xg_t = xg_CO2(PT,melt_wf,models)*mdv.species.loc["CO2","M"] + xg_CO(PT,melt_wf,models)*mdv.species.loc["CO","M"] + xg_O2(PT,melt_wf,models)*mdv.species.loc["O2","M"] + xg_H2O(PT,melt_wf,models)*mdv.species.loc["H2O","M"] + xg_H2(PT,melt_wf,models)*mdv.species.loc["H2","M"] + xg_CH4(PT,melt_wf,models)*mdv.species.loc["CH4","M"] + xg_SO2(PT,melt_wf,models)*mdv.species.loc["SO2","M"] + xg_S2(PT,melt_wf,models)*mdv.species.loc["S2","M"] + xg_H2S(PT,melt_wf,models)*mdv.species.loc["H2S","M"] + xg_OCS(PT,melt_wf,models)*mdv.species.loc["OCS","M"] + xg_X(PT,melt_wf,models)*mdv.species.loc[species_X,"M"]
     return Xg_t
@@ -250,14 +1042,60 @@ def Xg_tot(PT,melt_wf,models):
 
 # totals
 def wm_vol(melt_wf): # wt% total volatiles in the melt
+    """ 
+    Calculate weight % of H2OT + CO2 in the melt
+
+
+    Parameters
+    ----------    
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        weight % of H2OT + CO2 in the melt
+
+    """
     wm_H2OT = 100.*melt_wf["H2OT"]
     wm_CO2 = 100.*melt_wf["CO2"]
     return wm_H2OT + wm_CO2 #+ wm_S(wm_ST) + wm_SO3(wm_ST)
+
 def wm_nvol(melt_wf): # wt% total of non-volatiles in the melt
+    """ 
+    Calculate weight % of everything except H2O + CO2 in the melt
+
+
+    Parameters
+    ----------    
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        weight % of everything except H2OT + CO2 in the melt
+
+    """    
     return 100. - wm_vol(melt_wf)
 
 # molecular mass on a singular oxygen basis
 def M_m_SO(melt_wf):
+    """ 
+    Calculate molecular mass of the melt on a singular oxygen basis
+
+
+    Parameters
+    ----------       
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        molecular mass of melt on singular oxygen basis
+
+    """  
     # single oxide, no volatiles, all Fe as FeOT
     melt_comp = melt_single_O(melt_wf,"no","no")
     M_m = 1./melt_comp["Xmtot"]
@@ -265,30 +1103,171 @@ def M_m_SO(melt_wf):
 
 # molecular mass on a oxide basis
 def M_m_ox(melt_wf,models): # no volatiles, all Fe as FeOT
+    """ 
+    Calculates molecular mass of the melt on an oxide basis with no volatiles and all Fe as FeOT
+
+
+    Parameters
+    ----------    
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        molecular mass of melt on oxide basis
+
+    """  
     melt_comp = melt_mole_fraction(melt_wf,models,"no","no") 
     M_m = 1./melt_comp["mol_tot"]
     return M_m
     
 # Number of moles in the melt
 def Xm_H2OT(melt_wf):
+    """ 
+    Calculates number of moles of H2OT in the melt
+
+
+    Parameters
+    ----------    
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        number of moles of H2OT in melt
+
+    """  
     wm_H2OT = 100.*melt_wf['H2OT']
     return wm_H2OT/mdv.species.loc["H2O","M"]
+
 def Xm_CO2(melt_wf):
+    """ 
+    Calculates number of moles of CO2 in the melt
+
+
+    Parameters
+    ----------    
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        number of moles of CO2 in melt
+
+    """      
     wm_CO2 = 100.*melt_wf['CO2']
     return wm_CO2/mdv.species.loc["CO2","M"]
 
 # Mole fraction in the melt based on mixing between volatile-free melt on a singular oxygen basis and volatiles
 def Xm_m_so(melt_wf): # singular oxygen basis
+    """ 
+    Calculates number of moles of melt in the melt on a singular oxygen basis
+
+
+    Parameters
+    ----------    
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        number of moles of melt in melt
+
+    """  
     return wm_nvol(melt_wf)/M_m_SO(melt_wf)    
+
 def Xm_tot_so(melt_wf):
+    """ 
+    Calculates total moles in the melt on a singular oxygen basis including H2OT, CO2, and melt
+
+
+    Parameters
+    ----------      
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        total moles of melt
+
+    """  
     return Xm_H2OT(melt_wf) + Xm_CO2(melt_wf) + Xm_m_so(melt_wf)
+
 def xm_H2OT_so(melt_wf):
+    """ 
+    Calculates mole fraction of H2OT in the melt on a singular oxygen basis including H2OT, CO2, and melt
+
+
+    Parameters
+    ----------      
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        mole fraction of H2OT in the melt
+
+    """  
     return Xm_H2OT(melt_wf)/Xm_tot_so(melt_wf)
+
 def xm_CO2_so(melt_wf):
+    """ 
+    Calculates mole fraction of CO2 in the melt on a singular oxygen basis including H2OT, CO2, and melt
+
+
+    Parameters
+    ----------     
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        mole fraction of CO2 in the melt
+
+    """  
     return Xm_CO2(melt_wf)/Xm_tot_so(melt_wf)
+
 def xm_melt_so(melt_wf):
+    """ 
+    Calculates mole fraction of melt in the melt on a singular oxygen basis including H2OT, CO2, and melt
+
+
+    Parameters
+    ----------       
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        mole fraction of melt in the melt
+
+    """  
     return Xm_m_so(melt_wf)/Xm_tot_so(melt_wf)
+
 def Xm_t_so(melt_wf):
+    """ 
+    Calculates total "mass" in the melt on a singular oxygen basis including H2OT, CO2, and melt from (mole fraction)*(molecular mass)
+
+
+    Parameters
+    ----------       
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        total "mass" in the melt
+
+    """  
     return xm_H2OT_so(melt_wf)*mdv.species.loc["H2O","M"] + xm_CO2_so(melt_wf)*mdv.species.loc["CO2","M"] + xm_melt_so(melt_wf)*M_m_SO(melt_wf)
 
 ################################################################################################################################
@@ -296,9 +1275,39 @@ def Xm_t_so(melt_wf):
 ################################################################################################################################
 
 def ratio2overtotal(x):
+    """ 
+    Converts ratio of two species (e.g., Fe3+/Fe2+) to ratio of numerator species over total (e.g., Fe3+/FeT)
+
+
+    Parameters
+    ----------    
+    x: float
+        ratio of species 1 over species 2  (species1/species2) 
+    
+    Returns
+    -------
+    float
+        ratio of species 1 over total of both species (species1/species1+2)
+
+    """  
     return x/x+1.
 
 def overtotal2ratio(x):
+    """ 
+    Converts ratio of numerator species over total (e.g., Fe3+/FeT) to ratio of two species (e.g., Fe3+/Fe2+)
+
+
+    Parameters
+    ----------    
+    x: float
+        ratio of species 1 over total of both species (species1/species1+2)
+    
+    Returns
+    -------
+    float
+        ratio of species 1 over species 2  (species1/species2)
+
+    """  
     return x/(1.-x)
 
 ###########################
@@ -306,6 +1315,27 @@ def overtotal2ratio(x):
 ###########################
 
 def xm_OH_so(PT,melt_wf,models):
+    """ 
+    Calculate mole fraction of OH- in the melt on a singular oxygen basis
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of OH- in the melt
+
+    """
     Hspeciation = models.loc["Hspeciation","option"]
     Hspeccomp = models.loc["Hspeccomp","option"]
     T_K = PT['T']+273.15
@@ -346,10 +1376,52 @@ def xm_OH_so(PT,melt_wf,models):
         return nr(A,B,C,x0,tol)
 
 def xm_H2Omol_so(PT,melt_wf,models):
+    """ 
+    Calculate mole fraction of H2Omol in the melt on a singular oxygen basis
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction of H2Omol in the melt
+
+    """
     Z = xm_H2OT_so(melt_wf)
     return Z - 0.5*xm_OH_so(PT,melt_wf,models)
 
 def wm_H2Omol_OH(PT,melt_wf,models): # wt fraction
+    """ 
+    Converts mole fractions of OH- and H2Omol on a singular oxygen basis to weight fractions of OH- and H2Omol
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        weight fractions in the melt of H2Omol, OH-
+
+    """
     H2Omol = xm_H2Omol_so(PT,melt_wf,models)*mdv.species.loc["H2O","M"]
     OH_H2O = xm_OH_so(PT,melt_wf,models)*0.5*mdv.species.loc["H2O","M"]
     melt = xm_melt_so(melt_wf)*M_m_SO(melt_wf)
@@ -364,6 +1436,27 @@ def wm_H2Omol_OH(PT,melt_wf,models): # wt fraction
 #########################
 
 def xm_CO32_CO2mol(PT,melt_wf,models): # mole fraction
+    """ 
+    Calculate mole fraction of carbonate and CO2,mol in the melt on a singular oxygen basis
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        mole fraction in the melt of carbonate, CO2mol
+
+    """
     xm_CO2T = xm_CO2_so(melt_wf)
     xm_H2OT = xm_H2OT_so(melt_wf)
     if models.loc["Cspeccomp","option"] == "Basalt":
@@ -379,6 +1472,27 @@ def xm_CO32_CO2mol(PT,melt_wf,models): # mole fraction
     return xm_CO32, xm_CO2mol
 
 def wm_CO32_CO2mol(PT,melt_wf,models): # wt fraction
+    """ 
+    Converts mole fractions of carbonate and CO2mol on a singular oxygen basis to weight fractions of carbonate and CO2mol
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        weight fractions in the melt of carbonate, CO2mol
+
+    """
     xm_CO32, xm_CO2mol = xm_CO32_CO2mol(PT,melt_wf,models)
     CO2mol = xm_CO2mol*mdv.species.loc["CO2","M"]
     CO2carb = xm_CO32*mdv.species.loc["CO2","M"]
@@ -393,6 +1507,27 @@ def wm_CO32_CO2mol(PT,melt_wf,models): # wt fraction
 ##########################
 
 def S6S2(PT,melt_wf,models):
+    """ 
+    Calculates S6+/S2- in the melt (where S2- includes *S2- and H2S)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        S6+/S2- in the melt
+
+    """
     T_K = PT['T']+273.15
     model = models.loc["sulfate","option"]
     if model == "Nash19":
@@ -413,15 +1548,78 @@ def S6S2(PT,melt_wf,models):
     return result
     
 def S6ST(PT,melt_wf,models):
+    """ 
+    Calculates S6+/ST in the melt (where ST includes all sulfur species in the melt: *S2- and H2S)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        S6+/ST in the melt
+
+    """    
     S6S2_ = S6S2(PT,melt_wf,models)
     return S6S2_/(S6S2_+1.)
 
 def wm_S(PT,melt_wf,models):
+    """ 
+    Calculates wt% total S2- as S in the melt (both *S2- and H2S)
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        S2- wt% as S
+
+    """
     wm_ST = 100.*melt_wf['ST']
     S6ST_ = S6ST(PT,melt_wf,models)
     return wm_ST*(1.0-S6ST_)
 
 def wm_SO3(PT,melt_wf,models):
+    """ 
+    Calculates wt% total S6+ in the melt as SO3
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+    Returns
+    -------
+    float
+        S6+ wt% as SO3
+
+    """
     wm_ST = 100.*melt_wf['ST']
     S6ST_ = S6ST(PT,melt_wf,models)    
     return ((wm_ST*S6ST_)/mdv.species.loc["S","M"])*mdv.species.loc["SO3","M"]
@@ -432,10 +1630,40 @@ def wm_SO3(PT,melt_wf,models):
 #######################
 
 def Fe3Fe2(melt_wf):
+    """ 
+    Converts Fe3+/FeT to Fe3+/FeT in the melt
+
+
+    Parameters
+    ----------      
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        Fe3+/Fe2+ in the melt
+
+    """
     Fe3FeT = melt_wf['Fe3FeT']
     return Fe3FeT/(1.0 - Fe3FeT)
 
 def Wm_FeT(melt_wf):
+    """ 
+    Calculate weight of total Fe in the melt from FeOT or Fe2O3T or FeO+Fe2O3
+
+
+    Parameters
+    ----------      
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        weight total Fe in the melt
+
+    """
     if melt_wf["FeOT"] > 0.0:
         return (melt_wf["FeOT"]/mdv.species.loc["FeO","M"])*mdv.species.loc["Fe","M"]
     elif melt_wf["Fe2O3T"] > 0.0:
@@ -444,22 +1672,104 @@ def Wm_FeT(melt_wf):
         return ((melt_wf["FeO"]/mdv.species.loc["FeO","M"]) + (melt_wf["Fe2O3"]/mdv.species.loc["Fe2O3","M"]))*mdv.species.loc["Fe","M"]
 
 def Wm_FeO(melt_wf):
+    """ 
+    Calculate weight of FeO in the melt from total Fe and Fe3+/FeT
+
+
+    Parameters
+    ----------      
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        weight FeO in the melt
+
+    """
     Fe3FeT = melt_wf['Fe3FeT']
     return (Wm_FeT(melt_wf)/mdv.species.loc["Fe","M"])*(1.0-Fe3FeT)*mdv.species.loc["FeO","M"]
 
 def Wm_Fe2O3(melt_wf):
+    """ 
+    Calculate weight of Fe3O3 in the melt from total Fe and Fe3+/FeT
+
+
+    Parameters
+    ----------      
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        weight Fe2O3 in the melt
+
+    """
     Fe3FeT = melt_wf['Fe3FeT']
     return (Wm_FeT(melt_wf)/mdv.species.loc["Fe","M"])*Fe3FeT*mdv.species.loc["Fe2O3","M"]
 
 def Wm_FeOT(melt_wf):
+    """ 
+    Calculate weight of FeOT in the melt from total Fe
+
+
+    Parameters
+    ----------      
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        weight FeOT in the melt
+
+    """
     return (Wm_FeT(melt_wf)/mdv.species.loc["Fe","M"])*mdv.species.loc["FeO","M"]
 
 def wm_Fe_nv(melt_wf): # no volatiles
+    """ 
+    Calculate weight fraction of total Fe in the melt from all oxides, FeO, Fe2O3 but no volatiles
+
+
+    Parameters
+    ----------      
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    Returns
+    -------
+    float
+        weight fraction of total Fe in the melt
+
+    """
     Wm_tot = melt_wf["SiO2"] + melt_wf["TiO2"] + melt_wf["Al2O3"] + melt_wf["MnO"] + melt_wf["MgO"] + melt_wf["MnO"] + melt_wf["CaO"] + melt_wf["Na2O"] + melt_wf["K2O"] + melt_wf["P2O5"] + Wm_FeO(melt_wf) + Wm_Fe2O3(melt_wf)
     FeT = mdv.species.loc["Fe","M"]*((2.0*Wm_Fe2O3(melt_wf)/mdv.species.loc["Fe2O3","M"]) + (Wm_FeO(melt_wf)/mdv.species.loc["FeO","M"]))
     return 100.0*FeT/Wm_tot
 
 def Fe3FeT_i(PT,melt_wf,models):
+    """ 
+    Calculate initial Fe3+/FeT in the melt based on either: Fe3+/FeT, logfO2, NNO, FMQ, S6+/ST, FeO+Fe2O3
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+
+    Returns
+    -------
+    float
+        Fe3+/FeT in the melt
+
+    """
     model = models.loc["fO2","option"]
     T_K = PT['T']+273.15
     
@@ -505,6 +1815,28 @@ def Fe3FeT_i(PT,melt_wf,models):
 
 # C/S ratio of the vapor
 def gas_CS(PT,melt_wf,models):
+    """ 
+    Calculate C/S mole fraction ratio in the vapor including all C and S species
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+
+    Returns
+    -------
+    float
+        C/S mole fraction ratio in the vapor
+
+    """
     S_values = ((2.*xg_S2(PT,melt_wf,models))+xg_SO2(PT,melt_wf,models)+xg_OCS(PT,melt_wf,models)+xg_H2S(PT,melt_wf,models))
     if S_values > 0:
         xgCS = (xg_CO(PT,melt_wf,models)+xg_CO2(PT,melt_wf,models)+xg_OCS(PT,melt_wf,models)+xg_CH4(PT,melt_wf,models))/S_values
@@ -513,6 +1845,22 @@ def gas_CS(PT,melt_wf,models):
     return xgCS
 
 def gas_CS_alt(xg):
+    """ 
+    Calculate C/S mole fraction ratio in the vapor including all C and S species
+
+
+    Parameters
+    ----------
+    xg: dictionary
+        Dictionary of mole fraction of vapor species
+
+
+    Returns
+    -------
+    float
+        C/S mole fraction ratio in the vapor
+
+    """
     S_values = ((2.*xg["S2"])+xg["SO2"]+xg["OCS"]+xg["H2S"])
     if S_values > 0:
         xgCS = (xg["CO"]+xg["CO2"]+xg["OCS"]+xg["CH4"])/S_values
@@ -522,12 +1870,53 @@ def gas_CS_alt(xg):
 
 # all carbon as CO2 and all hydrogen as H2O
 def melt_H2O_CO2_eq(melt_wf):
+    """ 
+    Calculate weight fraction of all C as CO2 (CO2-eq) and all H as H2O (H2O-eq) in the melt
+
+
+    Parameters
+    ----------
+    PT: dictionary
+        Dictionary of pressure-temperature conditions: pressure (bars) as "P" and temperature ('C) as "T". 
+        
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction (SiO2, TiO2, etc.)
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+
+    Returns
+    -------
+    float
+        weight fraction in the melt of CO2-eq, H2O-eq
+
+    """
     wmCO2eq = melt_wf["CO2"] + mdv.species.loc["CO2","M"]*((melt_wf["CO"]/mdv.species.loc["CO","M"])+(melt_wf["CH4"]/mdv.species.loc["CH4","M"]))
     wmH2Oeq = melt_wf["H2OT"] + mdv.species.loc["H2O","M"]*((melt_wf["H2"]/mdv.species.loc["H2","M"])+(2.*melt_wf["CH4"]/mdv.species.loc["CH4","M"])+(melt_wf["H2S"]/mdv.species.loc["H2S","M"]))
     return wmCO2eq, wmH2Oeq
 
 # calculate weight fraction of species in the gas
 def gas_wf(gas_mf,models):
+    """ 
+    Converts gas composition from mole fraction to weight fraction
+
+
+    Parameters
+    ----------
+    gas_mf: dictionary
+        Dictionary of mole fractions of gas composition and total "mass" of gas
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+
+    Returns
+    -------
+    dictionary
+        gas composition in weight fraction
+
+    """
     wg_O2 = (mdv.species.loc["O2","M"]*gas_mf["O2"])/gas_mf["Xg_t"]
     wg_H2 = (mdv.species.loc["H2","M"]*gas_mf["H2"])/gas_mf["Xg_t"]
     wg_H2O = (mdv.species.loc["H2O","M"]*gas_mf["H2O"])/gas_mf["Xg_t"]
@@ -544,7 +1933,26 @@ def gas_wf(gas_mf,models):
     return result
 
 # calculate weight fraction of species in the gas relative to total system
-def gas_wft(gas_mf):
+def gas_wft(gas_mf,models):
+    """ 
+    Calculate gas composition in weight fraction of total system from mole fraction of gas
+
+
+    Parameters
+    ----------
+    gas_mf: dictionary
+        Dictionary of mole fractions of gas composition and total "mass" of gas
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+
+    Returns
+    -------
+    dictionary
+        gas composition in weight fraction of total system
+
+    """
     gaswf = gas_wf(gas_mf,models)
     wgt_O2 = gaswf["wg_O2"]*gas_mf['wt_g']
     wgt_H2 = gaswf["wg_H2"]*gas_mf['wt_g']
@@ -561,23 +1969,64 @@ def gas_wft(gas_mf):
     return result
 
 def gas_weight(gas_mf,bulk_wf):
-    gaswft = gas_wft(gas_mf)
-    Wg_O2 = gaswtf["wgt_O2"]*bulk_wf['Wt']
-    Wg_H2 = gaswtf["wgt_H2"]*bulk_wf['Wt']
-    Wg_H2O = gaswtf["wgt_H2O"]*bulk_wf['Wt']
-    Wg_H2S = gaswtf["wgt_H2S"]*bulk_wf['Wt']
-    Wg_S2 = gaswtf["wgt_S2"]*bulk_wf['Wt']
-    Wg_SO2 = gaswtf["wgt_SO2"]*bulk_wf['Wt']
-    Wg_CO2 = gaswtf["wgt_CO2"]*bulk_wf['Wt']
-    Wg_CO = gaswtf["wgt_CO"]*bulk_wf['Wt']
-    Wg_CH4 = gaswtf["wgt_CH4"]*bulk_wf['Wt']
-    Wg_OCS = gaswtf["wgt_OCS"]*bulk_wf['Wt']
-    Wg_X = gaswtf["wgt_X"]*bulk_wf['Wt']
+    """ 
+    Calculates mass of each gas species
+
+
+    Parameters
+    ----------
+    gas_mf: dictionary
+        Dictionary of mole fractions of gas composition and total "mass" of gas
+    
+    bulk_wf: dictionary
+        Dictionary of bulk composition of system in weight fraction
+
+
+    Returns
+    -------
+    dictionary
+        mass of each gas species
+
+    """
+    gaswft_ = gas_wft(gas_mf)
+    Wg_O2 = gaswtf_["wgt_O2"]*bulk_wf['Wt']
+    Wg_H2 = gaswtf_["wgt_H2"]*bulk_wf['Wt']
+    Wg_H2O = gaswtf_["wgt_H2O"]*bulk_wf['Wt']
+    Wg_H2S = gaswtf_["wgt_H2S"]*bulk_wf['Wt']
+    Wg_S2 = gaswtf_["wgt_S2"]*bulk_wf['Wt']
+    Wg_SO2 = gaswtf_["wgt_SO2"]*bulk_wf['Wt']
+    Wg_CO2 = gaswtf_["wgt_CO2"]*bulk_wf['Wt']
+    Wg_CO = gaswtf_["wgt_CO"]*bulk_wf['Wt']
+    Wg_CH4 = gaswtf_["wgt_CH4"]*bulk_wf['Wt']
+    Wg_OCS = gaswtf_["wgt_OCS"]*bulk_wf['Wt']
+    Wg_X = gaswtf_["wgt_X"]*bulk_wf['Wt']
     Wg_t = gas_mf['wt_g']*bulk_wf['Wt']
     result = {"Wg_O2":Wg_O2, "Wg_H2":Wg_H2, "Wg_H2O":Wg_H2O, "Wg_H2S":Wg_H2S, "Wg_S2":Wg_S2, "Wg_SO2":Wg_SO2, "Wg_CO2":Wg_CO2, "Wg_CO":Wg_CO, "Wg_CH4":Wg_CH4, "Wg_OCS":Wg_OCS, "Wg_X":Wg_X,"Wg_t":Wg_t}
     return result
 
 def gas_moles(gas_mf,bulk_wf,models):
+    """ 
+    Calculates moles of each gas species
+
+
+    Parameters
+    ----------
+    gas_mf: dictionary
+        Dictionary of mole fractions of gas composition and total "mass" of gas
+    
+    bulk_wf: dictionary
+        Dictionary of bulk composition of system in weight fraction
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+
+    Returns
+    -------
+    dictionary
+        moles of each gas species
+
+    """
     gasw = gas_weight(gas_mf,bulk_wf)
     Xg_O2 = gasw["Wg_O2"]/mdv.species.loc["O2","M"]
     Xg_H2O = gasw["Wg_H2O"]/mdv.species.loc["H2O","M"]
@@ -597,6 +2046,31 @@ def gas_moles(gas_mf,bulk_wf,models):
         
 # calculate weight fraction of elements in the gas
 def gas_elements(gas_mf,models):
+    """ 
+    Convert gas composition in mole fraction of each species to weight fraction of each element
+
+
+    Parameters
+    ----------
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction
+
+    bulk_wf: dictionary
+        Dictionary of bulk composition of system in weight fraction
+
+    gas_mf: dictionary
+        Dictionary of mole fractions of gas composition and total "mass" of gas
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+
+    Returns
+    -------
+    dictionary
+        weight fraction of each element in the gas
+
+    """
     gaswf = gas_wf(gas_mf,models)
     wg_O = gaswf["wg_O2"] + mdv.species.loc["O","M"]*((gaswf["wg_H2O"]/mdv.species.loc["H2O","M"]) + (2.*gaswf["wg_SO2"]/mdv.species.loc["SO2","M"]) + (2.*gaswf["wg_CO2"]/mdv.species.loc["CO2","M"]) + (gaswf["wg_CO"]/mdv.species.loc["CO","M"]) + (gaswf["wg_OCS"]/mdv.species.loc["OCS","M"]))
     wg_H = gaswf["wg_H2"] + mdv.species.loc["H","M"]*((2.*gaswf["wg_H2O"]/mdv.species.loc["H2O","M"]) + (2.*gaswf["wg_H2S"]/mdv.species.loc["H2S","M"]) + (4.*gaswf["wg_CH4"]/mdv.species.loc["CH4","M"]))
@@ -607,7 +2081,26 @@ def gas_elements(gas_mf,models):
     return result
 
 # calculate weight fraction of elements in the melt
-def melt_elements(PT,melt_wf,bulk_wf,gas_comp,models):
+def melt_elements(melt_wf,bulk_wf,gas_comp):
+    """ 
+    Convert melt composition in weight fraction of each species to weight fraction of each element
+
+
+    Parameters
+    ----------
+    gas_mf: dictionary
+        Dictionary of mole fractions of gas composition and total "mass" of gas
+    
+    models: pandas.DataFrame
+        Dataframe of models option.
+
+
+    Returns
+    -------
+    dictionary
+        weight fraction of each element in the melt
+
+    """
     wm_C = mdv.species.loc["C","M"]*((melt_wf["CO2"]/mdv.species.loc["CO2","M"] + 
                                         melt_wf["CO"]/mdv.species.loc["CO","M"] + melt_wf["CH4"]/mdv.species.loc["CH4","M"]))
     wm_H = 2.*mdv.species.loc["H","M"]*((melt_wf["H2OT"]/mdv.species.loc["H2O","M"] + melt_wf["H2"]/mdv.species.loc["H2","M"] + melt_wf["H2S"]/mdv.species.loc["H2S","M"] + (2.*melt_wf["CH4"])/mdv.species.loc["CH4","M"]))
@@ -622,11 +2115,12 @@ def melt_elements(PT,melt_wf,bulk_wf,gas_comp,models):
 
 
 #################################################################################################################################
-###################################################### VOLUME AND DENSITY #######################################################
+###################################################### WORK IN PROGRESS: VOLUME AND DENSITY #####################################
 #################################################################################################################################
 
 # molar volume of individual gas species (J/mol/bar - *10 for cm3/bar)
 def gas_molar_volume(gas_PT,models):
+    # work in progress
     P = PT['P']
     T = PT['T']+273.15
     Pr = P/mdv.species.loc[gas_species,"Pcr"]
@@ -648,62 +2142,74 @@ def gas_molar_volume(gas_PT,models):
     return Vm
 
 def Vm_O2(PT,models):
+    # work in progress
     gas_species = "O2"
     Vm = gas_molar_volume(gas_PT,models)
     return Vm
 
 def Vm_H2(PT,models):
+    # work in progress
     gas_species = "H2"
     Vm = gas_molar_volume(gas_PT,models)
     return Vm
 
 def Vm_H2O(PT,models):
+    # work in progress
     gas_species = "H2O"
     Vm = gas_molar_volume(gas_PT,models)
     return Vm
 
 def Vm_CO2(PT,models):
+    # work in progress
     gas_species = "CO2"
     Vm = gas_molar_volume(gas_PT,models)
     return Vm
 
 def Vm_CH4(PT,models):
+    # work in progress
     gas_species = "CH4"
     Vm = gas_molar_volume(gas_PT,models)
     return Vm
 
 def Vm_CO(PT,models):
+    # work in progress
     gas_species = "CO"
     Vm = gas_molar_volume(gas_PT,models)
     return Vm
 
 def Vm_S2(PT,models):
+    # work in progress
     gas_species = "S2"
     Vm = gas_molar_volume(gas_PT,models)
     return Vm
 
 def Vm_SO2(PT,models):
+    # work in progress
     gas_species = "SO2"
     Vm = gas_molar_volume(gas_PT,models)
     return Vm
 
 def Vm_H2S(PT,models):
+    # work in progress
     gas_species = "H2S"
     Vm = gas_molar_volume(gas_PT,models)
     return Vm
 
 def Vm_OCS(PT,models):
+    # work in progress
     gas_species = "OCS"
     Vm = gas_molar_volume(gas_PT,models)
     return Vm
 
 # molar volume of the gas in J/bar/mol
 def Vm_gas(gas_mf,PT,models):
+    # work in progress
     Vm = gas_mf["O2"]*Vm_O2(PT,models) + gas_mf["H2"]*Vm_H2(PT,models) + gas_mf["H2O"]*Vm_H2O(PT,models) + gas_mf["CO2"]*Vm_CO2(PT,models) + gas_mf["CO"]*Vm_CO(PT,models) + gas_mf["CH4"]*Vm_CH4(PT,models) + gas_mf["S2"]*Vm_S2(PT,models) + gas_mf["H2S"]*Vm_H2S(PT,models) + gas_mf["SO2"]*Vm_SO2(PT,models) + gas_mf["OCS"]*Vm_OCS(PT,models)
     return Vm
 
 # volume of the gas in cm3
 def gas_volume(PT,gas_mf,bulk_wf,models):
+    # work in progress
     Xg_O2, Xg_H2, Xg_H2O, Xg_H2S, Xg_S2, Xg_SO2, Xg_CO2, Xg_CO, Xg_CH4, Xg_OCS, Xt_g = gas_moles(gas_mf,bulk_wf)
     volume = Xt_g*Vm_gas(gas_mf,PT,models) # in J/bar
     volume_cm3 = volume*10.
@@ -711,14 +2217,15 @@ def gas_volume(PT,gas_mf,bulk_wf,models):
 
 # density of the gas in g/cm3
 def gas_density(PT,gas_mf,bulk_wf,models):
+    # work in progress
     volume = gas_volume(PT,gas_mf,bulk_wf,models) # cm3
     mass = (gas_mf['wt_g']*bulk_wf['Wt']) # g
     density = mass/volume
     return density
 
-
 # volume of the melt in cm3
 def melt_volume(run,PT,melt_wf,bulk_wf,gas_mf,setup):
+    # work in progress
     density = mdv.melt_density(run,PT,melt_wf,setup)
     mass = bulk_wf['Wt']*(1-gas_mf['wt_g'])
     volume = mass/density
@@ -726,6 +2233,7 @@ def melt_volume(run,PT,melt_wf,bulk_wf,gas_mf,setup):
 
 # volume of the system (melt + gas)
 def system_density(run,PT,melt_wf,gas_mf,bulk_wf,setup,models):
+    # work in progress
     wt_g_ = gas_mf['wt_g']
     wt_m_ = 1. - wt_g_
     density_m = mdv.melt_density(run,PT,melt_wf,setup)
@@ -741,6 +2249,25 @@ def system_density(run,PT,melt_wf,gas_mf,bulk_wf,setup,models):
 ##################################################################################################################################
 
 def melt_comp(run,setup):
+    """ 
+    Convert input dataframe of melt composition into dictionary
+
+
+    Parameters
+    ----------
+    run: float
+        index of row of interest
+    
+    setup: pandas.Dataframe
+        Dataframe of melt composition
+
+
+    Returns
+    -------
+    dictionary
+        dictionary of melt composition and "initial fO2" definer
+
+    """    
     oxides = setup.columns.tolist()
     if "SiO2" in oxides:
         SiO2 = setup.loc[run,"SiO2"]
@@ -819,6 +2346,33 @@ def melt_comp(run,setup):
 
 # normalise melt composition in weight fraction
 def melt_normalise_wf(melt_wf,volatiles,Fe_speciation):
+    """ 
+    Normalise melt composition in weight fraction
+
+
+    Parameters
+    ----------
+    melt_wf: dictionary
+        Dictionary of weight fraction of melt composition
+    
+    volatiles: str
+        whether to include volatiles in the normalisation
+        "yes" assumes all H is H2O, all C is CO2, all S is S, all X is X
+        "water" assumes all H is H2O
+        "no" volatiles excluded
+    
+    Fe_speciation: str
+        how iron speciation is treated in the normalisation
+        "yes" Fe is split into FeO and Fe2O3
+        "no" Fe is treated as FeOT
+
+
+    Returns
+    -------
+    dictionary
+        weight fraction of each oxide in the melt
+
+    """
     if volatiles == "yes": # assumes all H is H2O, all C is CO2, all S is S, all X is X
         H2O = (melt_wf["HT"]/mdv.species.loc["H2","M"])*mdv.species.loc["H2O","M"]
         CO2 = (melt_wf["CT"]/mdv.species.loc["C","M"])*mdv.species.loc["CO2","M"]
@@ -859,6 +2413,33 @@ def melt_normalise_wf(melt_wf,volatiles,Fe_speciation):
 
 # calculate cation proportions
 def melt_cation_proportion(melt_wf,volatiles,Fe_speciation):
+    """ 
+    Calculate cation proportion of melt composition
+
+
+    Parameters
+    ----------
+    melt_wf: dictionary
+        Dictionary of weight fraction of melt composition
+    
+    volatiles: str
+        whether to include volatiles in the normalisation
+        "yes" assumes all H is H2O, all C is CO2, all S is S, all X is X
+        "water" assumes all H is H2O
+        "no" volatiles excluded
+    
+    Fe_speciation: str
+        how iron speciation is treated in the normalisation
+        "yes" Fe is split into FeO and Fe2O3
+        "no" Fe is treated as FeOT
+
+
+    Returns
+    -------
+    dictionary
+        cation mole fraction in the melt
+
+    """
     melt_comp = melt_normalise_wf(melt_wf,volatiles,Fe_speciation)
     tot = ((mdv.species.loc["SiO2","no_cat"]*melt_comp["SiO2"])/mdv.species.loc["SiO2","M"]) + ((mdv.species.loc["TiO2","no_cat"]*melt_comp["TiO2"])/mdv.species.loc["TiO2","M"]) + ((mdv.species.loc["Al2O3","no_cat"]*melt_comp["Al2O3"])/mdv.species.loc["Al2O3","M"]) + ((mdv.species.loc["FeO","no_cat"]*melt_comp["FeOT"])/mdv.species.loc["FeO","M"]) + ((mdv.species.loc["FeO","no_cat"]*melt_comp["FeO"])/mdv.species.loc["FeO","M"]) + ((mdv.species.loc["Fe2O3","no_cat"]*melt_comp["Fe2O3"])/mdv.species.loc["Fe2O3","M"]) + ((mdv.species.loc["MgO","no_cat"]*melt_comp["MgO"])/mdv.species.loc["MgO","M"]) + ((mdv.species.loc["MnO","no_cat"]*melt_comp["MnO"])/mdv.species.loc["MnO","M"]) + ((mdv.species.loc["CaO","no_cat"]*melt_comp["CaO"])/mdv.species.loc["CaO","M"]) + ((mdv.species.loc["Na2O","no_cat"]*melt_comp["Na2O"])/mdv.species.loc["Na2O","M"]) + ((mdv.species.loc["K2O","no_cat"]*melt_comp["K2O"])/mdv.species.loc["K2O","M"]) + ((mdv.species.loc["P2O5","no_cat"]*melt_comp["P2O5"])/mdv.species.loc["P2O5","M"]) + ((mdv.species.loc["H2O","no_cat"]*melt_comp["H2O"])/mdv.species.loc["H2O","M"]) + ((mdv.species.loc["CO2","no_cat"]*melt_comp["CO2"])/mdv.species.loc["CO2","M"])
     result = {"Si":((mdv.species.loc["SiO2","no_cat"]*melt_comp["SiO2"])/mdv.species.loc["SiO2","M"])/tot}
@@ -879,6 +2460,36 @@ def melt_cation_proportion(melt_wf,volatiles,Fe_speciation):
 
 # calculate mole fractions in the melt
 def melt_mole_fraction(melt_wf,models,volatiles,Fe_speciation):
+    """ 
+    Calculate oxide mole fraction of the melt
+
+
+    Parameters
+    ----------
+    melt_wf: dictionary
+        Dictionary of weight fraction of melt composition
+    
+    models: pandas.Dataframe
+        Dataframe of models options
+        
+    volatiles: str
+        whether to include volatiles in the normalisation
+        "yes" assumes all H is H2O, all C is CO2, all S is S, all X is X
+        "water" assumes all H is H2O
+        "no" volatiles excluded
+    
+    Fe_speciation: str
+        how iron speciation is treated in the normalisation
+        "yes" Fe is split into FeO and Fe2O3
+        "no" Fe is treated as FeOT
+
+
+    Returns
+    -------
+    dictionary
+        oxide mole fraction of the melt
+
+    """
     melt_comp = melt_normalise_wf(melt_wf,volatiles,Fe_speciation)
     species_X = models.loc["species X","option"]
     mol_tot = (melt_comp["SiO2"]/mdv.species.loc["SiO2","M"]) + (melt_comp["TiO2"]/mdv.species.loc["TiO2","M"]) + (melt_comp["Al2O3"]/mdv.species.loc["Al2O3","M"]) + (melt_comp["FeOT"]/mdv.species.loc["FeO","M"]) + (melt_comp["FeO"]/mdv.species.loc["FeO","M"]) + (melt_comp["Fe2O3"]/mdv.species.loc["Fe2O3","M"]) + (melt_comp["MnO"]/mdv.species.loc["MnO","M"]) + (melt_comp["MgO"]/mdv.species.loc["MgO","M"]) + (melt_comp["CaO"]/mdv.species.loc["CaO","M"]) + (melt_comp["Na2O"]/mdv.species.loc["Na2O","M"]) + (melt_comp["K2O"]/mdv.species.loc["K2O","M"]) + (melt_comp["P2O5"]/mdv.species.loc["P2O5","M"]) + (melt_comp["H2O"]/mdv.species.loc["H2O","M"]) + (melt_comp["CO2"]/mdv.species.loc["CO2","M"]) + (melt_comp["S"]/mdv.species.loc["S","M"]) + (melt_comp["X"]/mdv.species.loc[species_X,"M"])
@@ -902,6 +2513,33 @@ def melt_mole_fraction(melt_wf,models,volatiles,Fe_speciation):
     return result
 
 def melt_single_O(melt_wf,volatiles,Fe_speciation):
+    """ 
+    Calculate oxide mole fraction on a single oxygen basis in the melt
+
+
+    Parameters
+    ----------
+    melt_wf: dictionary
+        Dictionary of weight fraction of melt composition
+    
+    volatiles: str
+        whether to include volatiles in the normalisation
+        "yes" assumes all H is H2O, all C is CO2, all S is S, all X is X
+        "water" assumes all H is H2O
+        "no" volatiles excluded
+    
+    Fe_speciation: str
+        how iron speciation is treated in the normalisation
+        "yes" Fe is split into FeO and Fe2O3
+        "no" Fe is treated as FeOT
+
+
+    Returns
+    -------
+    dictionary
+        oxide mole fraction on a single oxygen basis in the melt
+
+    """
     melt_comp = melt_normalise_wf(melt_wf,volatiles,Fe_speciation)
     Xmtot = (melt_comp["SiO2"]/(mdv.species.loc["SiO2","M"]/mdv.species.loc["SiO2","no_O"])) + (melt_comp["TiO2"]/(mdv.species.loc["TiO2","M"]/mdv.species.loc["TiO2","no_O"])) + (melt_comp["Al2O3"]/(mdv.species.loc["Al2O3","M"]/mdv.species.loc["Al2O3","no_O"])) + (melt_comp["MnO"]/(mdv.species.loc["MnO","M"]/mdv.species.loc["MnO","no_O"])) + (melt_comp["MgO"]/(mdv.species.loc["MgO","M"]/mdv.species.loc["MgO","no_O"])) + (melt_comp["CaO"]/(mdv.species.loc["CaO","M"]/mdv.species.loc["CaO","no_O"])) + (melt_comp["Na2O"]/(mdv.species.loc["Na2O","M"]/mdv.species.loc["Na2O","no_O"])) + (melt_comp["K2O"]/(mdv.species.loc["K2O","M"]/mdv.species.loc["K2O","no_O"])) + (melt_comp["P2O5"]/(mdv.species.loc["P2O5","M"]/mdv.species.loc["P2O5","no_O"])) + (melt_comp["FeOT"]/(mdv.species.loc["FeO","M"]/mdv.species.loc["FeO","no_O"])) + (melt_comp["FeO"]/(mdv.species.loc["FeO","M"]/mdv.species.loc["FeO","no_O"])) + (melt_comp["Fe2O3"]/(mdv.species.loc["Fe2O3","M"]/mdv.species.loc["Fe2O3","no_O"])) + (melt_comp["H2O"]/(mdv.species.loc["H2O","M"]/mdv.species.loc["H2O","no_O"])) + (melt_comp["CO2"]/(mdv.species.loc["CO2","M"]/mdv.species.loc["CO2","no_O"]))
     result = {"SiO2": (melt_comp["SiO2"]/(mdv.species.loc["SiO2","M"]/mdv.species.loc["SiO2","no_O"]))/Xmtot}
@@ -922,6 +2560,22 @@ def melt_single_O(melt_wf,volatiles,Fe_speciation):
     return result
 
 def melt_pysulfsat(melt_wf): # output dataframe for pysulfsat
+    """ 
+    Convert headers to be read by pysulfsat and make dictionary a dataframe
+
+
+    Parameters
+    ----------
+    melt_wf: dictionary
+        Dictionary of weight fraction of melt composition
+
+
+    Returns
+    -------
+    pandas.Dataframe
+        melt composition in weight fraction
+
+    """
     comp = {'SiO2_Liq': [melt_wf["SiO2"]],
             'TiO2_Liq': [melt_wf["TiO2"]],
             'Al2O3_Liq': [melt_wf["Al2O3"]],
