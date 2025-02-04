@@ -234,7 +234,7 @@ def bulk_composition(run,PT,melt_wf,setup,models):
 
 # calculate weight fraction of elements in the system when adding gas into a melt
 def new_bulk_regas_open(PT,melt_wf,bulk_wf,gas_mf,dwtg,models):
-    me = mg.melt_elements(PT,melt_wf,bulk_wf,gas_mf,models)
+    me = mg.melt_elements(melt_wf,bulk_wf,gas_mf)
     ge = mg.gas_elements(gas_mf,models)
     wt_C = (1.-dwtg)*me["wm_C"] + dwtg*ge["wg_C"]
     wt_H = (1.-dwtg)*me["wm_H"] + dwtg*ge["wg_H"]

@@ -2052,12 +2052,6 @@ def gas_elements(gas_mf,models):
 
     Parameters
     ----------
-    melt_wf: dictionary
-        Dictionary of melt composition in weight fraction
-
-    bulk_wf: dictionary
-        Dictionary of bulk composition of system in weight fraction
-
     gas_mf: dictionary
         Dictionary of mole fractions of gas composition and total "mass" of gas
     
@@ -2088,11 +2082,14 @@ def melt_elements(melt_wf,bulk_wf,gas_comp):
 
     Parameters
     ----------
-    gas_mf: dictionary
+    melt_wf: dictionary
+        Dictionary of melt composition in weight fraction
+
+    bulk_wf: dictionary
+        Dictionary of bulk composition of system in weight fraction
+
+    gas_comp: dictionary
         Dictionary of mole fractions of gas composition and total "mass" of gas
-    
-    models: pandas.DataFrame
-        Dataframe of models option.
 
 
     Returns

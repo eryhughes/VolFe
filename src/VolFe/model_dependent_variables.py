@@ -53,7 +53,7 @@ def make_models_df(models):
 default_models = [['COH_species','yes_H2_CO_CH4_melt'],['H2S_m','True'],['species X','Ar'],['Hspeciation','none'],
               ['fO2','Kress91A'],['NNObuffer','Frost91'],['FMQbuffer','Frost91'],
               ['melt composition','Basalt'],['carbon dioxide','MORB_Dixon95'],['water','Basalt_Hughes24'],['hydrogen','Basalt_Hughes24'],['sulfide','ONeill21dil'],['sulfate','ONeill22dil'],['hydrogen sulfide','Basalt_Hughes24'],['methane','Basalt_Ardia13'],['carbon monoxide','Basalt_Hughes24'],['species X solubility','Ar_Basalt_HughesIP'],['Cspeccomp','Basalt'],['Hspeccomp','MORB_HughesIP'],
-              ['SCSS','ONeill21hyd'],['SCAS','Zajacz19'],['sulfur_saturation','False'],['sulfur_is_sat','no'],['graphite_saturation','False'],
+              ['SCSS','ONeill21hyd'],['SCAS','Zajacz19_pss'],['sulfur_saturation','False'],['sulfur_is_sat','no'],['graphite_saturation','False'],
               ['ideal_gas','False'],['y_CO2','Shi92'],['y_SO2','Shi92_Hughes23'],['y_H2S','Shi92_Hughes24'],['y_H2','Shaw64'],['y_O2','Shi92'],['y_S2','Shi92'],['y_CO','Shi92'],['y_CH4','Shi92'],['y_H2O','Holland91'],['y_OCS','Shi92'],['y_X','ideal'],
               ['KHOg','Ohmoto97'],['KHOSg','Ohmoto97'],['KOSg','Ohmoto97'],['KOSg2','ONeill22'], ['KCOg','Ohmoto97'],['KCOHg','Ohmoto97'],['KOCSg','Moussallam19'],['KCOs','Holloway92'],['carbonylsulfide','COS'],
               ['bulk_composition','melt-only'],['starting_P','Pvsat'],['gassing_style','closed'],['gassing_direction','degas'],['P_variation','polybaric'],['eq_Fe','yes'],['solve_species','OCS'],
@@ -339,17 +339,16 @@ def make_df_and_add_model_defaults(models):
         - 'ONeill21' Eq. (10.34, 10.43, 10.45, 10.46) excluding water dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
         - 'ONeill21dil' Eq. (10.34, 10.43, 10.45, 10.46) including water dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
         - 'Liu07' Eq. (9) in Liu et al. (2007) GCA 71:1783-1799 doi:10.1016/j.gca.2007.01.004
-        - 'Fortin15' Eq. (7) Fortin et al. (2015) GCA 160:100-116 doi:10.1016/j.gca.2015.03.022
-        - 'Liu21' Eq. (2) Liu et al. (2021) Chem.Geol. 559:119913 doi:10.1016.j.chemgeo.2020.119913
         - 'Fortin15_pss' Fortin et al. (2015) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         - 'Liu21_pss' Liu et al. (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         - 'ONeill21_pss' O'Neill (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         - 'ONeill22_pss' O'Neill & Mavrogenes (2022) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         - 'Smythe17_pss' Smythe et al. (2017) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        - 'Li22_pss' Li and Zhang (2022) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        - 'Blanchard21eq11_pss' Eq. (11) from Blanchard et al. (2021) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        - 'Blanchard21eq12_pss' Eq. (12) from Blanchard et al. (2021) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     
     SCAS: Model for parameterisation of the sulfate content at anhydrite saturation (S6+CAS).
-        - 'Chowdhury19' [default] Eq. (8) using Table 5 in Chowdhury & Dasgupta (2019) Chem.Geol. 522:162-174 doi:10.1016/j.chemgeo.2019.05.020
-        - 'Zajacz19' Eq. (8-14) Zajacz & Tsay (2019) GCA 261:288-304 doi:10.1016/j.gca.2019.07.007
         - 'Liu23' Eq. (4) Liu et al. (2023) GCA 349:135-145 doi:10.1016/j.gca.2023.04.007
         - 'Zajacz19_pss' Zajacz and Tsay (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         - 'Chowdhury19_pss' Chowdhury & Dasgupta (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
@@ -1559,11 +1558,10 @@ def SCAS(PT,melt_wf,models=default_models):
         
     Model options for SCAS
     -------------
-    - 'Zajacz19' [default] Eq. (8-14) Zajacz & Tsay (2019) GCA 261:288-304 doi:10.1016/j.gca.2019.07.007
-    - 'Chowdhury19' Eq. (8) using Table 5 in Chowdhury & Dasgupta (2019) Chem.Geol. 522:162-174 doi:10.1016/j.chemgeo.2019.05.020
     - 'Liu23' Eq. (4) Liu et al. (2023) GCA 349:135-145 doi:10.1016/j.gca.2023.04.007
     - 'Chowdhury19_pss' Chowdhury & Dasgupta (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     - 'Zajacz19_pss' Zajacz and Tsay (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+    - 'Masotta15_pss' NEEDS FIXING Masotta and Kepler (2015) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     """
     model = models.loc["SCAS","option"]
     
@@ -1571,54 +1569,54 @@ def SCAS(PT,melt_wf,models=default_models):
     
     comp = mg.melt_pysulfsat(melt_wf)
  
-    if model == "Chowdhury19": # Eq. (8) using Table 5 in Chowdhury & Dasgupta (2019) Chem.Geol. 522:162-174 doi:10.1016/j.chemgeo.2019.05.020
-        # sulfate content (ppm) at anhydrite saturation [T in K]
-        # mole fraction melt composition including water but all Fe as FeOT
-        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no") # different molecular weights used to original paper
-        tot = 100.*melt_comp["mol_tot"]
-        a = -13.23
-        b = -0.50
-        dSi = 3.02
-        dCa = 36.70
-        dMg = 2.84
-        dFe = 10.14
-        dAl = 44.28
-        dNa = 26.27
-        dK = -25.77
-        e = 0.09
-        f = 0.54
-        wm_H2OT = 100.*melt_wf['H2OT']
-        dX = dSi*melt_comp["SiO2"] + dCa*melt_comp["CaO"] + dMg*melt_comp["MgO"] + dFe*melt_comp["FeOT"] + dAl*melt_comp["Al2O3"] + dNa*melt_comp["Na2O"] + dK*melt_comp["K2O"]
-        if models.loc["high precision","option"] == "True":
-            lnxm_SO4 = a + b*((10.0**4.0)/T) + dX + e*wm_H2OT - f*gp.log(melt_comp["CaO"])                                                                                  
-            xm_SO4 = gp.exp(lnxm_SO4)
-        else:
-            lnxm_SO4 = a + b*((10.0**4.0)/T) + dX + e*wm_H2OT - f*math.log(melt_comp["CaO"])                                                                                  
-            xm_SO4 = math.exp(lnxm_SO4)
-        Xm_SO4 = xm_SO4*(xm_SO4 + tot)
-        S6CAS = Xm_SO4*species.loc["S","M"]*10000.0
+    #if model == "Chowdhury19": # Eq. (8) using Table 5 in Chowdhury & Dasgupta (2019) Chem.Geol. 522:162-174 doi:10.1016/j.chemgeo.2019.05.020
+    #    # sulfate content (ppm) at anhydrite saturation [T in K]
+    #    # mole fraction melt composition including water but all Fe as FeOT
+    #    melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no") # different molecular weights used to original paper
+    #    tot = 100.*melt_comp["mol_tot"]
+    #    a = -13.23
+    #    b = -0.50
+    #    dSi = 3.02
+    #    dCa = 36.70
+    #    dMg = 2.84
+    #    dFe = 10.14
+    #    dAl = 44.28
+    #    dNa = 26.27
+    #    dK = -25.77
+    #    e = 0.09
+    #    f = 0.54
+    #    wm_H2OT = 100.*melt_wf['H2OT']
+    #    dX = dSi*melt_comp["SiO2"] + dCa*melt_comp["CaO"] + dMg*melt_comp["MgO"] + dFe*melt_comp["FeOT"] + dAl*melt_comp["Al2O3"] + dNa*melt_comp["Na2O"] + dK*melt_comp["K2O"]
+    #    if models.loc["high precision","option"] == "True":
+    #        lnxm_SO4 = a + b*((10.0**4.0)/T) + dX + e*wm_H2OT - f*gp.log(melt_comp["CaO"])                                                                                  
+    #        xm_SO4 = gp.exp(lnxm_SO4)
+    #    else:
+    #        lnxm_SO4 = a + b*((10.0**4.0)/T) + dX + e*wm_H2OT - f*math.log(melt_comp["CaO"])                                                                                  
+    #        xm_SO4 = math.exp(lnxm_SO4)
+    #    Xm_SO4 = xm_SO4*(xm_SO4 + tot)
+    #    S6CAS = Xm_SO4*species.loc["S","M"]*10000.0
                            
-    elif model == "Zajacz19": # Eq. (8-14) Zajacz & Tsay (2019) GCA 261:288-304 doi:10.1016/j.gca.2019.07.007
-        # mole fraction melt composition including water but all Fe as FeOT
-        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no") # different molecular weights used to original paper
-        tot = 100.*melt_comp["mol_tot"]
-        if melt_comp["Na2O"] + melt_comp["K2O"] + melt_comp["CaO"] >= melt_comp["Al2O3"]:
-            P_Rhyo = 3.11*(melt_comp["Na2O"]+melt_comp["K2O"]+melt_comp["CaO"]-melt_comp["Al2O3"])
-        else:
-            P_Rhyo = 1.54*(melt_comp["Al2O3"]-(melt_comp["Na2O"]+melt_comp["K2O"]+melt_comp["CaO"]))
-        NBOT = (2.*melt_comp["Na2O"]+2.*melt_comp["K2O"]+2.*(melt_comp["CaO"]+melt_comp["MgO"]+melt_comp["FeOT"])-melt_comp["Al2O3"]*2.)/(melt_comp["SiO2"]+2.*melt_comp["Al2O3"]) # according to spreadsheet not paper
-        P_H2O = melt_comp["H2O"]*(2.09 - 1.65*NBOT) + 0.42*NBOT + 0.23
-        P_C = ((P_Rhyo + 251.*melt_comp["CaO"]**2. + 57.*melt_comp["MgO"]**2. + 154.*melt_comp["FeOT"]**2.)/(2.*melt_comp["Al2O3"] + melt_comp["SiO2"]))/(1. + 4.8*NBOT)
-        if models.loc["high precision","option"] == "True":
-            P_T = gp.exp(-7890./T)
-            Ksm_SPAnh = gp.exp(1.226*gp.log(P_C*P_T*P_H2O) + 0.079)         
-        else:
-            P_T = math.exp(-7890./T)
-            Ksm_SPAnh = math.exp(1.226*math.log(P_C*P_T*P_H2O) + 0.079)                    
-        Xsm_S = Ksm_SPAnh/melt_comp["CaO"]  
-        S6CAS = Xsm_S*tot*32.07*10000.
+    #elif model == "Zajacz19": # Eq. (8-14) Zajacz & Tsay (2019) GCA 261:288-304 doi:10.1016/j.gca.2019.07.007
+    #    # mole fraction melt composition including water but all Fe as FeOT
+    #    melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no") # different molecular weights used to original paper
+    #    tot = 100.*melt_comp["mol_tot"]
+    #    if melt_comp["Na2O"] + melt_comp["K2O"] + melt_comp["CaO"] >= melt_comp["Al2O3"]:
+    #        P_Rhyo = 3.11*(melt_comp["Na2O"]+melt_comp["K2O"]+melt_comp["CaO"]-melt_comp["Al2O3"])
+    #    else:
+    #        P_Rhyo = 1.54*(melt_comp["Al2O3"]-(melt_comp["Na2O"]+melt_comp["K2O"]+melt_comp["CaO"]))
+    #    NBOT = (2.*melt_comp["Na2O"]+2.*melt_comp["K2O"]+2.*(melt_comp["CaO"]+melt_comp["MgO"]+melt_comp["FeOT"])-melt_comp["Al2O3"]*2.)/(melt_comp["SiO2"]+2.*melt_comp["Al2O3"]) # according to spreadsheet not paper
+    #    P_H2O = melt_comp["H2O"]*(2.09 - 1.65*NBOT) + 0.42*NBOT + 0.23
+    #    P_C = ((P_Rhyo + 251.*melt_comp["CaO"]**2. + 57.*melt_comp["MgO"]**2. + 154.*melt_comp["FeOT"]**2.)/(2.*melt_comp["Al2O3"] + melt_comp["SiO2"]))/(1. + 4.8*NBOT)
+    #    if models.loc["high precision","option"] == "True":
+    #        P_T = gp.exp(-7890./T)
+    #        Ksm_SPAnh = gp.exp(1.226*gp.log(P_C*P_T*P_H2O) + 0.079)         
+    #    else:
+    #        P_T = math.exp(-7890./T)
+    #        Ksm_SPAnh = math.exp(1.226*math.log(P_C*P_T*P_H2O) + 0.079)                    
+    #    Xsm_S = Ksm_SPAnh/melt_comp["CaO"]  
+    #    S6CAS = Xsm_S*tot*32.07*10000.
         
-    elif model == "Liu23": # Eq. (4) Liu et al. (2023) GCA 349:135-145 doi:10.1016/j.gca.2023.04.007
+    if model == "Liu23": # Eq. (4) Liu et al. (2023) GCA 349:135-145 doi:10.1016/j.gca.2023.04.007
         melt_comp = mg.melt_mole_fraction(melt_wf,models,"no","no")
         NBOT = (2.*melt_comp["Na2O"]+2.*melt_comp["K2O"]+2.*(melt_comp["CaO"]+melt_comp["MgO"]+melt_comp["FeOT"])-melt_comp["Al2O3"]*2.)/(melt_comp["SiO2"]+2.*melt_comp["Al2O3"]) 
         melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
@@ -1632,10 +1630,10 @@ def SCAS(PT,melt_wf,models=default_models):
         output = ss.calculate_CD2019_SCAS(df=comp, T_K=T, H2O_Liq=float(100.*melt_wf['H2OT']), Fe3Fet_Liq=None, P_kbar=None)
         S6CAS = float(output["SCAS6_ppm"].iloc[0])
     elif model == "Zajacz19_pss": # Zajacz and Tsay (2019) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-        output = ss.calculate_ZT2022_SCAS(df=comp, T_K=T, H2O_Liq=float(100.*melt_wf['H2OT']), Fe3Fet_Liq=None, P_kbar=None)
+        output = ss.calculate_ZT2019_SCAS(df=comp, T_K=T, H2O_Liq=float(100.*melt_wf['H2OT']), Fe3Fet_Liq=None, P_kbar=None)
         S6CAS = float(output["SCAS6_ppm"].iloc[0])
     elif model == "Masotta15_pss": # Masotta and Kepler (2015) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
-        output = ss.calculate_MK2015_SCAS(df=comp, T_K=T, H2O_Liq=float(100.*melt_wf['H2OT']), Fe3Fet_Liq=None, P_kbar=None)
+        output = ss.calculate_MK2015_SCAS(df=comp, T_K=T, H2O_Liq=(float(100.*melt_wf['H2OT'])), Fe3Fet_Liq=None, P_kbar=None)
         S6CAS = float(output["SCAS6_ppm"].iloc[0])
     
     return S6CAS
@@ -1673,13 +1671,14 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
     - 'ONeill21' Eq. (10.34, 10.43, 10.45, 10.46) excluding water dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
     - 'ONeill21dil' Eq. (10.34, 10.43, 10.45, 10.46) including water dilution from O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
     - 'Liu07' Eq. (9) in Liu et al. (2007) GCA 71:1783-1799 doi:10.1016/j.gca.2007.01.004
-    - 'Fortin15' Eq. (7) Fortin et al. (2015) GCA 160:100-116 doi:10.1016/j.gca.2015.03.022
-    - 'Liu21' Eq. (2) Liu et al. (2021) Chem.Geol. 559:119913 doi:10.1016.j.chemgeo.2020.119913
     - 'Fortin15_pss' Fortin et al. (2015) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     - 'Liu21_pss' Liu et al. (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     - 'ONeill22_pss' O'Neill & Mavrogenes (2022) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     - 'ONeill21_pss' O'Neill (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
     - 'Smythe17_pss' Smythe et al. (2017) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+    - 'Li22_pss' Li and Zhang (2022) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+    - 'Blanchard21eq11_pss' Eq. (11) from Blanchard et al. (2021) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+    - 'Blanchard21eq12_pss' Eq. (12) from Blanchard et al. (2021) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
 
     """
     
@@ -1745,36 +1744,39 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
             lnS = 11.35251 - (4454.6/T) - 0.03190*(PT["P"]/T) + 0.71006*math.log(MFM) - 1.98063*(MFM*melt_comp["H"]) + 0.21867*math.log(melt_comp["H"]) + 0.36192*math.log(melt_comp["Fe2"])
             SCSS = math.exp(lnS)
         
-    elif model == "Fortin15": # Eq. (7) Fortin et al. (2015) GCA 160:100-116 doi:10.1016/j.gca.2015.03.022
-        # Mole fractions in the melt on cationic lattice (all Fe as FeOT) and water - molecular masses used are different to spreadsheet attached to paper
-        melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
-        lnS = 34.7837 - (5772.322/T) - 346.5377*((0.0001*PT["P"])/T) - 20.3934*melt_comp["H2O"] - 25.4986*melt_comp["SiO2"] - 18.3435*melt_comp["TiO2"] - 27.3807*melt_comp["Al2O3"] - 17.2752*melt_comp["FeOT"] - 22.3975*melt_comp["MgO"] - 20.3778*melt_comp["CaO"] - 18.9539*melt_comp["Na2O"] - 32.1944*melt_comp["K2O"]
-        if models.loc["high precision","option"] == "True":
-            SCSS = gp.exp(lnS)
-        else:
-            SCSS = math.exp(lnS)
+    #elif model == "Fortin15": # Eq. (7) Fortin et al. (2015) GCA 160:100-116 doi:10.1016/j.gca.2015.03.022
+    #    # Mole fractions in the melt on cationic lattice (all Fe as FeOT) and water - molecular masses used are different to spreadsheet attached to paper
+    #    melt_comp = mg.melt_mole_fraction(melt_wf,models,"water","no")
+    #    lnS = 34.7837 - (5772.322/T) - 346.5377*((0.0001*PT["P"])/T) - 20.3934*melt_comp["H2O"] - 25.4986*melt_comp["SiO2"] - 18.3435*melt_comp["TiO2"] - 27.3807*melt_comp["Al2O3"] - 17.2752*melt_comp["FeOT"] - 22.3975*melt_comp["MgO"] - 20.3778*melt_comp["CaO"] - 18.9539*melt_comp["Na2O"] - 32.1944*melt_comp["K2O"]
+    #    if models.loc["high precision","option"] == "True":
+    #        SCSS = gp.exp(lnS)
+    #    else:
+    #        SCSS = math.exp(lnS)
     
-    elif model == "Liu21": # Eq. (2) Liu et al. (2021) Chem.Geol. 559:119913 doi:10.1016.j.chemgeo.2020.119913
-        XFeS = sulf_XFe
-        H2O = melt_wf["H2OT"]*100.
-        if models.loc["high precision","option"] == "True":
-            SCSS = (XFeS*gp.exp(13.88 - (9744./T) - (328.*(0.0001*PT["P"])/T))) + 104.*H2O
-        else:
-            SCSS = (XFeS*math.exp(13.88 - (9744./T) - (328.*(0.0001*PT["P"])/T))) + 104.*H2O
+    #elif model == "Liu21": # Eq. (2) Liu et al. (2021) Chem.Geol. 559:119913 doi:10.1016.j.chemgeo.2020.119913
+    #    XFeS = sulf_XFe
+    #    H2O = melt_wf["H2OT"]*100.
+    #    if models.loc["high precision","option"] == "True":
+    #        SCSS = (XFeS*gp.exp(13.88 - (9744./T) - (328.*(0.0001*PT["P"])/T))) + 104.*H2O
+    #    else:
+    #        SCSS = (XFeS*math.exp(13.88 - (9744./T) - (328.*(0.0001*PT["P"])/T))) + 104.*H2O
     
-    elif model == "pss_Li22": # Li and Zhang (2022) assuming pure FeS using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+    elif model == "Li22_pss": # Li and Zhang (2022) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_LiZhang2022_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']), Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi, Fe3Fet_Liq=Fe3FeT)
-        SCSS = float(output["SCSS2_ppm"].iloc[0])
-    elif model == "pss_Blanchard21": # Blanchard et al. (2021) assuming pure FeS using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        SCSS = float(output["SCSS_Tot"].iloc[0])
+    elif model == "Blanchard21eq11_pss": # Eq. (11) from Blanchard et al. (2021) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_B2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']), Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi,  Fe3Fet_Liq=Fe3FeT)
-        SCSS = float(output["SCSS2_ppm"].iloc[0])
+        SCSS = float(output["SCSS2_ppm_eq11"].iloc[0])
+    elif model == "Blanchard21eq12_pss": # Eq. (12) from Blanchard et al. (2021) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+        output = ss.calculate_B2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']), Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi,  Fe3Fet_Liq=Fe3FeT)
+        SCSS = float(output["SCSS2_ppm_eq12"].iloc[0])
     elif model == "Fortin15_pss": # Fortin et al. (2015) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_F2015_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']))
         SCSS = float(output["SCSS2_ppm"].iloc[0])
-    elif model == "Liu21_pss": # Liu et al. (2021) FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+    elif model == "Liu21_pss": # Liu et al. (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_Liu2021_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), H2O_Liq=float(100.*melt_wf['H2OT']), Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi, Fe3Fet_Liq=Fe3FeT)
         SCSS = float(output["SCSS2_ppm"].iloc[0])
-    elif model == "ONeill22_pss": # O'Neill & Mavrogenes (2022) FeS using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
+    elif model == "ONeill22_pss": # O'Neill & Mavrogenes (2022) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
         output = ss.calculate_OM2022_SCSS(df=comp, T_K=T, P_kbar=(P_bar/1000.), Fe3Fet_Liq=Fe3FeT, Fe_FeNiCu_Sulf=sulf_XFe, Cu_FeNiCu_Sulf=sulf_XCu, Ni_FeNiCu_Sulf=sulf_XNi)
         SCSS = float(output["SCSS2_ppm"].iloc[0])
     elif model == "ONeill21_pss": # O'Neill (2021) using PySulfSat by Wieser & Gleeson (2023) Volcanica 6(1):107-127 doi:10.30909/vol.06.01.107127
@@ -2459,6 +2461,51 @@ def CORK(PT,p0,a,b,c,d,models):
         ln_y = z - 1.0 - math.log(z-B) - A*math.log(1.0 + (B/z)) + ln_y_virial
         value = math.exp(ln_y)
     return value
+
+### Flowers (1979) modified from code from MIMiC (Rasmussen et al., 2021: https://github.com/DJRgeoscience/MIMiC), originally from VolatileCalc (Newman & Lowenstern, 2001)
+def MRK(PT,X_1): #Redlich-Kwong routine to estimate endmember H2O and CO2 fugacities
+    # CO2, X_1 = 0.
+    # H2O, X_1 = 1.
+    P = PT['P']
+    TK = PT['T']+273.15
+
+    def FNA(TK):
+        return (166800000 - 193080 * (TK - 273.15) + 186.4 * (TK - 273.15)**2 - 0.071288 * ((TK - 273.15)**3)) * 1.01325
+
+    def FNB(TK):
+        return 1.01325 * (73030000 - 71400 * (TK - 273.15) + 21.57 * (TK - 273.15)**2)
+
+    def FNC(TK):
+        R = 83.14321
+        return 1.01325 * (np.exp(-11.071 + 5953 / TK - 2746000 / TK**2 + 464600000 / TK**3) * 0.5 * R * R * TK**2.5 / 1.02668 + 40123800)
+
+    def FNF(V,TK,A,B,P):
+        R = 83.14321
+        return R * TK / (V - B) - A / ((V * V + B * V) * TK**0.5) - P
+
+    R = 83.14321
+    B_1 = 14.6
+    B_2 = 29.7
+
+    B = X_1 * B_1 + (1 - X_1) * B_2
+    A = X_1**2 * FNA(TK) + 2 * X_1 * (1 - X_1) * FNC(TK) + (1 - X_1)**2 * FNB(TK)
+    Temp2 = B + 5
+    Q = 1
+    Temp1 = 0
+    while abs(Temp2 - Temp1) >= 0.00001:
+        Temp1 = Temp2
+        F_1 = (FNF(Temp1 + 0.01, TK, A, B, P) - FNF(Temp1, TK, A, B, P)) / 0.01
+        Temp2 = Temp1 - Q * FNF(Temp1, TK, A, B, P) / F_1
+        F_2 = (FNF(Temp2 + 0.01, TK, A, B, P) - FNF(Temp2, TK, A, B, P)) / 0.01
+        if F_2 * F_1 <= 0:
+            Q = Q / 2.
+        if abs(Temp2 - Temp1) > 0.00001:
+            F_1 = F_2
+    V = Temp2
+    G = np.log(V / (V - B)) + B_1 / (V - B) - 2 * (X_1 * FNA(TK) + (1 - X_1) * FNC(TK)) * np.log((V + B) / V) / (R * TK**1.5 * B)
+    G = G + (np.log((V + B) / V) - B / (V + B)) * A * B_1 / (R * TK**1.5 * B**2) - np.log(P * V / (R * TK))
+    G = np.exp(G)
+    return G
     
 ###########################
 ### Shi & Saxena (1992) ###
@@ -2804,14 +2851,17 @@ def y_H2O(PT,models=default_models):
         return 1.
     elif P < 1.: # ideal gas below 1 bar
         return 1.
-    if model == "Holland91": # Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
-    # (T > 673 K only) - using Holland & Powell (1991) CORK
-        p0 = 2.00 # in kb
-        a = 1113.4 + -0.22291*(T_K - 673.0) + -3.8022e-4*pow((T_K-673.0),2.0) + 1.7791e-7*pow((T_K-673.0),3.0)
-        b = 1.465
-        c = -3.025650e-2 + -5.343144e-6*T_K
-        d = -3.2297554e-3 + 2.2215221e-6*T_K
-        y = CORK(PT,p0,a,b,c,d,models)
+    else:
+        if model == "Holland91": # Holland & Powell (1991) CMP 109:265-273 10.1007/BF00306484
+        # (T > 673 K only) - using Holland & Powell (1991) CORK
+            p0 = 2.00 # in kb
+            a = 1113.4 + -0.22291*(T_K - 673.0) + -3.8022e-4*pow((T_K-673.0),2.0) + 1.7791e-7*pow((T_K-673.0),3.0)
+            b = 1.465
+            c = -3.025650e-2 + -5.343144e-6*T_K
+            d = -3.2297554e-3 + 2.2215221e-6*T_K
+            y = CORK(PT,p0,a,b,c,d,models)
+        elif model == "Flowers79":
+            y = MRK(PT,1.)
         return y
 
 def y_CO2(PT,models=default_models):
@@ -2862,6 +2912,8 @@ def y_CO2(PT,models=default_models):
         elif model == "Shi92": # Shi & Saxena (1992) AmMin 77(9-10):1038-1049
             gas_species = "CO2"
             y = y_SS(gas_species,PT,models)
+        if model == "Flowers79":
+            y = MRK(PT,0.)
         return y
     
 def y_O2(PT,models=default_models):

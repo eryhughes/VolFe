@@ -824,7 +824,7 @@ a_H2S_S_,a_SO4_S_,a_S2_S_,a_SO2_S_,a_OCS_S_,""]])
 
         # recalculate bulk composition if needed
         if models.loc["gassing_style","option"] == "open":
-            results_me = mg.melt_elements(PT,melt_wf,bulk_wf,gas_mf,models)
+            results_me = mg.melt_elements(melt_wf,bulk_wf,gas_mf)
             if models.loc["gassing_direction","option"] == "degas":
                 Wt_ = bulk_wf['Wt']
                 if results_me["wm_C"] < 1.e-6: # 1 ppm C
