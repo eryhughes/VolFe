@@ -1648,7 +1648,7 @@ def Fe3Fe2(melt_wf):
     Fe3FeT = melt_wf['Fe3FeT']
     return Fe3FeT/(1.0 - Fe3FeT)
 
-def Wm_FeT(melt_wf):
+def Wm_FeT(melt_wf,molmass="M"):
     """ 
     Calculate weight of total Fe in the melt from FeOT or Fe2O3T or FeO+Fe2O3
 
@@ -1665,13 +1665,13 @@ def Wm_FeT(melt_wf):
 
     """
     if melt_wf["FeOT"] > 0.0:
-        return (melt_wf["FeOT"]/mdv.species.loc["FeO","M"])*mdv.species.loc["Fe","M"]
+        return (melt_wf["FeOT"]/mdv.species.loc["FeO",molmass])*mdv.species.loc["Fe",molmass]
     elif melt_wf["Fe2O3T"] > 0.0:
-        return (melt_wf["Fe2O3T"]/mdv.species.loc["Fe2O3","M"])*mdv.species.loc["Fe","M"]
+        return (melt_wf["Fe2O3T"]/mdv.species.loc["Fe2O3",molmass])*2.*mdv.species.loc["Fe",molmass]
     else:
-        return ((melt_wf["FeO"]/mdv.species.loc["FeO","M"]) + (melt_wf["Fe2O3"]/mdv.species.loc["Fe2O3","M"]))*mdv.species.loc["Fe","M"]
+        return ((melt_wf["FeO"]/mdv.species.loc["FeO",molmass]) + (melt_wf["Fe2O3"]/mdv.species.loc["Fe2O3",molmass]))*2.*mdv.species.loc["Fe",molmass]
 
-def Wm_FeO(melt_wf):
+def Wm_FeO(melt_wf,molmass="M"):
     """ 
     Calculate weight of FeO in the melt from total Fe and Fe3+/FeT
 
@@ -1688,9 +1688,9 @@ def Wm_FeO(melt_wf):
 
     """
     Fe3FeT = melt_wf['Fe3FeT']
-    return (Wm_FeT(melt_wf)/mdv.species.loc["Fe","M"])*(1.0-Fe3FeT)*mdv.species.loc["FeO","M"]
+    return (Wm_FeT(melt_wf,molmass=molmass)/mdv.species.loc["Fe",molmass])*(1.0-Fe3FeT)*mdv.species.loc["FeO",molmass]
 
-def Wm_Fe2O3(melt_wf):
+def Wm_Fe2O3(melt_wf,molmass="M"):
     """ 
     Calculate weight of Fe3O3 in the melt from total Fe and Fe3+/FeT
 
@@ -1707,9 +1707,9 @@ def Wm_Fe2O3(melt_wf):
 
     """
     Fe3FeT = melt_wf['Fe3FeT']
-    return (Wm_FeT(melt_wf)/mdv.species.loc["Fe","M"])*Fe3FeT*mdv.species.loc["Fe2O3","M"]
+    return (((Wm_FeT(melt_wf,molmass=molmass)/mdv.species.loc["Fe",molmass])*Fe3FeT)/2.)*mdv.species.loc["Fe2O3",molmass]
 
-def Wm_FeOT(melt_wf):
+def Wm_FeOT(melt_wf,molmass="M"):
     """ 
     Calculate weight of FeOT in the melt from total Fe
 
@@ -1725,7 +1725,7 @@ def Wm_FeOT(melt_wf):
         weight FeOT in the melt
 
     """
-    return (Wm_FeT(melt_wf)/mdv.species.loc["Fe","M"])*mdv.species.loc["FeO","M"]
+    return (Wm_FeT(melt_wf,molmass=molmass)/mdv.species.loc["Fe",molmass])*mdv.species.loc["FeO",molmass]
 
 def wm_Fe_nv(melt_wf): # no volatiles
     """ 
@@ -2116,16 +2116,19 @@ def melt_elements(melt_wf,bulk_wf,gas_comp):
 #################################################################################################################################
 
 # molar volume of individual gas species (J/mol/bar - *10 for cm3/bar)
-def gas_molar_volume(gas_PT,models):
+def gas_molar_volume(gas_species,PT,models):
     # work in progress
-    P = PT['P']
-    T = PT['T']+273.15
-    Pr = P/mdv.species.loc[gas_species,"Pcr"]
-    Tr = T/mdv.species.loc[gas_species,"Tcr"]
-    PTr = {"P":Pr,"T":Tr}
     R = 8.3145 # J/mol/K
-    if gas_species == "O2" or "CO2" or "OCS" or "CH4" or "CO":
-        y = mdv.y_SS(PT,models)
+    if gas_species == "O2": 
+        y = mdv.y_O2(PT,models)
+    elif gas_species == "CO2":
+        y = mdv.y_CO2(PT,models)
+    elif gas_species == "OCS":
+        y = mdv.y_OCS(PT,models)
+    elif gas_species == "CH4":
+        y = mdv.y_CH4(PT,models)
+    elif gas_species == "CO":
+        y = mdv.y_CO(PT,models)
     elif gas_species == "SO2":
         y = mdv.y_SO2(PT,models)
     elif gas_species == "H2S":
@@ -2134,8 +2137,9 @@ def gas_molar_volume(gas_PT,models):
         y = mdv.y_H2(PT,models)
     elif gas_species == "H2O":
         y = mdv.y_H2O(PT,models)
-    Vm = (R*T*y)/P
-    PT = {"P":P,"T":T-273.15}
+    elif gas_species == "X":
+        y = mdv.y_X(PT,models)
+    Vm = (R*(PT['T']+273.15)*y)/PT['P']
     return Vm
 
 def Vm_O2(PT,models):
@@ -2342,7 +2346,7 @@ def melt_comp(run,setup):
     return melt_wf
 
 # normalise melt composition in weight fraction
-def melt_normalise_wf(melt_wf,volatiles,Fe_speciation):
+def melt_normalise_wf(melt_wf,volatiles,Fe_speciation,molmass='M',majors='majors'):
     """ 
     Normalise melt composition in weight fraction
 
@@ -2371,37 +2375,74 @@ def melt_normalise_wf(melt_wf,volatiles,Fe_speciation):
 
     """
     if volatiles == "yes": # assumes all H is H2O, all C is CO2, all S is S, all X is X
-        H2O = (melt_wf["HT"]/mdv.species.loc["H2","M"])*mdv.species.loc["H2O","M"]
-        CO2 = (melt_wf["CT"]/mdv.species.loc["C","M"])*mdv.species.loc["CO2","M"]
+        H2O = (melt_wf["HT"]/mdv.species.loc["H2",molmass])*mdv.species.loc["H2O",molmass]
+        CO2 = (melt_wf["CT"]/mdv.species.loc["C",molmass])*mdv.species.loc["CO2",molmass]
         S = melt_wf["ST"]
         X = melt_wf["XT"]
     elif volatiles == "water": # assumes all H is H2O
-        H2O = (melt_wf["HT"]/mdv.species.loc["H2","M"])*mdv.species.loc["H2O","M"]
+        H2O = (melt_wf["HT"]/mdv.species.loc["H2",molmass])*mdv.species.loc["H2O",molmass]
         CO2, S, X = 0.,0.,0.
     elif volatiles == "no":
         H2O, CO2, S, X = 0.,0.,0.,0.
     volatiles = H2O + CO2 + S + X
     if Fe_speciation == "no":
-        Wm_FeOT_ = Wm_FeOT(melt_wf)
+        Wm_FeOT_ = Wm_FeOT(melt_wf,molmass=molmass)
         Wm_FeO_ = 0.
         Wm_Fe2O3_ = 0.
     elif Fe_speciation == "yes":
         Wm_FeOT_ = 0.
-        Wm_FeO_ = Wm_FeO(melt_wf)
-        Wm_Fe2O3_ = Wm_Fe2O3(melt_wf)
-    tot = (melt_wf["SiO2"] + melt_wf["TiO2"] + melt_wf["Al2O3"] + Wm_FeOT_ + Wm_FeO_ + Wm_Fe2O3_ + melt_wf["MgO"] + melt_wf["MnO"] + melt_wf["CaO"] + melt_wf["Na2O"] + melt_wf["K2O"] + melt_wf["P2O5"])
-    result = {"SiO2":(melt_wf["SiO2"]/tot)*(1.-volatiles)}
-    result["TiO2"] = (melt_wf["TiO2"]/tot)*(1.-volatiles)
-    result["Al2O3"] = (melt_wf["Al2O3"]/tot)*(1.-volatiles)
+        Wm_FeO_ = Wm_FeO(melt_wf,molmass=molmass)
+        Wm_Fe2O3_ = Wm_Fe2O3(melt_wf,molmass=molmass)
+    if mdv.species.loc['SiO2',majors] == 'Y':
+        Wm_SiO2 = melt_wf["SiO2"]
+    else:
+        Wm_SiO2 = 0.
+    if mdv.species.loc['TiO2',majors] == 'Y':
+        Wm_TiO2 = melt_wf["TiO2"]
+    else:
+        Wm_TiO2 = 0.
+    if mdv.species.loc['Al2O3',majors] == 'Y':
+        Wm_Al2O3 = melt_wf["Al2O3"]
+    else:
+        Wm_Al2O3 = 0.
+    if mdv.species.loc['MgO',majors] == 'Y':
+        Wm_MgO = melt_wf["MgO"]
+    else:
+        Wm_MgO = 0.
+    if mdv.species.loc['MnO',majors] == 'Y':
+        Wm_MnO = melt_wf["MnO"]
+    else:
+        Wm_MnO = 0.
+    if mdv.species.loc['CaO',majors] == 'Y':
+        Wm_CaO = melt_wf["CaO"]
+    else:
+        Wm_CaO = 0.
+    if mdv.species.loc['Na2O',majors] == 'Y':
+        Wm_Na2O = melt_wf["Na2O"]
+    else:
+        Wm_Na2O = 0.
+    if mdv.species.loc['K2O',majors] == 'Y':
+        Wm_K2O = melt_wf["K2O"]
+    else:
+        Wm_K2O = 0.
+    if mdv.species.loc['P2O5',majors] == 'Y':
+        Wm_P2O5 = melt_wf["P2O5"]
+    else:
+        Wm_P2O5 = 0.
+    
+    tot = (Wm_SiO2 + Wm_TiO2 + Wm_Al2O3 + Wm_FeOT_ + Wm_FeO_ + Wm_Fe2O3_ + Wm_MgO + Wm_MnO + Wm_CaO + Wm_Na2O + Wm_K2O + Wm_P2O5)
+    result = {"SiO2":(Wm_SiO2/tot)*(1.-volatiles)}
+    result["TiO2"] = (Wm_TiO2/tot)*(1.-volatiles)
+    result["Al2O3"] = (Wm_Al2O3/tot)*(1.-volatiles)
     result["FeOT"] = (Wm_FeOT_/tot)*(1.-volatiles)
     result["FeO"] = (Wm_FeO_/tot)*(1.-volatiles)
     result["Fe2O3"] = (Wm_Fe2O3_/tot)*(1.-volatiles)
-    result["MgO"] = (melt_wf["MgO"]/tot)*(1.-volatiles)
-    result["MnO"] = (melt_wf["MnO"]/tot)*(1.-volatiles)
-    result["CaO"] = (melt_wf["CaO"]/tot)*(1.-volatiles)
-    result["Na2O"] = (melt_wf["Na2O"]/tot)*(1.-volatiles)
-    result["K2O"] = (melt_wf["K2O"]/tot)*(1.-volatiles)
-    result["P2O5"] = (melt_wf["P2O5"]/tot)*(1.-volatiles)
+    result["MgO"] = (Wm_MgO/tot)*(1.-volatiles)
+    result["MnO"] = (Wm_MnO/tot)*(1.-volatiles)
+    result["CaO"] = (Wm_CaO/tot)*(1.-volatiles)
+    result["Na2O"] = (Wm_Na2O/tot)*(1.-volatiles)
+    result["K2O"] = (Wm_K2O/tot)*(1.-volatiles)
+    result["P2O5"] = (Wm_P2O5/tot)*(1.-volatiles)
     result["H2O"] = H2O
     result["CO2"] = CO2
     result["S"] = S
@@ -2409,7 +2450,7 @@ def melt_normalise_wf(melt_wf,volatiles,Fe_speciation):
     return result
 
 # calculate cation proportions
-def melt_cation_proportion(melt_wf,volatiles,Fe_speciation):
+def melt_cation_proportion(melt_wf,volatiles,Fe_speciation,molmass='M',majors='majors'):
     """ 
     Calculate cation proportion of melt composition
 
@@ -2437,26 +2478,26 @@ def melt_cation_proportion(melt_wf,volatiles,Fe_speciation):
         cation mole fraction in the melt
 
     """
-    melt_comp = melt_normalise_wf(melt_wf,volatiles,Fe_speciation)
-    tot = ((mdv.species.loc["SiO2","no_cat"]*melt_comp["SiO2"])/mdv.species.loc["SiO2","M"]) + ((mdv.species.loc["TiO2","no_cat"]*melt_comp["TiO2"])/mdv.species.loc["TiO2","M"]) + ((mdv.species.loc["Al2O3","no_cat"]*melt_comp["Al2O3"])/mdv.species.loc["Al2O3","M"]) + ((mdv.species.loc["FeO","no_cat"]*melt_comp["FeOT"])/mdv.species.loc["FeO","M"]) + ((mdv.species.loc["FeO","no_cat"]*melt_comp["FeO"])/mdv.species.loc["FeO","M"]) + ((mdv.species.loc["Fe2O3","no_cat"]*melt_comp["Fe2O3"])/mdv.species.loc["Fe2O3","M"]) + ((mdv.species.loc["MgO","no_cat"]*melt_comp["MgO"])/mdv.species.loc["MgO","M"]) + ((mdv.species.loc["MnO","no_cat"]*melt_comp["MnO"])/mdv.species.loc["MnO","M"]) + ((mdv.species.loc["CaO","no_cat"]*melt_comp["CaO"])/mdv.species.loc["CaO","M"]) + ((mdv.species.loc["Na2O","no_cat"]*melt_comp["Na2O"])/mdv.species.loc["Na2O","M"]) + ((mdv.species.loc["K2O","no_cat"]*melt_comp["K2O"])/mdv.species.loc["K2O","M"]) + ((mdv.species.loc["P2O5","no_cat"]*melt_comp["P2O5"])/mdv.species.loc["P2O5","M"]) + ((mdv.species.loc["H2O","no_cat"]*melt_comp["H2O"])/mdv.species.loc["H2O","M"]) + ((mdv.species.loc["CO2","no_cat"]*melt_comp["CO2"])/mdv.species.loc["CO2","M"])
-    result = {"Si":((mdv.species.loc["SiO2","no_cat"]*melt_comp["SiO2"])/mdv.species.loc["SiO2","M"])/tot}
-    result["Ti"] = ((mdv.species.loc["TiO2","no_cat"]*melt_comp["TiO2"])/mdv.species.loc["TiO2","M"])/tot
-    result["Al"] = ((mdv.species.loc["Al2O3","no_cat"]*melt_comp["Al2O3"])/mdv.species.loc["Al2O3","M"])/tot
-    result["FeT"] = ((mdv.species.loc["FeO","no_cat"]*melt_comp["FeOT"])/mdv.species.loc["FeO","M"])/tot
-    result["Fe2"] = ((mdv.species.loc["FeO","no_cat"]*melt_comp["FeO"])/mdv.species.loc["FeO","M"])/tot
-    result["Fe3"] = ((mdv.species.loc["Fe2O3","no_cat"]*melt_comp["Fe2O3"])/mdv.species.loc["Fe2O3","M"])/tot    
-    result["Mg"] = ((mdv.species.loc["MgO","no_cat"]*melt_comp["MgO"])/mdv.species.loc["MgO","M"])/tot
-    result["Mn"] = ((mdv.species.loc["MgO","no_cat"]*melt_comp["MnO"])/mdv.species.loc["MnO","M"])/tot
-    result["Ca"] = ((mdv.species.loc["CaO","no_cat"]*melt_comp["CaO"])/mdv.species.loc["CaO","M"])/tot
-    result["Na"] = ((mdv.species.loc["Na2O","no_cat"]*melt_comp["Na2O"])/mdv.species.loc["Na2O","M"])/tot
-    result["K"] = ((mdv.species.loc["K2O","no_cat"]*melt_comp["K2O"])/mdv.species.loc["K2O","M"])/tot
-    result["P"] = ((mdv.species.loc["P2O5","no_cat"]*melt_comp["P2O5"])/mdv.species.loc["P2O5","M"])/tot
-    result["H"] = ((mdv.species.loc["H2O","no_cat"]*melt_comp["H2O"])/mdv.species.loc["H2O","M"])/tot
-    result["C"] = ((mdv.species.loc["CO2","no_cat"]*melt_comp["CO2"])/mdv.species.loc["CO2","M"])/tot
+    melt_comp = melt_normalise_wf(melt_wf,volatiles,Fe_speciation,molmass=molmass,majors=majors)
+    tot = ((mdv.species.loc["SiO2","no_cat"]*melt_comp["SiO2"])/mdv.species.loc["SiO2",molmass]) + ((mdv.species.loc["TiO2","no_cat"]*melt_comp["TiO2"])/mdv.species.loc["TiO2",molmass]) + ((mdv.species.loc["Al2O3","no_cat"]*melt_comp["Al2O3"])/mdv.species.loc["Al2O3",molmass]) + ((mdv.species.loc["FeO","no_cat"]*melt_comp["FeOT"])/mdv.species.loc["FeO",molmass]) + ((mdv.species.loc["FeO","no_cat"]*melt_comp["FeO"])/mdv.species.loc["FeO",molmass]) + ((mdv.species.loc["Fe2O3","no_cat"]*melt_comp["Fe2O3"])/mdv.species.loc["Fe2O3",molmass]) + ((mdv.species.loc["MgO","no_cat"]*melt_comp["MgO"])/mdv.species.loc["MgO",molmass]) + ((mdv.species.loc["MnO","no_cat"]*melt_comp["MnO"])/mdv.species.loc["MnO",molmass]) + ((mdv.species.loc["CaO","no_cat"]*melt_comp["CaO"])/mdv.species.loc["CaO",molmass]) + ((mdv.species.loc["Na2O","no_cat"]*melt_comp["Na2O"])/mdv.species.loc["Na2O",molmass]) + ((mdv.species.loc["K2O","no_cat"]*melt_comp["K2O"])/mdv.species.loc["K2O",molmass]) + ((mdv.species.loc["P2O5","no_cat"]*melt_comp["P2O5"])/mdv.species.loc["P2O5",molmass]) + ((mdv.species.loc["H2O","no_cat"]*melt_comp["H2O"])/mdv.species.loc["H2O",molmass]) + ((mdv.species.loc["CO2","no_cat"]*melt_comp["CO2"])/mdv.species.loc["CO2",molmass])
+    result = {"Si":((mdv.species.loc["SiO2","no_cat"]*melt_comp["SiO2"])/mdv.species.loc["SiO2",molmass])/tot}
+    result["Ti"] = ((mdv.species.loc["TiO2","no_cat"]*melt_comp["TiO2"])/mdv.species.loc["TiO2",molmass])/tot
+    result["Al"] = ((mdv.species.loc["Al2O3","no_cat"]*melt_comp["Al2O3"])/mdv.species.loc["Al2O3",molmass])/tot
+    result["FeT"] = ((mdv.species.loc["FeO","no_cat"]*melt_comp["FeOT"])/mdv.species.loc["FeO",molmass])/tot
+    result["Fe2"] = ((mdv.species.loc["FeO","no_cat"]*melt_comp["FeO"])/mdv.species.loc["FeO",molmass])/tot
+    result["Fe3"] = ((mdv.species.loc["Fe2O3","no_cat"]*melt_comp["Fe2O3"])/mdv.species.loc["Fe2O3",molmass])/tot    
+    result["Mg"] = ((mdv.species.loc["MgO","no_cat"]*melt_comp["MgO"])/mdv.species.loc["MgO",molmass])/tot
+    result["Mn"] = ((mdv.species.loc["MgO","no_cat"]*melt_comp["MnO"])/mdv.species.loc["MnO",molmass])/tot
+    result["Ca"] = ((mdv.species.loc["CaO","no_cat"]*melt_comp["CaO"])/mdv.species.loc["CaO",molmass])/tot
+    result["Na"] = ((mdv.species.loc["Na2O","no_cat"]*melt_comp["Na2O"])/mdv.species.loc["Na2O",molmass])/tot
+    result["K"] = ((mdv.species.loc["K2O","no_cat"]*melt_comp["K2O"])/mdv.species.loc["K2O",molmass])/tot
+    result["P"] = ((mdv.species.loc["P2O5","no_cat"]*melt_comp["P2O5"])/mdv.species.loc["P2O5",molmass])/tot
+    result["H"] = ((mdv.species.loc["H2O","no_cat"]*melt_comp["H2O"])/mdv.species.loc["H2O",molmass])/tot
+    result["C"] = ((mdv.species.loc["CO2","no_cat"]*melt_comp["CO2"])/mdv.species.loc["CO2",molmass])/tot
     return result
 
 # calculate mole fractions in the melt
-def melt_mole_fraction(melt_wf,models,volatiles,Fe_speciation):
+def melt_mole_fraction(melt_wf,models,volatiles,Fe_speciation,molmass='M',majors='majors'):
     """ 
     Calculate oxide mole fraction of the melt
 
@@ -2487,29 +2528,29 @@ def melt_mole_fraction(melt_wf,models,volatiles,Fe_speciation):
         oxide mole fraction of the melt
 
     """
-    melt_comp = melt_normalise_wf(melt_wf,volatiles,Fe_speciation)
+    melt_comp = melt_normalise_wf(melt_wf,volatiles,Fe_speciation,molmass=molmass,majors=majors)
     species_X = models.loc["species X","option"]
-    mol_tot = (melt_comp["SiO2"]/mdv.species.loc["SiO2","M"]) + (melt_comp["TiO2"]/mdv.species.loc["TiO2","M"]) + (melt_comp["Al2O3"]/mdv.species.loc["Al2O3","M"]) + (melt_comp["FeOT"]/mdv.species.loc["FeO","M"]) + (melt_comp["FeO"]/mdv.species.loc["FeO","M"]) + (melt_comp["Fe2O3"]/mdv.species.loc["Fe2O3","M"]) + (melt_comp["MnO"]/mdv.species.loc["MnO","M"]) + (melt_comp["MgO"]/mdv.species.loc["MgO","M"]) + (melt_comp["CaO"]/mdv.species.loc["CaO","M"]) + (melt_comp["Na2O"]/mdv.species.loc["Na2O","M"]) + (melt_comp["K2O"]/mdv.species.loc["K2O","M"]) + (melt_comp["P2O5"]/mdv.species.loc["P2O5","M"]) + (melt_comp["H2O"]/mdv.species.loc["H2O","M"]) + (melt_comp["CO2"]/mdv.species.loc["CO2","M"]) + (melt_comp["S"]/mdv.species.loc["S","M"]) + (melt_comp["X"]/mdv.species.loc[species_X,"M"])
-    result = {"SiO2":(melt_comp["SiO2"]/mdv.species.loc["SiO2","M"])/mol_tot}
-    result["TiO2"] = (melt_comp["TiO2"]/mdv.species.loc["TiO2","M"])/mol_tot
-    result["Al2O3"] = (melt_comp["Al2O3"]/mdv.species.loc["Al2O3","M"])/mol_tot 
-    result["FeOT"] = (melt_comp["FeOT"]/mdv.species.loc["FeO","M"])/mol_tot 
-    result["FeO"] = (melt_comp["FeO"]/mdv.species.loc["FeO","M"])/mol_tot
-    result["Fe2O3"] = (melt_comp["Fe2O3"]/mdv.species.loc["Fe2O3","M"])/mol_tot
-    result["MnO"] = (melt_comp["MnO"]/mdv.species.loc["MnO","M"])/mol_tot
-    result["MgO"] = (melt_comp["MgO"]/mdv.species.loc["MgO","M"])/mol_tot
-    result["CaO"] = (melt_comp["CaO"]/mdv.species.loc["CaO","M"])/mol_tot
-    result["Na2O"] = (melt_comp["Na2O"]/mdv.species.loc["Na2O","M"])/mol_tot
-    result["K2O"] = (melt_comp["K2O"]/mdv.species.loc["K2O","M"])/mol_tot
-    result["P2O5"] = (melt_comp["P2O5"]/mdv.species.loc["P2O5","M"])/mol_tot
-    result["H2O"] = (melt_comp["H2O"]/mdv.species.loc["H2O","M"])/mol_tot
-    result["CO2"] = (melt_comp["CO2"]/mdv.species.loc["CO2","M"])/mol_tot
-    result["S"] = (melt_comp["S"]/mdv.species.loc["S","M"])/mol_tot
-    result["X"] = (melt_comp["X"]/mdv.species.loc[species_X,"M"])/mol_tot
+    mol_tot = (melt_comp["SiO2"]/mdv.species.loc["SiO2",molmass]) + (melt_comp["TiO2"]/mdv.species.loc["TiO2",molmass]) + (melt_comp["Al2O3"]/mdv.species.loc["Al2O3",molmass]) + (melt_comp["FeOT"]/mdv.species.loc["FeO",molmass]) + (melt_comp["FeO"]/mdv.species.loc["FeO",molmass]) + (melt_comp["Fe2O3"]/mdv.species.loc["Fe2O3",molmass]) + (melt_comp["MnO"]/mdv.species.loc["MnO",molmass]) + (melt_comp["MgO"]/mdv.species.loc["MgO",molmass]) + (melt_comp["CaO"]/mdv.species.loc["CaO",molmass]) + (melt_comp["Na2O"]/mdv.species.loc["Na2O",molmass]) + (melt_comp["K2O"]/mdv.species.loc["K2O",molmass]) + (melt_comp["P2O5"]/mdv.species.loc["P2O5",molmass]) + (melt_comp["H2O"]/mdv.species.loc["H2O",molmass]) + (melt_comp["CO2"]/mdv.species.loc["CO2",molmass]) + (melt_comp["S"]/mdv.species.loc["S",molmass]) + (melt_comp["X"]/mdv.species.loc[species_X,molmass])
+    result = {"SiO2":(melt_comp["SiO2"]/mdv.species.loc["SiO2",molmass])/mol_tot}
+    result["TiO2"] = (melt_comp["TiO2"]/mdv.species.loc["TiO2",molmass])/mol_tot
+    result["Al2O3"] = (melt_comp["Al2O3"]/mdv.species.loc["Al2O3",molmass])/mol_tot 
+    result["FeOT"] = (melt_comp["FeOT"]/mdv.species.loc["FeO",molmass])/mol_tot 
+    result["FeO"] = (melt_comp["FeO"]/mdv.species.loc["FeO",molmass])/mol_tot
+    result["Fe2O3"] = (melt_comp["Fe2O3"]/mdv.species.loc["Fe2O3",molmass])/mol_tot
+    result["MnO"] = (melt_comp["MnO"]/mdv.species.loc["MnO",molmass])/mol_tot
+    result["MgO"] = (melt_comp["MgO"]/mdv.species.loc["MgO",molmass])/mol_tot
+    result["CaO"] = (melt_comp["CaO"]/mdv.species.loc["CaO",molmass])/mol_tot
+    result["Na2O"] = (melt_comp["Na2O"]/mdv.species.loc["Na2O",molmass])/mol_tot
+    result["K2O"] = (melt_comp["K2O"]/mdv.species.loc["K2O",molmass])/mol_tot
+    result["P2O5"] = (melt_comp["P2O5"]/mdv.species.loc["P2O5",molmass])/mol_tot
+    result["H2O"] = (melt_comp["H2O"]/mdv.species.loc["H2O",molmass])/mol_tot
+    result["CO2"] = (melt_comp["CO2"]/mdv.species.loc["CO2",molmass])/mol_tot
+    result["S"] = (melt_comp["S"]/mdv.species.loc["S",molmass])/mol_tot
+    result["X"] = (melt_comp["X"]/mdv.species.loc[species_X,molmass])/mol_tot
     result["mol_tot"] = mol_tot      
     return result
 
-def melt_single_O(melt_wf,volatiles,Fe_speciation):
+def melt_single_O(melt_wf,volatiles,Fe_speciation,molmass='M',majors='majors'):
     """ 
     Calculate oxide mole fraction on a single oxygen basis in the melt
 
@@ -2537,22 +2578,22 @@ def melt_single_O(melt_wf,volatiles,Fe_speciation):
         oxide mole fraction on a single oxygen basis in the melt
 
     """
-    melt_comp = melt_normalise_wf(melt_wf,volatiles,Fe_speciation)
-    Xmtot = (melt_comp["SiO2"]/(mdv.species.loc["SiO2","M"]/mdv.species.loc["SiO2","no_O"])) + (melt_comp["TiO2"]/(mdv.species.loc["TiO2","M"]/mdv.species.loc["TiO2","no_O"])) + (melt_comp["Al2O3"]/(mdv.species.loc["Al2O3","M"]/mdv.species.loc["Al2O3","no_O"])) + (melt_comp["MnO"]/(mdv.species.loc["MnO","M"]/mdv.species.loc["MnO","no_O"])) + (melt_comp["MgO"]/(mdv.species.loc["MgO","M"]/mdv.species.loc["MgO","no_O"])) + (melt_comp["CaO"]/(mdv.species.loc["CaO","M"]/mdv.species.loc["CaO","no_O"])) + (melt_comp["Na2O"]/(mdv.species.loc["Na2O","M"]/mdv.species.loc["Na2O","no_O"])) + (melt_comp["K2O"]/(mdv.species.loc["K2O","M"]/mdv.species.loc["K2O","no_O"])) + (melt_comp["P2O5"]/(mdv.species.loc["P2O5","M"]/mdv.species.loc["P2O5","no_O"])) + (melt_comp["FeOT"]/(mdv.species.loc["FeO","M"]/mdv.species.loc["FeO","no_O"])) + (melt_comp["FeO"]/(mdv.species.loc["FeO","M"]/mdv.species.loc["FeO","no_O"])) + (melt_comp["Fe2O3"]/(mdv.species.loc["Fe2O3","M"]/mdv.species.loc["Fe2O3","no_O"])) + (melt_comp["H2O"]/(mdv.species.loc["H2O","M"]/mdv.species.loc["H2O","no_O"])) + (melt_comp["CO2"]/(mdv.species.loc["CO2","M"]/mdv.species.loc["CO2","no_O"]))
-    result = {"SiO2": (melt_comp["SiO2"]/(mdv.species.loc["SiO2","M"]/mdv.species.loc["SiO2","no_O"]))/Xmtot}
-    result["TiO2"] = (melt_comp["TiO2"]/(mdv.species.loc["TiO2","M"]/mdv.species.loc["TiO2","no_O"]))/Xmtot
-    result["Al2O3"] = (melt_comp["Al2O3"]/(mdv.species.loc["Al2O3","M"]/mdv.species.loc["Al2O3","no_O"]))/Xmtot 
-    result["FeOT"] = (melt_comp["FeOT"]/(mdv.species.loc["FeO","M"]/mdv.species.loc["FeO","no_O"]))/Xmtot 
-    result["FeO"] = (melt_comp["FeO"]/(mdv.species.loc["FeO","M"]/mdv.species.loc["FeO","no_O"]))/Xmtot
-    result["Fe2O3"] = (melt_comp["Fe2O3"]/(mdv.species.loc["Fe2O3","M"]/mdv.species.loc["Fe2O3","no_O"]))/Xmtot
-    result["MnO"] = (melt_comp["MnO"]/(mdv.species.loc["MnO","M"]/mdv.species.loc["MnO","no_O"]))/Xmtot
-    result["MgO"] = (melt_comp["MgO"]/(mdv.species.loc["MgO","M"]/mdv.species.loc["MgO","no_O"]))/Xmtot
-    result["CaO"] = (melt_comp["CaO"]/(mdv.species.loc["CaO","M"]/mdv.species.loc["CaO","no_O"]))/Xmtot
-    result["P2O5"] = (melt_comp["P2O5"]/(mdv.species.loc["P2O5","M"]/mdv.species.loc["P2O5","no_O"]))/Xmtot
-    result["Na2O"] = (melt_comp["Na2O"]/(mdv.species.loc["Na2O","M"]/mdv.species.loc["Na2O","no_O"]))/Xmtot
-    result["K2O"] = (melt_comp["K2O"]/(mdv.species.loc["K2O","M"]/mdv.species.loc["K2O","no_O"]))/Xmtot
-    result["H2O"] = (melt_comp["H2O"]/mdv.species.loc["H2O","M"])/Xmtot
-    result["CO2"] = (melt_comp["CO2"]/mdv.species.loc["CO2","M"])/Xmtot 
+    melt_comp = melt_normalise_wf(melt_wf,volatiles,Fe_speciation,molmass=molmass,majors=majors)
+    Xmtot = (melt_comp["SiO2"]/(mdv.species.loc["SiO2",molmass]/mdv.species.loc["SiO2","no_O"])) + (melt_comp["TiO2"]/(mdv.species.loc["TiO2",molmass]/mdv.species.loc["TiO2","no_O"])) + (melt_comp["Al2O3"]/(mdv.species.loc["Al2O3",molmass]/mdv.species.loc["Al2O3","no_O"])) + (melt_comp["MnO"]/(mdv.species.loc["MnO",molmass]/mdv.species.loc["MnO","no_O"])) + (melt_comp["MgO"]/(mdv.species.loc["MgO",molmass]/mdv.species.loc["MgO","no_O"])) + (melt_comp["CaO"]/(mdv.species.loc["CaO",molmass]/mdv.species.loc["CaO","no_O"])) + (melt_comp["Na2O"]/(mdv.species.loc["Na2O",molmass]/mdv.species.loc["Na2O","no_O"])) + (melt_comp["K2O"]/(mdv.species.loc["K2O",molmass]/mdv.species.loc["K2O","no_O"])) + (melt_comp["P2O5"]/(mdv.species.loc["P2O5",molmass]/mdv.species.loc["P2O5","no_O"])) + (melt_comp["FeOT"]/(mdv.species.loc["FeO",molmass]/mdv.species.loc["FeO","no_O"])) + (melt_comp["FeO"]/(mdv.species.loc["FeO",molmass]/mdv.species.loc["FeO","no_O"])) + (melt_comp["Fe2O3"]/(mdv.species.loc["Fe2O3",molmass]/mdv.species.loc["Fe2O3","no_O"])) + (melt_comp["H2O"]/(mdv.species.loc["H2O",molmass]/mdv.species.loc["H2O","no_O"])) + (melt_comp["CO2"]/(mdv.species.loc["CO2",molmass]/mdv.species.loc["CO2","no_O"]))
+    result = {"SiO2": (melt_comp["SiO2"]/(mdv.species.loc["SiO2",molmass]/mdv.species.loc["SiO2","no_O"]))/Xmtot}
+    result["TiO2"] = (melt_comp["TiO2"]/(mdv.species.loc["TiO2",molmass]/mdv.species.loc["TiO2","no_O"]))/Xmtot
+    result["Al2O3"] = (melt_comp["Al2O3"]/(mdv.species.loc["Al2O3",molmass]/mdv.species.loc["Al2O3","no_O"]))/Xmtot 
+    result["FeOT"] = (melt_comp["FeOT"]/(mdv.species.loc["FeO",molmass]/mdv.species.loc["FeO","no_O"]))/Xmtot 
+    result["FeO"] = (melt_comp["FeO"]/(mdv.species.loc["FeO",molmass]/mdv.species.loc["FeO","no_O"]))/Xmtot
+    result["Fe2O3"] = (melt_comp["Fe2O3"]/(mdv.species.loc["Fe2O3",molmass]/mdv.species.loc["Fe2O3","no_O"]))/Xmtot
+    result["MnO"] = (melt_comp["MnO"]/(mdv.species.loc["MnO",molmass]/mdv.species.loc["MnO","no_O"]))/Xmtot
+    result["MgO"] = (melt_comp["MgO"]/(mdv.species.loc["MgO",molmass]/mdv.species.loc["MgO","no_O"]))/Xmtot
+    result["CaO"] = (melt_comp["CaO"]/(mdv.species.loc["CaO",molmass]/mdv.species.loc["CaO","no_O"]))/Xmtot
+    result["P2O5"] = (melt_comp["P2O5"]/(mdv.species.loc["P2O5",molmass]/mdv.species.loc["P2O5","no_O"]))/Xmtot
+    result["Na2O"] = (melt_comp["Na2O"]/(mdv.species.loc["Na2O",molmass]/mdv.species.loc["Na2O","no_O"]))/Xmtot
+    result["K2O"] = (melt_comp["K2O"]/(mdv.species.loc["K2O",molmass]/mdv.species.loc["K2O","no_O"]))/Xmtot
+    result["H2O"] = (melt_comp["H2O"]/mdv.species.loc["H2O",molmass])/Xmtot
+    result["CO2"] = (melt_comp["CO2"]/mdv.species.loc["CO2",molmass])/Xmtot 
     result["Xmtot"] = Xmtot
     return result
 
