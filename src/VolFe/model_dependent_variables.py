@@ -1084,21 +1084,21 @@ def C_S(PT,melt_wf,models=default_models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (we
     
     if model == "ONeill21": # Eq. (10.34) in O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        melt_comp = mg.melt_cation_proportion(melt_wf,"no","no")
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","no",molmass='M_ONeill21',majors='majors_ONeill21')
         lnC = ONeill21(T,melt_comp)
         C = math.exp(lnC) 
      
     if model == "ONeill21dil": # Eq. (10.34) O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        melt_comp = mg.melt_cation_proportion(melt_wf,"water","no")        
+        melt_comp = mg.melt_cation_proportion(melt_wf,"water","no",molmass='M_ONeill21',majors='majors_ONeill21')        
         lnC = ONeill21(T,melt_comp)
         C = math.exp(lnC) 
 
     if model == "ONeill21hyd": # Eq. (10.34, 10.49) in O'Neill (2021) in "Magma Redox Geochemistry" doi:10.1002/9781119473206.ch10
         # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        melt_comp = mg.melt_cation_proportion(melt_wf,"no","no")
+        melt_comp = mg.melt_cation_proportion(melt_wf,"no","no",molmass='M_ONeill21',majors='majors_ONeill21')
         lnC_nondil = ONeill21(T,melt_comp)
-        melt_comp = mg.melt_cation_proportion(melt_wf,"water","no")
+        melt_comp = mg.melt_cation_proportion(melt_wf,"water","no",molmass='M_ONeill21',majors='majors_ONeill21')
         lnCdil = ONeill21(T,melt_comp)
         lnCH = (melt_comp["H"]*(6.4 + 12.4*melt_comp["H"] - 20.3*melt_comp["Si"] + 73.0*(melt_comp["Na"]+melt_comp["K"]))) # Eq. (10.49)
         lnC = lnCdil+lnCH
@@ -1106,14 +1106,15 @@ def C_S(PT,melt_wf,models=default_models): ### C_S = wmS2-*(fO2/fS2)^0.5 ### (we
 
     if model == "Boulliung23eq6": # Eq. (6) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
-        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
-        logC = 0.338 + (24328.*melt_comp["Fe2"] + 5411.*melt_comp["Ca"] + 15872.*melt_comp["Mn"] - 9697.)/T
+        melt_comp = mg.melt_single_O(melt_wf,"no","yes",molmass='M_Boulliung23',majors='majors_Boulliung23')
+        logC = 0.338 + (24328.*melt_comp["FeO"] + 5411.*melt_comp["CaO"] + 15872.*melt_comp["MnO"] - 9697.)/T
         C = 10.**(logC) 
     
     if model == "Boulliung23eq7": # Eq. (7) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
-        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
-        logC = 0.225 + (25237.*melt_comp["Fe2"] + 5214.*melt_comp["Ca"] + 12705.*melt_comp["Mn"] + 19829.*melt_comp["K"] - 1109.*melt_comp["Si"] - 8879.)/T
+        melt_comp = mg.melt_single_O(melt_wf,"no","yes",molmass='M_Boulliung23',majors='majors_Boulliung23')
+        # 8879.108 used rather than 8879 to match spreadsheet
+        logC = 0.225 + (25237.*melt_comp["FeO"] + 5214.*melt_comp["CaO"] + 12705.*melt_comp["MnO"] + 19829.*melt_comp["K2O"] - 1109.*melt_comp["SiO2"] - 8879.108)/T
         C = 10.**(logC)
 
     #elif model == "FR54-S1":
@@ -1177,23 +1178,26 @@ def C_SO4(PT,melt_wf,models=default_models): ### C_SO4 = wmS6+*(fS2*fO2^3)^-0.5 
         Csulfate = (10.**logCS6)*10000. # ppm S
     elif model in ["ONeill22","ONeill22dil"]: 
         if model == "ONeill22": # Eq. (12a) in O'Neill & Mavrogenes (2022) GCA 334:368-382
-            melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) no volatiles   
+            melt_comp = mg.melt_cation_proportion(melt_wf,"no","no",molmass='M_ONeill21',majors='majors_ONeill21') # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) no volatiles   
         elif model == "ONeill22dil": # Eq. (12a) in O'Neill & Mavrogenes (2022) GCA 334:368-382
-            melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes") # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) includes water
-        lnC = -8.02 + ((21100. + 44000.*melt_comp["Na"] + 18700.*melt_comp["Mg"] + 4300.*melt_comp["Al"] + 44200.*melt_comp["K"] + 35600.*melt_comp["Ca"] + 12600.*melt_comp["Mn"] + 16500.*melt_comp["Fe2"])/T) #CS6+ = [S6+, ppm]/fSO3
+            melt_comp = mg.melt_cation_proportion(melt_wf,"water","no",molmass='M_ONeill21',majors='majors_ONeill21') # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3) includes water
+        Fe2=melt_comp['FeT']*(1.-melt_wf['Fe3FeT'])
+        lnC = -8.02 + ((21100. + 44000.*melt_comp["Na"] + 18700.*melt_comp["Mg"] + 4300.*melt_comp["Al"] + 44200.*melt_comp["K"] + 35600.*melt_comp["Ca"] + 12600.*melt_comp["Mn"] + 16500.*Fe2)/T) #CS6+ = [S6+, ppm]/fSO3
         if models.loc["high precision","option"] == "True":
             Csulfate = gp.exp(lnC)*KOSg2(PT,models) # ppm S
         else:
             Csulfate = math.exp(lnC)*KOSg2(PT,models) # ppm S
     elif model == "Boulliung23eq9": # Eq. (9) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
-        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
-        logC = -12.948 + (28649.*melt_comp["Na"] + 15602.*melt_comp["Ca"] + 9496.*melt_comp["Mg"] + 16016.*melt_comp["Mn"] + 4194.*melt_comp["Al"] + 29244.)/T
+        # Used 29244.299 instead of 292544 to match spreadsheet
+        melt_comp = mg.melt_single_O(melt_wf,"no","yes",molmass='M_Boulliung23',majors='majors_Boulliung23')
+        logC = -12.948 + (28649.*melt_comp["Na2O"] + 15602.*melt_comp["CaO"] + 9496.*melt_comp["MgO"] + 16016.*melt_comp["MnO"] + 4194.*melt_comp["Al2O3"] + 29244.229)/T
         Csulfate = 10.**(logC)
     elif model == "Boulliung23eq11": # Eq. (11) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in silicate melts. Contrib Mineral Petrol 178, 56 (2023). https://doi.org/10.1007/s00410-023-02033-9
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe speciated
-        melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
-        logC = -213.65 + (25696.*melt_comp["Na"] + 15076.*melt_comp["Ca"] + 9543.*melt_comp["Mg"] + 16158.*melt_comp["Mn"] + 4316.*melt_comp["Al"] + 68254.)/T + 55.03*math.log10(T)
+        melt_comp = mg.melt_single_O(melt_wf,"no","yes",molmass='M_Boulliung23',majors='majors_Boulliung23')
+        # Used -213.645 instead of -213.65, 55.029 instead of 55.03 to match spreadsheet
+        logC = -213.645 + ((25696.*melt_comp["Na2O"] + 15076.*melt_comp["CaO"] + 9543.*melt_comp["MgO"] + 16158.*melt_comp["MnO"] + 4316.*melt_comp["Al2O3"] + 68254.)/T) + 55.029*math.log10(T)
         Csulfate = 10.**(logC)
     
     ### OLD ###
@@ -1712,25 +1716,26 @@ def SCSS(PT,melt_wf,models=default_models): # sulfide content (ppm) at sulfide s
         sulfide_comp = sulf_XFe
         if model == "ONeill21": # Eq. (10.34, 10.43, 10.45, 10.46) 
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) no volatiles
-            melt_comp = mg.melt_cation_proportion(melt_wf,"no","yes")
+            melt_comp = mg.melt_cation_proportion(melt_wf,"no","no",molmass='M_ONeill21',majors='majors_ONeill21')
         elif model == "ONeill21dil": # Eq. (10.34, 10.43, 10.45, 10.46)
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) and water
-            melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes")
+            melt_comp = mg.melt_cation_proportion(melt_wf,"water","no",molmass='M_ONeill21',majors='majors_ONeill21')
         elif model == "ONeill21hyd": # Eq. (10.34, 10.43, 10.45, 10.46, 10.49)
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) and water
-            melt_comp = mg.melt_cation_proportion(melt_wf,"water","yes")
+            melt_comp = mg.melt_cation_proportion(melt_wf,"water","no",molmass='M_ONeill21',majors='majors_ONeill21')
+        Fe2=melt_comp['FeT']*(1.-Fe3FeT)
         if models.loc["high precision","option"] == "True":
-            lnaFeS = gp.log((1.0 - melt_comp["Fe2"])*sulfide_comp)
+            lnaFeS = gp.log((1.0 - Fe2)*sulfide_comp)
         else:
-            lnaFeS = math.log((1.0 - melt_comp["Fe2"])*sulfide_comp)
+            lnaFeS = math.log((1.0 - Fe2)*sulfide_comp)
         # lnyFe2 from Eq. (10.46)
-        lnyFe2 = (((1.0-melt_comp["Fe2"])**2.0)*(28870.0 - 14710.0*melt_comp["Mg"] + 1960.0*melt_comp["Ca"] + 43300.0*melt_comp["Na"] + 95380.0*melt_comp["K"] - 76880.0*melt_comp["Ti"]) + (1.0-melt_comp["Fe2"])*(-62190.0*melt_comp["Si"] + 31520.0*melt_comp["Si"]**2.0))/(R*T)
+        lnyFe2 = (((1.0-Fe2)**2.0)*(28870.0 - 14710.0*melt_comp["Mg"] + 1960.0*melt_comp["Ca"] + 43300.0*melt_comp["Na"] + 95380.0*melt_comp["K"] - 76880.0*melt_comp["Ti"]) + (1.0-Fe2)*(-62190.0*melt_comp["Si"] + 31520.0*melt_comp["Si"]**2.0))/(R*T)
         # lnS from Eq. (10.43)    
         if models.loc["high precision","option"] == "True":
-            lnS = D/(R*T) + gp.log(C_S(PT,melt_wf,models)) - gp.log(melt_comp["Fe2"]) - lnyFe2 + lnaFeS + (-291.0*P + 351.0*gp.erf(P))/T
+            lnS = D/(R*T) + gp.log(C_S(PT,melt_wf,models)) - gp.log(Fe2) - lnyFe2 + lnaFeS + (-291.0*P + 351.0*gp.erf(P))/T
             SCSS = gp.exp(lnS)  
         else:
-            lnS = D/(R*T) + math.log(C_S(PT,melt_wf,models)) - math.log(melt_comp["Fe2"]) - lnyFe2 + lnaFeS + (-291.0*P + 351.0*math.erf(P))/T
+            lnS = D/(R*T) + math.log(C_S(PT,melt_wf,models)) - math.log(Fe2) - lnyFe2 + lnaFeS + (-291.0*P + 351.0*math.erf(P))/T
             SCSS = math.exp(lnS)  
     
     elif model == "Liu07": # Eq. (9) in Liu et al. (2007) GCA 71:1783-1799 doi:10.1016/j.gca.2007.01.004
@@ -3791,48 +3796,50 @@ def melt_density(PT,melt_wf,models=default_models): # g/cm3
 ########################################################### CONSTANTS ###########################################################
 #################################################################################################################################
 
-species = [['H',1.008,1.,0.,1.,'','','',''],
-        ['C',12.011,'',0.,'','','',''],
-        ['O',15.999,-2.,0.,'','','',''],				
-        ['Na',22.99,'',0.,'','','','',''],
-        ['Mg',24.305,'',0.,'','','','',''],
-        ['Al',26.982,'',0.,'','','','',''],
-        ['Si',28.085,'',0.,'','','','',''],
-        ['P',30.974,'',0.,'','','','',''],
-        ['S',32.06,'',0.,'','','','',''],
-        ['K',39.098,'',0.,'','','','',''],
-        ['Ca',40.078,'',0.,'','','','',''],
-        ['Ti',47.867,'',0.,'','','','',''],
-        ['Mn',54.938,'',0.,'','','','',''],
-        ['Fe',55.845,'',0.,'','','','',''],
-        ['SiO2',60.083,0.,2.,4.,1.,2.,'',''],
-        ['TiO2',79.865,0.,2.,3.,1.,2.,'',''],
-        ['Al2O3',101.961,0.,3.,3.,2.,3.,'',''],
-        ['Fe2O3',159.687,0.,3.,3.,2.,3.,'',''],
-        ['FeO1.5',79.8435,0.,1.5,3.,1.,1.5,'',''],
-        ['FeO',71.844,0.,1.,2.,1.,1.,'',''],
-        ['MnO',70.937,0.,1.,2.,1.,1.,'',''],
-        ['MgO',40.304,0.,1.,2.,1.,1.,'',''],
-        ['CaO',56.077,0.,1.,2.,1.,1.,'',''],
-        ['Na2O',61.979,0.,1.,1.,2.,1.,'',''],
-        ['K2O',94.195,0.,1.,1.,2.,1.,'',''],
-        ['P2O5',141.943,0.,1.,5.,2.,1.,'',''],
-        ['OH',17.007,-1.,1.,1.,1.,1.,'',''],
-        ['H2O',18.015,0.,1.,1.,1.,1.,647.25,221.1925],
-        ['H2S',34.076,0.,0.,1.,1.,1.,373.55,90.0779],
-        ['CO',28.01,0.,1.,2.,1.,1.,133.15,34.9571],
-        ['CO2',44.009,0.,2.,4.,1.,2.,304.15,73.8659],
-        ['CO3',60.008,-2.,3.,4.,1.,3.,'',''],
-        ['S2',64.12,0.,0.,'','','',208.15,72.954],
-        ['SO2',64.058,0.,2.,4.,1.,2.,430.95,78.7295],
-        ['SO3',80.057,0.,3.,6.,1.,3.,'',''],
-        ['SO4',96.056,-2.,4.,6,'',4.,'',''],
-        ['OCS',60.07,0.,1.,'','','',377.55,65.8612],
-        ['O2',31.998,0.,2.,'','','',154.75,50.7638],
-        ['H2',2.016,0.,0.,'','','',33.25,12.9696],
-        ['CH4',16.043,0.,0.,'','','',191.05,46.4069],
-        ['Ar',39.948,'','','','','','',''],
-        ['Ne',20.1797,'','','','','','','']]    
+species = [['H','',1.008,1.,0.,1.,'','','','','','','',''],
+        ['C','',12.011,'',0.,'','','','','','','','',''],
+        ['O','',15.999,-2.,0.,'','','','','',16.,'','',''],				
+        ['Na','',22.99,'',0.,'','','','','','','','',''],
+        ['Mg','',24.305,'',0.,'','','','','','','','',''],
+        ['Al','',26.982,'',0.,'','','','','','','','',''],
+        ['Si','',28.085,'',0.,'','','','','','','','',''],
+        ['P','',30.974,'',0.,'','','','','','','','',''],
+        ['S','',32.06,'',0.,'','','','','','','','',''],
+        ['K','',39.098,'',0.,'','','','','','','','',''],
+        ['Ca','',40.078,'',0.,'','','','','','','','',''],
+        ['Ti','',47.867,'',0.,'','','','','','','','',''],
+        ['Mn','',54.938,'',0.,'','','','','','','','',''],
+        ['Fe','',55.845,'',0.,'','','','','',55.85,'',55.85,''],
+        ['SiO2','Y',60.083,0.,2.,4.,1.,2.,'','',60.0855,'Y',60.08,'Y'],
+        ['TiO2','Y',79.865,0.,2.,3.,1.,2.,'','',79.867,'Y',79.9,'Y'],
+        ['Al2O3','Y',101.961,0.,3.,3.,2.,3.,'','',101.9633078,'Y',101.96,'Y'],
+        ['Fe2O3','',159.687,0.,3.,3.,2.,3.,'','',143.77185,'Y',159.687,''],
+        ['FeO1.5','',79.8435,0.,1.5,3.,1.,1.5,'','','','','',''],
+        ['FeO','Y',71.844,0.,1.,2.,1.,1.,'','',71.85,'Y',71.85,'Y'],
+        ['MnO','Y',70.937,0.,1.,2.,1.,1.,'','',70.94,'Y',70.94,'Y'],
+        ['MgO','Y',40.304,0.,1.,2.,1.,1.,'','',40.32,'Y',40.32,'Y'],
+        ['CaO','Y',56.077,0.,1.,2.,1.,1.,'','',56.06,'Y',56.08,'Y'],
+        ['Na2O','Y',61.979,0.,1.,1.,2.,1.,'','',61.88,'Y',61.98,'Y'],
+        ['K2O','Y',94.195,0.,1.,1.,2.,1.,'','',94.2,'Y',94.2,'Y'],
+        ['P2O5','Y',141.943,0.,1.,5.,2.,1.,'','',141.943,'N',141.943,'N'],
+        ['OH','',17.007,-1.,1.,1.,1.,1.,'','','','','',''],
+        ['H2O','',18.015,0.,1.,1.,1.,1.,647.25,221.1925,18.015,'',18.015,''],
+        ['H2S','',34.076,0.,0.,1.,1.,1.,373.55,90.0779,'','','',''],
+        ['CO','',28.01,0.,1.,2.,1.,1.,133.15,34.9571,'','','',''],
+        ['CO2','',44.009,0.,2.,4.,1.,2.,304.15,73.8659,44.009,'',44.009,''],
+        ['CO3','',60.008,-2.,3.,4.,1.,3.,'','','','','',''],
+        ['S2','',64.12,0.,0.,'','','',208.15,72.954,'','','',''],
+        ['SO2','',64.058,0.,2.,4.,1.,2.,430.95,78.7295,'','','',''],
+        ['SO3','',80.057,0.,3.,6.,1.,3.,'','','','','',''],
+        ['SO4','',96.056,-2.,4.,6,'',4.,'','','','','',''],
+        ['OCS','',60.07,0.,1.,'','','',377.55,65.8612,'','','',''],
+        ['O2','',31.998,0.,2.,'','','',154.75,50.7638,'','','',''],
+        ['H2','',2.016,0.,0.,'','','',33.25,12.9696,'','','',''],
+        ['CH4','',16.043,0.,0.,'','','',191.05,46.4069,'','','',''],
+        ['Ar','',39.948,'','','','','','','','','','',''],
+        ['Ne','',20.1797,'','','','','','','','','','','']]    
+# If a paper doesn't have a molcular mass for a certain species, the molecular mass in "M" is used.
 # Create the pandas DataFrame
-species = pd.DataFrame(species,columns=['species','M','overall_charge','no_O','cat_charge','no_cat','no_an','Tcr','Pcr'])
+species = pd.DataFrame(species,columns=['species','majors','M','overall_charge','no_O','cat_charge','no_cat','no_an','Tcr','Pcr',
+                                        'M_Boulliung23','majors_Boulliung23','M_ONeill21','majors_ONeill21'])
 species = species.set_index('species')
