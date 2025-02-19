@@ -1,0 +1,11 @@
+datetime
+densityx
+gmpy2
+numpy<2
+pandas
+PySulfSat
+matplotlib
+openpyxl
+scipy
+sympy
+VolFe
