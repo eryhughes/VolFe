@@ -1,0 +1,14 @@
+ci:
+  autoupdate_commit_msg: "chore: update pre-commit hooks"
+  autofix_commit_msg: "style: pre-commit fixes"
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: "v0.9.9"
+    hooks:
+      - id: ruff
+        exclude: "src/VolFe/differenctial_equations.py"
+        args: [--fix, --show-fixes]
+        types_or: [ python, pyi ]
+      - id: ruff-format
+        types_or: [ python, pyi ]
