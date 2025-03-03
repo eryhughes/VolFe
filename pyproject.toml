@@ -57,4 +57,8 @@ line-length = 88
 pythonpath = "."
 
 [tool.ruff]
-extend-exclude = ["__init__.py"]
+extend-exclude = [
+    "__init__.py",
+    "src/VolFe/differenctial_equations.py",
+    "docs/files/comparison/*.py"
+    ]
