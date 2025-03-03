@@ -2,16 +2,16 @@
 Options
 =========================
 
-Various parameters in VolFe can be calculated using different models - these include parameters like solubility functions, equilibrium constants, fugacity coefficients, etc. 
+Various parameters in VolFe can be calculated using different models - these include parameters like solubility functions, equilibrium constants, fugacity coefficients, etc.
 For solubility functions, oxygen fugacity to Fe3+/FeT relationships, and sulfur saturation conditions, this is how VolFe includes the effect of melt compositions on calculations.
-    
-There are some models already available in VolFe, which are detailed below. 
-Others can be added as they become available (see Worked Example in :doc:`add your own <add_your_own>`) - let us know if you have a new model to be added! 
 
-Additionally, there are various options for how the calculations are done in VolFe. 
+There are some models already available in VolFe, which are detailed below.
+Others can be added as they become available (see Worked Example in :doc:`add your own <add_your_own>`) - let us know if you have a new model to be added!
+
+Additionally, there are various options for how the calculations are done in VolFe.
 This varies from which species are treated as insoluble in the melt to whether a csv of the results is created at the end of the calculation.
 
-To see the different options available, click on the "make_df_and_add_model_defaults()" under "Model dependent variables" in the API Refence section on the left-hand ribbon. 
+To see the different options available, click on the "make_df_and_add_model_defaults()" under "Model dependent variables" in the API Refence section on the left-hand ribbon.
 
 Here are some hints to the naming convention used for functions, where specific model options for these model dependent variables can be found:
 

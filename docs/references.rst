@@ -2,7 +2,7 @@
 References
 ==========
 
-Beermann, O., Botcharnikov, R.E., Holtz, F., Diedrich, O. and Nowak, M., 2011. Temperature dependence of sulfide and sulfate solubility in olivine-saturated basaltic magmas. Geochimica et Cosmochimica Acta, 75(23), pp.7612-7631. https://doi.org/10.1016/j.gca.2011.09.024 
+Beermann, O., Botcharnikov, R.E., Holtz, F., Diedrich, O. and Nowak, M., 2011. Temperature dependence of sulfide and sulfate solubility in olivine-saturated basaltic magmas. Geochimica et Cosmochimica Acta, 75(23), pp.7612-7631. https://doi.org/10.1016/j.gca.2011.09.024
 
 Borisov, A., Behrens, H. and Holtz, F., 2018. Ferric/ferrous ratio in silicate melts: a new model for 1 atm data with special emphasis on the effects of melt composition. Contributions to Mineralogy and Petrology, 173, pp.1-15. https://doi.org/10.1007/s00410-018-1524-8
 
@@ -24,13 +24,13 @@ Holland, T. and Powell, R., 1991. A Compensated-Redlich-Kwong (CORK) equation fo
 
 Holloway, J.R., Pan, V. and Gudmundsson, G., 1992. High-pressure fluid-absent melting experiments in the presence of graphite: oxygen fugacity, ferric/ferrous ratio and dissolved CO2. European Journal of Mineralogy, 4(1), pp.105-114.
 
-Hughes, E.C., Liggins, P., Saper, L. and M. Stolper, E., 2024. The efects of oxygen fugacity and sulfur on the pressure of vapor-saturation of magma. American Mineralogist, 109(3), pp.422-438. https://doi.org/10.2138/am-2022-8739 
+Hughes, E.C., Liggins, P., Saper, L. and M. Stolper, E., 2024. The efects of oxygen fugacity and sulfur on the pressure of vapor-saturation of magma. American Mineralogist, 109(3), pp.422-438. https://doi.org/10.2138/am-2022-8739
 
-Hughes, E.C., Saper, L.M., Liggins, P., O'Neill, H.S.C. and Stolper, E.M., 2023. The sulfur solubility minimum and maximum in silicate melt. Journal of the Geological Society, 180(3), pp.jgs2021-125. https://doi.org/10.1144/jgs2021-125 
+Hughes, E.C., Saper, L.M., Liggins, P., O'Neill, H.S.C. and Stolper, E.M., 2023. The sulfur solubility minimum and maximum in silicate melt. Journal of the Geological Society, 180(3), pp.jgs2021-125. https://doi.org/10.1144/jgs2021-125
 
 Iacovino, K. and Till, C. B., 2019. DensityX: A program for calculating the densities of magmatic liquids up to 1,627 °C and 30 kbar. Volcanica, 2(1), pp. 1–10. https://doi.org/10.30909/vol.02.01.0110.
 
-Kelley, K.A. and Cottrell, E., 2012. The influence of magmatic differentiation on the oxidation state of Fe in a basaltic arc magma. Earth and Planetary Science Letters, 329-330, 109–121, https://doi.org/10.1016/j.epsl.2012.02.010 
+Kelley, K.A. and Cottrell, E., 2012. The influence of magmatic differentiation on the oxidation state of Fe in a basaltic arc magma. Earth and Planetary Science Letters, 329-330, 109–121, https://doi.org/10.1016/j.epsl.2012.02.010
 
 Kress, V.C. and Carmichael, I.S., 1991. The compressibility of silicate liquids containing Fe 2 O 3 and the effect of composition, temperature, oxygen fugacity and pressure on their redox states. Contributions to Mineralogy and Petrology, 108, pp.82-92. https://doi.org/10.1007/BF00307328
 
@@ -46,9 +46,9 @@ Moussallam, Y., Longpré, M.A., McCammon, C., Gomez-Ulla, A., Rose-Koga, E.F., S
 
 Meurer A, Smith CP, Paprocki M, Čertík O, Kirpichev SB, Rocklin M, Kumar A, Ivanov S, Moore JK, Singh S, Rathnayake T, Vig S, Granger BE, Muller RP, Bonazzi F, Gupta H, Vats S, Johansson F, Pedregosa F, Curry MJ, Terrel AR, Roučka Š, Saboo A, Fernando I, Kulal S, Cimrman R, Scopatz A. 2017. SymPy: symbolic computing in Python. PeerJ Computer Science 3:e103. https://doi.org/10.7717/peerj-cs.103
 
-Muth, M.J. and Wallace, P.J., 2022. Sulfur recycling in subduction zones and the oxygen fugacity of mafic arc magmas. Earth and Planetary Science Letters, 599, p.117836. https://doi.org/10.1016/j.epsl.2022.117836 
+Muth, M.J. and Wallace, P.J., 2022. Sulfur recycling in subduction zones and the oxygen fugacity of mafic arc magmas. Earth and Planetary Science Letters, 599, p.117836. https://doi.org/10.1016/j.epsl.2022.117836
 
-O'Neill, H.S., 1987. Quartz-fayalite-iron and quartz-fayalite-magnetite equilibria and the free energy of formation of fayalite (Fe 2 SiO 4) and magnetite (Fe 3 O 4). American Mineralogist, 72(1-2), pp.67-75. 
+O'Neill, H.S., 1987. Quartz-fayalite-iron and quartz-fayalite-magnetite equilibria and the free energy of formation of fayalite (Fe 2 SiO 4) and magnetite (Fe 3 O 4). American Mineralogist, 72(1-2), pp.67-75.
 
 O'Neill, H.S.C., 2021. The thermodynamic controls on sulfide saturation in silicate melts with application to ocean floor basalts. Magma redox geochemistry, pp.177-213. https://doi.org/10.1002/9781119473206.ch10
 
@@ -60,11 +60,11 @@ Ohmoto, H., Kerrick, D.M., 1977. Devolatilization equilibria in graphitic system
 
 Shaw, H.R. and Wones, D.R., 1964. Fugacity coefficients for hydrogen gas between O degrees and 1000 degrees C, for pressures to 3000 atm. American Journal of Science, 262(7), pp.918-929. https://doi.org/10.2475/ajs.262.7.918
 
-Shi, P. and Saxena, S.K., 1992. Thermodynamic modeing of the CHOS fluid system. American Mineralogist, 77(9-10), pp.1038-1049. 
+Shi, P. and Saxena, S.K., 1992. Thermodynamic modeing of the CHOS fluid system. American Mineralogist, 77(9-10), pp.1038-1049.
 
 Smythe, D.J., Wood, B.J. and Kiseeva, E.S., 2017. The S content of silicate melts at sulfide saturation: new experiments and a model incorporating the effects of sulfide composition. American Mineralogist, 102(4), pp.795-803. https://doi.org/10.2138/am-2017-5800CCBY
 
-The pandas development team, 2024. pandas-dev/pandas: Pandas. https://doi.org/10.5281/zenodo.3509134 
+The pandas development team, 2024. pandas-dev/pandas: Pandas. https://doi.org/10.5281/zenodo.3509134
 
 Wieser, P., and Gleeson, M., 2023. PySulfSat: An open-source Python3 tool for modeling sulfide and sulfate saturation. Volcanica, 6(1), pp. 107–127. https://doi.org/10.30909/vol.06.01.107127
 

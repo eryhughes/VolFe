@@ -4,7 +4,7 @@
 1.
 
 
-LEGEND: 
+LEGEND:
 VAR1 VAR2                      : choose between open (1) and closed (0) system degassing. If kdegas=1 it adopts the quantity gfrac (0<x<1)
 VAR3                           : 1 for taking input fO2 as delta NNO; 2 for fixed FeO/Fe2O3; 3 for fixed fH2S/fSO2
 VAR4(line_x) VAR5(line_y) VAR6 : lines to process; if kloop=1 makes P loop; ksul is for mass balances of oxygen in SO42- anions

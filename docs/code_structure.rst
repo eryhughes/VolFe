@@ -3,14 +3,14 @@ Code structure
 ==========
 
 This is a brief overview of how the VolFe code is structured and broadly where to find different types of functions in VolFe (see API reference for more detail about these functions).
-You don't need to understand this to run VolFe, but popped it here in case people are interested! 
+You don't need to understand this to run VolFe, but popped it here in case people are interested!
 For instance, you could use VolFe functions in your code if they're helpful (particuarly model-dependent variables).
 
 
 Melt gas
 --------
 
-"melt_gas.py" hosts functions for calculating properties of the melt and gas at a set of conditions (e.g., *P* and *T*): so these are the forward calculations. Broadly, this includes things like: 
+"melt_gas.py" hosts functions for calculating properties of the melt and gas at a set of conditions (e.g., *P* and *T*): so these are the forward calculations. Broadly, this includes things like:
 
 - Fugacities (f\ :sub:`i`), partial pressures (p\ :sub:`i`), and mole fraction in the vapor (xg\ :sub:`i`) of vapor species given *P*, *T* and volatile concentration in the melt.
 
@@ -22,7 +22,7 @@ Melt gas
 Model dependent variables
 ------
 
-"model_dependent_variables.py" hosts the functions for calculating various model dependent variables given a set of conditions (e.g., *P* and *T*): so these are the forward calculations. 
+"model_dependent_variables.py" hosts the functions for calculating various model dependent variables given a set of conditions (e.g., *P* and *T*): so these are the forward calculations.
 More information can be found on the :doc:`Options <current_mdv>` page, but the types of parameters calculated and stored here are:
 
 - Element and species constants (e.g., atomic and molecular mass).
@@ -46,7 +46,7 @@ It is a long file because there are separate functions for different combination
 Calculations
 -----
 
-“calculations.py” contains broadly two types of functions. 
+“calculations.py” contains broadly two types of functions.
 
 Firstly, there are functions for calculating properties about the system, such as:
 
@@ -72,6 +72,6 @@ Secondly, there are calculation types that do not necessarily have independent v
 Batch calculations
 -----
 
-"batch_calculations.py" joins calculations together to enable them to be run for multiple conditions. 
-This might be to create a degassing calculations (i.e., run over multiple *P*) and or *Pv*\sat for a whole spreadsheet of melt compositions. 
+"batch_calculations.py" joins calculations together to enable them to be run for multiple conditions.
+This might be to create a degassing calculations (i.e., run over multiple *P*) and or *Pv*\sat for a whole spreadsheet of melt compositions.
 More details can be found in the Worked Examples.
