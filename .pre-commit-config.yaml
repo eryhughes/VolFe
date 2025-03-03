@@ -5,9 +5,9 @@ ci:
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.9.9"
+    exclude: "src/VolFe/differenctial_equations.py|docs/files/comparison/*\\.py"
     hooks:
       - id: ruff
-        exclude: "src/VolFe/differenctial_equations.py"
         args: [--fix, --show-fixes]
         types_or: [ python, pyi ]
       - id: ruff-format
