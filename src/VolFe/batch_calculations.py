@@ -3,6 +3,7 @@
 import pandas as pd
 import datetime
 import math as math
+import warnings
 
 import VolFe.melt_gas as mg
 import VolFe.equilibrium_equations as eq
@@ -1163,6 +1164,7 @@ def calc_gassing(
     i_nr_step=1.0e-1,
     i_nr_tol=1.0 - 9,
     nr_step_eq=1.0,
+    suppress_warnings=True,
 ):
     """
     Calculates the pressure of vapor saturation for multiple melt compositions given
@@ -1217,6 +1219,8 @@ def calc_gassing(
         are problems with convergence). Default = 1.e-9
     nr_step_eq: float
         Default = 1
+    suppress_warnings: bool
+        Suppress RuntimeWarnings. Default = True
 
     Returns
     -------
@@ -1774,11 +1778,25 @@ def calc_gassing(
 
         if P_sat_ > PT["P"] or models.loc["gassing_direction", "option"] == "regas":
             # work out equilibrium partitioning between melt and gas phase
-            xg, conc, melt_and_gas, guesses, new_models, solve_species, mass_balance = (
-                eq.mg_equilibrium(
-                    PT, melt_wf, bulk_wf, models, nr_step_eq, nr_tol, guesses
+            with warnings.catch_warnings(category=RuntimeWarning):
+                warnings.simplefilter("ignore" if suppress_warnings else "default")
+                (
+                    xg,
+                    conc,
+                    melt_and_gas,
+                    guesses,
+                    new_models,
+                    solve_species,
+                    mass_balance,
+                ) = eq.mg_equilibrium(
+                    PT,
+                    melt_wf,
+                    bulk_wf,
+                    models,
+                    nr_step_eq,
+                    nr_tol,
+                    guesses,
                 )
-            )
             models = new_models
             # if xg["xg_O2"] == 1.0:
             #    print('tried resetting guesses')
@@ -1812,23 +1830,27 @@ def calc_gassing(
                     if dp_step < 1.0 or dp_step == 1.0:
                         if PT["P"] <= 10.0:
                             PT["P"] = 1.0
-                            (
-                                xg,
-                                conc,
-                                melt_and_gas,
-                                guesses,
-                                new_models,
-                                solve_species,
-                                mass_balance,
-                            ) = eq.mg_equilibrium(
-                                PT,
-                                melt_wf,
-                                bulk_wf,
-                                models,
-                                nr_step_eq,
-                                nr_tol,
-                                guesses,
-                            )
+                            with warnings.catch_warnings(category=RuntimeWarning):
+                                warnings.simplefilter(
+                                    "ignore" if suppress_warnings else "default"
+                                )
+                                (
+                                    xg,
+                                    conc,
+                                    melt_and_gas,
+                                    guesses,
+                                    new_models,
+                                    solve_species,
+                                    mass_balance,
+                                ) = eq.mg_equilibrium(
+                                    PT,
+                                    melt_wf,
+                                    bulk_wf,
+                                    models,
+                                    nr_step_eq,
+                                    nr_tol,
+                                    guesses,
+                                )
                             models = new_models
                             if xg["xg_O2"] == 1.0:
                                 results.columns = results.iloc[0]
@@ -1873,17 +1895,27 @@ def calc_gassing(
                         "guessz": original_guessz,
                         "guessw": original_guessw,
                     }
-                    (
-                        xg,
-                        conc,
-                        melt_and_gas,
-                        guesses,
-                        new_models,
-                        solve_species,
-                        mass_balance,
-                    ) = eq.mg_equilibrium(
-                        PT, melt_wf, bulk_wf, models, nr_step_eq, nr_tol, guesses
-                    )
+                    with warnings.catch_warnings(category=RuntimeWarning):
+                        warnings.simplefilter(
+                            "ignore" if suppress_warnings else "default"
+                        )
+                        (
+                            xg,
+                            conc,
+                            melt_and_gas,
+                            guesses,
+                            new_models,
+                            solve_species,
+                            mass_balance,
+                        ) = eq.mg_equilibrium(
+                            PT,
+                            melt_wf,
+                            bulk_wf,
+                            models,
+                            nr_step_eq,
+                            nr_tol,
+                            guesses,
+                        )
                     models = new_models
             if xg["xg_O2"] == 1.0:
                 if dp_step > 1.0:
@@ -1903,17 +1935,27 @@ def calc_gassing(
                         "guessz": original_guessz,
                         "guessw": original_guessw,
                     }
-                    (
-                        xg,
-                        conc,
-                        melt_and_gas,
-                        guesses,
-                        new_models,
-                        solve_species,
-                        mass_balance,
-                    ) = eq.mg_equilibrium(
-                        PT, melt_wf, bulk_wf, models, nr_step_eq, nr_tol, guesses
-                    )
+                    with warnings.catch_warnings(category=RuntimeWarning):
+                        warnings.simplefilter(
+                            "ignore" if suppress_warnings else "default"
+                        )
+                        (
+                            xg,
+                            conc,
+                            melt_and_gas,
+                            guesses,
+                            new_models,
+                            solve_species,
+                            mass_balance,
+                        ) = eq.mg_equilibrium(
+                            PT,
+                            melt_wf,
+                            bulk_wf,
+                            models,
+                            nr_step_eq,
+                            nr_tol,
+                            guesses,
+                        )
                     models = new_models
             if xg["xg_O2"] == 1.0:
                 results.columns = results.iloc[0]
