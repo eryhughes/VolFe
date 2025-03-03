@@ -13,7 +13,6 @@ from S_Fe import Sulfur_Iron
 from SCSS_model import Sulfur_Saturation
 
 
-
 # OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 # OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 
@@ -25,7 +24,7 @@ from SCSS_model import Sulfur_Saturation
 # Basic input
 ###############################################################################
 # Input of all the initial conditions
-temperature = 1111. # temperature in C
+temperature = 1111.0  # temperature in C
 # fO2 relative to FMQ buffer; if redox evolution is enabled, this is the initial fO2 at the initial P and T; if redox
 # evolution is disabled, the degassing would be buffered at this delta_FMQ
 delta_FMQ = 1.01
@@ -61,12 +60,7 @@ l = 600
 m = 600
 # sulfide composition (in wt.%), only relevant if SCSS is of interest;
 # please change both here and in the degassingrun.py file
-sulfide = {"Fe": 65.43,
-            "Ni": 0,
-            "Cu": 0,
-            "O": 0,
-            "S": 36.47
-            }
+sulfide = {"Fe": 65.43, "Ni": 0, "Cu": 0, "O": 0, "S": 36.47}
 # degassing style: if 0, fully closed degassing; if x, degassing become open when pressure is lower than xMPa
 open_degassing = 0
 
@@ -99,7 +93,7 @@ constant_h2o = 3.689
 mi_name = "Fuego.csv"
 df = pd.read_csv(mi_name)
 # name of the output csv file
-output_name = f"marianas.csv"
+output_name = "marianas.csv"
 
 # OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 # OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
@@ -120,21 +114,38 @@ tk = float(temperature) + 273.15  # in kelvin
 # carbonate_initial = CO2_initial * 60.009 / 44.01
 
 if COH_model == 1:  # if VolatileCalc is chosen
-    VC_coh = VolatileCalc(TK=tk, sio2=melt_comp_initial.composition["SiO2"], a=slope_h2o, b=constant_h2o)
-    [P_initial, WtH2O, PPMCO2, WtH2Om, WtOHm, XH2Of_initial, XCO2] = VC_coh.SatPress(WtH2O=H2O_initial,
-                                                                                     PPMCO2=CO2_initial)
+    VC_coh = VolatileCalc(
+        TK=tk, sio2=melt_comp_initial.composition["SiO2"], a=slope_h2o, b=constant_h2o
+    )
+    [P_initial, WtH2O, PPMCO2, WtH2Om, WtOHm, XH2Of_initial, XCO2] = VC_coh.SatPress(
+        WtH2O=H2O_initial, PPMCO2=CO2_initial
+    )
     print(
         f" The initial vapor saturation pressure is {P_initial} bar, and the initial vapor concentration is XH2O = {XH2Of_initial}"
-        f" and XCO2 = {1 - XH2Of_initial}")
+        f" and XCO2 = {1 - XH2Of_initial}"
+    )
 else:  # if IaconoMarziano model is chosen
-    coh = IaconoMarziano(pressure=200, temperature_k=tk, composition=melt_comp_initial.composition,
-                         a=slope_h2o, b=constant_h2o)
-    [P_initial, XH2Of_initial] = coh.saturation_pressure(CO2_initial, H2O_initial)  # P_initial in bar
+    coh = IaconoMarziano(
+        pressure=200,
+        temperature_k=tk,
+        composition=melt_comp_initial.composition,
+        a=slope_h2o,
+        b=constant_h2o,
+    )
+    [P_initial, XH2Of_initial] = coh.saturation_pressure(
+        CO2_initial, H2O_initial
+    )  # P_initial in bar
     print(
         f" The initial vapor saturation pressure is {P_initial} bar, and the initial vapor concentration is XH2O = {XH2Of_initial}"
-        f" and XCO2 = {1 - XH2Of_initial}.")
-    coh = IaconoMarziano(pressure=P_initial / 10, temperature_k=tk, composition=melt_comp_initial.composition,
-                         a=slope_h2o, b=constant_h2o)
+        f" and XCO2 = {1 - XH2Of_initial}."
+    )
+    coh = IaconoMarziano(
+        pressure=P_initial / 10,
+        temperature_k=tk,
+        composition=melt_comp_initial.composition,
+        a=slope_h2o,
+        b=constant_h2o,
+    )
 
 # Define the variables
 def_variables = NewVariables(P_initial, l)
@@ -152,42 +163,75 @@ print(ferric_ratio_0)
 # initiate Fugacity class to calculate fugacity coefficients for H2O, SO2, H2S
 phi = Fugacity(P_initial / 10, temperature)
 # initiate PartitionCoefficient class to calculate sulfur partition coefficients
-re = PartitionCoefficient(P_initial / 10, tk, melt_comp_initial.composition, H2O_initial, phi.phiH2O, phi.phiH2S,
-                          phi.phiSO2, monte=0)
+re = PartitionCoefficient(
+    P_initial / 10,
+    tk,
+    melt_comp_initial.composition,
+    H2O_initial,
+    phi.phiH2O,
+    phi.phiH2S,
+    phi.phiSO2,
+    monte=0,
+)
 # initiate the solubility module to calculate the SCSS and SCAS
-solubility = Sulfur_Saturation(P=P_initial/10, T=temperature, sulfide_composition=sulfide,
-                               composition=melt_comp_initial.composition, h2o=H2O_initial, ferric_fe=ferric_ratio_0)
+solubility = Sulfur_Saturation(
+    P=P_initial / 10,
+    T=temperature,
+    sulfide_composition=sulfide,
+    composition=melt_comp_initial.composition,
+    h2o=H2O_initial,
+    ferric_fe=ferric_ratio_0,
+)
 # Initial value of different variables
 # Initial sulfur mole fraction in the melt
 
 
 # initial water fugacity calculated by initial water contents in the vapor
 fH2O_initial = XH2Of_initial * P_initial * phi.phiH2O
-fH2_initial = re.hydrogen_equilibrium(fh2o=fH2O_initial,fo2=10**(fo2_0.fo2(ferric_ratio_0)))
+fH2_initial = re.hydrogen_equilibrium(
+    fh2o=fH2O_initial, fo2=10 ** (fo2_0.fo2(ferric_ratio_0))
+)
 # initiate Sulfur-Iron to calculate the sulfur speciation with Fe3+/FeT and T input
-rs_melt = Sulfur_Iron(ferric_iron=ferric_ratio_0, temperature=temperature, model_choice=S_Fe_choice,
-                      composition=melt_comp_initial.composition, o2=fo2_0.fmq() + delta_FMQ)
+rs_melt = Sulfur_Iron(
+    ferric_iron=ferric_ratio_0,
+    temperature=temperature,
+    model_choice=S_Fe_choice,
+    composition=melt_comp_initial.composition,
+    o2=fo2_0.fmq() + delta_FMQ,
+)
 rs_melt_initial = rs_melt.sulfate
 
 # moles of RB (redox budget) relative to S6+ and Fe3+ in 100 g of starting material
-e_balance_initial = (S_initial / 10000) * (1 - rs_melt_initial) * 8 / 32.065 \
-                    + (1 - ferric_ratio_0) * melt_comp_initial.composition["FeOT"] / (55.845 + 15.999)
+e_balance_initial = (S_initial / 10000) * (1 - rs_melt_initial) * 8 / 32.065 + (
+    1 - ferric_ratio_0
+) * melt_comp_initial.composition["FeOT"] / (55.845 + 15.999)
 print(rs_melt_initial)
 # define all the initial values in the results DF.
 df_results["SCSS"][0] = solubility.SCSS_smythe()
 df_results["SCAS"][0] = solubility.SCAS_Zajacz_Tsay()
-df_results["SCSS_S6+"][0] = solubility.SCSStotal(sulfate=rs_melt_initial, scss=solubility.SCSS_smythe(), scas=solubility.SCAS_Zajacz_Tsay())
+df_results["SCSS_S6+"][0] = solubility.SCSStotal(
+    sulfate=rs_melt_initial,
+    scss=solubility.SCSS_smythe(),
+    scas=solubility.SCAS_Zajacz_Tsay(),
+)
 
 if S_initial < df_results["SCSS_S6+"][0]:
     df_results["wS_melt"][0] = S_initial  # in ppm
     df_results["sulfide_frac"][0] = 0
     XS_initial = (S_initial / (10000 * 32.065)) / (
-        re.ntot + S_initial / (10000 * 32.065) + re.nh + CO2_initial / (10000 * 44.01))
+        re.ntot + S_initial / (10000 * 32.065) + re.nh + CO2_initial / (10000 * 44.01)
+    )
 else:
     df_results["wS_melt"][0] = df_results["SCSS_S6+"][0]
-    df_results["sulfide_frac"][0] = (S_initial-df_results["SCSS_S6+"][0])/(sulfide["S"]*10000)
+    df_results["sulfide_frac"][0] = (S_initial - df_results["SCSS_S6+"][0]) / (
+        sulfide["S"] * 10000
+    )
     XS_initial = (df_results["SCSS_S6+"][0] / (10000 * 32.065)) / (
-        re.ntot + df_results["SCSS_S6+"][0] / (10000 * 32.065) + re.nh + CO2_initial / (10000 * 44.01))
+        re.ntot
+        + df_results["SCSS_S6+"][0] / (10000 * 32.065)
+        + re.nh
+        + CO2_initial / (10000 * 44.01)
+    )
 df_results["wH2O_melt"][0] = H2O_initial  # in wt.%
 df_results["wCO2_melt"][0] = CO2_initial  # in ppm
 df_results["XS_melt"][0] = XS_initial  # mole fraction in the melt
@@ -195,23 +239,39 @@ df_results["fO2"][0] = fo2_0.fo2(ferric_ratio_0)  # log10fO2
 df_results["XCO2_fluid"][0] = 1 - XH2Of_initial  # mole fraction, in the vapor
 df_results["XH2O_fluid"][0] = XH2Of_initial  # mole fraction in the vapor
 df_results["XS_fluid"][0] = 0  # vapor starts without sulfur
-df_results["phi_H2O"][0] = phi.phiH2O  # initial fugacity coefficient calculated at P_initial
-df_results["phi_H2S"][0] = phi.phiH2S  # initial fugacity coefficient calculated at P_initial
-df_results["phi_SO2"][0] = phi.phiSO2  # initial fugacity coefficient calculated at P_initial
+df_results["phi_H2O"][
+    0
+] = phi.phiH2O  # initial fugacity coefficient calculated at P_initial
+df_results["phi_H2S"][
+    0
+] = phi.phiH2S  # initial fugacity coefficient calculated at P_initial
+df_results["phi_SO2"][
+    0
+] = phi.phiSO2  # initial fugacity coefficient calculated at P_initial
 df_results["S6+/ST"][0] = rs_melt_initial  # initial S6+/ST
 df_results["water_fugacity"][0] = fH2O_initial  # initial water fugacity in bar
 df_results["melt_fraction"][0] = 1  # initial mass fraction of melt
 df_results["vapor_fraction"][0] = 0.0000  # initial mass fraction of vapor
 df_results["crystal_fraction"][0] = 0.0000  # initial mass fraction of crystal
-df_results["electron_balance"][0] = e_balance_initial  # redox budget relative to Fe3+ and S6+
+df_results["electron_balance"][
+    0
+] = e_balance_initial  # redox budget relative to Fe3+ and S6+
 # initial moles of ferric iron in 100 g
-df_results["ferric"][0] = ferric_ratio_0 * melt_comp_initial.composition["FeOT"] / (55.845 + 15.999)
+df_results["ferric"][0] = (
+    ferric_ratio_0 * melt_comp_initial.composition["FeOT"] / (55.845 + 15.999)
+)
 # initial moles of ferrous iron in 100 g
-df_results["ferrous"][0] = (1 - ferric_ratio_0) * melt_comp_initial.composition["FeOT"] / (55.845 + 15.999)
+df_results["ferrous"][0] = (
+    (1 - ferric_ratio_0) * melt_comp_initial.composition["FeOT"] / (55.845 + 15.999)
+)
 df_results["ferric_ratio"][0] = ferric_ratio_0  # initial Fe3+/FeT
 df_results["FeOT"][0] = melt_comp_initial.composition["FeOT"]  # in wt.%
-df_results["ferric_cr"][0] = 0  # amount of Fe3+ taken by crystallization in moles in 100 g
-df_results["ferrous_cr"][0] = 0  # amount of Fe2+ taken by crystallization in moles in 100 g
+df_results["ferric_cr"][
+    0
+] = 0  # amount of Fe3+ taken by crystallization in moles in 100 g
+df_results["ferrous_cr"][
+    0
+] = 0  # amount of Fe2+ taken by crystallization in moles in 100 g
 df_results["FMQ"][0] = fo2_0.fmq()  # initial log10fO2 along FMQ buffer
 
 df_results["fH2"][0] = fH2_initial
@@ -222,14 +282,33 @@ df_results_m = df_results
 
 # degassing start
 for i in range(1, m):
-    degas = COHS_degassing(pressure=df_results["pressure"][i], temperature=temperature, COH_model=COH_model,
-                           xlt_choice=choice, S_Fe_choice=S_Fe_choice, H2O_initial=H2O_initial, CO2_initial=CO2_initial,
-                           S_initial=S_initial, d34s_initial=d34s_m_initial, a=slope_h2o, b=constant_h2o, monte_c=0, op=open_degassing)
+    degas = COHS_degassing(
+        pressure=df_results["pressure"][i],
+        temperature=temperature,
+        COH_model=COH_model,
+        xlt_choice=choice,
+        S_Fe_choice=S_Fe_choice,
+        H2O_initial=H2O_initial,
+        CO2_initial=CO2_initial,
+        S_initial=S_initial,
+        d34s_initial=d34s_m_initial,
+        a=slope_h2o,
+        b=constant_h2o,
+        monte_c=0,
+        op=open_degassing,
+    )
     if fo2_tracker == 1:
-        df_results.iloc[i] = degas.degassing_redox(df_results=df_results, index=i, e_balance_initial=df_results["electron_balance"][i-1],
-                                                   sigma=sigma, sulfide_pre=sulfide_pre)
+        df_results.iloc[i] = degas.degassing_redox(
+            df_results=df_results,
+            index=i,
+            e_balance_initial=df_results["electron_balance"][i - 1],
+            sigma=sigma,
+            sulfide_pre=sulfide_pre,
+        )
     else:
-        df_results.iloc[i] = degas.degassing_noredox(df_results=df_results, index=i, delta_FMQ=delta_FMQ, sulfide_pre=sulfide_pre)
+        df_results.iloc[i] = degas.degassing_noredox(
+            df_results=df_results, index=i, delta_FMQ=delta_FMQ, sulfide_pre=sulfide_pre
+        )
 
 # save outputs to a csv file
 df_results.to_csv(output_name)
@@ -241,48 +320,80 @@ df_results.to_csv(output_name)
 
 # This figure is similar to Figure 6 in the text
 plt.figure(20)
-plt.subplot(2,2,1)
 plt.subplot(2, 2, 1)
-plt.plot(df_results["wS_melt"][0:m], df_results["pressure"][0:m], linestyle="-", linewidth=5,
-         color="blue")
+plt.subplot(2, 2, 1)
+plt.plot(
+    df_results["wS_melt"][0:m],
+    df_results["pressure"][0:m],
+    linestyle="-",
+    linewidth=5,
+    color="blue",
+)
 plt.xlabel("S_melt (ppm)")
 plt.ylabel("Pressure (MPa)")
 # plt.xlim([0,3000])
 plt.ylim([0, 300])
 
-plt.subplot(2,2,2)
-plt.plot(df_results["SCSS_S6+"][0:m], df_results["pressure"][0:m], linestyle="-", linewidth=5,
-         color="blue")
+plt.subplot(2, 2, 2)
+plt.plot(
+    df_results["SCSS_S6+"][0:m],
+    df_results["pressure"][0:m],
+    linestyle="-",
+    linewidth=5,
+    color="blue",
+)
 plt.xlabel("SCSS")
 plt.ylabel("Pressure (MPa)")
 # plt.xlim([0, 2])
 plt.ylim([0, 300])
 
-plt.subplot(2,2,3)
-plt.plot(df_results["sulfide_frac"][0:m], df_results["pressure"][0:m], linestyle="-", linewidth=5,
-         color="blue")
+plt.subplot(2, 2, 3)
+plt.plot(
+    df_results["sulfide_frac"][0:m],
+    df_results["pressure"][0:m],
+    linestyle="-",
+    linewidth=5,
+    color="blue",
+)
 plt.xlabel("sulfide_fraction")
 plt.ylabel("Pressure (MPa)")
 # plt.xlim([0, 2])
 plt.ylim([0, 300])
 
-plt.subplot(2,2,4)
-plt.plot(df_results["vapor_fraction"][0:m], df_results["pressure"][0:m], linestyle="-", linewidth=5,
-         color="blue")
+plt.subplot(2, 2, 4)
+plt.plot(
+    df_results["vapor_fraction"][0:m],
+    df_results["pressure"][0:m],
+    linestyle="-",
+    linewidth=5,
+    color="blue",
+)
 plt.xlabel("vapor")
 plt.ylabel("Pressure (MPa)")
 # plt.xlim([0, 2])
 plt.ylim([0, 300])
 
 
-
 # This is similar to the Figure 7 in the main text
 plt.figure(7)
 plt.subplot(3, 2, 1)
-plt.plot(df_results["kd_RxnI"][0:m], df_results["pressure"][0:m], linestyle="--", linewidth=3)
+plt.plot(
+    df_results["kd_RxnI"][0:m], df_results["pressure"][0:m], linestyle="--", linewidth=3
+)
 # plt.plot(df_results["kd_RxnIa"][13:m], df_results["pressure"][13:m], linestyle="-.", linewidth=3)
-plt.plot(df_results["kd_RxnII"][13:m], df_results["pressure"][13:m], linestyle=":", linewidth=3)
-plt.plot(df_results["kd_combined_molar"][13:m], df_results["pressure"][13:m], linestyle="-", linewidth=5, color="grey")
+plt.plot(
+    df_results["kd_RxnII"][13:m],
+    df_results["pressure"][13:m],
+    linestyle=":",
+    linewidth=3,
+)
+plt.plot(
+    df_results["kd_combined_molar"][13:m],
+    df_results["pressure"][13:m],
+    linestyle="-",
+    linewidth=5,
+    color="grey",
+)
 # plt.plot(df_results["kd_combined_wt"][13:m], df_results["pressure"][13:m], linestyle="-", linewidth=5, color="yellow")
 plt.xlim([0, 300])
 plt.ylim([0, 400])
@@ -291,7 +402,13 @@ plt.xlabel("partition coefficients")
 plt.ylabel("Pressure (MPa)")
 
 plt.subplot(3, 2, 2)
-plt.plot(np.log10(df_results["kd_combined_wt"][1:m]), df_results["pressure"][1:m], linestyle="-", linewidth=5, color="yellow")
+plt.plot(
+    np.log10(df_results["kd_combined_wt"][1:m]),
+    df_results["pressure"][1:m],
+    linestyle="-",
+    linewidth=5,
+    color="yellow",
+)
 plt.legend(["This model"])
 plt.xlabel("Kd_wt")
 plt.ylabel("Pressure (MPa)")
@@ -299,9 +416,27 @@ plt.xlim([0, 4])
 plt.ylim([0, 700])
 
 plt.subplot(3, 2, 3)
-plt.plot(df_results["ferric_ratio"][13:m], df_results["pressure"][13:m], linestyle="-", linewidth=3, color="grey")
-plt.plot(df_results["SO2/ST"][13:m], df_results["pressure"][13:m], linestyle="-", linewidth=3, color="blue")
-plt.plot(df_results["S6+/ST"][13:m], df_results["pressure"][13:m], linestyle="-", linewidth=3, color="red")
+plt.plot(
+    df_results["ferric_ratio"][13:m],
+    df_results["pressure"][13:m],
+    linestyle="-",
+    linewidth=3,
+    color="grey",
+)
+plt.plot(
+    df_results["SO2/ST"][13:m],
+    df_results["pressure"][13:m],
+    linestyle="-",
+    linewidth=3,
+    color="blue",
+)
+plt.plot(
+    df_results["S6+/ST"][13:m],
+    df_results["pressure"][13:m],
+    linestyle="-",
+    linewidth=3,
+    color="red",
+)
 plt.xlim([0.2, 1])
 plt.ylim([0, 700])
 plt.legend(["Fe3+/FeT", "SO2/STV", "S6+/ST"])
@@ -309,8 +444,13 @@ plt.xlabel("ratios")
 plt.ylabel("Pressure (MPa)")
 
 plt.subplot(3, 2, 4)
-plt.plot(df_results["fO2"][13:m] - df_results["FMQ"][13:m], df_results["pressure"][13:m], linestyle="-", linewidth=5,
-         color="yellow")
+plt.plot(
+    df_results["fO2"][13:m] - df_results["FMQ"][13:m],
+    df_results["pressure"][13:m],
+    linestyle="-",
+    linewidth=5,
+    color="yellow",
+)
 plt.legend(["modeled dFMQ"])
 plt.xlabel("dFMQ")
 plt.ylabel("Pressure (MPa)")
@@ -318,12 +458,27 @@ plt.xlim([0, 2])
 plt.ylim([0, 700])
 
 plt.subplot(3, 2, 5)
-plt.plot(np.log10(df_results["SO2_fugacity"][13:m]), df_results["pressure"][13:m], linestyle="-", linewidth=3,
-         color="blue")
-plt.plot(np.log10(df_results["H2S_fugacity"][13:m]), df_results["pressure"][13:m], linestyle="--", linewidth=2,
-         color="blue")
-plt.plot(np.log10(df_results["water_fugacity"][13:m]), df_results["pressure"][13:m], linestyle=":", linewidth=4,
-         color="blue")
+plt.plot(
+    np.log10(df_results["SO2_fugacity"][13:m]),
+    df_results["pressure"][13:m],
+    linestyle="-",
+    linewidth=3,
+    color="blue",
+)
+plt.plot(
+    np.log10(df_results["H2S_fugacity"][13:m]),
+    df_results["pressure"][13:m],
+    linestyle="--",
+    linewidth=2,
+    color="blue",
+)
+plt.plot(
+    np.log10(df_results["water_fugacity"][13:m]),
+    df_results["pressure"][13:m],
+    linestyle=":",
+    linewidth=4,
+    color="blue",
+)
 plt.legend(["fSO2", "fH2S", "fH2O"])
 plt.xlabel("fugacity (bar)")
 plt.ylabel("Pressure (MPa)")
@@ -331,10 +486,34 @@ plt.xlim([-2, 4])
 plt.ylim([0, 700])
 
 plt.subplot(3, 2, 6)
-plt.plot(df_results["sulfate_m"][13:m], df_results["pressure"][13:m], linestyle="-", linewidth=3, color="red")
-plt.plot(df_results["sulfide_m"][13:m], df_results["pressure"][13:m], linestyle="--", linewidth=2, color="red")
-plt.plot(df_results["SO2_f"][13:m], df_results["pressure"][13:m], linestyle="-", linewidth=3, color="blue")
-plt.plot(df_results["H2S_f"][13:m], df_results["pressure"][13:m], linestyle="--", linewidth=2, color="blue")
+plt.plot(
+    df_results["sulfate_m"][13:m],
+    df_results["pressure"][13:m],
+    linestyle="-",
+    linewidth=3,
+    color="red",
+)
+plt.plot(
+    df_results["sulfide_m"][13:m],
+    df_results["pressure"][13:m],
+    linestyle="--",
+    linewidth=2,
+    color="red",
+)
+plt.plot(
+    df_results["SO2_f"][13:m],
+    df_results["pressure"][13:m],
+    linestyle="-",
+    linewidth=3,
+    color="blue",
+)
+plt.plot(
+    df_results["H2S_f"][13:m],
+    df_results["pressure"][13:m],
+    linestyle="--",
+    linewidth=2,
+    color="blue",
+)
 plt.legend(["S6+", "S2-", "SO2", "H2S"])
 plt.xlim([0, 0.01])
 plt.ylim([0, 700])
@@ -344,20 +523,42 @@ plt.ylabel("Pressure (MPa)")
 # This figure is similar to Figure 8 in the text
 plt.figure(8)
 plt.subplot(1, 2, 1)
-plt.plot(df_results["wS_melt"][0:m], df_results["pressure"][0:m], linestyle='-', linewidth=2)
+plt.plot(
+    df_results["wS_melt"][0:m], df_results["pressure"][0:m], linestyle="-", linewidth=2
+)
 plt.xlabel("S_melt (ppm)")
 plt.ylabel("Pressure (MPa)")
 # plt.xlim([200, 1600])
 # plt.ylim([0, 700])
 
 plt.subplot(1, 2, 2)
-plt.plot(np.log10(df_results["kd_RxnI"][0:m]), df_results["pressure"][0:m], linestyle="--", linewidth=3)
+plt.plot(
+    np.log10(df_results["kd_RxnI"][0:m]),
+    df_results["pressure"][0:m],
+    linestyle="--",
+    linewidth=3,
+)
 # plt.plot(np.log10(df_results["kd_RxnIa"][0:m]), df_results["pressure"][0:m], linestyle="-.", linewidth=3)
-plt.plot(np.log10(df_results["kd_RxnII"][0:m]), df_results["pressure"][0:m], linestyle=":", linewidth=3)
-plt.plot(np.log10(df_results["kd_combined_molar"][0:m]), df_results["pressure"][0:m], linestyle="-", linewidth=5,
-         color="grey")
-plt.plot(np.log10(df_results["kd_combined_wt"][0:m]), df_results["pressure"][0:m], linestyle="-", linewidth=5,
-         color="black")
+plt.plot(
+    np.log10(df_results["kd_RxnII"][0:m]),
+    df_results["pressure"][0:m],
+    linestyle=":",
+    linewidth=3,
+)
+plt.plot(
+    np.log10(df_results["kd_combined_molar"][0:m]),
+    df_results["pressure"][0:m],
+    linestyle="-",
+    linewidth=5,
+    color="grey",
+)
+plt.plot(
+    np.log10(df_results["kd_combined_wt"][0:m]),
+    df_results["pressure"][0:m],
+    linestyle="-",
+    linewidth=5,
+    color="black",
+)
 # plt.xlim([-2, 5])
 # plt.ylim([0, 700])
 plt.legend(["kdrxn1", "kdrxn2", "kdcombined_molar", "kdcombined_wt"])
@@ -418,19 +619,39 @@ print("Montecarlo simulation")
 if monte_carlo == 1:
     for k in range(0, m_run):
         for i in range(1, m):
-            degas = COHS_degassing(pressure=df_results_m["pressure"][i], temperature=temperature, COH_model=COH_model,
-                                   xlt_choice=choice, S_Fe_choice=S_Fe_choice, H2O_initial=H2O_initial,
-                                   CO2_initial=CO2_initial,
-                                   S_initial=S_initial, d34s_initial=d34s_m_initial, a=slope_h2o, b=constant_h2o, monte_c=1, op=open_degassing)
+            degas = COHS_degassing(
+                pressure=df_results_m["pressure"][i],
+                temperature=temperature,
+                COH_model=COH_model,
+                xlt_choice=choice,
+                S_Fe_choice=S_Fe_choice,
+                H2O_initial=H2O_initial,
+                CO2_initial=CO2_initial,
+                S_initial=S_initial,
+                d34s_initial=d34s_m_initial,
+                a=slope_h2o,
+                b=constant_h2o,
+                monte_c=1,
+                op=open_degassing,
+            )
             if fo2_tracker == 1:
-                df_results_m.iloc[i] = degas.degassing_redox(df_results=df_results_m, index=i,
-                                                             e_balance_initial=e_balance_initial,
-                                                             sigma=sigma, sulfide_pre=sulfide_pre)
+                df_results_m.iloc[i] = degas.degassing_redox(
+                    df_results=df_results_m,
+                    index=i,
+                    e_balance_initial=e_balance_initial,
+                    sigma=sigma,
+                    sulfide_pre=sulfide_pre,
+                )
             else:
-                df_results_m.iloc[i] = degas.degassing_noredox(df_results=df_results_m, index=i, delta_FMQ=delta_FMQ, sulfide_pre=sulfide_pre)
+                df_results_m.iloc[i] = degas.degassing_noredox(
+                    df_results=df_results_m,
+                    index=i,
+                    delta_FMQ=delta_FMQ,
+                    sulfide_pre=sulfide_pre,
+                )
         df_S_m.insert(k + 1, k, df_results_m["wS_melt"])
         # df_C_S.insert(k + 1, k, df_results_m["XCO2_fluid"]/df_results_m["XS_fluid"])
-        df_C_S.insert(k+1, k, df_results_m["accCO2_S"])
+        df_C_S.insert(k + 1, k, df_results_m["accCO2_S"])
 S_only = df_S_m.iloc[:, 1:m_run]
 df_S_m.insert(m_run + 1, "mean", S_only.mean(1))
 df_S_m.insert(m_run + 2, "std", S_only.std(1))
@@ -445,11 +666,11 @@ df_C_S.to_csv("mc_CS_fo2.csv")
 # df_S_m = pd.read_csv("mc_S.csv")
 # df_CS_m = pd.read_csv("mc_CS.csv")
 # print(df_S_m.iloc[:, 1])
-plt.figure(84,figsize=(8,6))
+plt.figure(84, figsize=(8, 6))
 plt.subplot(1, 2, 1)
 plt.plot(df_results["wS_melt"][0:m], df_results["wCO2_melt"][0:m])
 for i in range(1, m_run):
-    plt.plot(df_S_m.iloc[:, i],df_results["wCO2_melt"])
+    plt.plot(df_S_m.iloc[:, i], df_results["wCO2_melt"])
 plt.plot(df["mi_S"], df["mi_CO2"], "o")
 plt.legend(["Sulfur_X"])
 plt.xlabel("S_melt (ppm)")
@@ -459,8 +680,8 @@ plt.ylabel("CO2_melt (ppm)")
 plt.subplot(1, 2, 2)
 plt.plot(df_results["wH2O_melt"][0:m], df_results["wS_melt"][0:m])
 for i in range(1, m_run):
-    plt.plot(df_S_m.iloc[:, i],df_results["wH2O_melt"])
-plt.plot(df["mi_H2O"], df["mi_S"],  "o")
+    plt.plot(df_S_m.iloc[:, i], df_results["wH2O_melt"])
+plt.plot(df["mi_H2O"], df["mi_S"], "o")
 plt.legend(["Sulfur_X", " MI"])
 plt.xlabel("H2O_melt (wt.%)")
 plt.ylabel("S_melt (ppm)")
@@ -469,15 +690,21 @@ plt.ylabel("S_melt (ppm)")
 
 plt.figure(85)
 plt.subplot(1, 2, 1)
-plt.plot(df_results["wH2O_melt"][0:m], df_results["pressure"][0:m], linestyle='-', linewidth=2)
+plt.plot(
+    df_results["wH2O_melt"][0:m],
+    df_results["pressure"][0:m],
+    linestyle="-",
+    linewidth=2,
+)
 plt.xlabel("H2O_melt (ppm)")
 plt.ylabel("Pressure (MPa)")
 
-plt.subplot(1,2,2)
-plt.plot(df_results["accCO2_S"][0:m], df_results["pressure"][0:m], linestyle='-', linewidth=2)
+plt.subplot(1, 2, 2)
+plt.plot(
+    df_results["accCO2_S"][0:m], df_results["pressure"][0:m], linestyle="-", linewidth=2
+)
 plt.xlabel("CO2/S_vapor")
 plt.ylabel("Pressure (MPa)")
 
 
 plt.show()
-

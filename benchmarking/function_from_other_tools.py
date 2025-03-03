@@ -1,5 +1,3 @@
-from math import exp
-
 import numpy as np
 from scipy.optimize import newton
 
@@ -63,6 +61,7 @@ PTcrit["OCS"] = [377.55, 65.8612]
 PTcrit["H2S"] = [373.55, 90.0779]
 PTcrit["N2"] = [126.2, 33.9]  # Roskosz 2006
 
+
 def find_Y(P, T, species_list):
     """
     Calculates the fugacity coefficients for all relevant species.
@@ -94,7 +93,7 @@ def find_Y(P, T, species_list):
     Shi, P., & Saxena, S. K. (1992). Thermodynamic modeling of the C-H-O-S
     fluid system. American Mineralogist.
     """
-        
+
     # Universal gas constant
     R = 8.3144598
 
@@ -222,7 +221,7 @@ def find_Y(P, T, species_list):
                     )
                 else:
                     V = volMRK(T, P_kb, R, a, b, guess)
-                
+
                 assert V > 0, "Total volume is negative"
                 return V
 
@@ -546,21 +545,22 @@ def find_Y(P, T, species_list):
 
     return h2o_y, o2_y, h2_y, co_y, co2_y, ch4_y, s2_y, so2_y, h2s_y, n2_y, ocs_y
 
-# Copied on 20/02/2025 from https://github.com/sdecho/Sulfur_X/blob/main/fugacity.py 
+
+# Copied on 20/02/2025 from https://github.com/sdecho/Sulfur_X/blob/main/fugacity.py
 # Input changed to PT and added required P0.
 def phiso2(PT):
-    P0=1.
+    P0 = 1.0
     # This function calculates the fugacity coefficient of SO2 following Shi & Saxena 1992. To avoid discontinuity
     # in the result, only the calculation at high pressure is used. Instead, fugacity coefficient is assumed to be 1
     # at pressure lower than 20bar.
-    if PT['P'] < 20:
+    if PT["P"] < 20:
         lnphiSO2 = 0
     else:
         Tcr = 430.95  # critical temperature in K
         Pcr = 78.7295  # critical pressure in bar
-        Pr = PT['P'] / Pcr  # reduced pressure
+        Pr = PT["P"] / Pcr  # reduced pressure
         P0r = P0 / Pcr
-        Tr = PT['T'] / Tcr  # reduced temperature
+        Tr = PT["T"] / Tcr  # reduced temperature
 
         # Paramatersfor EOS
         AQ1 = 0.92854e00
@@ -590,15 +590,39 @@ def phiso2(PT):
 
         # ---------EOS from Shi & Saxena 1992 - --------------------------------------
         # Equation (3a) from Shi & Saxena 1992
-        A = AQ1 + AQ2 * Tr + AQ3 * (Tr ** -1) + AQ4 * (Tr ** 2) + AQ5 * (Tr ** -2) + AQ6 * (Tr ** 3) + \
-                AQ7 * (Tr ** -3) + AQ8 * np.log(Tr)
-        B = BQ1 + BQ2 * Tr + BQ3 * (Tr ** -1) + BQ4 * (Tr ** 2) + BQ5 * (Tr ** -2) + BQ6 * (Tr ** 3) + \
-                BQ7 * (Tr ** -3) + BQ8 * np.log(Tr)
-        C = CQ1 + CQ2 * Tr + CQ3 * (Tr ** -1) + CQ4 * (Tr ** 2) + CQ5 * (Tr ** -2) + CQ6 * (Tr ** 3) + \
-                CQ7 * (Tr ** -3) + CQ8 * np.log(Tr)
+        A = (
+            AQ1
+            + AQ2 * Tr
+            + AQ3 * (Tr**-1)
+            + AQ4 * (Tr**2)
+            + AQ5 * (Tr**-2)
+            + AQ6 * (Tr**3)
+            + AQ7 * (Tr**-3)
+            + AQ8 * np.log(Tr)
+        )
+        B = (
+            BQ1
+            + BQ2 * Tr
+            + BQ3 * (Tr**-1)
+            + BQ4 * (Tr**2)
+            + BQ5 * (Tr**-2)
+            + BQ6 * (Tr**3)
+            + BQ7 * (Tr**-3)
+            + BQ8 * np.log(Tr)
+        )
+        C = (
+            CQ1
+            + CQ2 * Tr
+            + CQ3 * (Tr**-1)
+            + CQ4 * (Tr**2)
+            + CQ5 * (Tr**-2)
+            + CQ6 * (Tr**3)
+            + CQ7 * (Tr**-3)
+            + CQ8 * np.log(Tr)
+        )
         # Equation (10) from Shi & Saxena 1992
-        Zcomp = A * np.log(Pr / P0r) + B * (Pr - P0r) + (C / 2) * (Pr ** 2 - P0r ** 2)
+        Zcomp = A * np.log(Pr / P0r) + B * (Pr - P0r) + (C / 2) * (Pr**2 - P0r**2)
         # Equation (9) from Shi & Saxena 1992
-        lnphiSO2 = Zcomp - np.log(PT['P'])
+        lnphiSO2 = Zcomp - np.log(PT["P"])
 
     return np.exp(lnphiSO2)
