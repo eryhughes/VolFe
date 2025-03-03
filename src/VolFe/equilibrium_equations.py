@@ -2735,7 +2735,7 @@ def eq_HOFe_xenia(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses):
     wt_H = bulk_wf["H"]
     wt_Fe = bulk_wf["Fe"]
     guessx = guesses["guessx"]
-    T_K = PT['T']
+    T_K = PT["T"]
 
     # equilibrium constants
     K1_ = 1.0 / (6.9617e-10)  # H2O = H2 + 0.5O2
@@ -7037,7 +7037,7 @@ def eq_SCHOFe_3(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
         # xg_SO2_ = (K6_*y_O2_*xg_O2_*(y_S2_*xg_S2_*P)**0.5)/y_SO2_
         # xg_CO2_ = (1.0 - xg_S2_ - xg_O2_ - xg_H2_ - xg_H2O_ - xg_H2S_ - xg_SO2_)/
         # (1.0 + (y_CO2_/(K2_*y_CO_*(y_O2_*xg_O2_*P)**0.5)) + ((y_CO2_*y_SO2_*xg_SO2_)
-        # /(K2_**3.0*K10_*y_OCS_*(y_O2_*xg_O2_)**1.5*P**0.5)) + 
+        # /(K2_**3.0*K10_*y_OCS_*(y_O2_*xg_O2_)**1.5*P**0.5)) +
         # ((y_CO2_*(y_H2O_*xg_H2O_)
         # **2.0)/(K3_*y_CH4_*(y_O2_*xg_O2_)**2.0)))
         # xg_CO_ = (y_CO2_*xg_CO2_)/(K2_*y_CO_*(y_O2_*xg_O2_*P)**0.5)
@@ -7182,9 +7182,7 @@ def eq_SCHOFe_3(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
             wm_CH4_,
             wm_CO_,
         ) = mg_SCHOFe(xg_O2_, xg_A, xg_B)
-        mba, mbb, mbc, wt_g_O, wt_g_C, wt_g_H, wt_g_S = f_SCHOFe(
-            xg_O2_, xg_A, xg_B
-        )  # noqa
+        mba, mbb, mbc, wt_g_O, wt_g_C, wt_g_H, wt_g_S = f_SCHOFe(xg_O2_, xg_A, xg_B)  # noqa
         wt_g = (wt_g_O + wt_g_H + wt_g_C + wt_g_S) / 4.0
         wt_H_ = (
             2.0
@@ -7429,7 +7427,6 @@ def eq_SCHOFe_3(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
 
 # WORK IN PROGRESS
 def eq_SCHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species):
-
     species_X = models.loc["species X", "option"]
 
     P = float(PT["P"])

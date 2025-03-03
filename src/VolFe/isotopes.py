@@ -452,7 +452,6 @@ def rename_output(element, input, comp):
 
 
 def i2s9(element, PT, comp, R, models, nr_step, nr_tol):
-
     if element == "S":
         alphas = alphas_S(PT, comp, models)
         species_distribution = c.mf_S_species(comp)
@@ -625,7 +624,6 @@ def i2s9(element, PT, comp, R, models, nr_step, nr_tol):
 
 
 def av_m_g(element, ratio, constants):
-
     alphas, species_distribution, R_i = constants
 
     # heavy/total isotope ratio
@@ -813,7 +811,6 @@ def i2s2_S_melt(PT, R_i, melt_wf):
 def i2s6(
     element, PT, R, melt_wf, gas_mf, nr_step, nr_tol, guessx
 ):  # species distribution is mole fraction of S in each species
-
     if element == "S":
         a_b, a_c, a_d, a_e, a_f = i2s6_S_alphas(PT)
         species_distribution = c.mf_S_species(melt_wf, gas_mf)
@@ -838,7 +835,6 @@ def i2s6(
         return R_a, R_b, R_c, R_d, R_e, R_f
 
     def av_m_g(element, l_a, constants):
-
         a_b, a_c, a_d, a_e, a_f, T_a, T_b, T_c, T_d, T_e, T_f, R_i = constants
         R_a, R_b, R_c, R_d, R_e, R_f = isotope_distribution(l_a, constants)
 

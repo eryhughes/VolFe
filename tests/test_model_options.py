@@ -32,12 +32,12 @@ def test_model_options_update():
 
     new_options = vf.make_df_and_add_model_defaults(my_models)
 
-    assert (
-        new_options.loc["carbon dioxide"]["option"] == "Basalt_Dixon97"
-    ), "carbon dioxide model mismatch"
+    assert new_options.loc["carbon dioxide"]["option"] == "Basalt_Dixon97", (
+        "carbon dioxide model mismatch"
+    )
     assert (
         new_options.loc["hydrogen sulfide"]["option"] == "BasalticAndesite_Hughes24"
     ), "hydrogen sulfide model mismatch"
-    assert (
-        new_options.loc["y_S2"]["option"] == "ideal"
-    ), "S2 fugacity coefficient mismatch"
+    assert new_options.loc["y_S2"]["option"] == "ideal", (
+        "S2 fugacity coefficient mismatch"
+    )

@@ -237,7 +237,6 @@ def P_sat_H2O_CO2(
 # WORK IN PROGRESS
 # for a given fS2 and fO2, calculate Psat
 def P_sat_fO2_fS2(PT, melt_wf, models, Ptol):
-
     def Pdiff(guess, melt_wf, models):
         PT["P"] = guess
         result_fO2fS2 = eq.p_tot_fO2_fS2(PT, melt_wf, models)
@@ -1207,7 +1206,6 @@ def mf_S_species_old(melt_wf, gas_mf):
 
 # WORK IN PROGRESS
 def mf_S_species(comp):
-
     # weight of S in each sulfur-bearing species
     wtg = (float(comp["wt_g_wtpc"].iloc[0])) / 100.0
     wtm = 1.0 - wtg
@@ -1314,10 +1312,38 @@ def mf_C_species(comp):
     return mf
 
 
-"xgO2_mf", "xgH2_mf", "xgH2O_mf", "xgS2_mf", "xgSO2_mf", "xgH2S_mf", "xgCO2_mf",
-"xgCO_mf", "xgCH4_mf", "xgOCS_mf", "xgX_mf", "xgC_S_mf",
-"H2OT_wtpc", "OH_wtpc", "H2Omol_wtpc", "H2_ppmw", "CH4_ppmw", "CO2T_ppmw",
-"CO2mol_ppmw", "CO32-_ppmw", "CO_ppmw", "S2-_ppmw", "S6+_ppmw", "H2S_ppmw",
+(
+    "xgO2_mf",
+    "xgH2_mf",
+    "xgH2O_mf",
+    "xgS2_mf",
+    "xgSO2_mf",
+    "xgH2S_mf",
+    "xgCO2_mf",
+)
+(
+    "xgCO_mf",
+    "xgCH4_mf",
+    "xgOCS_mf",
+    "xgX_mf",
+    "xgC_S_mf",
+)
+(
+    "H2OT_wtpc",
+    "OH_wtpc",
+    "H2Omol_wtpc",
+    "H2_ppmw",
+    "CH4_ppmw",
+    "CO2T_ppmw",
+)
+(
+    "CO2mol_ppmw",
+    "CO32-_ppmw",
+    "CO_ppmw",
+    "S2-_ppmw",
+    "S6+_ppmw",
+    "H2S_ppmw",
+)
 
 
 # WORK IN PROGRESS
@@ -1536,9 +1562,7 @@ def conc_insolubles(PT, melt_wf, models):
     S2m = melt_wf["S2-"]  # weight fraction of S2-
     S6p = (
         mg.C_SO4(PT, melt_wf, models) * mdv.f_O2(PT, melt_wf, models) ** 2 * S2m
-    ) / mg.C_S(
-        PT, melt_wf, models
-    )  # weight fraction S6+
+    ) / mg.C_S(PT, melt_wf, models)  # weight fraction S6+
     H2S = (
         mg.C_H2S(PT, melt_wf, models) * mg.f_H2S(PT, melt_wf, models)
     ) / 1000000.0  # weight fraction H2S

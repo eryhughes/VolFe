@@ -2868,7 +2868,6 @@ def calc_melt_S_oxybarometer(
 
     # run over rows in file
     for n in range(first_row, last_row, 1):  # number of rows in the table
-
         # Select run conditions
         run = n  # row number
 
@@ -2918,8 +2917,9 @@ def calc_melt_S_oxybarometer(
         results_headers_table_model_options, results_values_table_model_options = (
             results_table_model_options(models)
         )
-        results_headers_T, results_values_T = pd.DataFrame([["T ('C)"]]), pd.DataFrame(
-            [[PT["T"]]]
+        results_headers_T, results_values_T = (
+            pd.DataFrame([["T ('C)"]]),
+            pd.DataFrame([[PT["T"]]]),
         )
         results_headers_table_melt_vol = (
             results_table_melt_vol()
@@ -3375,7 +3375,6 @@ def results_isotopes_gas_melt(comp, run):
 def results_table_isotopes(
     PT, R_all_species_S, R_m_g_S, R_all_species_C, R_m_g_C, R_all_species_H, R_m_g_H
 ):
-
     results_headers = pd.DataFrame(
         [
             [
@@ -3456,7 +3455,6 @@ def results_table_isotopes(
 def results_table_isotopes_d(
     R_all_species_S, R_m_g_S, R_all_species_C, R_m_g_C, R_all_species_H, R_m_g_H
 ):
-
     results_headers = pd.DataFrame(
         [
             [
@@ -3539,7 +3537,6 @@ def calc_isotopes_gassing(
     nr_tol=1.0e-9,
     models=mdv.default_models,
 ):
-
     if last_row is None:
         last_row = len(setup)
 
@@ -3549,7 +3546,6 @@ def calc_isotopes_gassing(
     R_i["S"] = iso.delta2ratio("VCDT", 34, "S", R_i_d["d34S"])
 
     for run in range(first_row, last_row, 1):
-
         PT = {"P": setup.loc[run, "P_bar"]}
         PT["T"] = setup.loc[run, "T_C"]
 

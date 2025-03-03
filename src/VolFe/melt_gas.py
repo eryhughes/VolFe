@@ -2496,29 +2496,23 @@ def melt_elements(melt_wf, bulk_wf, gas_comp):
 
     """
     wm_C = mdv.species.loc["C", "M"] * (
-        (
-            melt_wf["CO2"] / mdv.species.loc["CO2", "M"]
-            + melt_wf["CO"] / mdv.species.loc["CO", "M"]
-            + melt_wf["CH4"] / mdv.species.loc["CH4", "M"]
-        )
+        melt_wf["CO2"] / mdv.species.loc["CO2", "M"]
+        + melt_wf["CO"] / mdv.species.loc["CO", "M"]
+        + melt_wf["CH4"] / mdv.species.loc["CH4", "M"]
     )
     wm_H = (
         2.0
         * mdv.species.loc["H", "M"]
         * (
-            (
-                melt_wf["H2OT"] / mdv.species.loc["H2O", "M"]
-                + melt_wf["H2"] / mdv.species.loc["H2", "M"]
-                + melt_wf["H2S"] / mdv.species.loc["H2S", "M"]
-                + (2.0 * melt_wf["CH4"]) / mdv.species.loc["CH4", "M"]
-            )
+            melt_wf["H2OT"] / mdv.species.loc["H2O", "M"]
+            + melt_wf["H2"] / mdv.species.loc["H2", "M"]
+            + melt_wf["H2S"] / mdv.species.loc["H2S", "M"]
+            + (2.0 * melt_wf["CH4"]) / mdv.species.loc["CH4", "M"]
         )
     )
     wm_S = mdv.species.loc["S", "M"] * (
-        (
-            (melt_wf["S2-"] + melt_wf["S6+"]) / mdv.species.loc["S", "M"]
-            + (melt_wf["H2S"] / mdv.species.loc["H2S", "M"])
-        )
+        (melt_wf["S2-"] + melt_wf["S6+"]) / mdv.species.loc["S", "M"]
+        + (melt_wf["H2S"] / mdv.species.loc["H2S", "M"])
     )
     wm_Fe = bulk_wf["Fe"] / (1.0 - gas_comp["wt_g"])
     Fe32 = overtotal2ratio(melt_wf["Fe3FeT"])

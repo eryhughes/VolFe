@@ -781,7 +781,6 @@ def C_H2O(PT, melt_wf, models=default_models):
         "none+ideal",
         "none+regular",
     ]:
-
         # Fig.SX from Hughes et al. (in prep) based on data in Fig. 3 of Blank et al.
         # (1993)
         if model_solubility == "Rhyolite_HughesIP":
@@ -1987,7 +1986,6 @@ def C_X(PT, melt_wf, models=default_models):
 # solubility of Cl #####
 ########################
 def C_Cl(PT, melt_wf):
-
     # WORK IN PROGRESS
 
     melt_comp = mg.melt_cation_proportion(melt_wf, "no", "no")
@@ -4872,7 +4870,6 @@ def y_H2S(PT, models=default_models):
                     + (D0 / 3.0) * (pow(Pr_, 3.0) - pow(P0r_, 3.0))
                 )
         elif P > 500.0:
-
             D = 0.0
             P0 = 500.0
             Pr_ = 500.0 / Pcr
