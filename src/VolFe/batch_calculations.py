@@ -1745,8 +1745,11 @@ def calc_gassing(
 
         if P_sat_ > PT["P"] or models.loc["gassing_direction", "option"] == "regas":
             # work out equilibrium partitioning between melt and gas phase
-            with warnings.catch_warnings(category=RuntimeWarning):
-                warnings.simplefilter("ignore" if suppress_warnings else "default")
+            with warnings.catch_warnings():
+                warnings.simplefilter(
+                    "ignore" if suppress_warnings else "default",
+                    category=RuntimeWarning,
+                )
                 (
                     xg,
                     conc,
@@ -1791,9 +1794,10 @@ def calc_gassing(
                     if dp_step < 1.0 or dp_step == 1.0:
                         if PT["P"] <= 10.0:
                             PT["P"] = 1.0
-                            with warnings.catch_warnings(category=RuntimeWarning):
+                            with warnings.catch_warnings():
                                 warnings.simplefilter(
-                                    "ignore" if suppress_warnings else "default"
+                                    "ignore" if suppress_warnings else "default",
+                                    category=RuntimeWarning,
                                 )
                                 (
                                     xg,
@@ -1856,9 +1860,10 @@ def calc_gassing(
                         "guessz": original_guessz,
                         "guessw": original_guessw,
                     }
-                    with warnings.catch_warnings(category=RuntimeWarning):
+                    with warnings.catch_warnings():
                         warnings.simplefilter(
-                            "ignore" if suppress_warnings else "default"
+                            "ignore" if suppress_warnings else "default",
+                            category=RuntimeWarning,
                         )
                         (
                             xg,
@@ -1890,9 +1895,10 @@ def calc_gassing(
                         "guessz": original_guessz,
                         "guessw": original_guessw,
                     }
-                    with warnings.catch_warnings(category=RuntimeWarning):
+                    with warnings.catch_warnings():
                         warnings.simplefilter(
-                            "ignore" if suppress_warnings else "default"
+                            "ignore" if suppress_warnings else "default",
+                            category=RuntimeWarning,
                         )
                         (
                             xg,
@@ -3280,7 +3286,6 @@ def calc_comp_error_function(
     iterations=100,
     models=mdv.default_models,
 ):
-
     av_results_all = pd.DataFrame(
         [
             [

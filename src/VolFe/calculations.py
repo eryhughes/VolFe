@@ -1562,9 +1562,7 @@ def conc_insolubles(PT, melt_wf, models):
     S2m = melt_wf["S2-"]  # weight fraction of S2-
     S6p = (
         mg.C_SO4(PT, melt_wf, models) * mdv.f_O2(PT, melt_wf, models) ** 2 * S2m
-    ) / mg.C_S(
-        PT, melt_wf, models
-    )  # weight fraction S6+
+    ) / mg.C_S(PT, melt_wf, models)  # weight fraction S6+
     H2S = (
         mg.C_H2S(PT, melt_wf, models) * mg.f_H2S(PT, melt_wf, models)
     ) / 1000000.0  # weight fraction H2S
