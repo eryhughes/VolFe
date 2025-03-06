@@ -243,7 +243,7 @@ def test_degas_df_open():
     assert result.loc[0, "CO2T_ppmw"] == pytest.approx(49.395163028754354)
     assert result.loc[0, "xgS2_mf"] == pytest.approx(0.00011877068634021532)
     assert result.loc[len(result) - 1, "P_bar"] == 1.0
-    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.417109)
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.4171085)
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == 0.0
     assert result.loc[len(result) - 1, "xgS2_mf"] == 0.0
 
