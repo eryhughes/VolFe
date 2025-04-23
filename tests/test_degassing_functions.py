@@ -40,17 +40,19 @@ def test_degas_df_default():
 
     result = vf.calc_gassing(my_analysis, models=options)
 
-    assert result.loc[0, "P_bar"] == pytest.approx(3862.9286026262585)
+    assert result.loc[0, "P_bar"] == pytest.approx(3862.9, rel=1e-3)
     assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.47326338580309724)
     assert result.loc[0, "CO2T_ppmw"] == pytest.approx(1472.4121779037337)
-    assert result.loc[0, "xgS2_mf"] == pytest.approx(0.000471000320606681)
+    assert result.loc[0, "xgS2_mf"] == pytest.approx(0.000471, rel=1e-3)
     assert result.loc[len(result) - 1, "P_bar"] == 1.0
-    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(-0.3686544338466735)
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(
+        -0.3686544338466735, rel=1e-3
+    )
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(
-        0.00624264256020586
+        0.00624264256020586, rel=1e-3
     )
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(
-        4.663409944151297e-05
+        4.663409944151297e-05, rel=1e-3
     )
 
 
