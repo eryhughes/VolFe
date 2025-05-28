@@ -21,4 +21,3 @@ repos:
         - id: check-yaml
         - id: debug-statements
         - id: mixed-line-ending
-        - id: trailing-whitespace
