@@ -2174,7 +2174,7 @@ def eq_SOFe_melt(
 ##############
 
 
-def newton_raphson(x0, constants, e1, step, eqs, deriv):
+def newton_raphson_old(x0, constants, e1, step, eqs, deriv):
     """Newton-Raphson solver.
 
     Args:
@@ -2226,6 +2226,120 @@ def newton_raphson(x0, constants, e1, step, eqs, deriv):
             results.to_csv("results_newtraph.csv", index=False, header=False)
     return x0
 
+def newton_raphson(x0, constants, e1, step, eqs, deriv, maxiter=50):
+    """Newton-Raphson solver.
+
+    Args:
+        x0 (float): Initial guess
+        constants (list): Constants required to evaluate equations
+        e1 (float): Tolerance for solver
+        step (float): Step-size for solver
+        eqs (func): Equations to solve
+        deriv (func): Differentials of equations to solve
+
+    Returns:
+        float: Solution
+    """
+    # create results table
+    results = pd.DataFrame([["guessx", "diff", "step"]])
+    results.to_csv("results_newtraph.csv", index=False, header=False)
+    
+
+
+    def dx(x, eqs):
+        f_, wtg1, wtg2 = eqs(x)
+        result = abs(0 - f_)
+        return result
+
+    def nr(x0, step, deriv, eqs, constants):
+        f_, wtg1, wtg2 = eqs(x0)
+        df_ = deriv(x0, constants)
+        x0 = x0 - step * (f_ / df_)
+        return x0
+    
+    delta1 = dx(x0, eqs)
+    results1 = pd.DataFrame([[x0, delta1, step]])
+    results = pd.concat([results, results1], ignore_index=True)
+    
+    x00 = x0
+    step0 = step
+
+    n = 0.0
+    for iter in range(maxiter):
+        n=n+1
+        deriv_ = deriv(x0, constants)
+        guessx = nr(x0, step, deriv, eqs, constants)
+        try:
+            temp1 = int(guessx)
+        except: # noqa: E722
+            if step < 0.01:
+                break
+            else:
+                step = step/10
+                guessx = nr(x0, step, deriv, eqs, constants)
+        if (
+            guessx < 0.0
+            or guessx > 1.0):
+            if step < 0.01:
+                break
+            else:
+                step = step/10.0
+                guessx = nr(x0, step, deriv, eqs, constants)
+        try:
+            temp1 = int(guessx)
+        except: # noqa: E722
+            if step < 0.01:
+                break
+            else:
+                step = step/10.0
+                guessx = nr(x0, step, deriv, eqs, constants)
+        if (
+            guessx < 0.0
+            or guessx > 1.0):
+            break
+        f_, wtg1, wtg2 = eqs(guessx)
+        if abs(f_) < e1:
+            return guessx
+        x0 = guessx
+        results1 = pd.DataFrame([[x0, delta1, step]])
+        results = pd.concat([results, results1], ignore_index=True)
+        if n % 50 == 0:
+            results.to_csv("results_newtraph.csv", index=False, header=False)
+
+    x0 = x00
+    step = step0 - (step0/10.)
+    for iter in range(9):
+        n = 0.0
+        step_0 = step
+        for iter in range(maxiter):
+            n = n + 1.0
+            deriv_ = deriv(x0, constants)
+            guessx = nr(x0, step, deriv, eqs, constants)
+            try:
+                temp1 = int(guessx)  # noqa: F841
+            except:  # noqa: E722
+                if step < 0.01:
+                    break
+                else:
+                    step = step / 10.0
+                    guessx = nr(x0, step, deriv, eqs, constants)
+            if (
+                guessx < 0.0
+                or guessx > 1.0):
+                x0 = x00
+                break
+            f_, wtg1, wtg2 = eqs(guessx)
+            if abs(f_) < e1:
+                return guessx
+            x0 = guessx
+            results1 = pd.DataFrame([[x0, delta1, step]])
+            results = pd.concat([results, results1], ignore_index=True)
+            if n % 50 == 0:
+                results.to_csv("results_newtraph.csv", index=False, header=False)
+        step = step_0 - (step0 / 10.0)
+
+    guessx = 1.0
+    return guessx
 
 # jac_newton(1,1,test_f,test_df,1)
 
@@ -5325,7 +5439,7 @@ def eq_CH(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses):  # H2O
         wt_C_ = M_C * (
             (wt_g * ((xg_CO2_ / Xg_t) - (xm_CO2_ / Xm_t))) + (xm_CO2_ / Xm_t)
         )
-        return wt_g, "", wt_C_, wt_H_
+        return wt_g, 0., wt_C_, wt_H_
 
     def f_CH(xg_CO2_):
         xg_CO2_, xg_H2O_, xm_H2O_, xm_CO2_, Xm_t, Xg_t, wm_H2O_, wm_CO2_ = mg_CH(
