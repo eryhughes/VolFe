@@ -1188,6 +1188,7 @@ def calc_gassing(
             "wm_H2S": 0.0,
             "wm_S2m": 0.0,
             "wm_S6p": 0.0,
+            "wm_SO3": 0.0,
             "ST": 0.0,
             "Fe3FeT": melt_wf["Fe3FeT_i"],
         }
@@ -2395,7 +2396,7 @@ def calc_isobar(
 
     Outputs
     -------
-    If output csv = yes in models, results_gassing_chemistry: csv file
+    If output csv = yes in models, results_isobars: csv file
     """
     if models.loc["COH_species", "option"] == "H2O-CO2 only":
         PT = {"T": setup.loc[run, "T_C"]}
@@ -2425,6 +2426,65 @@ def calc_isobar(
         raise TypeError("COH_species option must be H2O-CO2 only")
     if models.loc["output csv", "option"] == "True":
         results.to_csv("results_isobars.csv", index=False, header=False)
+
+    return results
+
+###########################
+# calculate isopleths #####
+###########################
+def calc_isopleth(
+    setup,
+    run=0,
+    models=mdv.default_models,
+    final_P=10000.0,
+    step_XH2O=0.2,
+):
+    """Calculates H2O-CO2-only isopleths for given T, melt composition, up to a final P,
+    and XH2O step-size.
+
+    Args:
+        setup (pandas.DataFrame): Melt composition to be used, requires following headers (notes in [] are not part of the headers): Sample; T_C; DNNO or DFMQ or logfO2 or (Fe2O3 and FeO) or Fe3FeT or S6ST; SiO2, TiO2, Al2O3, (Fe2O3T or FeOT unless Fe2O3 and FeO given), MnO, MgO, CaO, Na2O, K2O, P2O5[concentrations are in wt%].
+        run (int, optional): Integer of the row in the setup file to run (note the first row under the headers is row 0). Defaults to 0.
+        models (_type_, optional): Model options. Defaults to mdv.default_models.
+        final_P (float, optional): Final pressure in bar for isobar calculation. Defaults to 10000.0.
+        step_XH2O (float, optional): XH2O step in mole fraction for calculating isopleths. Defaults to 0.20.
+
+    Returns:
+        pandas.DataFrame: Results from isopleth calculation
+
+
+    Outputs
+    -------
+    If output csv = yes in models, results_isopleth: csv file
+    """
+    if models.loc["COH_species", "option"] == "H2O-CO2 only":
+        PT = {"T": setup.loc[run, "T_C"]}
+        PT['P'] = final_P
+
+        # check if any options need to be read from the setup file rather than the
+        # models file
+        models = options_from_setup(run, models, setup)
+
+        # set up results table
+        results = pd.DataFrame([["XH2O","P_bar", "H2O_wtpc", "CO2_ppm"]])
+
+        no_XH2O = int(1./step_XH2O)
+        melt_wf = mg.melt_comp(run, setup)
+
+        for n in range(1, no_XH2O, 1):
+            XH2O = n*step_XH2O
+            results1 = c.calc_isopleth_CO2H2O(XH2O,PT, melt_wf, models)
+            results = pd.concat([results, results1], ignore_index=True)
+            if models.loc["print status", "option"] == "True":
+                print(setup.loc[run, "Sample"], n)
+            PT['P'] = final_P
+        results.columns = results.iloc[0]
+        results = results[1:]
+
+    else:
+        raise TypeError("COH_species option must be H2O-CO2 only")
+    if models.loc["output csv", "option"] == "True":
+        results.to_csv("results_isopleths.csv", index=False, header=False)
 
     return results
 
