@@ -1454,9 +1454,12 @@ def C_S(PT, melt_wf, models=default_models):
     - 'Boulliung23_eq6' Eq. (6) from Boulliung & Wood (2023) CMP 178:56 https://doi.org10.1007/s00410-023-02033-9
     - 'Boulliung23_eq7' Eq. (7) from Boulliung & Wood (2023) CMP 178:56 https://doi.org10.1007/s00410-023-02033-9
     - 'Boulliung23_eq7_12' Eq. (7) and (12) [P-effect] from Boulliung & Wood (2023) CMP 178:56 https://doi.org10.1007/s00410-023-02033-9
-    - 'GorojovskyPP_eq8' Eq. (8) from Gorojovsky, L.R. and Wood, B.J., (pre-print). Solubility and speciation of sulfur in silicate melts under crustal conditions. Earth ArXiv https://doi.org/10.31223/X5T755
-    - 'GorojovskyPP_eq9' Eq. (9) from Gorojovsky, L.R. and Wood, B.J., (pre-print). Solubility and speciation of sulfur in silicate melts under crustal conditions. Earth ArXiv https://doi.org/10.31223/X5T755
-    - 'Thomas26_eq15' Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta. https://doi.org/10.1016/j.gca.2026.02.003
+    - 'Thomas26_eq15' Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
+    - 'Thomas26_eq14_15' Eq. (14) and (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
+    - 'Gorojovsky26_eq8' Eq. (8) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
+    - 'Gorojovsky26_eq8_13' Eq. (8) and (13) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
+    - 'Gorojovsky26_eq9' Eq. (9) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
+    - 'Gorojovsky26_eq9_13' Eq. (9) and (13) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
     """
     model = models.loc["sulfide", "option"]
 
@@ -1571,14 +1574,15 @@ def C_S(PT, melt_wf, models=default_models):
         C = 10.0 ** (logC)
 
     # Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
-    # https://doi.org/10.1016/j.gca.2026.02.003
+    # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
     # NOT BENCHMARKED
-    if model == "Thomas26_eq15":
+    if model in ["Thomas26_eq15","Thomas26_eq14_15"]:
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe
         # speciated
         melt_comp = mg.melt_single_O(
             melt_wf, "no", "no", molmass="M_Boulliung23", majors="majors_Boulliung23"
         )
+        # Eq. (15)
         logC = (
             0.405
             + ( - 0.0573*PT['P']
@@ -1590,18 +1594,23 @@ def C_S(PT, melt_wf, models=default_models):
             )
             / T
         )
+
+        # Eq. (14) pressure-term
+        if model == 'Thomas26_eq14_15':
+            logC = logC - 0.056/T
+
         C = 10.0 ** (logC)
     
-    # Eq. (8) or (9) from Gorojovsky, L.R. and Wood, B.J., (pre-print). Solubility and speciation of sulfur in silicate melts under crustal conditions.
-    # Earth ArXiv https://doi.org/10.31223/X5T755
+    # Eq. (8) or (9) with/without (13) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
+    # Earth and Planetary Science Letters 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
     # NOT BENCH-MARKED
-    if model in ["GorojovskyPP_eq8","GorojovskyPP_eq9"]:
-        # Mole fractions in the melt on cationic lattice with no volatiles and Fe
+    if model in ["Gorojovsky26_eq8","Gorojovsky26_eq9","Gorojovsky26_eq8_13","Gorojovsky26_eq9_13"]:
+        # Mole fractions in the melt on cationic lattice with water as a dilutent and Fe
         # speciated
         melt_comp = mg.melt_single_O(
-            melt_wf, "no", "yes", molmass="M_Boulliung23", majors="majors_Boulliung23"
+            melt_wf, "water", "yes", molmass="M_Boulliung23", majors="majors_Boulliung23"
         )
-        if model == 'GorojovskyPP_eq8':
+        if model in ['Gorojovsky26_eq8','Gorojovsky26_eq8_13']:
             logC = (
                 0.3
                 + (
@@ -1613,7 +1622,7 @@ def C_S(PT, melt_wf, models=default_models):
                 )
                 / T
             )
-        elif model == 'GorojovskyPP_eq9':
+        elif model in ['Gorojovsky26_eq9','Gorojovsky26_eq9_13']:
             logC = (
                 0.65
                 + ((
@@ -1630,6 +1639,9 @@ def C_S(PT, melt_wf, models=default_models):
                 / T)
                 + 3.9 * math.erf(melt_comp['FeO'])
             )
+        # P-term from Thomas & Wood (2026)
+        if model in ['Gorojovsky26_eq8_13','Gorojovsky26_eq9_13']:
+            logC = logC - ((PT["T"]*0.056)/T)
 
         C = 10.0 ** (logC)
 
@@ -1675,10 +1687,12 @@ def C_SO4(PT, melt_wf, models=default_models):
     - 'Boulliung23_eq9' Eq. (9) from Boulliung & Wood (2023) CMP 178:56 https://doi.org/10.1007/s00410-023-02033-9
     - 'Boulliung23_eq9_12' Eq. (9) and (12) [P-effect] from Boulliung & Wood (2023) CMP 178:56 https://doi.org/10.1007/s00410-023-02033-9
     - 'Boulliung23_eq11' Eq. (11) from Boulliung & Wood (2023) CMP 178:56 https://doi.org/10.1007/s00410-023-02033-9
-    - 'GorojovskyPP_eq10' Eq. (10) from Gorojovsky, L.R. and Wood, B.J., (pre-print). Solubility and speciation of sulfur in silicate melts under crustal conditions. Earth ArXiv https://doi.org/10.31223/X5T755
-    - 'GorojovskyPP_eq11' Eq. (11) from Gorojovsky, L.R. and Wood, B.J., (pre-print). Solubility and speciation of sulfur in silicate melts under crustal conditions. Earth ArXiv https://doi.org/10.31223/X5T755
-    - 'Thomas26_eq21' Eq. (21) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta. https://doi.org/10.1016/j.gca.2026.02.003
-    - 'Thomas26_eq22' Eq. (22) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta. https://doi.org/10.1016/j.gca.2026.02.003
+    - 'Thomas26_eq21' Eq. (21) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
+    - 'Thomas26_eq22' Eq. (22) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
+    - 'Gorojovsky26_eq10' Eq. (10) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
+    - 'Gorojovsky26_eq10_14' Eq. (10) and (14) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
+    - 'Gorojovsky26_eq11' Eq. (11) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
+    - 'Gorojovsky26_eq11_14' Eq. (11) and (14) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
     """
 
     model = models.loc["sulfate", "option"]
@@ -1799,7 +1813,7 @@ def C_SO4(PT, melt_wf, models=default_models):
         Csulfate = 10.0 ** (logC)
 
     # Eq. (21) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
-    # https://doi.org/10.1016/j.gca.2026.02.003
+    # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
     # NOT BENCHMARKED
     elif model == "Thomas26_eq21":
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe
@@ -1826,13 +1840,13 @@ def C_SO4(PT, melt_wf, models=default_models):
         Csulfate = 10.0 ** (logC)
 
     # Eq. (22) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
-    # https://doi.org/10.1016/j.gca.2026.02.003
+    # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
     # NOT BENCHMARKED
     elif model == "Thomas26_eq22":
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe
         # speciated
         melt_comp = mg.melt_single_O(
-            melt_wf, "yes", "no", molmass="M_Boulliung23", majors="majors_Boulliung23"
+            melt_wf, "water", "no", molmass="M_Boulliung23", majors="majors_Boulliung23"
         )
         # Used -213.645 instead of -213.65, 55.029 instead of 55.03 to match spreadsheet
         logC = (
@@ -1853,16 +1867,16 @@ def C_SO4(PT, melt_wf, models=default_models):
         )
         Csulfate = 10.0 ** (logC)
     
-    # Eq. (10) or (11) from Gorojovsky, L.R. and Wood, B.J., (pre-print). Solubility and speciation of sulfur in silicate melts under crustal conditions.
-    # Earth ArXiv https://doi.org/10.31223/X5T755
+    # Eq. (10) or (11) with/without (14) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
+    # EPSL 687:120088 https://doi.org/10.31223/X5T755
     # NOT BENCH-MARKED
-    elif model in ["GorojovskyPP_eq10","GorojovskyPP_eq11"]:
-        # Mole fractions in the melt on cationic lattice with no volatiles and Fe
+    elif model in ["Gorojovsky26_eq10","Gorojovsky26_eq11","Gorojovsky26_eq10_14","Gorojovsky26_eq11_14"]:
+        # Mole fractions in the melt on cationic lattice with water as a dilutent and Fe
         # speciated
         melt_comp = mg.melt_single_O(
-            melt_wf, "no", "yes", molmass="M_Boulliung23", majors="majors_Boulliung23"
+            melt_wf, "water", "yes", molmass="M_Boulliung23", majors="majors_Boulliung23"
         )
-        if model == "GorojovskyPP_eq10":
+        if model in ["Gorojovsky26_eq10","Gorojovsky26_eq10_14"]:
             logC = (
                 -11.11
                 + (
@@ -1876,7 +1890,7 @@ def C_SO4(PT, melt_wf, models=default_models):
                     / T
                 )
             )
-        elif model == "GorojovskyPP_eq11":
+        elif model in ["Gorojovsky26_eq11","GorojovskyPP_eq26_14"]:
             logC = (
                 196.
                 + (
@@ -1894,6 +1908,9 @@ def C_SO4(PT, melt_wf, models=default_models):
                 )
                 -57.3* math.log10(T)
             )
+        # Pressure-term from Thomas & Wood (2026)
+        if model in ["Gorojovsky26_eq10_14","GorojovskyPP_eq26_14"]:
+            logC = logC - ((PT['P']*0.165)/T)
         Csulfate = 10.0 ** (logC)
 
     # OLD #
