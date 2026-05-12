@@ -12,7 +12,7 @@ If you want to know more about how VolFe works, check out the following articles
 
 For chemistry (e.g., concentration and speciation):
 
-Hughes EC, Liggins P, Wieser P, and Stolper EM (2024). VolFe: an open-source Python package for calculating melt-vapor equilibria including silicate melt, carbon, hydrogen, sulfur, and noble gases. Volcanica 8(2):457-481 https://doi.org/10.30909/vol/imvc1781
+Hughes EC, Liggins P, Wieser P, and Stolper EM (2025). VolFe: an open-source Python package for calculating melt-vapor equilibria including silicate melt, carbon, hydrogen, sulfur, and noble gases. Volcanica 8(2):457-481 https://doi.org/10.30909/vol/imvc1781
 
 For isotope ratios (in the Supplementary Materials):
 

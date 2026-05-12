@@ -19,7 +19,7 @@ If you're using VolFe, you can use ``help()`` to see the model options for each 
 
 Here are some hints to the naming convention used for functions, where specific model options for these model dependent variables can be found:
 
-- Equilibrium constants: functions starting with ``K`` (e.g., ``KCOHg()`` is the function for calculating the equilibrium constants for CH\ :sub:`4` + 2O\ :sub:`2` = CO\ :sub:`2` + 2H\ :sub:`2`O - ``help(volfe.KCOHg)``).
+- Equilibrium constants: functions starting with ``K`` (e.g., ``KCOHg()`` is the function for calculating the equilibrium constants for CH\ :sub:`4` + 2O\ :sub:`2` = CO\ :sub:`2` + 2H\ :sub:`2` O - ``help(volfe.KCOHg)``).
 
 - Fugacity coefficients: functions starting with ``y_`` (e.g., ``y_CH4()`` is the function for calculating the fugacity coefficient for CH\ :sub:`4` - ``help(volfe.y_CH4)``).
 
