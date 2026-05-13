@@ -1455,7 +1455,6 @@ def C_S(PT, melt_wf, models=default_models):
     - 'Boulliung23_eq7' Eq. (7) from Boulliung & Wood (2023) CMP 178:56 https://doi.org10.1007/s00410-023-02033-9
     - 'Boulliung23_eq7_12' Eq. (7) and (12) [P-effect] from Boulliung & Wood (2023) CMP 178:56 https://doi.org10.1007/s00410-023-02033-9
     - 'Thomas26_eq15' Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
-    - 'Thomas26_eq14_15' Eq. (14) and (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
     - 'Gorojovsky26_eq8' Eq. (8) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
     - 'Gorojovsky26_eq8_13' Eq. (8) and (13) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
     - 'Gorojovsky26_eq9' Eq. (9) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
@@ -1575,18 +1574,16 @@ def C_S(PT, melt_wf, models=default_models):
 
     # Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
-    # NOT BENCHMARKED
-    if model in ["Thomas26_eq15","Thomas26_eq14_15"]:
-        # Mole fractions in the melt on cationic lattice with no volatiles and Fe
+    if model in ["Thomas26_eq15"]:
+        # Mole fractions in the melt on cationic lattice with water and no Fe
         # speciated
         melt_comp = mg.melt_single_O(
-            melt_wf, "no", "no", molmass="M_Boulliung23", majors="majors_Boulliung23"
+            melt_wf, "water", "yes", molmass="M_Thomas26", majors="majors_Thomas26"
         )
-        # Eq. (15)
         logC = (
             0.405
             + ( - 0.0573*PT['P']
-                + 24661.0 * melt_comp["FeO"]
+                + 24661.0 * (melt_comp["FeO"]+melt_comp["Fe2O3"]*0.667)
                 + 5804.0 * melt_comp["CaO"]
                 + 25366.0 * melt_comp["K2O"]
                 - 1321.0 * melt_comp["SiO2"]
@@ -1595,26 +1592,23 @@ def C_S(PT, melt_wf, models=default_models):
             / T
         )
 
-        # Eq. (14) pressure-term
-        if model == 'Thomas26_eq14_15':
-            logC = logC - 0.056/T
-
         C = 10.0 ** (logC)
     
     # Eq. (8) or (9) with/without (13) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
     # Earth and Planetary Science Letters 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
-    # NOT BENCH-MARKED
     if model in ["Gorojovsky26_eq8","Gorojovsky26_eq9","Gorojovsky26_eq8_13","Gorojovsky26_eq9_13"]:
         # Mole fractions in the melt on cationic lattice with water as a dilutent and Fe
         # speciated
+
         melt_comp = mg.melt_single_O(
-            melt_wf, "water", "yes", molmass="M_Boulliung23", majors="majors_Boulliung23"
+            melt_wf, "water", "no", molmass="M_Gorojovsky26", majors="majors_Gorojovsky26"
         )
+        # Not benchmarked
         if model in ['Gorojovsky26_eq8','Gorojovsky26_eq8_13']:
             logC = (
                 0.3
                 + (
-                    19298. * melt_comp["FeO"]
+                    19298. * melt_comp["FeOT"]
                     - 1303. * melt_comp["Na2O"]
                     + 11423. * melt_comp["K2O"]
                     - 2935. * melt_comp["SiO2"]
@@ -1622,22 +1616,23 @@ def C_S(PT, melt_wf, models=default_models):
                 )
                 / T
             )
+        # Only Gorojovsky26_eq9 benchmarked - used numbers in spreadsheet
         elif model in ['Gorojovsky26_eq9','Gorojovsky26_eq9_13']:
             logC = (
-                0.65
+                0.646657
                 + ((
-                    -3368. * melt_comp["SiO2"]
-                    -1233. * melt_comp["Al2O3"]
-                    +1295. * melt_comp["CaO"]
-                    -44885. * melt_comp["K2O"]
-                    +10914. * melt_comp["FeO"] * melt_comp["SiO2"]
-                    -871864. * melt_comp["FeO"] * melt_comp["K2O"]
-                    -225569. * melt_comp["FeO"] * melt_comp["Na2O"]
-                    +54392. * melt_comp["FeO"] * melt_comp["Al2O3"]
-                    - 7585.
+                    -3368.52 * melt_comp["SiO2"]
+                    -1233.439 * melt_comp["Al2O3"]
+                    +1295.54 * melt_comp["CaO"]
+                    +44885.3 * melt_comp["K2O"]
+                    +10914.48 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["SiO2"]
+                    -871863.8 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["K2O"]
+                    -225569.4 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["Na2O"]
+                    +54392.37 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["Al2O3"]
+                    - 7585.703
                 )
                 / T)
-                + 3.9 * math.erf(melt_comp['FeO'])
+                + 3.86057 * math.erf(melt_comp['FeOT']*(1.-melt_wf['Fe3FeT']))
             )
         # P-term from Thomas & Wood (2026)
         if model in ['Gorojovsky26_eq8_13','Gorojovsky26_eq9_13']:
@@ -1814,12 +1809,12 @@ def C_SO4(PT, melt_wf, models=default_models):
 
     # Eq. (21) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
-    # NOT BENCHMARKED
+    # No benchmark available
     elif model == "Thomas26_eq21":
-        # Mole fractions in the melt on cationic lattice with no volatiles and Fe
-        # speciated
+        # Mole fractions in the melt on cationic lattice with water and Fe
+        # speciated (Mn atomic mass is Fe in spreadsheet)
         melt_comp = mg.melt_single_O(
-            melt_wf, "no", "yes", molmass="M_Boulliung23", majors="majors_Boulliung23"
+            melt_wf, "water", "yes", molmass="M_Thomas26", majors="majors_Thomas26"
         )
         logC = (
             -213.65
@@ -1841,12 +1836,11 @@ def C_SO4(PT, melt_wf, models=default_models):
 
     # Eq. (22) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
-    # NOT BENCHMARKED
     elif model == "Thomas26_eq22":
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe
         # speciated
         melt_comp = mg.melt_single_O(
-            melt_wf, "water", "no", molmass="M_Boulliung23", majors="majors_Boulliung23"
+            melt_wf, "water", "no", molmass="M_Thomas26", majors="majors_Thomas26"
         )
         # Used -213.645 instead of -213.65, 55.029 instead of 55.03 to match spreadsheet
         logC = (
@@ -1869,13 +1863,13 @@ def C_SO4(PT, melt_wf, models=default_models):
     
     # Eq. (10) or (11) with/without (14) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
     # EPSL 687:120088 https://doi.org/10.31223/X5T755
-    # NOT BENCH-MARKED
     elif model in ["Gorojovsky26_eq10","Gorojovsky26_eq11","Gorojovsky26_eq10_14","Gorojovsky26_eq11_14"]:
-        # Mole fractions in the melt on cationic lattice with water as a dilutent and Fe
-        # speciated
+        # Mole fractions in the melt on cationic lattice with water as a dilutent and no Fe
+        # speciation
         melt_comp = mg.melt_single_O(
-            melt_wf, "water", "yes", molmass="M_Boulliung23", majors="majors_Boulliung23"
+            melt_wf, "water", "no", molmass="M_Gorojovsky26", majors="majors_Gorojovsky26"
         )
+        # no benchmark available
         if model in ["Gorojovsky26_eq10","Gorojovsky26_eq10_14"]:
             logC = (
                 -11.11
@@ -1890,23 +1884,25 @@ def C_SO4(PT, melt_wf, models=default_models):
                     / T
                 )
             )
-        elif model in ["Gorojovsky26_eq11","GorojovskyPP_eq26_14"]:
+        # Eq. (26) benchmarked without eq. (14)
+        # Numbers used in spreadsheet rather than paper
+        elif model in ["Gorojovsky26_eq11","Gorojovsky26_eq11_14"]:
             logC = (
-                196.
+                195.99657
                 + (
                     (
-                        -7633.0 * melt_comp["SiO2"]
-                        -10670.0 * melt_comp["TiO2"]
-                        -6901.0 * melt_comp["Al2O3"]
-                        -4625.0 * melt_comp["FeO"]
-                        +19114.0 * melt_comp["MnO"]
-                        +11740.0 * melt_comp["CaO"]
-                        +33267.0 * melt_comp["Na2O"]
-                        -4095.
+                        -7632.6971 * melt_comp["SiO2"]
+                        -10669.7107 * melt_comp["TiO2"]
+                        -6900.9065 * melt_comp["Al2O3"]
+                        -4625.0612 * melt_comp["FeOT"]
+                        +19113.53 * melt_comp["MnO"]
+                        +11739.931 * melt_comp["CaO"]
+                        +33266.912 * melt_comp["Na2O"]
+                        -4094.9829
                     )
                     / T
                 )
-                -57.3* math.log10(T)
+                -57.2083* math.log10(T)
             )
         # Pressure-term from Thomas & Wood (2026)
         if model in ["Gorojovsky26_eq10_14","GorojovskyPP_eq26_14"]:
@@ -5935,22 +5931,22 @@ def gas_molar_volume(species, PT, models):
 ########################################################################################
 
 species = [
-    ["H", "", 1.008, 1.0, 0.0, 1.0, "", "", "", "", "", "", "", "","",""],
-    ["C", "", 12.011, "", 0.0, "", "", "", "", "", "", "", "", "","",""],
-    ["O", "", 15.999, -2.0, 0.0, "", "", "", "", "", 16.0, "", "", "","",""],
-    ["Na", "", 22.99, "", 0.0, "", "", "", "", "", "", "", "", "","",""],
-    ["Mg", "", 24.305, "", 0.0, "", "", "", "", "", "", "", "", "","",""],
-    ["Al", "", 26.982, "", 0.0, "", "", "", "", "", "", "", "", "","",""],
-    ["Si", "", 28.085, "", 0.0, "", "", "", "", "", "", "", "", "","",""],
-    ["P", "", 30.974, "", 0.0, "", "", "", "", "", "", "", "", "","",""],
-    ["S", "", 32.06, "", 0.0, "", "", "", "", "", "", "", "", "",32.06,""],
-    ["K", "", 39.098, "", 0.0, "", "", "", "", "", "", "", "", "","",""],
-    ["Ca", "", 40.078, "", 0.0, "", "", "", "", "", "", "", "", "","",""],
-    ["Ti", "", 47.867, "", 0.0, "", "", "", "", "", "", "", "", "","",""],
-    ["Mn", "", 54.938, "", 0.0, "", "", "", "", "", "", "", "", "","",""],
-    ["Fe", "", 55.845, "", 0.0, "", "", "", "", "", 55.85, "", 55.85, "",55.85,""],
-    ["SiO2", "Y", 60.083, 0.0, 2.0, 4.0, 1.0, 2.0, "", "", 60.0855, "Y", 60.08, "Y",60.09,"Y"],
-    ["TiO2", "Y", 79.865, 0.0, 2.0, 3.0, 1.0, 2.0, "", "", 79.867, "Y", 79.9, "Y",79.9,"Y"],
+    ["H", "", 1.008, 1.0, 0.0, 1.0, "", "", "", "", "", "", "", "","","",1.008,"","",""],
+    ["C", "", 12.011, "", 0.0, "", "", "", "", "", "", "", "", "","","","","","",""],
+    ["O", "", 15.999, -2.0, 0.0, "", "", "", "", "", 16.0, "", "", "","","",16,"","",""],
+    ["Na", "", 22.99, "", 0.0, "", "", "", "", "", "", "", "", "","","",22.99,"","",""],
+    ["Mg", "", 24.305, "", 0.0, "", "", "", "", "", "", "", "", "","","",24.31,"","",""],
+    ["Al", "", 26.982, "", 0.0, "", "", "", "", "", "", "", "", "","","",26.98,"","",""],
+    ["Si", "", 28.085, "", 0.0, "", "", "", "", "", "", "", "", "","","",28.08,"","",""],
+    ["P", "", 30.974, "", 0.0, "", "", "", "", "", "", "", "", "","","",30.974,"","",""],
+    ["S", "", 32.06, "", 0.0, "", "", "", "", "", "", "", "", "",32.06,"","","","",""],
+    ["K", "", 39.098, "", 0.0, "", "", "", "", "", "", "", "", "","","",39.1,"","",""],
+    ["Ca", "", 40.078, "", 0.0, "", "", "", "", "", "", "", "", "","","",40.08,"","",""],
+    ["Ti", "", 47.867, "", 0.0, "", "", "", "", "", "", "", "", "","","",47.87,"","",""],
+    ["Mn", "", 54.938, "", 0.0, "", "", "", "", "", "", "", "", "","","",55.85,"","",""],
+    ["Fe", "", 55.845, "", 0.0, "", "", "", "", "", 55.85, "", 55.85, "",55.85,"",55.85,"",55.85,""],
+    ["SiO2", "Y", 60.083, 0.0, 2.0, 4.0, 1.0, 2.0, "", "", 60.0855, "Y", 60.08, "Y",60.09,"Y",60.09,"Y",60.09,"Y"],
+    ["TiO2", "Y", 79.865, 0.0, 2.0, 3.0, 1.0, 2.0, "", "", 79.867, "Y", 79.9, "Y",79.9,"Y",79.87,"Y",79.9,"Y"],
     [
         "Al2O3",
         "Y",
@@ -5968,6 +5964,10 @@ species = [
         "Y",
         101.96,
         "Y",
+        101.96,
+        "Y",
+        102,
+        "Y"
     ],
     [
         "Fe2O3",
@@ -5986,16 +5986,20 @@ species = [
         "",
         159.687,
         "",
+        159.70,
+        "",
+        159.6,
+        ""
     ],
-    ["FeO1.5", "", 79.8435, 0.0, 1.5, 3.0, 1.0, 1.5, "", "", "", "", "", "","",""],
-    ["FeO", "Y", 71.844, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 71.85, "Y", 71.85, "Y",71.85,"Y"],
-    ["MnO", "Y", 70.937, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 70.94, "Y", 70.94, "Y",74.94,"N"],
-    ["MgO", "Y", 40.304, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 40.32, "Y", 40.32, "Y",40.32,"Y"],
-    ["CaO", "Y", 56.077, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 56.06, "Y", 56.08, "Y",56.08,"Y"],
-    ["Na2O", "Y", 61.979, 0.0, 1.0, 1.0, 2.0, 1.0, "", "", 61.88, "Y", 61.98, "Y",61.98,"Y"],
-    ["K2O", "Y", 94.195, 0.0, 1.0, 1.0, 2.0, 1.0, "", "", 94.2, "Y", 94.2, "Y",94.2,"Y"],
-    ["P2O5", "Y", 141.943, 0.0, 1.0, 5.0, 2.0, 1.0, "", "", 141.943, "N", 141.943, "N",141.943,"N"],
-    ["OH", "", 17.007, -1.0, 1.0, 1.0, 1.0, 1.0, "", "", "", "", "", "", "", ""],
+    ["FeO1.5", "", 79.8435, 0.0, 1.5, 3.0, 1.0, 1.5, "", "", "", "", "", "","","",79.85,"",71.85,""],
+    ["FeO", "Y", 71.844, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 71.85, "Y", 71.85, "Y",71.85,"Y",71.85,"Y",71.85,"Y"],
+    ["MnO", "Y", 70.937, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 70.94, "Y", 70.94, "Y",74.94,"N",70.94,"Y",71,"Y"],
+    ["MgO", "Y", 40.304, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 40.32, "Y", 40.32, "Y",40.32,"Y",40.31,"Y",40.3,"Y"],
+    ["CaO", "Y", 56.077, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 56.06, "Y", 56.08, "Y",56.08,"Y",56.08,"Y",56.1,"Y"],
+    ["Na2O", "Y", 61.979, 0.0, 1.0, 1.0, 2.0, 1.0, "", "", 61.88, "Y", 61.98, "Y",61.98,"Y",61.98,"Y",62,"Y"],
+    ["K2O", "Y", 94.195, 0.0, 1.0, 1.0, 2.0, 1.0, "", "", 94.2, "Y", 94.2, "Y",94.2,"Y",94.2,"Y",94.2,"Y"],
+    ["P2O5", "Y", 141.943, 0.0, 1.0, 5.0, 2.0, 1.0, "", "", 141.943, "N", 141.943, "N",141.943,"N",141.948,"Y",141.94,"Y"],
+    ["OH", "", 17.007, -1.0, 1.0, 1.0, 1.0, 1.0, "", "", "", "", "", "", "", "","","","",""],
     [
         "H2O",
         "",
@@ -6013,9 +6017,13 @@ species = [
         "",
         18.01,
         "",
+        18.016,
+        "",
+        18.02,
+        ""
     ],
-    ["H2S", "", 34.076, 0.0, 0.0, 1.0, 1.0, 1.0, 373.55, 90.0779, "", "", "", "", "", ""],
-    ["CO", "", 28.01, 0.0, 1.0, 2.0, 1.0, 1.0, 133.15, 34.9571, "", "", "", "", "", ""],
+    ["H2S", "", 34.076, 0.0, 0.0, 1.0, 1.0, 1.0, 373.55, 90.0779, "", "", "", "", "", "","","","",""],
+    ["CO", "", 28.01, 0.0, 1.0, 2.0, 1.0, 1.0, 133.15, 34.9571, "", "", "", "", "", "","","","",""],
     [
         "CO2",
         "",
@@ -6032,19 +6040,23 @@ species = [
         44.009,
         "",
         44.009,
+        "",
+        44.009,
+        "",
+        44.009,
         ""
     ],
-    ["CO3", "", 60.008, -2.0, 3.0, 4.0, 1.0, 3.0, "", "", "", "", "", "", "", ""],
-    ["S2", "", 64.12, 0.0, 0.0, "", "", "", 208.15, 72.954, "", "", "", "", "", ""],
-    ["SO2", "", 64.058, 0.0, 2.0, 4.0, 1.0, 2.0, 430.95, 78.7295, "", "", "", "", "", ""],
-    ["SO3", "", 80.057, 0.0, 3.0, 6.0, 1.0, 3.0, "", "", "", "", "", "", "", ""],
-    ["SO4", "", 96.056, -2.0, 4.0, 6, "", 4.0, "", "", "", "", "", "", "", ""],
-    ["OCS", "", 60.07, 0.0, 1.0, "", "", "", 377.55, 65.8612, "", "", "", "", "", ""],
-    ["O2", "", 31.998, 0.0, 2.0, "", "", "", 154.75, 50.7638, "", "", "", "", "", ""],
-    ["H2", "", 2.016, 0.0, 0.0, "", "", "", 33.25, 12.9696, 2.016, "", 2.016, "", 2.016, ""],
-    ["CH4", "", 16.043, 0.0, 0.0, "", "", "", 191.05, 46.4069, "", "", "", "", "", ""],
-    ["Ar", "", 39.948, "", "", "", "", "", "", "", "", "", "", "", 39.948, ""],
-    ["Ne", "", 20.1797, "", "", "", "", "", "", "", "", "", "", "", 20.1797, ""],
+    ["CO3", "", 60.008, -2.0, 3.0, 4.0, 1.0, 3.0, "", "", "", "", "", "", "", "","","","",""],
+    ["S2", "", 64.12, 0.0, 0.0, "", "", "", 208.15, 72.954, "", "", "", "", "", "","","","",""],
+    ["SO2", "", 64.058, 0.0, 2.0, 4.0, 1.0, 2.0, 430.95, 78.7295, "", "", "", "", "", "","","","",""],
+    ["SO3", "", 80.057, 0.0, 3.0, 6.0, 1.0, 3.0, "", "", "", "", "", "", "", "","","","",""],
+    ["SO4", "", 96.056, -2.0, 4.0, 6, "", 4.0, "", "", "", "", "", "", "", "","","","",""],
+    ["OCS", "", 60.07, 0.0, 1.0, "", "", "", 377.55, 65.8612, "", "", "", "", "", "","","","",""],
+    ["O2", "", 31.998, 0.0, 2.0, "", "", "", 154.75, 50.7638, "", "", "", "", "", "","","","",""],
+    ["H2", "", 2.016, 0.0, 0.0, "", "", "", 33.25, 12.9696, 2.016, "", 2.016, "", 2.016, "",2.016,"",2.016],
+    ["CH4", "", 16.043, 0.0, 0.0, "", "", "", 191.05, 46.4069, "", "", "", "", "", "","","","",""],
+    ["Ar", "", 39.948, "", "", "", "", "", "", "", "", "", "", "", 39.948, "","","","",""],
+    ["Ne", "", 20.1797, "", "", "", "", "", "", "", "", "", "", "", 20.1797, "","","","",""],
 ]
 # If a paper doesn't have a molcular mass for a certain species, the molecular mass in
 # "M" is used.
@@ -6067,7 +6079,11 @@ species = pd.DataFrame(
         "M_ONeill21",
         "majors_ONeill21",
         "M_IaconoMarziano12",
-        "majors_IaconoMarziano12"
+        "majors_IaconoMarziano12",
+        "M_Thomas26",
+        "majors_Thomas26",
+        "M_Gorojovsky26",
+        "majors_Gorojovsky26"
     ],
 )
 species = species.set_index("species")
