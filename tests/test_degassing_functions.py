@@ -83,7 +83,7 @@ def test_degas_df_sat_sulf():
 
     # Choose the options I want to change for the calculation
     # - everything else will use the default options
-    my_models = [["sulfur_saturation", "True"]]
+    my_models = [["sulfur_saturation", True]]
 
     # turn to dataframe with correct column headers and indexes
     my_models = vf.make_df_and_add_model_defaults(my_models)

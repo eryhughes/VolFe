@@ -117,7 +117,7 @@ def P_sat(PT, melt_wf, models, Ptol, nr_step, nr_tol):
     melt_wf1["ST"] = ST
     melt_wf2["ST"] = ST
     if (
-        models.loc["sulfur_saturation", "option"] == "True"
+        models.loc["sulfur_saturation", "option"] == True
     ):  # must incorporate H2S concentration into S2- for SCSS
         sulfsat = sulfur_saturation(PT, melt_wf2, models)
         melt_wf1["ST"] = sulfsat["ST"] / 1000000.0
@@ -138,7 +138,7 @@ def P_sat(PT, melt_wf, models, Ptol, nr_step, nr_tol):
         melt_wf2["CO2"] = ms_conc["wm_CO2"]
         melt_wf1["S2-"] = ms_conc["wm_S2m"]
         melt_wf2["S2-"] = ms_conc["wm_S2m"]
-        if models.loc["sulfur_saturation", "option"] == "True":
+        if models.loc["sulfur_saturation", "option"] == True:
             sulfsat = sulfur_saturation(PT, melt_wf2, models)
             melt_wf1["ST"] = sulfsat["ST"] / 1000000.0
             melt_wf2["ST"] = ST
@@ -430,9 +430,9 @@ def bulk_composition(run, PT, melt_wf, setup, models):
     elif models.loc["mass_volume", "option"] == "volume":
         Wt = 0.0
 
-    if eq_Fe == "no":
+    if eq_Fe == False:
         wt_Fe = 0.0
-    elif eq_Fe == "yes":
+    elif eq_Fe == True:
         total_dissolved_volatiles = (
             wm_CO2
             + wm_H2O
@@ -757,9 +757,9 @@ def fO2_P_VSA(PT, melt_wf, models, nr_step, nr_tol, Ptol):
         CSO4 = mdv.C_SO4(PT, melt_wf, models) / 1000000.0
         CS = mdv.C_S(PT, melt_wf, models) / 1000000.0
 
-        if models.loc["H2S_m", "option"] == "False":
+        if models.loc["H2S_m", "option"] == False:
             W = CSO4 / CS
-        elif models.loc["H2S_m", "option"] == "True":
+        elif models.loc["H2S_m", "option"] == True:
             CH2S = mdv.C_H2S(PT, melt_wf, models) / 1000000.0
             KHS = mdv.KHOSg(PT, models)
             CH2OT = mdv.C_H2O(PT, melt_wf, models)

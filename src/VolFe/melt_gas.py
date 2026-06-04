@@ -468,9 +468,9 @@ def S6S2_2_fO2(S62, melt_wf, PT, models):
     def calc_fO2(S62, melt_wf, PT, models):
         CSO4 = mdv.C_SO4(PT, melt_wf, models) / 1000000.0
         CS = mdv.C_S(PT, melt_wf, models) / 1000000.0
-        if models.loc["H2S_m", "option"] == "False":
+        if models.loc["H2S_m", "option"] == False:
             fO2 = ((S62 * CS) / CSO4) ** 0.5
-        elif models.loc["H2S_m", "option"] == "True":
+        elif models.loc["H2S_m", "option"] == True:
             KHS = mdv.KHOSg(PT, models)
             CH2S = (
                 (mdv.C_H2S(PT, melt_wf, models) / 1000000.0)
@@ -1721,9 +1721,9 @@ def S6S2(PT, melt_wf, models):
         CSO4 = mdv.C_SO4(PT, melt_wf, models)
         CS = mdv.C_S(PT, melt_wf, models)
         fO2 = mdv.f_O2(PT, melt_wf, models)
-        if models.loc["H2S_m", "option"] == "False":
+        if models.loc["H2S_m", "option"] == False:
             result = (CSO4 / CS) * fO2**2.0
-        elif models.loc["H2S_m", "option"] == "True":
+        elif models.loc["H2S_m", "option"] == True:
             KHS = mdv.KHOSg(PT, models)
             CH2S = mdv.C_H2S(PT, melt_wf, models)
             CH2OT = mdv.C_H2O(PT, melt_wf, models)

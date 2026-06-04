@@ -171,6 +171,14 @@ def set_system(melt_wf, models):
             models.loc["solve_species", "option"] = "O2-CO-X"
     elif wt_H > 0.0 and wt_C > 0.0 and wt_S > 0.0 and wt_X > 0.0:
         sys = "SCHOXFe"
+    else:
+        raise ValueError(
+            f"Cannot determine volatile system for composition: "
+            f"H={wt_H}, C={wt_C}, S={wt_S}, X={wt_X}. "
+            f"No matching system found — at least one volatile species "
+            f"(H2O, CO2, or S) must have a concentration > 0, and this "
+            f"combination of species is not currently supported."
+        )
     return sys
 
 
@@ -565,7 +573,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
     elif system == "SHOFe":
         if (
             models.loc["COH_species", "option"] == "no_H2_CO_CH4_melt"
-            and models.loc["H2S_m", "option"] == "False"
+            and models.loc["H2S_m", "option"] == False
         ):
             (A, B, C, D) = eq_SHOFe(
                 PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species
@@ -592,7 +600,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
             wm_H2_, wm_H2S_ = 0.0, 0.0
         elif (
             models.loc["COH_species", "option"] == "yes_H2_CO_CH4_melt"
-            and models.loc["H2S_m", "option"] == "True"
+            and models.loc["H2S_m", "option"] == True
         ):
             A, B, C, D = eq_SHOFe_2(
                 PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species
@@ -623,12 +631,12 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
             wt_g, wt_O_, wt_H_, wt_S_ = D
         elif (
             models.loc["COH_species", "option"] == "yes_H2_CO_CH4_melt"
-            and models.loc["H2S_m", "option"] == "False"
+            and models.loc["H2S_m", "option"] == False
         ):
             print("Work in progress")
         elif (
             models.loc["COH_species", "option"] == "no_H2_CO_CH4_melt"
-            and models.loc["H2S_m", "option"] == "True"
+            and models.loc["H2S_m", "option"] == True
         ):
             print("not possible")
         xg_O2_, xg_S2_ = A
@@ -728,7 +736,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
             )
         elif (
             models.loc["COH_species", "option"] == "no_H2_CO_CH4_melt"
-            and models.loc["H2S_m", "option"] == "False"
+            and models.loc["H2S_m", "option"] == False
         ):
             A, B, C, D = eq_SCHOFe(
                 PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species
@@ -811,7 +819,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
             wm_H2_, wm_CO_, wm_CH4_, wm_H2S_ = 0.0, 0.0, 0.0, 0.0
         elif (
             models.loc["COH_species", "option"] == "yes_H2_CO_CH4_melt"
-            and models.loc["H2S_m", "option"] == "True"
+            and models.loc["H2S_m", "option"] == True
         ):
             if models.loc["Hspeciation", "option"] in [
                 "none",
@@ -877,7 +885,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
             # guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_H2_, xg_S2_
         elif (
             models.loc["COH_species", "option"] == "yes_H2_CO_CH4_melt"
-            and models.loc["H2S_m", "option"] == "False"
+            and models.loc["H2S_m", "option"] == False
         ):
             print(
                 "Work in progress: please change 'H2S_m' option to 'True' or 'COH_species' option to 'no_H2_CO_CH4_melt'"
@@ -926,12 +934,12 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
     elif system == "SCHOXFe":
         if (
             models.loc["COH_species", "option"] == "no_H2_CO_CH4_melt"
-            and models.loc["H2S_m", "option"] == "False"
+            and models.loc["H2S_m", "option"] == False
         ):
             print("Work in progress")
         elif (
             models.loc["COH_species", "option"] == "yes_H2_CO_CH4_melt"
-            and models.loc["H2S_m", "option"] == "True"
+            and models.loc["H2S_m", "option"] == True
         ):
             (
                 xg_O2_,
@@ -1420,7 +1428,7 @@ def eq_HS_melt(PT, melt_wf, models, nr_step, nr_tol):  # not sure this is right?
             + (K4_ * fO2**2) / K3_
             + (K1_ * K5_ * M_S * xm_H2O_**2) / (K2_ * K3_ * M_H2S)
         )  # weight fraction
-        if models.loc["H2S_m", "option"] == "True":
+        if models.loc["H2S_m", "option"] == True:
             wm_H2S_ = (K1_ * K5_ * xm_H2O_**2 * wm_S2m_) / (
                 K2_ * K3_
             )  # weight fraction
@@ -1599,7 +1607,7 @@ def eq_CHS_melt(PT, melt_wf, models, nr_step, nr_tol, guesses):
         else:
             wm_H2_, wm_CO_, wm_CH4_ = 0.0, 0.0, 0.0
         fS2 = (fO2 * wm_S2m_**2.0) / K3_**2.0
-        if models.loc["H2S_m", "option"] == "True":
+        if models.loc["H2S_m", "option"] == True:
             fH2S = (K1_ * fS2**0.5 * fH2O) / fO2**0.5
             wm_H2S_ = fH2S * K5_  # weight fraction
         else:
@@ -1941,7 +1949,7 @@ def melt_speciation(PT, melt_wf, models, nr_step, nr_tol):
 
     if models.loc["COH_species", "option"] == "no_H2_CO_CH4_melt":
         wm_CO_, wm_CH4_, wm_H2_ = 0.0, 0.0, 0.0
-    if models.loc["H2S_m", "option"] == "False":
+    if models.loc["H2S_m", "option"] == False:
         wm_H2S_ = 0.0
 
     if system in ["HOFe", "HOXFe"]:
