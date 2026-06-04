@@ -78,7 +78,7 @@ Hughes EC, Liggins P, Saper L, Stolper EM (2024). The efects of oxygen fugacity 
 
 Hughes EC, Saper LM, Liggins P, O'Neill HSC, Stolper EM (2023). The sulfur solubility minimum and maximum in silicate melt. Journal of the Geological Society 180(3):jgs2021-125 https://doi.org/10.1144/jgs2021-125
 
-Hughes EC, Liggins P, Wieser P, and Stolper EM (2024). VolFe: an open-source Python package for calculating melt-vapor equilibria including silicate melt, carbon, hydrogen, sulfur, and noble gases. Volcanica 8(2):457-481 https://doi.org/10.30909/vol/imvc1781
+Hughes EC, Liggins P, Wieser P, and Stolper EM (2025). VolFe: an open-source Python package for calculating melt-vapor equilibria including silicate melt, carbon, hydrogen, sulfur, and noble gases. Volcanica 8(2):457-481 https://doi.org/10.30909/vol/imvc1781
 
 Iacono-Marziano et al. (2010) Chemical Geology 279(3–4):145-157
 

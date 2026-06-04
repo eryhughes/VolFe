@@ -424,7 +424,7 @@ def test_degas_df_CHONe_basalt():
     # choose the options I want - everything else will use the default options
     my_models = [
         ["species X", "Ne"],
-        ["species X solubility", "Ne_Basalt_HughesIP"],
+        ["species X solubility", "Ne_Basalt_Hughes25"],
         ["output csv", False],
     ]
 
@@ -473,7 +473,7 @@ def test_degas_df_CHOAr_rhyolite():
 
     # choose the options I want - everything else will use the default options
     my_models = [
-        ["species X solubility", "Ar_Rhyolite_HughesIP"],
+        ["species X solubility", "Ar_Rhyolite_Hughes25"],
         ["output csv", False],
     ]
 

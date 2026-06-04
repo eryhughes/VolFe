@@ -7,7 +7,7 @@ name = "VolFe"
 dynamic = ["version"]
 description = "VolFe"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
     {name = "Ery Hughes", email = "ery.c.hughes@gmail.com"},
     {name = "Pip Liggins"},
@@ -21,9 +21,9 @@ dependencies = [
     "datetime==5.5",
     "densityx==1.2.0",
     "gmpy2==2.2.1",
-    "numpy<2",
+    "numpy==2.2",
     "pandas==2.2.3",
-    "PySulfSat==1.0.6",
+    "PySulfSat==1.0.11",
     "scipy>=1.13.1",
     "tqdm==4.67.1",
 ]

@@ -1,7 +1,7 @@
 datetime
 densityx
 gmpy2
-numpy<2
+numpy
 pandas
 PySulfSat
 matplotlib
