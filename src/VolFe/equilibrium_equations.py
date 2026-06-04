@@ -36,64 +36,139 @@ def set_system(melt_wf, models):
     wt_X = melt_wf["XT"]
     if wt_H > 0.0 and wt_C == 0.0 and wt_S == 0.0 and wt_X == 0.0:
         sys = "HOFe"
-        if models.loc["solve_species", "option"] in ['O2-CO','O2-H2','O2-CO-S2','O2-H2-S2','O2-CO-X','O2-H2-X','O2-CO-H2']:
-            models.loc["solve_species", "option"] = 'auto'
-        if models.loc["solve_species", "option"] == 'auto':
-            models.loc["solve_species", "option"] = 'O2'
+        if models.loc["solve_species", "option"] in [
+            "O2-CO",
+            "O2-H2",
+            "O2-CO-S2",
+            "O2-H2-S2",
+            "O2-CO-X",
+            "O2-H2-X",
+            "O2-CO-H2",
+        ]:
+            models.loc["solve_species", "option"] = "auto"
+        if models.loc["solve_species", "option"] == "auto":
+            models.loc["solve_species", "option"] = "O2"
     elif wt_H == 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X == 0.0:
         sys = "COFe"
-        if models.loc["solve_species", "option"] in ['O2-CO','O2-H2','O2-CO-S2','O2-H2-S2','O2-CO-X','O2-H2-X','O2-CO-H2']:
-            models.loc["solve_species", "option"] = 'auto'
-        if models.loc["solve_species", "option"] == 'auto':
-            models.loc["solve_species", "option"] = 'O2'
+        if models.loc["solve_species", "option"] in [
+            "O2-CO",
+            "O2-H2",
+            "O2-CO-S2",
+            "O2-H2-S2",
+            "O2-CO-X",
+            "O2-H2-X",
+            "O2-CO-H2",
+        ]:
+            models.loc["solve_species", "option"] = "auto"
+        if models.loc["solve_species", "option"] == "auto":
+            models.loc["solve_species", "option"] = "O2"
     elif wt_H == 0.0 and wt_C == 0.0 and wt_S > 0.0 and wt_X == 0.0:
         sys = "SOFe"
-        if models.loc["solve_species", "option"] in ['O2-CO','O2-H2','O2-CO-S2','O2-H2-S2','O2-CO-X','O2-H2-X','O2-CO-H2']:
-            models.loc["solve_species", "option"] = 'auto'
-        if models.loc["solve_species", "option"] == 'auto':
-            models.loc["solve_species", "option"] = 'O2'
+        if models.loc["solve_species", "option"] in [
+            "O2-CO",
+            "O2-H2",
+            "O2-CO-S2",
+            "O2-H2-S2",
+            "O2-CO-X",
+            "O2-H2-X",
+            "O2-CO-H2",
+        ]:
+            models.loc["solve_species", "option"] = "auto"
+        if models.loc["solve_species", "option"] == "auto":
+            models.loc["solve_species", "option"] = "O2"
     elif wt_H > 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X == 0.0:
         sys = "CHOFe"
-        if models.loc["solve_species", "option"] in ['O2','O2-CO-S2','O2-H2-S2','O2-CO-X','O2-H2-X','O2-CO-H2']:
-            models.loc["solve_species", "option"] = 'auto'
-        if models.loc["solve_species", "option"] == 'auto':
-            models.loc["solve_species", "option"] = 'O2-CO'
+        if models.loc["solve_species", "option"] in [
+            "O2",
+            "O2-CO-S2",
+            "O2-H2-S2",
+            "O2-CO-X",
+            "O2-H2-X",
+            "O2-CO-H2",
+        ]:
+            models.loc["solve_species", "option"] = "auto"
+        if models.loc["solve_species", "option"] == "auto":
+            models.loc["solve_species", "option"] = "O2-CO"
     elif wt_H > 0.0 and wt_C == 0.0 and wt_S > 0.0 and wt_X == 0.0:
         sys = "SHOFe"
-        if models.loc["solve_species", "option"] in ['O2','O2-CO','O2-CO-S2','O2-H2-S2','O2-CO-X','O2-H2-X','O2-CO-H2']:
-            models.loc["solve_species", "option"] = 'auto'
-        if models.loc["solve_species", "option"] == 'auto':
-            models.loc["solve_species", "option"] = 'O2-H2'
+        if models.loc["solve_species", "option"] in [
+            "O2",
+            "O2-CO",
+            "O2-CO-S2",
+            "O2-H2-S2",
+            "O2-CO-X",
+            "O2-H2-X",
+            "O2-CO-H2",
+        ]:
+            models.loc["solve_species", "option"] = "auto"
+        if models.loc["solve_species", "option"] == "auto":
+            models.loc["solve_species", "option"] = "O2-H2"
     elif wt_H == 0.0 and wt_C > 0.0 and wt_S > 0.0 and wt_X == 0.0:
         sys = "SCOFe"
-        if models.loc["solve_species", "option"] in ['O2','O2-H2','O2-CO-S2','O2-H2-S2','O2-CO-X','O2-H2-X','O2-CO-H2']:
-            models.loc["solve_species", "option"] = 'auto'
-        if models.loc["solve_species", "option"] == 'auto':
-            models.loc["solve_species", "option"] = 'O2-CO'
+        if models.loc["solve_species", "option"] in [
+            "O2",
+            "O2-H2",
+            "O2-CO-S2",
+            "O2-H2-S2",
+            "O2-CO-X",
+            "O2-H2-X",
+            "O2-CO-H2",
+        ]:
+            models.loc["solve_species", "option"] = "auto"
+        if models.loc["solve_species", "option"] == "auto":
+            models.loc["solve_species", "option"] = "O2-CO"
     elif wt_H == 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X > 0.0:
         sys = "COXFe"
-        if models.loc["solve_species", "option"] in ['O2','O2-CO','O2-CO-S2','O2-H2-S2','O2-CO-X','O2-H2-X','O2-CO-H2']:
-            models.loc["solve_species", "option"] = 'auto'
-        if models.loc["solve_species", "option"] == 'auto':
-            models.loc["solve_species", "option"] = 'O2-CO'
+        if models.loc["solve_species", "option"] in [
+            "O2",
+            "O2-CO",
+            "O2-CO-S2",
+            "O2-H2-S2",
+            "O2-CO-X",
+            "O2-H2-X",
+            "O2-CO-H2",
+        ]:
+            models.loc["solve_species", "option"] = "auto"
+        if models.loc["solve_species", "option"] == "auto":
+            models.loc["solve_species", "option"] = "O2-CO"
     elif wt_H > 0.0 and wt_C == 0.0 and wt_S == 0.0 and wt_X > 0.0:
         sys = "HOXFe"
-        if models.loc["solve_species", "option"] in ['O2','O2-CO','O2-CO-S2','O2-H2-S2','O2-CO-X','O2-H2-X','O2-CO-H2']:
-            models.loc["solve_species", "option"] = 'auto'
-        if models.loc["solve_species", "option"] == 'auto':
-            models.loc["solve_species", "option"] = 'O2-H2'
+        if models.loc["solve_species", "option"] in [
+            "O2",
+            "O2-CO",
+            "O2-CO-S2",
+            "O2-H2-S2",
+            "O2-CO-X",
+            "O2-H2-X",
+            "O2-CO-H2",
+        ]:
+            models.loc["solve_species", "option"] = "auto"
+        if models.loc["solve_species", "option"] == "auto":
+            models.loc["solve_species", "option"] = "O2-H2"
     elif wt_H > 0.0 and wt_C > 0.0 and wt_S > 0.0 and wt_X == 0.0:
         sys = "SCHOFe"
-        if models.loc["solve_species", "option"] in ['O2','O2-CO','O2-H2','O2-CO-S2','O2-H2-S2']:
-            models.loc["solve_species", "option"] = 'auto'
-        if models.loc["solve_species", "option"] == 'auto':
-            models.loc["solve_species", "option"] = 'O2-CO-S2'
+        if models.loc["solve_species", "option"] in [
+            "O2",
+            "O2-CO",
+            "O2-H2",
+            "O2-CO-S2",
+            "O2-H2-S2",
+        ]:
+            models.loc["solve_species", "option"] = "auto"
+        if models.loc["solve_species", "option"] == "auto":
+            models.loc["solve_species", "option"] = "O2-CO-S2"
     elif wt_H > 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X > 0.0:
         sys = "CHOXFe"
-        if models.loc["solve_species", "option"] in ['O2','O2-CO','O2-H2','O2-CO-S2','O2-H2-S2']:
-            models.loc["solve_species", "option"] = 'auto'
-        if models.loc["solve_species", "option"] == 'auto':
-            models.loc["solve_species", "option"] = 'O2-CO-X'        
+        if models.loc["solve_species", "option"] in [
+            "O2",
+            "O2-CO",
+            "O2-H2",
+            "O2-CO-S2",
+            "O2-H2-S2",
+        ]:
+            models.loc["solve_species", "option"] = "auto"
+        if models.loc["solve_species", "option"] == "auto":
+            models.loc["solve_species", "option"] = "O2-CO-X"
     elif wt_H > 0.0 and wt_C > 0.0 and wt_S > 0.0 and wt_X > 0.0:
         sys = "SCHOXFe"
     return sys
@@ -133,142 +208,142 @@ def initial_guesses(run, PT, melt_wf, setup, models, system):
     # xenia = models.loc["xenia","option"]
     solve_species = models.loc["solve_species", "option"]
 
-#    if starting_P == "set":
-#        guessx = setup.loc[run, "xg_O2"]
-#    else:
-#        guessx = mg.xg_O2(PT, melt_wf, models)
+    #    if starting_P == "set":
+    #        guessx = setup.loc[run, "xg_O2"]
+    #    else:
+    #        guessx = mg.xg_O2(PT, melt_wf, models)
 
     if models.loc["COH_species", "option"] == "H2O-CO2 only":
         guessx = mg.xg_CO2(PT, melt_wf, models)
 
-#    if system in [
-#        "COFe",
-#        "HOFe",
-#        "SOFe",
-#        "CHOFe",
-#        "COXFe",
-#        "SHOFe",
-#        "SCOFe",
-#        "CHOXFe",
-#        "HOXFe",
-#    ]:
-#        guessw = 0.0
+    #    if system in [
+    #        "COFe",
+    #        "HOFe",
+    #        "SOFe",
+    #        "CHOFe",
+    #        "COXFe",
+    #        "SHOFe",
+    #        "SCOFe",
+    #        "CHOXFe",
+    #        "HOXFe",
+    #    ]:
+    #        guessw = 0.0
 
-#    if system in ["COFe", "HOFe", "SOFe"]:
-#        guessy = 0.0
-#        guessz = 0.0
+    #    if system in ["COFe", "HOFe", "SOFe"]:
+    #        guessy = 0.0
+    #        guessz = 0.0
 
-#    if system in ["COXFe", "SHOFe", "SCOFe", "HOXFe"]:
-#        guessz = 0.0
+    #    if system in ["COXFe", "SHOFe", "SCOFe", "HOXFe"]:
+    #        guessz = 0.0
 
-#    if system in ["CHOFe"]:
-#        if models.loc["COH_species", "option"] == "H2O-CO2 only":
-#            guessy, guessz = 0.0, 0.0
-#        else:
-#            if solve_species == 'O2-CO':
-#                if starting_P == "set":
-#                    guessy = setup.loc[run, "xg_CO"]
-#                    guessz = 0.
-#                else:
-#                    guessy = mg.xg_CO(PT, melt_wf, models)
-#                    guessz = mg.xg_H2(PT, melt_wf, models)
-#            elif solve_species == 'O2-H2':
-#                if starting_P == "set":
-#                    guessy = setup.loc[run, "xg_H2"]
-#                    guessz = 0.
-#                else:
-#                    guessy = mg.xg_H2(PT, melt_wf, models)
-#                    guessz = mg.xg_CO(PT, melt_wf, models)
-#            guessa = mg.xg_CO2(PT, melt_wf, models)
-#            guessb = mg.xg_H2O(PT, melt_wf, models)
-#    elif system == "SHOFe":
-#        if starting_P == "set":
-#            guessy = setup.loc[run, "xg_S2"]
-#        else:
-#            guessy = mg.xg_S2(PT, melt_wf, models)
-#    elif system == "COXFe":
-#        if starting_P == "set":
-#            guessy = setup.loc[run, "xg_CO"]
-#        else:
-#            guessy = mg.xg_CO(PT, melt_wf, models)   
-#    elif system == "HOXFe":
-#        if starting_P == "set":
-#            guessy = setup.loc[run, "xg_H2"]
-#        else:
-#            guessy = mg.xg_H2(PT, melt_wf, models)
-#    elif system == "SCOFe":
-#        guessy = mg.xg_S2(PT, melt_wf, models)
+    #    if system in ["CHOFe"]:
+    #        if models.loc["COH_species", "option"] == "H2O-CO2 only":
+    #            guessy, guessz = 0.0, 0.0
+    #        else:
+    #            if solve_species == 'O2-CO':
+    #                if starting_P == "set":
+    #                    guessy = setup.loc[run, "xg_CO"]
+    #                    guessz = 0.
+    #                else:
+    #                    guessy = mg.xg_CO(PT, melt_wf, models)
+    #                    guessz = mg.xg_H2(PT, melt_wf, models)
+    #            elif solve_species == 'O2-H2':
+    #                if starting_P == "set":
+    #                    guessy = setup.loc[run, "xg_H2"]
+    #                    guessz = 0.
+    #                else:
+    #                    guessy = mg.xg_H2(PT, melt_wf, models)
+    #                    guessz = mg.xg_CO(PT, melt_wf, models)
+    #            guessa = mg.xg_CO2(PT, melt_wf, models)
+    #            guessb = mg.xg_H2O(PT, melt_wf, models)
+    #    elif system == "SHOFe":
+    #        if starting_P == "set":
+    #            guessy = setup.loc[run, "xg_S2"]
+    #        else:
+    #            guessy = mg.xg_S2(PT, melt_wf, models)
+    #    elif system == "COXFe":
+    #        if starting_P == "set":
+    #            guessy = setup.loc[run, "xg_CO"]
+    #        else:
+    #            guessy = mg.xg_CO(PT, melt_wf, models)
+    #    elif system == "HOXFe":
+    #        if starting_P == "set":
+    #            guessy = setup.loc[run, "xg_H2"]
+    #        else:
+    #            guessy = mg.xg_H2(PT, melt_wf, models)
+    #    elif system == "SCOFe":
+    #        guessy = mg.xg_S2(PT, melt_wf, models)
 
-#    elif system == "CHOXFe":
-#        if starting_P == "set":
-#            guessy = setup.loc[run, "xg_CO"]
-#            guessz = setup.loc[run, "xg_X"]
-#        else:
-#            guessy = mg.xg_CO(PT, melt_wf, models)
-#            guessz = mg.xg_X(PT, melt_wf, models)
-#    elif system == "SCHOFe" or system == "SCHOXFe":
-#        if solve_species in ["O2-CO-S2"]:
-#            if starting_P == "set":
-#                guessy = setup.loc[run, "xg_CO"]
-#                guessz = setup.loc[run, "xg_S2"]
-#                guessw = 0.0
-#            else:
-#                guessy = mg.xg_CO(PT, melt_wf, models)
-#                guessz = mg.xg_S2(PT, melt_wf, models)
-#                guessw = mg.xg_H2(PT, melt_wf, models)
-#        elif solve_species == "O2-H2-S2":
-#            if starting_P == "set":
-#                guessy = setup.loc[run, "xg_H2"]
-#                guessz = setup.loc[run, "xg_S2"]
-#                guessw = 0.0
-#            else:
-#                guessy = mg.xg_H2(PT, melt_wf, models)
-#                guessz = mg.xg_S2(PT, melt_wf, models)
-#                guessw = mg.xg_CO(PT, melt_wf, models)
-#        elif solve_species == "O2-CO-H2":
-#            if starting_P == "set":
-#                guessy = setup.loc[run, "xg_CO"]
-#                guessz = setup.loc[run, "xg_H2"]
-#                guessw = 0.0
-#            else:
-#                guessy = mg.xg_CO(PT, melt_wf, models)
-#                guessz = mg.xg_H2(PT, melt_wf, models)
-#                guessw = mg.xg_S2(PT, melt_wf, models)
-#        if system == "SCHOXFe":
-#            if starting_P == "set":
-#                guessw = setup.loc[run, "xg_X"]
-#            else:
-#                guessw = mg.xg_X(run, PT, melt_wf, setup, models)
-#    guesses = {"guessx": guessx, "guessy": guessy, "guessz": guessz, "guessw": guessw}
-#    if system in ["CHOFe"]:
-#        guesses['guessa'] = guessa
-#        guesses['guessb'] = guessb
-    
+    #    elif system == "CHOXFe":
+    #        if starting_P == "set":
+    #            guessy = setup.loc[run, "xg_CO"]
+    #            guessz = setup.loc[run, "xg_X"]
+    #        else:
+    #            guessy = mg.xg_CO(PT, melt_wf, models)
+    #            guessz = mg.xg_X(PT, melt_wf, models)
+    #    elif system == "SCHOFe" or system == "SCHOXFe":
+    #        if solve_species in ["O2-CO-S2"]:
+    #            if starting_P == "set":
+    #                guessy = setup.loc[run, "xg_CO"]
+    #                guessz = setup.loc[run, "xg_S2"]
+    #                guessw = 0.0
+    #            else:
+    #                guessy = mg.xg_CO(PT, melt_wf, models)
+    #                guessz = mg.xg_S2(PT, melt_wf, models)
+    #                guessw = mg.xg_H2(PT, melt_wf, models)
+    #        elif solve_species == "O2-H2-S2":
+    #            if starting_P == "set":
+    #                guessy = setup.loc[run, "xg_H2"]
+    #                guessz = setup.loc[run, "xg_S2"]
+    #                guessw = 0.0
+    #            else:
+    #                guessy = mg.xg_H2(PT, melt_wf, models)
+    #                guessz = mg.xg_S2(PT, melt_wf, models)
+    #                guessw = mg.xg_CO(PT, melt_wf, models)
+    #        elif solve_species == "O2-CO-H2":
+    #            if starting_P == "set":
+    #                guessy = setup.loc[run, "xg_CO"]
+    #                guessz = setup.loc[run, "xg_H2"]
+    #                guessw = 0.0
+    #            else:
+    #                guessy = mg.xg_CO(PT, melt_wf, models)
+    #                guessz = mg.xg_H2(PT, melt_wf, models)
+    #                guessw = mg.xg_S2(PT, melt_wf, models)
+    #        if system == "SCHOXFe":
+    #            if starting_P == "set":
+    #                guessw = setup.loc[run, "xg_X"]
+    #            else:
+    #                guessw = mg.xg_X(run, PT, melt_wf, setup, models)
+    #    guesses = {"guessx": guessx, "guessy": guessy, "guessz": guessz, "guessw": guessw}
+    #    if system in ["CHOFe"]:
+    #        guesses['guessa'] = guessa
+    #        guesses['guessb'] = guessb
+
     guesses = {}
-    if starting_P == 'set':
-        guesses['xgO2'] = setup.loc[run, "xg_O2"]
-        guesses['xgCO'] = setup.loc[run, "xg_CO"]
-        guesses['xgH2'] = setup.loc[run, "xg_H2"]
-        guesses['xgS2'] = setup.loc[run, "xg_S2"]
-        guesses['xgCO2'] = setup.loc[run, "xg_CO2"]
-        guesses['xgH2O'] = setup.loc[run, "xg_H2O"]
-        guesses['xgSO2'] = setup.loc[run, "xg_SO2"]
-        guesses['xgH2S'] = setup.loc[run, "xg_H2S"]
-        guesses['xgOCS'] = setup.loc[run, "xg_OCS"]
-        guesses['xgCH4'] = setup.loc[run, "xg_CH4"]
-        guesses['xgX'] = setup.loc[run, "xg_X"]    
+    if starting_P == "set":
+        guesses["xgO2"] = setup.loc[run, "xg_O2"]
+        guesses["xgCO"] = setup.loc[run, "xg_CO"]
+        guesses["xgH2"] = setup.loc[run, "xg_H2"]
+        guesses["xgS2"] = setup.loc[run, "xg_S2"]
+        guesses["xgCO2"] = setup.loc[run, "xg_CO2"]
+        guesses["xgH2O"] = setup.loc[run, "xg_H2O"]
+        guesses["xgSO2"] = setup.loc[run, "xg_SO2"]
+        guesses["xgH2S"] = setup.loc[run, "xg_H2S"]
+        guesses["xgOCS"] = setup.loc[run, "xg_OCS"]
+        guesses["xgCH4"] = setup.loc[run, "xg_CH4"]
+        guesses["xgX"] = setup.loc[run, "xg_X"]
     else:
-        guesses['xgO2'] = mg.xg_O2(PT, melt_wf, models)
-        guesses['xgCO'] = mg.xg_CO(PT, melt_wf, models)
-        guesses['xgH2'] = mg.xg_H2(PT, melt_wf, models)
-        guesses['xgS2'] = mg.xg_S2(PT, melt_wf, models)
-        guesses['xgCO2'] = mg.xg_CO2(PT, melt_wf, models)
-        guesses['xgH2O'] = mg.xg_H2O(PT, melt_wf, models)
-        guesses['xgSO2'] = mg.xg_SO2(PT, melt_wf, models)
-        guesses['xgH2S'] = mg.xg_H2S(PT, melt_wf, models)
-        guesses['xgOCS'] = mg.xg_OCS(PT, melt_wf, models)
-        guesses['xgCH4'] = mg.xg_CH4(PT, melt_wf, models)
-        guesses['xgX'] = mg.xg_X(PT, melt_wf, models)
+        guesses["xgO2"] = mg.xg_O2(PT, melt_wf, models)
+        guesses["xgCO"] = mg.xg_CO(PT, melt_wf, models)
+        guesses["xgH2"] = mg.xg_H2(PT, melt_wf, models)
+        guesses["xgS2"] = mg.xg_S2(PT, melt_wf, models)
+        guesses["xgCO2"] = mg.xg_CO2(PT, melt_wf, models)
+        guesses["xgH2O"] = mg.xg_H2O(PT, melt_wf, models)
+        guesses["xgSO2"] = mg.xg_SO2(PT, melt_wf, models)
+        guesses["xgH2S"] = mg.xg_H2S(PT, melt_wf, models)
+        guesses["xgOCS"] = mg.xg_OCS(PT, melt_wf, models)
+        guesses["xgCH4"] = mg.xg_CH4(PT, melt_wf, models)
+        guesses["xgX"] = mg.xg_X(PT, melt_wf, models)
 
     return guesses
 
@@ -292,7 +367,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
         species option; Mass balance check
     """
     system = set_system(melt_wf, models)
-    
+
     solve_species = models.loc["solve_species", "option"]
 
     if system in ["COFe", "SOFe", "SCOFe", "COXFe"]:  # no H
@@ -350,13 +425,13 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
         "SCHOFe",
     ]:  # no X
         wt_X_, xg_X_, wm_X_, wt_g_X = 0.0, 0.0, 0.0, ""
-#    if system in ["COFe", "SOFe", "HOFe", "HOFe_xenia"]:  # one component
-#        guessy, guessz, guessw = "", "", ""
-#        solve_species = "O2"
-#    if system in ["SHOFe", "CHOFe", "SCOFe", "COXFe", "HOXFe"]:  # two components
-#        guessz, guessw = "", ""
-#    if system in ["CHOXFe", "SCHOFe"]:  # three components
-#        guessw = ""
+    #    if system in ["COFe", "SOFe", "HOFe", "HOFe_xenia"]:  # one component
+    #        guessy, guessz, guessw = "", "", ""
+    #        solve_species = "O2"
+    #    if system in ["SHOFe", "CHOFe", "SCOFe", "COXFe", "HOXFe"]:  # two components
+    #        guessz, guessw = "", ""
+    #    if system in ["CHOXFe", "SCHOFe"]:  # three components
+    #        guessw = ""
 
     if system in ["HOFe", "SHOFe", "CHOFe", "CHOXFe", "SCHOFe", "HOXFe"]:
         if models.loc["Hspeciation", "option"] == "ideal":
@@ -371,7 +446,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
         xg_CO2_, xg_CO_, xm_CO2_, Xm_t, Xg_t, Fe32, Fe3T, wm_CO2_, wm_CO_ = A
         diff, wt_g_O, wt_g_C = B
         wt_g, wt_O_, wt_C_ = C
-        #guessx = xg_O2_
+        # guessx = xg_O2_
     elif system == "HOFe":
         xg_O2_, A, B, C = eq_HOFe(
             PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses
@@ -379,7 +454,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
         xg_H2O_, xg_H2_, xm_H2O_, Xm_t, Xg_t, Fe32, Fe3T, wm_H2O_, wm_H2_ = A
         diff, wt_g_O, wt_g_H = B
         wt_g, wt_O_, wt_H_ = C
-        #guessx = xg_O2_
+        # guessx = xg_O2_
     elif system == "HOFe_xenia":
         xg_O2_, A, B, C = eq_HOFe_xenia(
             PT, bulk_wf, models, nr_step, nr_tol, guesses
@@ -399,7 +474,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
         ) = A
         diff, wt_g_O, wt_g_H = B
         wt_g, wt_O_, wt_H_ = C
-        #guessx = xg_O2_
+        # guessx = xg_O2_
     elif system == "SOFe":
         xg_O2_, A, B, C = eq_SOFe(
             PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses
@@ -407,7 +482,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
         xg_SO2_, xg_S2_, Xg_t, Fe32, Fe3T, wm_S_, wm_SO3_, S62, S6T, wm_ST_ = A
         diff, wt_g_O, wt_g_S = B
         wt_g, wt_O_, wt_S_ = C
-        #guessx = xg_O2_
+        # guessx = xg_O2_
         (Xm_t,) = ("",)
     elif system == "CHOFe":
         if models.loc["COH_species", "option"] == "no_H2_CO_CH4_melt":
@@ -431,8 +506,8 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
             mbCO, mbCH, wt_g_O, wt_g_C, wt_g_H = B
             wt_g, wt_O_, wt_C_, wt_H_ = C
             xg_O2_, xg_CO_ = D
-            #guessx, guessy, guessz = xg_O2_, xg_CO_, xg_H2_
-            #solve_species = 'O2-CO'
+            # guessx, guessy, guessz = xg_O2_, xg_CO_, xg_H2_
+            # solve_species = 'O2-CO'
         elif models.loc["COH_species", "option"] == "H2O-CO2 only":
             xg_CO2_, A, B, C = eq_CH(
                 PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses
@@ -440,7 +515,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
             xg_CO2_, xg_H2O_, xm_H2O_, xm_CO2_, Xm_t, Xg_t, wm_H2O_, wm_CO2_ = A
             mbCH, wt_g_C, wt_g_H = B
             wt_g, wt_O_, wt_C_, wt_H_ = C
-            #guessx = xg_CO2_
+            # guessx = xg_CO2_
             xg_O2_, xg_H2_, xg_CO_, xg_CH4_, wm_H2_, wm_CO_, wm_CH4_, wt_g_O = (
                 0.0,
                 0.0,
@@ -477,27 +552,22 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
             ) = A
             mbCO, mbCH, wt_g_O, wt_g_C, wt_g_H = B
             wt_g, wt_O_, wt_C_, wt_H_ = C
-            if solve_species == 'O2-CO':
+            if solve_species == "O2-CO":
                 xg_O2_, xg_CO_ = D
-                #guessx, guessy, guessz = xg_O2_, xg_CO_, xg_H2_
-            elif solve_species == 'O2-H2':
+                # guessx, guessy, guessz = xg_O2_, xg_CO_, xg_H2_
+            elif solve_species == "O2-H2":
                 xg_O2_, xg_H2_ = D
-                #guessx, guessy, guessz = xg_O2_, xg_H2_, xg_CO_
-            elif solve_species == 'O2-CO2':
+                # guessx, guessy, guessz = xg_O2_, xg_H2_, xg_CO_
+            elif solve_species == "O2-CO2":
                 xg_O2_, xg_CO2_ = D
-            elif solve_species == 'O2-H2O':
+            elif solve_species == "O2-H2O":
                 xg_O2_, xg_H2O_ = D
     elif system == "SHOFe":
         if (
             models.loc["COH_species", "option"] == "no_H2_CO_CH4_melt"
             and models.loc["H2S_m", "option"] == "False"
         ):
-            (
-                A,
-                B,
-                C,
-                D
-            ) = eq_SHOFe(
+            (A, B, C, D) = eq_SHOFe(
                 PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species
             )  # SHOFe system
             (
@@ -562,16 +632,17 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
         ):
             print("not possible")
         xg_O2_, xg_S2_ = A
-        #guessx, guessy, guessz = xg_O2_, xg_S2_, xg_H2_
-        #solve_species = "O2-S2"
+        # guessx, guessy, guessz = xg_O2_, xg_S2_, xg_H2_
+        # solve_species = "O2-S2"
     elif system == "SCOFe":
         (
-
             D,
             A,
             B,
             C,
-        ) = eq_SCOFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species)
+        ) = eq_SCOFe(
+            PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species
+        )
         (
             xg_SO2_,
             xg_CO2_,
@@ -594,15 +665,17 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
         mbCO, mbCS, wt_g_O, wt_g_S, wt_g_C = B
         wt_g, wt_O_, wt_S_, wt_C_ = C
         xg_O2_, xg_CO_ = D
-        #guessx, guessy, guessz = xg_O2_, xg_CO_, xg_S2_
-        #solve_species = 'O2-CO'
+        # guessx, guessy, guessz = xg_O2_, xg_CO_, xg_S2_
+        # solve_species = 'O2-CO'
     elif system == "COXFe":
         (
             D,
             A,
             B,
             C,
-        ) = eq_COXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species)
+        ) = eq_COXFe(
+            PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species
+        )
         (
             xg_X_,
             xg_CO2_,
@@ -619,15 +692,17 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
         mbCO, mbCX, wt_g_O, wt_g_X, wt_g_C = B
         wt_g, wt_O_, wt_X_, wt_C_ = C
         xg_O2_, xg_CO_ = D
-        #guessx, guessy, guessz = xg_O2_, xg_CO_, xg_X_
-        #solve_species = 'O2-CO'
+        # guessx, guessy, guessz = xg_O2_, xg_CO_, xg_X_
+        # solve_species = 'O2-CO'
     elif system == "HOXFe":
         (
             D,
             A,
             B,
             C,
-        ) = eq_HOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species)
+        ) = eq_HOXFe(
+            PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species
+        )
         (
             xg_X_,
             xg_H2O_,
@@ -644,8 +719,8 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
         mbHO, mbHX, wt_g_O, wt_g_X, wt_g_H = B
         wt_g, wt_O_, wt_X_, wt_H_ = C
         xg_O2_, xg_H2_ = D
-        #guessx, guessy, guessz = xg_O2_, xg_H2_, xg_X_
-        #solve_species = 'O2-H2'
+        # guessx, guessy, guessz = xg_O2_, xg_H2_, xg_X_
+        # solve_species = 'O2-H2'
     elif system == "SCHOFe":
         if models.loc["COH_species", "option"] == "H2O-CO2 only":
             print(
@@ -682,7 +757,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
                     wm_CO2_,
                     wm_ST_,
                 ) = B
-                #guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_S2_, xg_H2_
+                # guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_S2_, xg_H2_
             elif solve_species == "O2-H2-S2":
                 xg_O2_, xg_H2_, xg_S2_ = A
                 (
@@ -707,7 +782,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
                     wm_CO2_,
                     wm_ST_,
                 ) = B
-                #guessx, guessy, guessz, guessw = xg_O2_, xg_H2_, xg_S2_, xg_CO_
+                # guessx, guessy, guessz, guessw = xg_O2_, xg_H2_, xg_S2_, xg_CO_
             elif solve_species == "O2-CO-H2":
                 xg_O2_, xg_CO_, xg_H2_ = A
                 (
@@ -732,7 +807,7 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
                     wm_CO2_,
                     wm_ST_,
                 ) = B
-                #guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_H2_, xg_S2_
+                # guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_H2_, xg_S2_
             wm_H2_, wm_CO_, wm_CH4_, wm_H2S_ = 0.0, 0.0, 0.0, 0.0
         elif (
             models.loc["COH_species", "option"] == "yes_H2_CO_CH4_melt"
@@ -794,17 +869,19 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
                 wm_CH4_,
                 wm_CO_,
             ) = B
-            #if solve_species == "O2-CO-S2":
-                #guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_S2_, xg_H2_
-            #elif solve_species == "O2-H2-S2":
-                #guessx, guessy, guessz, guessw = xg_O2_, xg_H2_, xg_S2_, xg_CO_
-            #elif solve_species == "O2-CO-H2":
-                #guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_H2_, xg_S2_
+            # if solve_species == "O2-CO-S2":
+            # guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_S2_, xg_H2_
+            # elif solve_species == "O2-H2-S2":
+            # guessx, guessy, guessz, guessw = xg_O2_, xg_H2_, xg_S2_, xg_CO_
+            # elif solve_species == "O2-CO-H2":
+            # guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_H2_, xg_S2_
         elif (
             models.loc["COH_species", "option"] == "yes_H2_CO_CH4_melt"
             and models.loc["H2S_m", "option"] == "False"
         ):
-            print("Work in progress: please change 'H2S_m' option to 'True' or 'COH_species' option to 'no_H2_CO_CH4_melt'")
+            print(
+                "Work in progress: please change 'H2S_m' option to 'True' or 'COH_species' option to 'no_H2_CO_CH4_melt'"
+            )
         mbX, mbY, mbZ, wt_g_O, wt_g_C, wt_g_H, wt_g_S = C
         wt_g, wt_O_, wt_C_, wt_H_, wt_S_ = D
     elif system == "CHOXFe":
@@ -814,8 +891,8 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
             A, B, C, D = eq_CHOXFe(
                 PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_species
             )  # SHOFe system
-            #xg_O2_, xg_CO_, xg_X_ = A
-            #guessx, guessy, guessz = xg_O2_, xg_CO_, xg_X_
+            # xg_O2_, xg_CO_, xg_X_ = A
+            # guessx, guessy, guessz = xg_O2_, xg_CO_, xg_X_
             (
                 xg_O2_,
                 xg_H2_,
@@ -840,12 +917,12 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
             ) = B
         mbX, mbY, mbZ, wt_g_O, wt_g_C, wt_g_H, wt_g_X = C
         wt_g, wt_O_, wt_C_, wt_H_, wt_X_ = D
-        #if solve_species == "O2-CO-X":
-            #guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_X_, xg_H2_
-        #elif solve_species == "O2-H2-X":
-            #guessx, guessy, guessz, guessw = xg_O2_, xg_H2_, xg_X_, xg_CO_
-        #elif solve_species == "O2-CO-H2":
-            #guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_H2_, xg_X_
+        # if solve_species == "O2-CO-X":
+        # guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_X_, xg_H2_
+        # elif solve_species == "O2-H2-X":
+        # guessx, guessy, guessz, guessw = xg_O2_, xg_H2_, xg_X_, xg_CO_
+        # elif solve_species == "O2-CO-H2":
+        # guessx, guessy, guessz, guessw = xg_O2_, xg_CO_, xg_H2_, xg_X_
     elif system == "SCHOXFe":
         if (
             models.loc["COH_species", "option"] == "no_H2_CO_CH4_melt"
@@ -986,27 +1063,27 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
     }
 
     # check solve species
-    solve_species = models.loc['solve_species','option']
+    solve_species = models.loc["solve_species", "option"]
 
     # chech mass balance
     mass_balance = c.check_mass_balance(xg, melt, melt_and_gas)
 
-    guesses['xgO2'] = xg['xg_O2']
-    guesses['xgCO'] = xg['xg_CO']
-    guesses['xgH2'] = xg['xg_H2']
-    guesses['xgS2'] = xg['xg_S2']
-    guesses['xgCO2'] = xg['xg_CO2']
-    guesses['xgH2O'] = xg['xg_H2O']
-    guesses['xgSO2'] = xg['xg_SO2']
-    guesses['xgH2S'] = xg['xg_H2S']
-    guesses['xgOCS'] = xg['xg_OCS']
-    guesses['xgCH4'] = xg['xg_CH4']
-    guesses['xgX'] = xg['xg_X']
+    guesses["xgO2"] = xg["xg_O2"]
+    guesses["xgCO"] = xg["xg_CO"]
+    guesses["xgH2"] = xg["xg_H2"]
+    guesses["xgS2"] = xg["xg_S2"]
+    guesses["xgCO2"] = xg["xg_CO2"]
+    guesses["xgH2O"] = xg["xg_H2O"]
+    guesses["xgSO2"] = xg["xg_SO2"]
+    guesses["xgH2S"] = xg["xg_H2S"]
+    guesses["xgOCS"] = xg["xg_OCS"]
+    guesses["xgCH4"] = xg["xg_CH4"]
+    guesses["xgX"] = xg["xg_X"]
 
-    #guesses["guessx"] = guessx
-    #guesses["guessy"] = guessy
-    #guesses["guessz"] = guessz
-    #guesses["guessw"] = guessw
+    # guesses["guessx"] = guessx
+    # guesses["guessy"] = guessy
+    # guesses["guessz"] = guessz
+    # guesses["guessw"] = guessw
     return xg, melt, melt_and_gas, guesses, models, solve_species, mass_balance
 
 
@@ -2226,6 +2303,7 @@ def newton_raphson_old(x0, constants, e1, step, eqs, deriv):
             results.to_csv("results_newtraph.csv", index=False, header=False)
     return x0
 
+
 def newton_raphson(x0, constants, e1, step, eqs, deriv, maxiter=50):
     """Newton-Raphson solver.
 
@@ -2243,8 +2321,6 @@ def newton_raphson(x0, constants, e1, step, eqs, deriv, maxiter=50):
     # create results table
     results = pd.DataFrame([["guessx", "diff", "step"]])
     results.to_csv("results_newtraph.csv", index=False, header=False)
-    
-
 
     def dx(x, eqs):
         f_, wtg1, wtg2 = eqs(x)
@@ -2256,46 +2332,42 @@ def newton_raphson(x0, constants, e1, step, eqs, deriv, maxiter=50):
         df_ = deriv(x0, constants)
         x0 = x0 - step * (f_ / df_)
         return x0
-    
+
     delta1 = dx(x0, eqs)
     results1 = pd.DataFrame([[x0, delta1, step]])
     results = pd.concat([results, results1], ignore_index=True)
-    
+
     x00 = x0
     step0 = step
 
     n = 0.0
     for iter in range(maxiter):
-        n=n+1
+        n = n + 1
         deriv_ = deriv(x0, constants)
         guessx = nr(x0, step, deriv, eqs, constants)
         try:
             temp1 = int(guessx)
-        except: # noqa: E722
+        except:  # noqa: E722
             if step < 0.01:
                 break
             else:
-                step = step/10
+                step = step / 10
                 guessx = nr(x0, step, deriv, eqs, constants)
-        if (
-            guessx < 0.0
-            or guessx > 1.0):
+        if guessx < 0.0 or guessx > 1.0:
             if step < 0.01:
                 break
             else:
-                step = step/10.0
+                step = step / 10.0
                 guessx = nr(x0, step, deriv, eqs, constants)
         try:
             temp1 = int(guessx)
-        except: # noqa: E722
+        except:  # noqa: E722
             if step < 0.01:
                 break
             else:
-                step = step/10.0
+                step = step / 10.0
                 guessx = nr(x0, step, deriv, eqs, constants)
-        if (
-            guessx < 0.0
-            or guessx > 1.0):
+        if guessx < 0.0 or guessx > 1.0:
             break
         f_, wtg1, wtg2 = eqs(guessx)
         if abs(f_) < e1:
@@ -2307,7 +2379,7 @@ def newton_raphson(x0, constants, e1, step, eqs, deriv, maxiter=50):
             results.to_csv("results_newtraph.csv", index=False, header=False)
 
     x0 = x00
-    step = step0 - (step0/10.)
+    step = step0 - (step0 / 10.0)
     for iter in range(9):
         n = 0.0
         step_0 = step
@@ -2323,9 +2395,7 @@ def newton_raphson(x0, constants, e1, step, eqs, deriv, maxiter=50):
                 else:
                     step = step / 10.0
                     guessx = nr(x0, step, deriv, eqs, constants)
-            if (
-                guessx < 0.0
-                or guessx > 1.0):
+            if guessx < 0.0 or guessx > 1.0:
                 x0 = x00
                 break
             f_, wtg1, wtg2 = eqs(guessx)
@@ -2340,6 +2410,7 @@ def newton_raphson(x0, constants, e1, step, eqs, deriv, maxiter=50):
 
     guessx = 1.0
     return guessx
+
 
 # jac_newton(1,1,test_f,test_df,1)
 
@@ -2393,7 +2464,7 @@ def jac_newton(x0, y0, constants, eqs, deriv, step, tol, maxiter=50):
         n = n + 1.0
         deriv_ = deriv(x0, y0, constants)
         guessx, guessy, J = x2jac(step, deriv_, eqs, x0, y0)
-        
+
         try:
             temp1 = int(guessx)
             temp2 = int(guessy)
@@ -2403,12 +2474,7 @@ def jac_newton(x0, y0, constants, eqs, deriv, step, tol, maxiter=50):
             else:
                 step = step / 10.0
                 guessx, guessy, J = x2jac(step, deriv_, eqs, x0, y0)
-        if (
-            guessx < 0.0
-            or guessy < 0.0
-            or guessx > 1.0
-            or guessy > 1.0
-        ):
+        if guessx < 0.0 or guessy < 0.0 or guessx > 1.0 or guessy > 1.0:
             if step < 0.01:
                 break
             else:
@@ -2423,14 +2489,9 @@ def jac_newton(x0, y0, constants, eqs, deriv, step, tol, maxiter=50):
             else:
                 step = step / 10.0
                 guessx, guessy, J = x2jac(step, deriv_, eqs, x0, y0)
-        if (
-            guessx < 0.0
-            or guessy < 0.0
-            or guessx > 1.0
-            or guessy > 1.0
-        ):
+        if guessx < 0.0 or guessy < 0.0 or guessx > 1.0 or guessy > 1.0:
             break
-        
+
         diff1, diff2, wtg1, wtg2, wtg3 = eqs(guessx, guessy)
         if abs(diff1) < tol and abs(diff2) < tol:
             return guessx, guessy
@@ -2461,7 +2522,7 @@ def jac_newton(x0, y0, constants, eqs, deriv, step, tol, maxiter=50):
     #    results1 = pd.DataFrame([[guessx, guessy,diff1,diff2,step]])
     #    results = pd.concat([results, results1], ignore_index=True)
     #    results.to_csv('results_jacnewton2.csv', index=False, header=False)
-    
+
     step = step0 - (step0 / 10.0)
     x0, y0 = x00, y00
     for iter in range(9):
@@ -2480,12 +2541,7 @@ def jac_newton(x0, y0, constants, eqs, deriv, step, tol, maxiter=50):
                 else:
                     step = step / 10.0
                     guessx, guessy, J = x2jac(step, deriv_, eqs, x0, y0)
-            if (
-                guessx < 0.0
-                or guessy < 0.0
-                or guessx > 1.0
-                or guessy > 1.0
-            ):
+            if guessx < 0.0 or guessy < 0.0 or guessx > 1.0 or guessy > 1.0:
                 x0, y0 = x00, y00
                 break
             diff1, diff2, wtg1, wtg2, wtg3 = eqs(guessx, guessy)
@@ -2500,7 +2556,6 @@ def jac_newton(x0, y0, constants, eqs, deriv, step, tol, maxiter=50):
             if n % 50 == 0:
                 results.to_csv("results_jacnewton2.csv", index=False, header=False)
         step = step_0 - (step0 / 10.0)
-
 
     guessx, guessy = 1.0, 1.0
     return guessx, guessy
@@ -3619,8 +3674,8 @@ def eq_SHOFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_speci
     xg_O2_, xg_S2_ = jac_newton(
         guessx, guessy, constants, f_SHOFe, df_SHOFe, nr_step, nr_tol
     )
-    
-    results1 = xg_O2_, xg_S2_ 
+
+    results1 = xg_O2_, xg_S2_
     results2 = mg_SHOFe(xg_O2_, xg_S2_)
     results3 = f_SHOFe(xg_O2_, xg_S2_)
     results4 = mb_SHOFe(xg_O2_, xg_S2_)
@@ -4966,11 +5021,11 @@ def eq_CHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spe
     wt_C = bulk_wf["C"]
     wt_H = bulk_wf["H"]
     wt_Fe = bulk_wf["Fe"]
-    #guessx = guesses["guessx"]
-    #guessy = guesses["guessy"]
-    #guessz = guesses["guessz"]
-    #guessa = guesses['guessa']
-    #guessb = guesses['guessb']
+    # guessx = guesses["guessx"]
+    # guessy = guesses["guessy"]
+    # guessz = guesses["guessz"]
+    # guessa = guesses['guessa']
+    # guessb = guesses['guessb']
 
     # equilibrium constants
     K1_ = mdv.KHOg(PT, models)
@@ -5045,36 +5100,49 @@ def eq_CHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spe
     ]
 
     def mg_CHOFe(xg_O2_, xg_A):
-        if solve_species == 'O2-CO': # A = CO
+        if solve_species == "O2-CO":  # A = CO
             xg_CO_ = xg_A
             xg_CO2_ = (K2_ * y_CO_ * xg_CO_ * (y_O2_ * xg_O2_ * P) ** 0.5) / y_CO2_
-            a = (y_CO2_ * xg_CO2_ * y_H2O_**2.0) / (K3_ * y_CH4_ * (y_O2_ * xg_O2_) ** 2.0)
+            a = (y_CO2_ * xg_CO2_ * y_H2O_**2.0) / (
+                K3_ * y_CH4_ * (y_O2_ * xg_O2_) ** 2.0
+            )
             b = 1.0 + (y_H2O_ / (K1_ * y_H2_ * (y_O2_ * xg_O2_ * P) ** 0.5))
             c = xg_CO2_ + xg_CO_ + xg_O2_ - 1.0
             xg_H2O_ = (-b + (b**2.0 - (4.0 * a * c)) ** 0.5) / (2.0 * a)
             xg_H2_ = (y_H2O_ * xg_H2O_) / (K1_ * y_H2_ * (y_O2_ * xg_O2_ * P) ** 0.5)
-        elif solve_species == 'O2-H2': # A = H2
+        elif solve_species == "O2-H2":  # A = H2
             xg_H2_ = xg_A
-            xg_H2O_ = (xg_H2_ * (K1_ * y_H2_ * (y_O2_ * xg_O2_ * P) ** 0.5))/ y_H2O_
-            xg_CO2_ = (1.-xg_O2_-xg_H2_-xg_H2O_)/(1.+(y_CO2_ * (y_H2O_ * xg_H2O_) ** 2.0) / (
-                K3_ * y_CH4_ * (y_O2_ * xg_O2_) ** 2.0) + (y_CO2_/(K2_*y_CO_*(y_O2_*xg_O2_*P)**0.5)))
+            xg_H2O_ = (xg_H2_ * (K1_ * y_H2_ * (y_O2_ * xg_O2_ * P) ** 0.5)) / y_H2O_
+            xg_CO2_ = (1.0 - xg_O2_ - xg_H2_ - xg_H2O_) / (
+                1.0
+                + (y_CO2_ * (y_H2O_ * xg_H2O_) ** 2.0)
+                / (K3_ * y_CH4_ * (y_O2_ * xg_O2_) ** 2.0)
+                + (y_CO2_ / (K2_ * y_CO_ * (y_O2_ * xg_O2_ * P) ** 0.5))
+            )
             xg_CO_ = (y_CO2_ * xg_CO2_) / (K2_ * y_CO_ * (y_O2_ * xg_O2_ * P) ** 0.5)
-        elif solve_species == 'O2-CO2': # A = CO2
+        elif solve_species == "O2-CO2":  # A = CO2
             xg_CO2_ = xg_A
-            xg_CO_ = (xg_CO2_*y_CO2_)/(K2_*y_CO_*(y_O2_*xg_O2_*P)**0.5)
-            a = (y_CO2_*xg_CO2_*y_H2O_**2.0)/(K3_*y_CH4_*(y_O2_*xg_O2_)**2.0)
-            b = 1.0 + (y_H2O_/(K1_*y_H2_*(y_O2_*xg_O2_*P)**0.5))
+            xg_CO_ = (xg_CO2_ * y_CO2_) / (K2_ * y_CO_ * (y_O2_ * xg_O2_ * P) ** 0.5)
+            a = (y_CO2_ * xg_CO2_ * y_H2O_**2.0) / (
+                K3_ * y_CH4_ * (y_O2_ * xg_O2_) ** 2.0
+            )
+            b = 1.0 + (y_H2O_ / (K1_ * y_H2_ * (y_O2_ * xg_O2_ * P) ** 0.5))
             c = xg_CO2_ + xg_CO_ + xg_O2_ - 1.0
-            xg_H2O_ = (-b + (b**2.0-(4.0*a*c))**0.5)/(2.0*a)
-            xg_H2_ = (y_H2O_*xg_H2O_)/(K1_*y_H2_*(y_O2_*xg_O2_*P)**0.5)
-        elif solve_species == 'O2-H2O': # A = H2O
+            xg_H2O_ = (-b + (b**2.0 - (4.0 * a * c)) ** 0.5) / (2.0 * a)
+            xg_H2_ = (y_H2O_ * xg_H2O_) / (K1_ * y_H2_ * (y_O2_ * xg_O2_ * P) ** 0.5)
+        elif solve_species == "O2-H2O":  # A = H2O
             xg_H2O_ = xg_A
-            xg_H2_ = (xg_H2O_*y_H2O_)/(K1_ * y_H2_ * (y_O2_ * xg_O2_ * P) ** 0.5)
-            xg_CO2_ = (1.-xg_O2_-xg_H2_-xg_H2O_)/(1.+(y_CO2_ * (y_H2O_ * xg_H2O_) ** 2.0) / (K3_ * y_CH4_ * (y_O2_ * xg_O2_) ** 2.0) + (y_CO2_/(K2_*y_CO_*(y_O2_*xg_O2_*P)**0.5)))
+            xg_H2_ = (xg_H2O_ * y_H2O_) / (K1_ * y_H2_ * (y_O2_ * xg_O2_ * P) ** 0.5)
+            xg_CO2_ = (1.0 - xg_O2_ - xg_H2_ - xg_H2O_) / (
+                1.0
+                + (y_CO2_ * (y_H2O_ * xg_H2O_) ** 2.0)
+                / (K3_ * y_CH4_ * (y_O2_ * xg_O2_) ** 2.0)
+                + (y_CO2_ / (K2_ * y_CO_ * (y_O2_ * xg_O2_ * P) ** 0.5))
+            )
             xg_CO_ = (y_CO2_ * xg_CO2_) / (K2_ * y_CO_ * (y_O2_ * xg_O2_ * P) ** 0.5)
         xg_CH4_ = (y_CO2_ * xg_CO2_ * (y_H2O_ * xg_H2O_) ** 2.0) / (
             K3_ * y_CH4_ * (y_O2_ * xg_O2_) ** 2.0
-           )
+        )
         xm_H2O_ = (K4_ * y_H2O_ * xg_H2O_ * P) ** 0.5
         xm_CO2_ = K5_ * y_CO2_ * xg_CO2_ * P
         Xm_t = xm_CO2_ * M_CO2 + xm_H2O_ * M_H2O + (1.0 - xm_CO2_ - xm_H2O_) * M_m_
@@ -5247,123 +5315,129 @@ def eq_CHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spe
             - (wm_H2_ / M_H2)
             - ((2.0 * wm_CH4_) / M_CH4)
         )
-        if solve_species == 'O2-CO' or solve_species == 'O2-CO2':
+        if solve_species == "O2-CO" or solve_species == "O2-CO2":
             mba = wt_g_C - wt_g_O
             mbb = wt_g_C - wt_g_H
-        elif solve_species == 'O2-H2' or solve_species == 'O2-H2O':
+        elif solve_species == "O2-H2" or solve_species == "O2-H2O":
             mba = wt_g_H - wt_g_O
             mbb = wt_g_H - wt_g_C
         return mba, mbb, wt_g_O, wt_g_C, wt_g_H
 
     def df_CHOFe(xg_O2_, xg_A, constants):
-        if solve_species == 'O2-CO':
+        if solve_species == "O2-CO":
             dmba_O = de.CHOFe_CO_O2_2(xg_O2_, xg_A, constants)
             dmba_A = de.CHOFe_CO_CO_2(xg_O2_, xg_A, constants)
             dmbb_O = de.CHOFe_CH_O2_2(xg_O2_, xg_A, constants)
             dmbb_B = de.CHOFe_CH_CO_2(xg_O2_, xg_A, constants)
-        elif solve_species == 'O2-H2':
+        elif solve_species == "O2-H2":
             dmba_O = de.CHOFe_HO_O2_2(xg_O2_, xg_A, constants)
             dmba_A = de.CHOFe_HO_H2_2(xg_O2_, xg_A, constants)
             dmbb_O = de.CHOFe_HC_O2_2(xg_O2_, xg_A, constants)
             dmbb_B = de.CHOFe_HC_H2_2(xg_O2_, xg_A, constants)
-        elif solve_species == 'O2-CO2':
+        elif solve_species == "O2-CO2":
             dmba_O = de.CHOFe_CO_O2_2a(xg_O2_, xg_A, constants)
             dmba_A = de.CHOFe_CO_CO2_2a(xg_O2_, xg_A, constants)
             dmbb_O = de.CHOFe_CH_O2_2a(xg_O2_, xg_A, constants)
             dmbb_B = de.CHOFe_CH_CO2_2a(xg_O2_, xg_A, constants)
-        elif solve_species == 'O2-H2O':
+        elif solve_species == "O2-H2O":
             dmba_O = de.CHOFe_HO_O2_2a(xg_O2_, xg_A, constants)
             dmba_A = de.CHOFe_HO_H2O_2a(xg_O2_, xg_A, constants)
             dmbb_O = de.CHOFe_HC_O2_2a(xg_O2_, xg_A, constants)
-            dmbb_B = de.CHOFe_HC_H2O_2a(xg_O2_, xg_A, constants)       
+            dmbb_B = de.CHOFe_HC_H2O_2a(xg_O2_, xg_A, constants)
         return dmba_O, dmba_A, dmbb_O, dmbb_B
 
-    guessx = guesses['xgO2']
-    if solve_species == 'O2-CO':
-        guessy = guesses['xgCO']
+    guessx = guesses["xgO2"]
+    if solve_species == "O2-CO":
+        guessy = guesses["xgCO"]
         xg_O2_, xg_CO_ = jac_newton(
-        guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
+            guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
         )
-    elif solve_species == 'O2-H2':
-        guessy = guesses['xgH2']
+    elif solve_species == "O2-H2":
+        guessy = guesses["xgH2"]
         xg_O2_, xg_H2_ = jac_newton(
-        guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
+            guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
         )
-    elif solve_species == 'O2-CO2':
-        guessy = guesses['xgCO2']
+    elif solve_species == "O2-CO2":
+        guessy = guesses["xgCO2"]
         xg_O2_, xg_CO2_ = jac_newton(
-        guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
+            guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
         )
-    elif solve_species == 'O2-H2O':
-        guessy = guesses['xgH2O']
+    elif solve_species == "O2-H2O":
+        guessy = guesses["xgH2O"]
         xg_O2_, xg_H2O_ = jac_newton(
-        guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
+            guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
         )
 
     if xg_O2_ == 1.0:
-        if solve_species == 'O2-CO':
+        if solve_species == "O2-CO":
             print(PT["P"], ": Switching solve species from O2-CO to O2-H2 (first time)")
-            solve_species = 'O2-H2'
+            solve_species = "O2-H2"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgH2']
-            #guessz_hold = guessz
-            #guessz = guessy  # xgCO is guessz
-            #guessy = guessz_hold  # xgH2 is guessy
+            guessy = guesses["xgH2"]
+            # guessz_hold = guessz
+            # guessz = guessy  # xgCO is guessz
+            # guessy = guessz_hold  # xgH2 is guessy
             xg_O2_, xg_H2_ = jac_newton(
                 guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
             )
-        elif solve_species == 'O2-H2':
+        elif solve_species == "O2-H2":
             print(PT["P"], ": Switching solve species from O2-H2 to O2-CO (first time)")
-            solve_species = 'O2-CO'
+            solve_species = "O2-CO"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgCO']
-            #guessz_hold = guessz
-            #guessz = guessy  # xgH2 is guessz
-            #guessy = guessz_hold  # xgCO is guessy
+            guessy = guesses["xgCO"]
+            # guessz_hold = guessz
+            # guessz = guessy  # xgH2 is guessz
+            # guessy = guessz_hold  # xgCO is guessy
             xg_O2_, xg_CO_ = jac_newton(
                 guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
-            ) 
+            )
 
     if xg_O2_ == 1.0:
-        if solve_species == 'O2-CO':
-            print(PT["P"], ": Switching solve species from O2-CO to O2-H2 (back to original)")
-            solve_species = 'O2-H2'
+        if solve_species == "O2-CO":
+            print(
+                PT["P"],
+                ": Switching solve species from O2-CO to O2-H2 (back to original)",
+            )
+            solve_species = "O2-H2"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgH2']
-            #guessz_hold = guessz
-            #guessz = guessy  # xgCO is guessz
-            #guessy = guessz_hold  # xgH2 is guessy
+            guessy = guesses["xgH2"]
+            # guessz_hold = guessz
+            # guessz = guessy  # xgCO is guessz
+            # guessy = guessz_hold  # xgH2 is guessy
             xg_O2_, xg_H2_ = jac_newton(
                 guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
             )
-        elif solve_species == 'O2-H2':
-            print(PT["P"], ": Switching solve species from O2-H2 to O2-CO (back to original)")
-            solve_species = 'O2-CO'
+        elif solve_species == "O2-H2":
+            print(
+                PT["P"],
+                ": Switching solve species from O2-H2 to O2-CO (back to original)",
+            )
+            solve_species = "O2-CO"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgCO']
-            #guessz_hold = guessz
-            #guessz = guessy  # xgH2 is guessz
-            #guessy = guessz_hold  # xgCO is guessy
+            guessy = guesses["xgCO"]
+            # guessz_hold = guessz
+            # guessz = guessy  # xgH2 is guessz
+            # guessy = guessz_hold  # xgCO is guessy
             xg_O2_, xg_CO_ = jac_newton(
                 guessx, guessy, constants, f_CHOFe, df_CHOFe, nr_step, nr_tol
-            ) 
-    
-    if solve_species == 'O2-CO':
+            )
+
+    if solve_species == "O2-CO":
         results1 = xg_O2_, xg_CO_
         results2 = mg_CHOFe(xg_O2_, xg_CO_)
         results3 = f_CHOFe(xg_O2_, xg_CO_)
         results4 = mb_CHOFe(xg_O2_, xg_CO_)
-    elif solve_species == 'O2-H2':
+    elif solve_species == "O2-H2":
         results1 = xg_O2_, xg_H2_
         results2 = mg_CHOFe(xg_O2_, xg_H2_)
         results3 = f_CHOFe(xg_O2_, xg_H2_)
         results4 = mb_CHOFe(xg_O2_, xg_H2_)
-    elif solve_species == 'O2-CO2':
+    elif solve_species == "O2-CO2":
         results1 = xg_O2_, xg_CO2_
         results2 = mg_CHOFe(xg_O2_, xg_CO2_)
         results3 = f_CHOFe(xg_O2_, xg_CO2_)
         results4 = mb_CHOFe(xg_O2_, xg_CO2_)
-    elif solve_species == 'O2-H2O':
+    elif solve_species == "O2-H2O":
         results1 = xg_O2_, xg_H2O_
         results2 = mg_CHOFe(xg_O2_, xg_H2O_)
         results3 = f_CHOFe(xg_O2_, xg_H2O_)
@@ -5439,7 +5513,7 @@ def eq_CH(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses):  # H2O
         wt_C_ = M_C * (
             (wt_g * ((xg_CO2_ / Xg_t) - (xm_CO2_ / Xm_t))) + (xm_CO2_ / Xm_t)
         )
-        return wt_g, 0., wt_C_, wt_H_
+        return wt_g, 0.0, wt_C_, wt_H_
 
     def f_CH(xg_CO2_):
         xg_CO2_, xg_H2O_, xm_H2O_, xm_CO2_, Xm_t, Xg_t, wm_H2O_, wm_CO2_ = mg_CH(
@@ -5494,10 +5568,10 @@ def eq_CHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
     wt_H = bulk_wf["H"]
     wt_C = bulk_wf["C"]
     wt_Fe = bulk_wf["Fe"]
-    #guessx = guesses["guessx"]
-    #guessy = guesses["guessy"]
-    #guessz = guesses["guessz"]
-    #guessw = guesses["guessw"]
+    # guessx = guesses["guessx"]
+    # guessy = guesses["guessy"]
+    # guessz = guesses["guessz"]
+    # guessw = guesses["guessw"]
 
     # equilibrium constants
     K1_ = mdv.KHOg(PT, models)
@@ -5863,7 +5937,9 @@ def eq_CHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
             dmbc_O = de.CHOXFe_OHX_HX_O2(xg_O2_, xg_A, xg_B, constants)  # dmbHX_O
             dmbc_A = de.CHOXFe_OHX_HX_H2(xg_O2_, xg_A, xg_B, constants)  # dmbHX_H2
             dmbc_B = de.CHOXFe_OHX_HX_X(xg_O2_, xg_A, xg_B, constants)  # dmbHX_X
-        elif solve_species == "O2-CO-H2":  # A = CO, B = H2 and a = C-O, b = C-H, c = C-X
+        elif (
+            solve_species == "O2-CO-H2"
+        ):  # A = CO, B = H2 and a = C-O, b = C-H, c = C-X
             dmba_O = de.CHOXFe_OCH_CO_O2(xg_O2_, xg_A, xg_B, constants)  # dmbCO_O
             dmba_A = de.CHOXFe_OCH_CO_CO(xg_O2_, xg_A, xg_B, constants)  # dmbCO_CO
             dmba_B = de.CHOXFe_OCH_CO_H2(xg_O2_, xg_A, xg_B, constants)  # dmbCO_H2
@@ -5875,97 +5951,114 @@ def eq_CHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
             dmbc_B = de.CHOXFe_OCH_CX_H2(xg_O2_, xg_A, xg_B, constants)  # dmbCX_H2
         return dmba_O, dmba_A, dmba_B, dmbb_O, dmbb_A, dmbb_B, dmbc_O, dmbc_A, dmbc_B
 
-    guessx = guesses['xgO2']
+    guessx = guesses["xgO2"]
     if solve_species == "O2-CO-X":
-        guessy = guesses['xgCO']
-        guessz = guesses['xgX']
+        guessy = guesses["xgCO"]
+        guessz = guesses["xgX"]
         xg_O2_, xg_CO_, xg_X_ = jac_newton3(
             guessx, guessy, guessz, constants, f_CHOXFe, df_CHOXFe, nr_step, nr_tol
         )
     elif solve_species == "O2-H2-X":
-        guessy = guesses['xgH2']
-        guessz = guesses['xgX']
+        guessy = guesses["xgH2"]
+        guessz = guesses["xgX"]
         xg_O2_, xg_H2_, xg_X_ = jac_newton3(
             guessx, guessy, guessz, constants, f_CHOXFe, df_CHOXFe, nr_step, nr_tol
         )
     elif solve_species == "O2-CO-H2":
-        guessy = guesses['xgCO']
-        guessz = guesses['xgH2']
+        guessy = guesses["xgCO"]
+        guessz = guesses["xgH2"]
         xg_O2_, xg_CO_, xg_H2_ = jac_newton3(
             guessx, guessy, guessz, constants, f_CHOXFe, df_CHOXFe, nr_step, nr_tol
         )
 
     if xg_O2_ == 1.0:  # switch solve species once
         if solve_species == "O2-CO-X":
-            print(PT["P"], ": Switching solve species from O2-CO-X to O2-CO-H2 (first time)")
+            print(
+                PT["P"],
+                ": Switching solve species from O2-CO-X to O2-CO-H2 (first time)",
+            )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
-            guessz = guesses['xgH2']
-            #guessw_hold = guessw
-            #guessw = guessz  # xgX is guessw
-            #guessz = guessw_hold  # xgH2 is guessz
+            guessz = guesses["xgH2"]
+            # guessw_hold = guessw
+            # guessw = guessz  # xgX is guessw
+            # guessz = guessw_hold  # xgH2 is guessz
             xg_O2_, xg_CO_, xg_H2_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_CHOXFe, df_CHOXFe, nr_step, nr_tol
             )
         elif solve_species == "O2-H2-X":
-            print(PT["P"], ": Switching solve species from O2-H-X to O2-CO-X (first time)")
+            print(
+                PT["P"], ": Switching solve species from O2-H-X to O2-CO-X (first time)"
+            )
             solve_species = "O2-CO-X"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgCO']
-            #guessw_hold = guessw
-            #guessw = guessy  # xgH2 is guessw
-            #guessy = guessw_hold  # xgCO is guessy
+            guessy = guesses["xgCO"]
+            # guessw_hold = guessw
+            # guessw = guessy  # xgH2 is guessw
+            # guessy = guessw_hold  # xgCO is guessy
             xg_O2_, xg_CO_, xg_X_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_CHOXFe, df_CHOXFe, nr_step, nr_tol
             )
         elif solve_species == "O2-CO-H2":
-            print(PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-X (first time)")
+            print(
+                PT["P"],
+                ": Switching solve species from O2-CO-H2 to O2-H2-X (first time)",
+            )
             solve_species = "O2-H2-X"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgH2']
-            guessz = guesses['xgX']
-            #guessw_hold = guessw
-            #guessz_hold = guessz
-            #guessw = guessy  # xgCO is guessw
-            #guessy = guessz_hold  # xgH2 is guessy
-            #guessz = guessw_hold  # xgS2 is guess z
+            guessy = guesses["xgH2"]
+            guessz = guesses["xgX"]
+            # guessw_hold = guessw
+            # guessz_hold = guessz
+            # guessw = guessy  # xgCO is guessw
+            # guessy = guessz_hold  # xgH2 is guessy
+            # guessz = guessw_hold  # xgS2 is guess z
             xg_O2_, xg_H2_, xg_X_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_CHOXFe, df_CHOXFe, nr_step, nr_tol
             )
     if xg_O2_ == 1.0:  # switch solve species second time
         if solve_species == "O2-CO-X":
-            print(PT["P"], ": Switching solve species from O2-CO-X to O2-CO-H2 (second time)")
+            print(
+                PT["P"],
+                ": Switching solve species from O2-CO-X to O2-CO-H2 (second time)",
+            )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
-            guessz = guesses['xgH2']
-            #guessw_hold = guessw
-            #guessw = guessz  # xgS2 is guessw
-            #guessz = guessw_hold  # xgH2 is guessz
+            guessz = guesses["xgH2"]
+            # guessw_hold = guessw
+            # guessw = guessz  # xgS2 is guessw
+            # guessz = guessw_hold  # xgH2 is guessz
             xg_O2_, xg_CO_, xg_H2_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_CHOXFe, df_CHOXFe, nr_step, nr_tol
             )
         elif solve_species == "O2-H2-X":
-            print(PT["P"], ": Switching solve species from O2-H2-X to O2-CO-X (second time)")
+            print(
+                PT["P"],
+                ": Switching solve species from O2-H2-X to O2-CO-X (second time)",
+            )
             solve_species = "O2-CO-X"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgCO']
-            #guessw_hold = guessw
-            #guessw = guessy  # xgH2 is guessw
-            #guessy = guessw_hold  # xgCO is guessy
+            guessy = guesses["xgCO"]
+            # guessw_hold = guessw
+            # guessw = guessy  # xgH2 is guessw
+            # guessy = guessw_hold  # xgCO is guessy
             xg_O2_, xg_CO_, xg_X_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_CHOXFe, df_CHOXFe, nr_step, nr_tol
             )
         elif solve_species == "O2-CO-H2":
-            print(PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-X (second time)")
+            print(
+                PT["P"],
+                ": Switching solve species from O2-CO-H2 to O2-H2-X (second time)",
+            )
             solve_species = "O2-H2-X"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgH2']
-            guessz = guesses['xgX']            
-            #guessw_hold = guessw
-            #guessz_hold = guessz
-            #guessw = guessy  # xgCO is guessw
-            #guessy = guessz_hold  # xgH2 is guessy
-            #guessz = guessw_hold  # xgS2 is guess z
+            guessy = guesses["xgH2"]
+            guessz = guesses["xgX"]
+            # guessw_hold = guessw
+            # guessz_hold = guessz
+            # guessw = guessy  # xgCO is guessw
+            # guessy = guessz_hold  # xgH2 is guessy
+            # guessz = guessw_hold  # xgS2 is guess z
             xg_O2_, xg_H2_, xg_X_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_CHOXFe, df_CHOXFe, nr_step, nr_tol
             )
@@ -5973,19 +6066,22 @@ def eq_CHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
     if xg_O2_ == 1.0:  # go to original solve species
         if solve_species == "O2-CO-X":
             print(
-                PT["P"], ": Switching solve species from O2-CO-X to O2-CO-H2 (back to original)"
+                PT["P"],
+                ": Switching solve species from O2-CO-X to O2-CO-H2 (back to original)",
             )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
         elif solve_species == "O2-H2-X":
             print(
-                PT["P"], ": Switching solve species from O2-H2-X to O2-CO-X (back to original)"
+                PT["P"],
+                ": Switching solve species from O2-H2-X to O2-CO-X (back to original)",
             )
             solve_species = "O2-CO-X"
             models.loc["solve_species", "option"] = solve_species
         elif solve_species == "O2-CO-H2":
             print(
-                PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-X (back to original)"
+                PT["P"],
+                ": Switching solve species from O2-CO-H2 to O2-H2-X (back to original)",
             )
             solve_species = "O2-H2-X"
             models.loc["solve_species", "option"] = solve_species
@@ -6040,9 +6136,9 @@ def eq_SCHOFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
     wt_H = bulk_wf["H"]
     wt_C = bulk_wf["C"]
     wt_Fe = bulk_wf["Fe"]
-    #guessx = guesses["guessx"]
-    #guessy = guesses["guessy"]
-    #guessz = guesses["guessz"]
+    # guessx = guesses["guessx"]
+    # guessy = guesses["guessy"]
+    # guessz = guesses["guessz"]
 
     # equilibrium constants
     K1_ = mdv.KHOg(PT, models)
@@ -6795,10 +6891,10 @@ def eq_SCHOFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
             dmbCS_H,
         )
 
-    guessx = guesses['xgO2']
+    guessx = guesses["xgO2"]
     if solve_species == "O2-CO-S2":
-        guessy = guesses['xgCO']
-        guessz = guesses['xgS2']
+        guessy = guesses["xgCO"]
+        guessz = guesses["xgS2"]
         xg_O2_, xg_CO_, xg_S2_ = jac_newton3(
             guessx,
             guessy,
@@ -6814,8 +6910,8 @@ def eq_SCHOFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
         results3 = f_SCHOFe_OCS(xg_O2_, xg_CO_, xg_S2_)
         xg_H2_ = results2[2]
     elif solve_species == "O2-H2-S2":
-        guessy = guesses['xgH2']
-        guessz = guesses['xgS2']
+        guessy = guesses["xgH2"]
+        guessz = guesses["xgS2"]
         xg_O2_, xg_H2_, xg_S2_ = jac_newton3(
             guessx,
             guessy,
@@ -6831,8 +6927,8 @@ def eq_SCHOFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
         results3 = f_SCHOFe_OHS(xg_O2_, xg_H2_, xg_S2_)
         xg_CO_ = results2[0]
     elif solve_species == "O2-CO-H2":
-        guessy = guesses['xgCO']
-        guessz = guesses['xgH2']
+        guessy = guesses["xgCO"]
+        guessz = guesses["xgH2"]
         xg_O2_, xg_CO_, xg_H2_ = jac_newton3(
             guessx,
             guessy,
@@ -6877,10 +6973,10 @@ def eq_SCHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
     wt_H = bulk_wf["H"]
     wt_C = bulk_wf["C"]
     wt_Fe = bulk_wf["Fe"]
-    #guessx = guesses["guessx"]
-    #guessy = guesses["guessy"]
-    #guessz = guesses["guessz"]
-    #guessw = guesses["guessw"]
+    # guessx = guesses["guessx"]
+    # guessy = guesses["guessy"]
+    # guessz = guesses["guessz"]
+    # guessw = guesses["guessw"]
 
     # equilibrium constants
     K1_ = mdv.KHOg(PT, models)
@@ -7416,98 +7512,116 @@ def eq_SCHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
             dmbc_B = de.SCHOFe2_OCH_CS_H2(xg_O2_, xg_A, xg_B, constants)  # dmbCS_H
         return dmba_O, dmba_A, dmba_B, dmbb_O, dmbb_A, dmbb_B, dmbc_O, dmbc_A, dmbc_B
 
-    guessx = guesses['xgO2'] 
+    guessx = guesses["xgO2"]
     if solve_species == "O2-CO-S2":
-        guessy = guesses['xgCO']
-        guessz = guesses['xgS2']
+        guessy = guesses["xgCO"]
+        guessz = guesses["xgS2"]
         xg_O2_, xg_CO_, xg_S2_ = jac_newton3(
             guessx, guessy, guessz, constants, f_SCHOFe, df_SCHOFe, nr_step, nr_tol
         )
     elif solve_species == "O2-H2-S2":
-        guessy = guesses['xgH2']
-        guessz = guesses['xgS2']
+        guessy = guesses["xgH2"]
+        guessz = guesses["xgS2"]
         xg_O2_, xg_H2_, xg_S2_ = jac_newton3(
             guessx, guessy, guessz, constants, f_SCHOFe, df_SCHOFe, nr_step, nr_tol
         )
     elif solve_species == "O2-CO-H2":
-        guessy = guesses['xgCO']
-        guessz = guesses['xgH2']
+        guessy = guesses["xgCO"]
+        guessz = guesses["xgH2"]
         xg_O2_, xg_CO_, xg_H2_ = jac_newton3(
             guessx, guessy, guessz, constants, f_SCHOFe, df_SCHOFe, nr_step, nr_tol
         )
 
     if xg_O2_ == 1.0:  # switch solve species once
         if solve_species == "O2-CO-S2":
-            print(PT["P"], ": Switching solve species from O2-CO-S2 to O2-CO-H2 (first time)")
+            print(
+                PT["P"],
+                ": Switching solve species from O2-CO-S2 to O2-CO-H2 (first time)",
+            )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
-            guessz = guesses['xgH2']
-            #guessw_hold = guessw
-            #guessw = guessz  # xgS2 is guessw
-            #guessz = guessw_hold  # xgH2 is guessz
+            guessz = guesses["xgH2"]
+            # guessw_hold = guessw
+            # guessw = guessz  # xgS2 is guessw
+            # guessz = guessw_hold  # xgH2 is guessz
             xg_O2_, xg_CO_, xg_H2_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_SCHOFe, df_SCHOFe, nr_step, nr_tol
             )
         elif solve_species == "O2-H2-S2":
-            print(PT["P"], ": Switching solve species from O2-H2-S2 to O2-CO-S2 (first time)")
+            print(
+                PT["P"],
+                ": Switching solve species from O2-H2-S2 to O2-CO-S2 (first time)",
+            )
             solve_species = "O2-CO-S2"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgCO']
-            #guessw_hold = guessw
-            #guessw = guessy  # xgH2 is guessw
-            #guessy = guessw_hold  # xgCO is guessy
+            guessy = guesses["xgCO"]
+            # guessw_hold = guessw
+            # guessw = guessy  # xgH2 is guessw
+            # guessy = guessw_hold  # xgCO is guessy
             xg_O2_, xg_CO_, xg_S2_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_SCHOFe, df_SCHOFe, nr_step, nr_tol
             )
         elif solve_species == "O2-CO-H2":
-            print(PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-S2 (first time)")
+            print(
+                PT["P"],
+                ": Switching solve species from O2-CO-H2 to O2-H2-S2 (first time)",
+            )
             solve_species = "O2-H2-S2"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgH2']
-            guessz = guesses['xgS2']
-            #guessw_hold = guessw
-            #guessz_hold = guessz
-            #guessw = guessy  # xgCO is guessw
-            #guessy = guessz_hold  # xgH2 is guessy
-            #guessz = guessw_hold  # xgS2 is guess z
+            guessy = guesses["xgH2"]
+            guessz = guesses["xgS2"]
+            # guessw_hold = guessw
+            # guessz_hold = guessz
+            # guessw = guessy  # xgCO is guessw
+            # guessy = guessz_hold  # xgH2 is guessy
+            # guessz = guessw_hold  # xgS2 is guess z
             xg_O2_, xg_H2_, xg_S2_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_SCHOFe, df_SCHOFe, nr_step, nr_tol
             )
 
     if xg_O2_ == 1.0:  # switch solve species second time
         if solve_species == "O2-CO-S2":
-            print(PT["P"], ": Switching solve species from O2-CO-S2 to O2-CO-H2 (second time)")
+            print(
+                PT["P"],
+                ": Switching solve species from O2-CO-S2 to O2-CO-H2 (second time)",
+            )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
-            guessz = guesses['xgH2']
-            #guessw_hold = guessw
-            #guessw = guessz  # xgS2 is guessw
-            #guessz = guessw_hold  # xgH2 is guessz
+            guessz = guesses["xgH2"]
+            # guessw_hold = guessw
+            # guessw = guessz  # xgS2 is guessw
+            # guessz = guessw_hold  # xgH2 is guessz
             xg_O2_, xg_CO_, xg_H2_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_SCHOFe, df_SCHOFe, nr_step, nr_tol
             )
         elif solve_species == "O2-H2-S2":
-            print(PT["P"], ": Switching solve species from O2-H2-S2 to O2-CO-S2 (second time)")
+            print(
+                PT["P"],
+                ": Switching solve species from O2-H2-S2 to O2-CO-S2 (second time)",
+            )
             solve_species = "O2-CO-S2"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgCO']
-            #guessw_hold = guessw
-            #guessw = guessy  # xgH2 is guessw
-            #guessy = guessw_hold  # xgCO is guessy
+            guessy = guesses["xgCO"]
+            # guessw_hold = guessw
+            # guessw = guessy  # xgH2 is guessw
+            # guessy = guessw_hold  # xgCO is guessy
             xg_O2_, xg_CO_, xg_S2_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_SCHOFe, df_SCHOFe, nr_step, nr_tol
             )
         elif solve_species == "O2-CO-H2":
-            print(PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-S2 (second time)")
+            print(
+                PT["P"],
+                ": Switching solve species from O2-CO-H2 to O2-H2-S2 (second time)",
+            )
             solve_species = "O2-H2-S2"
             models.loc["solve_species", "option"] = solve_species
-            guessy = guesses['xgH2']
-            guessz = guesses['xgS2']
-            #guessw_hold = guessw
-            #guessz_hold = guessz
-            #guessw = guessy  # xgCO is guessw
-            #guessy = guessz_hold  # xgH2 is guessy
-            #guessz = guessw_hold  # xgS2 is guess z
+            guessy = guesses["xgH2"]
+            guessz = guesses["xgS2"]
+            # guessw_hold = guessw
+            # guessz_hold = guessz
+            # guessw = guessy  # xgCO is guessw
+            # guessy = guessz_hold  # xgH2 is guessy
+            # guessz = guessw_hold  # xgS2 is guess z
             xg_O2_, xg_H2_, xg_S2_ = jac_newton3(
                 guessx, guessy, guessz, constants, f_SCHOFe, df_SCHOFe, nr_step, nr_tol
             )
@@ -7515,19 +7629,22 @@ def eq_SCHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
     if xg_O2_ == 1.0:  # go to original solve species
         if solve_species == "O2-CO-S2":
             print(
-                PT["P"], ": Switching solve species from O2-CO-S2 to O2-CO-H2 (back to original)"
+                PT["P"],
+                ": Switching solve species from O2-CO-S2 to O2-CO-H2 (back to original)",
             )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
         elif solve_species == "O2-H2-S2":
             print(
-                PT["P"], ": Switching solve species from O2-H2-S2 to O2-CO-S2 (back to original)"
+                PT["P"],
+                ": Switching solve species from O2-H2-S2 to O2-CO-S2 (back to original)",
             )
             solve_species = "O2-CO-S2"
             models.loc["solve_species", "option"] = solve_species
         elif solve_species == "O2-CO-H2":
             print(
-                PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-S2 (back to original)"
+                PT["P"],
+                ": Switching solve species from O2-CO-H2 to O2-H2-S2 (back to original)",
             )
             solve_species = "O2-H2-S2"
             models.loc["solve_species", "option"] = solve_species
@@ -7576,9 +7693,9 @@ def eq_SCHOFe_3(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
     wt_H = bulk_wf["H"]
     wt_C = bulk_wf["C"]
     wt_Fe = bulk_wf["Fe"]
-    #guessx = guesses["guessx"]
-    #guessy = guesses["guessy"]
-    #guessz = guesses["guessz"]
+    # guessx = guesses["guessx"]
+    # guessy = guesses["guessy"]
+    # guessz = guesses["guessz"]
 
     # equilibrium constants
     K1_ = mdv.KHOg(PT, models)
@@ -8085,10 +8202,10 @@ def eq_SCHOFe_3(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
         # dmbc_B = de.SCHOFe3_OCH_CS_H2(xg_O2_,xg_A,xg_B,constants) # dmbCS_H
         return dmba_O, dmba_A, dmba_B, dmbb_O, dmbb_A, dmbb_B, dmbc_O, dmbc_A, dmbc_B
 
-    guessx = guesses['xgO2']
+    guessx = guesses["xgO2"]
     if solve_species == "O2-CO-S2":
-        guessy = guesses['xgCO']
-        guessz = guesses['xgS2']
+        guessy = guesses["xgCO"]
+        guessz = guesses["xgS2"]
         xg_O2_, xg_CO_, xg_S2_ = jac_newton3(
             guessx, guessy, guessz, constants, f_SCHOFe, df_SCHOFe, nr_step, nr_tol
         )
