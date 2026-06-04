@@ -1427,7 +1427,7 @@ def ratio2overtotal(x):
         species1/[species1+species2)
 
     """
-    return x / x + 1.0
+    return x / (x + 1.0)
 
 
 def overtotal2ratio(x):

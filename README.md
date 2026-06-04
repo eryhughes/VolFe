@@ -20,7 +20,7 @@ Saper LM, Bromiley G, Cao R, Brounce M, Hughes EC, and Woelki D (2025). The prim
 For more information and worked examples, see the ReadTheDocs page:
 https://volfe.readthedocs.io/en/latest/
 
-VolFe can be installed using pip from PyPI or from GitHub (see notes below about installing an editable version).
+VolFe can be installed using pip from PyPI or from GitHub (see notes below about installing an editable version). Please install VolFe in its own environment because it will rewrite all your package versions.
 
 ## Development
 

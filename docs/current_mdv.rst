@@ -31,13 +31,21 @@ Any parameters not specified will use the default option. The ``models`` DataFra
 Naming conventions
 ------------------
 
+To see the different options available (both calculation options and models for different parameters), click on ``make_df_and_add_model_defaults()`` under "Model dependent variables" in the API Reference section on the left-hand ribbon.
+
+For calculation options, these are listed here.
+
+For models for different parameters, it will point you to the function to check that contains the model options.
+
+If you're using VolFe, you can use ``help()`` to see the model options for each parameter by searching for the relevant function - at the bottom there will be a section called 'model options for...', which includes references.
+
 Here are some hints to the naming convention used for functions, where specific model options for these model dependent variables can be found:
 
-- Equilibrium constants: functions starting with ``K`` (e.g., ``KCOHg()`` is the function for calculating the equilibrium constants for CH\ :sub:`4` + 2O\ :sub:`2` = CO\ :sub:`2` + 2H\ :sub:`2`\ O).
+- Equilibrium constants: functions starting with ``K`` (e.g., ``KCOHg()`` is the function for calculating the equilibrium constants for CH\ :sub:`4` + 2O\ :sub:`2` = CO\ :sub:`2` + 2H\ :sub:`2` O - ``help(volfe.KCOHg)``).
 
-- Fugacity coefficients: functions starting with ``y_`` (e.g., ``y_CH4()`` is the function for calculating the fugacity coefficient for CH\ :sub:`4`).
+- Fugacity coefficients: functions starting with ``y_`` (e.g., ``y_CH4()`` is the function for calculating the fugacity coefficient for CH\ :sub:`4` - ``help(volfe.y_CH4)``).
 
-- Solubility functions: functions starting with ``C_`` (e.g., ``C_CH4()`` is the function for calculating the solubility function for CH\ :sub:`4`).
+- Solubility functions: functions starting with ``C_`` (e.g., ``C_CH4()`` is the function for calculating the solubility function for CH\ :sub:`4` - ``help(volfe.C_CH4)``).
 
 - Oxygen fugacity and Fe\ :sup:`3+`/Fe\ :sub:`T`: functions are ``FMQ()``, ``NNO()``, ``fO22Fe3FeT()``, and ``f_O2()``.
 
@@ -450,3 +458,4 @@ The following parameters are under active development. For now, leave them at th
 **setup** *(default: False)*
 
 **high precision** *(default: False)*
+- Isotope fractionation factors: functions are ``alpha_`` (e.g., ``alpha_S_SO2v_S6pm`` is the function for calculating the isotopic fractionation factor between SO\ :sub:`2` in the vapor and S\ :sup:`6+` in the melt - ``help(volfe.alpha_S_SO2v_S6pm)``)

@@ -304,7 +304,7 @@ def test_pvsat_df_X_Ar_rhy():
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
     # choose the options I want - everything else will use the default options
-    my_models = [["species X solubility", "Ar_Rhyolite_HughesIP"]]
+    my_models = [["species X solubility", "Ar_Rhyolite_Hughes25"]]
 
     # turn to dataframe with correct column headers and indexes
     my_models = vf.make_df_and_add_model_defaults(my_models)
@@ -342,7 +342,7 @@ def test_pvsat_df_X_Ne_bas():
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
     # choose the options I want - everything else will use the default options
-    my_models = [["species X", "Ne"], ["species X solubility", "Ne_Basalt_HughesIP"]]
+    my_models = [["species X", "Ne"], ["species X solubility", "Ne_Basalt_Hughes25"]]
 
     # turn to dataframe with correct column headers and indexes
     my_models = vf.make_df_and_add_model_defaults(my_models)
@@ -380,7 +380,7 @@ def test_pvsat_df_X_Ne_rhy():
     my_analysis = pd.DataFrame(my_analysis, index=[0])
 
     # choose the options I want - everything else will use the default options
-    my_models = [["species X", "Ne"], ["species X solubility", "Ne_Rhyolite_HughesIP"]]
+    my_models = [["species X", "Ne"], ["species X solubility", "Ne_Rhyolite_Hughes25"]]
 
     # turn to dataframe with correct column headers and indexes
     my_models = vf.make_df_and_add_model_defaults(my_models)
