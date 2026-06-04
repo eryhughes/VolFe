@@ -1601,23 +1601,23 @@ def calc_gassing(
             # guesses_original = guesses # store original guesses in case the
             # calculation needs to be restarted
             original_guesses = {}
-            original_guesses['xgO2'] = guesses['xgO2']
-            original_guesses['xgCO'] = guesses['xgCO']
-            original_guesses['xgH2'] = guesses['xgH2']
-            original_guesses['xgS2'] = guesses['xgS2']
-            original_guesses['xgCO2'] = guesses['xgCO2']
-            original_guesses['xgH2O'] = guesses['xgH2O']
-            original_guesses['xgSO2'] = guesses['xgSO2']
-            original_guesses['xgH2S'] = guesses['xgH2S']
-            original_guesses['xgCH4'] = guesses['xgCH4']
-            original_guesses['xgOCS'] = guesses['xgOCS']
-            original_guesses['xgX'] = guesses['xgX']
-            #original_guessx, original_guessy, original_guessz, original_guessw = (
+            original_guesses["xgO2"] = guesses["xgO2"]
+            original_guesses["xgCO"] = guesses["xgCO"]
+            original_guesses["xgH2"] = guesses["xgH2"]
+            original_guesses["xgS2"] = guesses["xgS2"]
+            original_guesses["xgCO2"] = guesses["xgCO2"]
+            original_guesses["xgH2O"] = guesses["xgH2O"]
+            original_guesses["xgSO2"] = guesses["xgSO2"]
+            original_guesses["xgH2S"] = guesses["xgH2S"]
+            original_guesses["xgCH4"] = guesses["xgCH4"]
+            original_guesses["xgOCS"] = guesses["xgOCS"]
+            original_guesses["xgX"] = guesses["xgX"]
+            # original_guessx, original_guessy, original_guessz, original_guessw = (
             #    guesses["guessx"],
             #    guesses["guessy"],
             #    guesses["guessz"],
             #    guesses["guessw"],
-            #)
+            # )
             if dp_step_choice == "auto":
                 if models.loc["gassing_style", "option"] == "open":
                     dp_step = 1.0
@@ -1744,17 +1744,17 @@ def calc_gassing(
                     #    nr_step,nr_tol)
                     if xg["xg_O2"] == 1.0:
                         guesses = {
-                            "xgO2": original_guesses['xgO2'],
-                            "xgCO": original_guesses['xgCO'],
-                            "xgH2": original_guesses['xgH2'],
-                            "xgS2": original_guesses['xgS2'],
-                            "xgCO2": original_guesses['xgCO2'],
-                            "xgH2O": original_guesses['xgH2O'],
-                            "xgSO2": original_guesses['xgSO2'],
-                            "xgH2S": original_guesses['xgH2S'],
-                            "xgCH4": original_guesses['xgCH4'],
-                            "xgOCS": original_guesses['xgOCS'],
-                            "xgX": original_guesses['xgX'],
+                            "xgO2": original_guesses["xgO2"],
+                            "xgCO": original_guesses["xgCO"],
+                            "xgH2": original_guesses["xgH2"],
+                            "xgS2": original_guesses["xgS2"],
+                            "xgCO2": original_guesses["xgCO2"],
+                            "xgH2O": original_guesses["xgH2O"],
+                            "xgSO2": original_guesses["xgSO2"],
+                            "xgH2S": original_guesses["xgH2S"],
+                            "xgCH4": original_guesses["xgCH4"],
+                            "xgOCS": original_guesses["xgOCS"],
+                            "xgX": original_guesses["xgX"],
                         }
                         if number_of_step == 1.0:
                             last_successful_P = math.floor(P_sat_initial)
@@ -1796,14 +1796,14 @@ def calc_gassing(
                                             index=False,
                                             header=True,
                                         )
-                                    if models.loc["print status", "option"] == "True":    
+                                    if models.loc["print status", "option"] == "True":
                                         print(
                                             "solver failed, calculation aborted at P = ",
                                             last_successful_P,
                                             datetime.datetime.now(),
                                         )
                                     return results
-                            if models.loc["print status", "option"] == "True":    
+                            if models.loc["print status", "option"] == "True":
                                 print(
                                     "solver failed at P = ",
                                     PT["P"],
@@ -1813,7 +1813,7 @@ def calc_gassing(
                                 )
                             dp_step = dp_step * 10.0
                         else:
-                            if models.loc["print status", "option"] == "True":    
+                            if models.loc["print status", "option"] == "True":
                                 print(
                                     "solver failed at P = ",
                                     PT["P"],
@@ -1827,17 +1827,17 @@ def calc_gassing(
                             newP = 1.0
                         PT["P"] = newP
                         guesses = {
-                            "xgO2": original_guesses['xgO2'],
-                            "xgCO": original_guesses['xgCO'],
-                            "xgH2": original_guesses['xgH2'],
-                            "xgS2": original_guesses['xgS2'],
-                            "xgCO2": original_guesses['xgCO2'],
-                            "xgH2O": original_guesses['xgH2O'],
-                            "xgSO2": original_guesses['xgSO2'],
-                            "xgH2S": original_guesses['xgH2S'],
-                            "xgCH4": original_guesses['xgCH4'],
-                            "xgOCS": original_guesses['xgOCS'],
-                            "xgX": original_guesses['xgX'],
+                            "xgO2": original_guesses["xgO2"],
+                            "xgCO": original_guesses["xgCO"],
+                            "xgH2": original_guesses["xgH2"],
+                            "xgS2": original_guesses["xgS2"],
+                            "xgCO2": original_guesses["xgCO2"],
+                            "xgH2O": original_guesses["xgH2O"],
+                            "xgSO2": original_guesses["xgSO2"],
+                            "xgH2S": original_guesses["xgH2S"],
+                            "xgCH4": original_guesses["xgCH4"],
+                            "xgOCS": original_guesses["xgOCS"],
+                            "xgX": original_guesses["xgX"],
                         }
                         with warnings.catch_warnings():
                             warnings.simplefilter(
@@ -1864,7 +1864,7 @@ def calc_gassing(
                         models = new_models
                 if xg["xg_O2"] == 1.0:
                     if dp_step > 1.0:
-                        if models.loc["print status", "option"] == "True":    
+                        if models.loc["print status", "option"] == "True":
                             print(
                                 "solver failed at P = ",
                                 PT["P"],
@@ -1876,17 +1876,17 @@ def calc_gassing(
                         newP = last_successful_P - dp_step
                         PT["P"] = newP
                         guesses = {
-                            "xgO2": original_guesses['xgO2'],
-                            "xgCO": original_guesses['xgCO'],
-                            "xgH2": original_guesses['xgH2'],
-                            "xgS2": original_guesses['xgS2'],
-                            "xgCO2": original_guesses['xgCO2'],
-                            "xgH2O": original_guesses['xgH2O'],
-                            "xgSO2": original_guesses['xgSO2'],
-                            "xgH2S": original_guesses['xgH2S'],
-                            "xgCH4": original_guesses['xgCH4'],
-                            "xgOCS": original_guesses['xgOCS'],
-                            "xgX": original_guesses['xgX'],
+                            "xgO2": original_guesses["xgO2"],
+                            "xgCO": original_guesses["xgCO"],
+                            "xgH2": original_guesses["xgH2"],
+                            "xgS2": original_guesses["xgS2"],
+                            "xgCO2": original_guesses["xgCO2"],
+                            "xgH2O": original_guesses["xgH2O"],
+                            "xgSO2": original_guesses["xgSO2"],
+                            "xgH2S": original_guesses["xgH2S"],
+                            "xgCH4": original_guesses["xgCH4"],
+                            "xgOCS": original_guesses["xgOCS"],
+                            "xgX": original_guesses["xgX"],
                         }
                         with warnings.catch_warnings():
                             warnings.simplefilter(
@@ -1913,7 +1913,7 @@ def calc_gassing(
                         models = new_models
                 if xg["xg_O2"] == 1.0:
                     if system == "CHOFe":
-                        if models.loc["print status", "option"] == "True":    
+                        if models.loc["print status", "option"] == "True":
                             print(
                                 "solver failed at P = ",
                                 PT["P"],
@@ -1921,7 +1921,7 @@ def calc_gassing(
                                 dp_step,
                                 ", trying O2-CO2 solver",
                             )
-                        models.loc["solve_species", "option"] = 'O2-CO2'
+                        models.loc["solve_species", "option"] = "O2-CO2"
                         with warnings.catch_warnings():
                             warnings.simplefilter(
                                 "ignore" if suppress_warnings else "default",
@@ -1946,7 +1946,7 @@ def calc_gassing(
                             )
                 if xg["xg_O2"] == 1.0:
                     if system == "CHOFe":
-                        if models.loc["print status", "option"] == "True":    
+                        if models.loc["print status", "option"] == "True":
                             print(
                                 "solver failed at P = ",
                                 PT["P"],
@@ -1954,7 +1954,7 @@ def calc_gassing(
                                 dp_step,
                                 ", trying O2-H2O solver",
                             )
-                        models.loc["solve_species", "option"] = 'O2-H2O'
+                        models.loc["solve_species", "option"] = "O2-H2O"
                         with warnings.catch_warnings():
                             warnings.simplefilter(
                                 "ignore" if suppress_warnings else "default",
@@ -1976,7 +1976,7 @@ def calc_gassing(
                                 nr_step_eq,
                                 nr_tol,
                                 guesses,
-                            )                     
+                            )
                 if xg["xg_O2"] == 1.0:
                     results.columns = results.iloc[0]
                     results = results[1:]
@@ -1991,7 +1991,7 @@ def calc_gassing(
                         datetime.datetime.now(),
                     )
                     return results
-                
+
                 # gas composition
                 gas_mf = {
                     "O2": xg["xg_O2"],
@@ -2008,21 +2008,21 @@ def calc_gassing(
                     "Xg_t": xg["Xg_t"],
                     "wt_g": melt_and_gas["wt_g"],
                 }
-            
+
             # update guesses
             guesses = {
-                "xgO2": xg['xg_O2'],
-                "xgCO": xg['xg_CO'],
-                "xgH2": xg['xg_H2'],
-                "xgS2": xg['xg_S2'],
-                "xgCO2": xg['xg_CO2'],
-                "xgH2O": xg['xg_H2O'],
-                "xgSO2": xg['xg_SO2'],
-                "xgH2S": xg['xg_H2S'],
-                "xgCH4": xg['xg_CH4'],
-                "xgOCS": xg['xg_OCS'],
-                "xgX": xg['xg_X'],
-                }
+                "xgO2": xg["xg_O2"],
+                "xgCO": xg["xg_CO"],
+                "xgH2": xg["xg_H2"],
+                "xgS2": xg["xg_S2"],
+                "xgCO2": xg["xg_CO2"],
+                "xgH2O": xg["xg_H2O"],
+                "xgSO2": xg["xg_SO2"],
+                "xgH2S": xg["xg_H2S"],
+                "xgCH4": xg["xg_CH4"],
+                "xgOCS": xg["xg_OCS"],
+                "xgX": xg["xg_X"],
+            }
 
             # else: # NEEDS SORTING ###
             # conc = eq.melt_speciation(PT,melt_wf,models,nr_step,nr_tol)
@@ -2348,7 +2348,7 @@ def calc_gassing(
                     "Fe": wt_Fe_ * (1.0 / (1.0 - Xst)),
                     "Wt": wt_ * (1.0 - Xst),
                 }
-            
+
             tqdmsteps.update(abs(dp_step))
 
             if models.loc["gassing_direction", "option"] == "regas":
@@ -2434,6 +2434,7 @@ def calc_isobar(
 
     return results
 
+
 ###########################
 # calculate isopleths #####
 ###########################
@@ -2464,25 +2465,25 @@ def calc_isopleth(
     """
     if models.loc["COH_species", "option"] == "H2O-CO2 only":
         PT = {"T": setup.loc[run, "T_C"]}
-        PT['P'] = final_P
+        PT["P"] = final_P
 
         # check if any options need to be read from the setup file rather than the
         # models file
         models = options_from_setup(run, models, setup)
 
         # set up results table
-        results = pd.DataFrame([["XH2O","P_bar", "H2O_wtpc", "CO2_ppm"]])
+        results = pd.DataFrame([["XH2O", "P_bar", "H2O_wtpc", "CO2_ppm"]])
 
-        no_XH2O = int(1./step_XH2O)
+        no_XH2O = int(1.0 / step_XH2O)
         melt_wf = mg.melt_comp(run, setup)
 
         for n in range(1, no_XH2O, 1):
-            XH2O = n*step_XH2O
-            results1 = c.calc_isopleth_CO2H2O(XH2O,PT, melt_wf, models)
+            XH2O = n * step_XH2O
+            results1 = c.calc_isopleth_CO2H2O(XH2O, PT, melt_wf, models)
             results = pd.concat([results, results1], ignore_index=True)
             if models.loc["print status", "option"] == "True":
                 print(setup.loc[run, "Sample"], n)
-            PT['P'] = final_P
+            PT["P"] = final_P
         results.columns = results.iloc[0]
         results = results[1:]
 

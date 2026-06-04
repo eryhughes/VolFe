@@ -779,50 +779,75 @@ def C_H2O(PT, melt_wf, models=default_models):
             C = 4.6114e-6
 
         # Approximate version of eq. (13) in Iacono-Marziano et al. (2012) GCA 97:1-23 http://dx.doi.org/10.1016/j.gca.2012.08.035
-        elif model_solubility in ['approx_IaconoMarziano12-anh','approx_IaconoMarziano12-hyd','approx_IaconoMarziano12-webapp']:
-
+        elif model_solubility in [
+            "approx_IaconoMarziano12-anh",
+            "approx_IaconoMarziano12-hyd",
+            "approx_IaconoMarziano12-webapp",
+        ]:
             # Hydrous parameters in Table 6 (Iacono-Marziano et al., 2012) - aH2O = 0.50 is assumed rather than 0.53
-            hydrous_values = {'bH2O':2.35,
-                          'CH2O':-0.02,
-                          'BH2O':-3.37,
-                          'fudge':1.07} # reduces difference given aH2O is required to equal 0.50, but equals 0.53 in IM model
-        
+            hydrous_values = {
+                "bH2O": 2.35,
+                "CH2O": -0.02,
+                "BH2O": -3.37,
+                "fudge": 1.07,
+            }  # reduces difference given aH2O is required to equal 0.50, but equals 0.53 in IM model
+
             # Anhydrous values in Table 6 (Iacono-Marziano et al., 2012) - aH2O = 0.50 is assumed rather than 0.54
-            anhydrous_values = {'bH2O':1.24,
-                          'CH2O':0.02,
-                          'BH2O':-2.95,
-                          'fudge':1.11} # reduces difference given aH2O is required to equal 0.50, but equals 0.54 in IM model
-        
+            anhydrous_values = {
+                "bH2O": 1.24,
+                "CH2O": 0.02,
+                "BH2O": -2.95,
+                "fudge": 1.11,
+            }  # reduces difference given aH2O is required to equal 0.50, but equals 0.54 in IM model
+
             # Web app values in Wieser et al. (2022) ESS 9:e2021EA001932 https://doi.org/10.1029/2021EA001932 - aH2O = 0.50 is assumed rather than 0.52096846
-            webapp_values = {'bH2O':2.11575907,
-                          'CH2O':-0.02238884, # negative as in VESIcal
-                          'BH2O':-3.24443335,
-                          'fudge':1.18} # reduces difference given aH2O is required to equal 0.50, but equals 0.52096846 in IM model
-        
-            def A(melt_comp,model):
-                if model == 'approx_IaconoMarziano12-anh':
+            webapp_values = {
+                "bH2O": 2.11575907,
+                "CH2O": -0.02238884,  # negative as in VESIcal
+                "BH2O": -3.24443335,
+                "fudge": 1.18,
+            }  # reduces difference given aH2O is required to equal 0.50, but equals 0.52096846 in IM model
+
+            def A(melt_comp, model):
+                if model == "approx_IaconoMarziano12-anh":
                     values = anhydrous_values
-                elif model == 'approx_IaconoMarziano12-hyd':
+                elif model == "approx_IaconoMarziano12-hyd":
                     values = hydrous_values
-                elif model == 'approx_IaconoMarziano12-webapp':
+                elif model == "approx_IaconoMarziano12-webapp":
                     values = webapp_values
-                NBOO = NBOO_IM12(melt_comp,model)
+                NBOO = NBOO_IM12(melt_comp, model)
                 # RHS of Eq. (13) except axLn[PH2O] term in Iacono-Marziano et al. (2012)
-                A = values['bH2O']*NBOO + values['CH2O']*(PT['P']/(PT['T']+273.15)) + values['BH2O']
-                fudge = values['fudge']
+                A = (
+                    values["bH2O"] * NBOO
+                    + values["CH2O"] * (PT["P"] / (PT["T"] + 273.15))
+                    + values["BH2O"]
+                )
+                fudge = values["fudge"]
                 return A, fudge
 
             melt_comp = mg.melt_mole_fraction(
-                melt_wf, models,"water", "no", molmass="M_IaconoMarziano12", majors="majors_IaconoMarziano12"
+                melt_wf,
+                models,
+                "water",
+                "no",
+                molmass="M_IaconoMarziano12",
+                majors="majors_IaconoMarziano12",
             )
 
-            A, fudge = A(melt_comp,model_solubility)
+            A, fudge = A(melt_comp, model_solubility)
 
             # convert ppm CO2 to mole fraction CO2 (uses H2O and CO2 from previous step in denominator)
-            molefracfactor = (melt_wf['H2OT']/species.loc["H2O", "M"]) + (melt_wf['CO2']/species.loc["CO2", "M"]) + (1.-melt_wf['H2OT']-melt_wf['CO2'])/mg.M_m_SO(melt_wf)
+            molefracfactor = (
+                (melt_wf["H2OT"] / species.loc["H2O", "M"])
+                + (melt_wf["CO2"] / species.loc["CO2", "M"])
+                + (1.0 - melt_wf["H2OT"] - melt_wf["CO2"]) / mg.M_m_SO(melt_wf)
+            )
 
             # solubility function that conforms to VolFe framework based on Iacono-Marziano et al. (2012)
-            C = (1./y_H2O(PT,models))*((fudge*math.exp(A))/(molefracfactor*100.*species.loc["H2O", "M"]))**2.
+            C = (1.0 / y_H2O(PT, models)) * (
+                (fudge * math.exp(A))
+                / (molefracfactor * 100.0 * species.loc["H2O", "M"])
+            ) ** 2.0
 
         # WORK IN PROGRESS BELOW HERE
 
@@ -940,14 +965,31 @@ def C_H2O(PT, melt_wf, models=default_models):
 
 
 # NBO/O from Appendix A in Iacono-Marziano et al. (2012) GCA 97:1-23 http://dx.doi.org/10.1016/j.gca.2012.08.035
-def NBOO_IM12(melt_comp,model):
-    numerator = melt_comp['K2O']+melt_comp['Na2O']+melt_comp['CaO']+melt_comp['MgO']+melt_comp['FeOT']-melt_comp['Al2O3']
-    denominator = 2.*melt_comp['SiO2']+2.*melt_comp['TiO2']+3.*melt_comp['Al2O3']+melt_comp['MgO']+melt_comp['FeOT']+melt_comp['CaO']+melt_comp['Na2O']+melt_comp['K2O']
-    if model in ['approx_IaconoMarziano12-hyd','approx_IaconoMarziano12-webapp']:
-        numerator = numerator + melt_comp['H2O']
-        denominator = denominator + melt_comp['H2O']
-    NBOO = (2*numerator)/denominator
+def NBOO_IM12(melt_comp, model):
+    numerator = (
+        melt_comp["K2O"]
+        + melt_comp["Na2O"]
+        + melt_comp["CaO"]
+        + melt_comp["MgO"]
+        + melt_comp["FeOT"]
+        - melt_comp["Al2O3"]
+    )
+    denominator = (
+        2.0 * melt_comp["SiO2"]
+        + 2.0 * melt_comp["TiO2"]
+        + 3.0 * melt_comp["Al2O3"]
+        + melt_comp["MgO"]
+        + melt_comp["FeOT"]
+        + melt_comp["CaO"]
+        + melt_comp["Na2O"]
+        + melt_comp["K2O"]
+    )
+    if model in ["approx_IaconoMarziano12-hyd", "approx_IaconoMarziano12-webapp"]:
+        numerator = numerator + melt_comp["H2O"]
+        denominator = denominator + melt_comp["H2O"]
+    NBOO = (2 * numerator) / denominator
     return NBOO
+
 
 ##############################################
 # Solubility constant for carbon dioxide #####
@@ -1263,52 +1305,76 @@ def C_CO3(PT, melt_wf, models=default_models):
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
-        
+
     # Approximate version of eq. (12) Iacono-Marziano et al. (2012) GCA 97:1-23 http://dx.doi.org/10.1016/j.gca.2012.08.035
     # using description in Wieser et al. (2022) ESS 9:e2021EA001932 https://doi.org/10.1029/2021EA001932
-    elif model in ['approx_IaconoMarziano12-anh','approx_IaconoMarziano12-hyd']:
-        
+    elif model in ["approx_IaconoMarziano12-anh", "approx_IaconoMarziano12-hyd"]:
         # Hydrous parameters in Table 5 (Iacono-Marziano et al., 2012) - aCO2 = 1.00 is assumed
-        hydrous_values = {'dH2O':-16.4,
-                          'dAI':4.4,
-                          'dFeO+MgO':-17.1,
-                          'dNa2O+K2O':22.8,
-                          'bCO2':17.3,
-                          'CCO2':0.12,
-                          'BCO2':-6.}
-        
+        hydrous_values = {
+            "dH2O": -16.4,
+            "dAI": 4.4,
+            "dFeO+MgO": -17.1,
+            "dNa2O+K2O": 22.8,
+            "bCO2": 17.3,
+            "CCO2": 0.12,
+            "BCO2": -6.0,
+        }
+
         # Anhydrous values in Table 5 (Iacono-Marziano et al., 2012) - aCO2 = 1.00 is assumed
-        anhydrous_values = {'dH2O':2.3,
-                          'dAI':3.8,
-                          'dFeO+MgO':-16.3,
-                          'dNa2O+K2O':20.1,
-                          'bCO2':15.8,
-                          'CCO2':0.14,
-                          'BCO2':-5.3}
-        
-        def A(melt_comp,model):
-            if model == 'approx_IaconoMarziano12-anh':
+        anhydrous_values = {
+            "dH2O": 2.3,
+            "dAI": 3.8,
+            "dFeO+MgO": -16.3,
+            "dNa2O+K2O": 20.1,
+            "bCO2": 15.8,
+            "CCO2": 0.14,
+            "BCO2": -5.3,
+        }
+
+        def A(melt_comp, model):
+            if model == "approx_IaconoMarziano12-anh":
                 values = anhydrous_values
-            elif model == 'approx_IaconoMarziano12-hyd':
+            elif model == "approx_IaconoMarziano12-hyd":
                 values = hydrous_values
-            NBOO = NBOO_IM12(melt_comp,model)
+            NBOO = NBOO_IM12(melt_comp, model)
             # Eq. (12) in Wieser et al. (2022) ESS 9:e2021EA001932 https://doi.org/10.1029/2021EA001932
-            AI = melt_comp['Al2O3']/(melt_comp['CaO']+melt_comp['K2O']+melt_comp['Na2O'])
+            AI = melt_comp["Al2O3"] / (
+                melt_comp["CaO"] + melt_comp["K2O"] + melt_comp["Na2O"]
+            )
             # RHS of Eq. (12) except axLn[PCO2] term in Iacono-Marziano et al. (2012)
-            A = melt_comp['H2O']*values['dH2O'] + AI*values['dAI'] + (melt_comp['MgO']+melt_comp['FeOT'])*values['dFeO+MgO'] + (melt_comp['Na2O']+melt_comp['K2O'])*values['dNa2O+K2O'] + values['bCO2']*NBOO + values['CCO2']*(P/T_K) + values['BCO2']
+            A = (
+                melt_comp["H2O"] * values["dH2O"]
+                + AI * values["dAI"]
+                + (melt_comp["MgO"] + melt_comp["FeOT"]) * values["dFeO+MgO"]
+                + (melt_comp["Na2O"] + melt_comp["K2O"]) * values["dNa2O+K2O"]
+                + values["bCO2"] * NBOO
+                + values["CCO2"] * (P / T_K)
+                + values["BCO2"]
+            )
             return A
-        
+
         melt_comp = mg.melt_mole_fraction(
-            melt_wf, models, "water", "no", molmass="M_IaconoMarziano12", majors="majors_IaconoMarziano12"
+            melt_wf,
+            models,
+            "water",
+            "no",
+            molmass="M_IaconoMarziano12",
+            majors="majors_IaconoMarziano12",
         )
 
-        A = A(melt_comp,model)
+        A = A(melt_comp, model)
 
         # convert ppm CO2 to mole fraction CO2 (uses H2O and CO2 from previous step in denominator)
-        molefracfactor = (melt_wf['H2OT']/species.loc["H2O", "M"]) + (melt_wf['CO2']/species.loc["CO2", "M"]) + (1.-melt_wf['H2OT']-melt_wf['CO2'])/mg.M_m_SO(melt_wf)
+        molefracfactor = (
+            (melt_wf["H2OT"] / species.loc["H2O", "M"])
+            + (melt_wf["CO2"] / species.loc["CO2", "M"])
+            + (1.0 - melt_wf["H2OT"] - melt_wf["CO2"]) / mg.M_m_SO(melt_wf)
+        )
 
         # solubility function that conforms to VolFe framework based on Iacono-Marziano et al. (2012)
-        C = (math.exp(A))/(molefracfactor*1000000.*y_CO2(PT,models)*species.loc["CO2", "M"])
+        C = (math.exp(A)) / (
+            molefracfactor * 1000000.0 * y_CO2(PT, models) * species.loc["CO2", "M"]
+        )
 
     # WORK IN PROGRESS BELOW HERE #
     # elif model == "Phonotephrite_Allison22": # AH3 Phonotephrite in Table 2 from
@@ -1549,7 +1615,7 @@ def C_S(PT, melt_wf, models=default_models):
     # Eq. (7) (with or without effect of P from eq. 12) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in
     # silicate melts. Contrib Mineral Petrol 178, 56 (2023).
     # https://doi.org/10.1007/s00410-023-02033-9
-    if model in ["Boulliung23_eq7","Boulliung23_eq7_12"]:
+    if model in ["Boulliung23_eq7", "Boulliung23_eq7_12"]:
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe
         # speciated
         melt_comp = mg.melt_single_O(
@@ -1569,7 +1635,7 @@ def C_S(PT, melt_wf, models=default_models):
             / T
         )
         if model == "Boulliung23_eq7_12":
-            logC = logC + (((PT['P']-1)*6.2)/(8.314*2.303*T))
+            logC = logC + (((PT["P"] - 1) * 6.2) / (8.314 * 2.303 * T))
         C = 10.0 ** (logC)
 
     # Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
@@ -1582,8 +1648,9 @@ def C_S(PT, melt_wf, models=default_models):
         )
         logC = (
             0.405
-            + ( - 0.0573*PT['P']
-                + 24661.0 * (melt_comp["FeO"]+melt_comp["Fe2O3"]*0.667)
+            + (
+                -0.0573 * PT["P"]
+                + 24661.0 * (melt_comp["FeO"] + melt_comp["Fe2O3"] * 0.667)
                 + 5804.0 * melt_comp["CaO"]
                 + 25366.0 * melt_comp["K2O"]
                 - 1321.0 * melt_comp["SiO2"]
@@ -1593,50 +1660,73 @@ def C_S(PT, melt_wf, models=default_models):
         )
 
         C = 10.0 ** (logC)
-    
+
     # Eq. (8) or (9) with/without (13) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
     # Earth and Planetary Science Letters 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
-    if model in ["Gorojovsky26_eq8","Gorojovsky26_eq9","Gorojovsky26_eq8_13","Gorojovsky26_eq9_13"]:
+    if model in [
+        "Gorojovsky26_eq8",
+        "Gorojovsky26_eq9",
+        "Gorojovsky26_eq8_13",
+        "Gorojovsky26_eq9_13",
+    ]:
         # Mole fractions in the melt on cationic lattice with water as a dilutent and Fe
         # speciated
 
         melt_comp = mg.melt_single_O(
-            melt_wf, "water", "no", molmass="M_Gorojovsky26", majors="majors_Gorojovsky26"
+            melt_wf,
+            "water",
+            "no",
+            molmass="M_Gorojovsky26",
+            majors="majors_Gorojovsky26",
         )
         # Not benchmarked
-        if model in ['Gorojovsky26_eq8','Gorojovsky26_eq8_13']:
+        if model in ["Gorojovsky26_eq8", "Gorojovsky26_eq8_13"]:
             logC = (
                 0.3
                 + (
-                    19298. * melt_comp["FeOT"]
-                    - 1303. * melt_comp["Na2O"]
-                    + 11423. * melt_comp["K2O"]
-                    - 2935. * melt_comp["SiO2"]
-                    - 7261.
+                    19298.0 * melt_comp["FeOT"]
+                    - 1303.0 * melt_comp["Na2O"]
+                    + 11423.0 * melt_comp["K2O"]
+                    - 2935.0 * melt_comp["SiO2"]
+                    - 7261.0
                 )
                 / T
             )
         # Only Gorojovsky26_eq9 benchmarked - used numbers in spreadsheet
-        elif model in ['Gorojovsky26_eq9','Gorojovsky26_eq9_13']:
+        elif model in ["Gorojovsky26_eq9", "Gorojovsky26_eq9_13"]:
             logC = (
                 0.646657
-                + ((
-                    -3368.52 * melt_comp["SiO2"]
-                    -1233.439 * melt_comp["Al2O3"]
-                    +1295.54 * melt_comp["CaO"]
-                    +44885.3 * melt_comp["K2O"]
-                    +10914.48 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["SiO2"]
-                    -871863.8 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["K2O"]
-                    -225569.4 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["Na2O"]
-                    +54392.37 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["Al2O3"]
-                    - 7585.703
+                + (
+                    (
+                        -3368.52 * melt_comp["SiO2"]
+                        - 1233.439 * melt_comp["Al2O3"]
+                        + 1295.54 * melt_comp["CaO"]
+                        + 44885.3 * melt_comp["K2O"]
+                        + 10914.48
+                        * melt_comp["FeOT"]
+                        * (1.0 - melt_wf["Fe3FeT"])
+                        * melt_comp["SiO2"]
+                        - 871863.8
+                        * melt_comp["FeOT"]
+                        * (1.0 - melt_wf["Fe3FeT"])
+                        * melt_comp["K2O"]
+                        - 225569.4
+                        * melt_comp["FeOT"]
+                        * (1.0 - melt_wf["Fe3FeT"])
+                        * melt_comp["Na2O"]
+                        + 54392.37
+                        * melt_comp["FeOT"]
+                        * (1.0 - melt_wf["Fe3FeT"])
+                        * melt_comp["Al2O3"]
+                        - 7585.703
+                    )
+                    / T
                 )
-                / T)
-                + 3.86057 * math.erf(melt_comp['FeOT']*(1.-melt_wf['Fe3FeT']))
+                + 3.86057 * math.erf(melt_comp["FeOT"] * (1.0 - melt_wf["Fe3FeT"]))
             )
         # P-term from Thomas & Wood (2026)
-        if model in ['Gorojovsky26_eq8_13','Gorojovsky26_eq9_13']:
-            logC = logC - ((PT["T"]*0.056)/T)
+        if model in ["Gorojovsky26_eq8_13", "Gorojovsky26_eq9_13"]:
+            logC = logC - ((PT["T"] * 0.056) / T)
 
         C = 10.0 ** (logC)
 
@@ -1757,7 +1847,7 @@ def C_SO4(PT, melt_wf, models=default_models):
     # Eq. (9) (with or without effect of P from eq. 12) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in
     # silicate melts. Contrib Mineral Petrol 178, 56 (2023).
     # https://doi.org/10.1007/s00410-023-02033-9
-    elif model in ["Boulliung23_eq9","Boulliung23_eq9_12"]:
+    elif model in ["Boulliung23_eq9", "Boulliung23_eq9_12"]:
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe
         # speciated
         # Used 29244.299 instead of 292544 to match spreadsheet
@@ -1777,7 +1867,7 @@ def C_SO4(PT, melt_wf, models=default_models):
             / T
         )
         if model == "Boulliung23_eq9_12":
-            logC = logC + (((PT['P']-1)*29.2)/(8.314*2.303*T))
+            logC = logC + (((PT["P"] - 1) * 29.2) / (8.314 * 2.303 * T))
         Csulfate = 10.0 ** (logC)
 
     # Eq. (11) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in
@@ -1825,7 +1915,7 @@ def C_SO4(PT, melt_wf, models=default_models):
                     + 9543.0 * melt_comp["MgO"]
                     + 16158.0 * melt_comp["MnO"]
                     + 4316.0 * melt_comp["Al2O3"]
-                    - 0.165*PT['P']
+                    - 0.165 * PT["P"]
                     + 68254.0
                 )
                 / T
@@ -1843,70 +1933,73 @@ def C_SO4(PT, melt_wf, models=default_models):
             melt_wf, "water", "no", molmass="M_Thomas26", majors="majors_Thomas26"
         )
         # Used -213.645 instead of -213.65, 55.029 instead of 55.03 to match spreadsheet
-        logC = (
-            -13.951
-            + (
-                (
-                    - 0.1715*PT['P']
-                    + 18516.0 * melt_comp["CaO"]
-                    + 41119.0 * melt_comp["Na2O"]
-                    + 6689.0 * melt_comp["MgO"]
-                    + 4236.0 * melt_comp["MnO"]
-                    - 2791.0 * melt_comp["FeO"]
-                    + 7551.0 * melt_comp["H2O"]
-                    + 31224.0
-                )
-                / T
+        logC = -13.951 + (
+            (
+                -0.1715 * PT["P"]
+                + 18516.0 * melt_comp["CaO"]
+                + 41119.0 * melt_comp["Na2O"]
+                + 6689.0 * melt_comp["MgO"]
+                + 4236.0 * melt_comp["MnO"]
+                - 2791.0 * melt_comp["FeO"]
+                + 7551.0 * melt_comp["H2O"]
+                + 31224.0
             )
+            / T
         )
         Csulfate = 10.0 ** (logC)
-    
+
     # Eq. (10) or (11) with/without (14) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
     # EPSL 687:120088 https://doi.org/10.31223/X5T755
-    elif model in ["Gorojovsky26_eq10","Gorojovsky26_eq11","Gorojovsky26_eq10_14","Gorojovsky26_eq11_14"]:
+    elif model in [
+        "Gorojovsky26_eq10",
+        "Gorojovsky26_eq11",
+        "Gorojovsky26_eq10_14",
+        "Gorojovsky26_eq11_14",
+    ]:
         # Mole fractions in the melt on cationic lattice with water as a dilutent and no Fe
         # speciation
         melt_comp = mg.melt_single_O(
-            melt_wf, "water", "no", molmass="M_Gorojovsky26", majors="majors_Gorojovsky26"
+            melt_wf,
+            "water",
+            "no",
+            molmass="M_Gorojovsky26",
+            majors="majors_Gorojovsky26",
         )
         # no benchmark available
-        if model in ["Gorojovsky26_eq10","Gorojovsky26_eq10_14"]:
-            logC = (
-                -11.11
-                + (
-                    (
-                        31725.0 * melt_comp["Na2O"]
-                        + 17422.0 * melt_comp["CaO"]
-                        + 5633.0 * melt_comp["MgO"]
-                        + 8989.0 * melt_comp["MnO"]
-                        + 26845.0
-                    )
-                    / T
+        if model in ["Gorojovsky26_eq10", "Gorojovsky26_eq10_14"]:
+            logC = -11.11 + (
+                (
+                    31725.0 * melt_comp["Na2O"]
+                    + 17422.0 * melt_comp["CaO"]
+                    + 5633.0 * melt_comp["MgO"]
+                    + 8989.0 * melt_comp["MnO"]
+                    + 26845.0
                 )
+                / T
             )
         # Eq. (26) benchmarked without eq. (14)
         # Numbers used in spreadsheet rather than paper
-        elif model in ["Gorojovsky26_eq11","Gorojovsky26_eq11_14"]:
+        elif model in ["Gorojovsky26_eq11", "Gorojovsky26_eq11_14"]:
             logC = (
                 195.99657
                 + (
                     (
                         -7632.6971 * melt_comp["SiO2"]
-                        -10669.7107 * melt_comp["TiO2"]
-                        -6900.9065 * melt_comp["Al2O3"]
-                        -4625.0612 * melt_comp["FeOT"]
-                        +19113.53 * melt_comp["MnO"]
-                        +11739.931 * melt_comp["CaO"]
-                        +33266.912 * melt_comp["Na2O"]
-                        -4094.9829
+                        - 10669.7107 * melt_comp["TiO2"]
+                        - 6900.9065 * melt_comp["Al2O3"]
+                        - 4625.0612 * melt_comp["FeOT"]
+                        + 19113.53 * melt_comp["MnO"]
+                        + 11739.931 * melt_comp["CaO"]
+                        + 33266.912 * melt_comp["Na2O"]
+                        - 4094.9829
                     )
                     / T
                 )
-                -57.2083* math.log10(T)
+                - 57.2083 * math.log10(T)
             )
         # Pressure-term from Thomas & Wood (2026)
-        if model in ["Gorojovsky26_eq10_14","GorojovskyPP_eq26_14"]:
-            logC = logC - ((PT['P']*0.165)/T)
+        if model in ["Gorojovsky26_eq10_14", "GorojovskyPP_eq26_14"]:
+            logC = logC - ((PT["P"] * 0.165) / T)
         Csulfate = 10.0 ** (logC)
 
     # OLD #
@@ -5526,7 +5619,7 @@ def fO22Fe3FeT(fO2, PT, melt_wf, models=default_models):  # converting fO2 to Fe
     ----------
     fO2: float
         fO2 value in bar (NOT log10).
-        
+
     PT: dict
         Pressure (bars) as "P" and temperature ('C) as "T".
 
@@ -5931,22 +6024,358 @@ def gas_molar_volume(species, PT, models):
 ########################################################################################
 
 species = [
-    ["H", "", 1.008, 1.0, 0.0, 1.0, "", "", "", "", "", "", "", "","","",1.008,"","",""],
-    ["C", "", 12.011, "", 0.0, "", "", "", "", "", "", "", "", "","","","","","",""],
-    ["O", "", 15.999, -2.0, 0.0, "", "", "", "", "", 16.0, "", "", "","","",16,"","",""],
-    ["Na", "", 22.99, "", 0.0, "", "", "", "", "", "", "", "", "","","",22.99,"","",""],
-    ["Mg", "", 24.305, "", 0.0, "", "", "", "", "", "", "", "", "","","",24.31,"","",""],
-    ["Al", "", 26.982, "", 0.0, "", "", "", "", "", "", "", "", "","","",26.98,"","",""],
-    ["Si", "", 28.085, "", 0.0, "", "", "", "", "", "", "", "", "","","",28.08,"","",""],
-    ["P", "", 30.974, "", 0.0, "", "", "", "", "", "", "", "", "","","",30.974,"","",""],
-    ["S", "", 32.06, "", 0.0, "", "", "", "", "", "", "", "", "",32.06,"","","","",""],
-    ["K", "", 39.098, "", 0.0, "", "", "", "", "", "", "", "", "","","",39.1,"","",""],
-    ["Ca", "", 40.078, "", 0.0, "", "", "", "", "", "", "", "", "","","",40.08,"","",""],
-    ["Ti", "", 47.867, "", 0.0, "", "", "", "", "", "", "", "", "","","",47.87,"","",""],
-    ["Mn", "", 54.938, "", 0.0, "", "", "", "", "", "", "", "", "","","",55.85,"","",""],
-    ["Fe", "", 55.845, "", 0.0, "", "", "", "", "", 55.85, "", 55.85, "",55.85,"",55.85,"",55.85,""],
-    ["SiO2", "Y", 60.083, 0.0, 2.0, 4.0, 1.0, 2.0, "", "", 60.0855, "Y", 60.08, "Y",60.09,"Y",60.09,"Y",60.09,"Y"],
-    ["TiO2", "Y", 79.865, 0.0, 2.0, 3.0, 1.0, 2.0, "", "", 79.867, "Y", 79.9, "Y",79.9,"Y",79.87,"Y",79.9,"Y"],
+    [
+        "H",
+        "",
+        1.008,
+        1.0,
+        0.0,
+        1.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        1.008,
+        "",
+        "",
+        "",
+    ],
+    [
+        "C",
+        "",
+        12.011,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "O",
+        "",
+        15.999,
+        -2.0,
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        16.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        16,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Na",
+        "",
+        22.99,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        22.99,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Mg",
+        "",
+        24.305,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        24.31,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Al",
+        "",
+        26.982,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        26.98,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Si",
+        "",
+        28.085,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        28.08,
+        "",
+        "",
+        "",
+    ],
+    [
+        "P",
+        "",
+        30.974,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        30.974,
+        "",
+        "",
+        "",
+    ],
+    [
+        "S",
+        "",
+        32.06,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        32.06,
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "K",
+        "",
+        39.098,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        39.1,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Ca",
+        "",
+        40.078,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        40.08,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Ti",
+        "",
+        47.867,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        47.87,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Mn",
+        "",
+        54.938,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        55.85,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Fe",
+        "",
+        55.845,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        55.85,
+        "",
+        55.85,
+        "",
+        55.85,
+        "",
+        55.85,
+        "",
+        55.85,
+        "",
+    ],
+    [
+        "SiO2",
+        "Y",
+        60.083,
+        0.0,
+        2.0,
+        4.0,
+        1.0,
+        2.0,
+        "",
+        "",
+        60.0855,
+        "Y",
+        60.08,
+        "Y",
+        60.09,
+        "Y",
+        60.09,
+        "Y",
+        60.09,
+        "Y",
+    ],
+    [
+        "TiO2",
+        "Y",
+        79.865,
+        0.0,
+        2.0,
+        3.0,
+        1.0,
+        2.0,
+        "",
+        "",
+        79.867,
+        "Y",
+        79.9,
+        "Y",
+        79.9,
+        "Y",
+        79.87,
+        "Y",
+        79.9,
+        "Y",
+    ],
     [
         "Al2O3",
         "Y",
@@ -5967,7 +6396,7 @@ species = [
         101.96,
         "Y",
         102,
-        "Y"
+        "Y",
     ],
     [
         "Fe2O3",
@@ -5989,17 +6418,206 @@ species = [
         159.70,
         "",
         159.6,
-        ""
+        "",
     ],
-    ["FeO1.5", "", 79.8435, 0.0, 1.5, 3.0, 1.0, 1.5, "", "", "", "", "", "","","",79.85,"",71.85,""],
-    ["FeO", "Y", 71.844, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 71.85, "Y", 71.85, "Y",71.85,"Y",71.85,"Y",71.85,"Y"],
-    ["MnO", "Y", 70.937, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 70.94, "Y", 70.94, "Y",74.94,"N",70.94,"Y",71,"Y"],
-    ["MgO", "Y", 40.304, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 40.32, "Y", 40.32, "Y",40.32,"Y",40.31,"Y",40.3,"Y"],
-    ["CaO", "Y", 56.077, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 56.06, "Y", 56.08, "Y",56.08,"Y",56.08,"Y",56.1,"Y"],
-    ["Na2O", "Y", 61.979, 0.0, 1.0, 1.0, 2.0, 1.0, "", "", 61.88, "Y", 61.98, "Y",61.98,"Y",61.98,"Y",62,"Y"],
-    ["K2O", "Y", 94.195, 0.0, 1.0, 1.0, 2.0, 1.0, "", "", 94.2, "Y", 94.2, "Y",94.2,"Y",94.2,"Y",94.2,"Y"],
-    ["P2O5", "Y", 141.943, 0.0, 1.0, 5.0, 2.0, 1.0, "", "", 141.943, "N", 141.943, "N",141.943,"N",141.948,"Y",141.94,"Y"],
-    ["OH", "", 17.007, -1.0, 1.0, 1.0, 1.0, 1.0, "", "", "", "", "", "", "", "","","","",""],
+    [
+        "FeO1.5",
+        "",
+        79.8435,
+        0.0,
+        1.5,
+        3.0,
+        1.0,
+        1.5,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        79.85,
+        "",
+        71.85,
+        "",
+    ],
+    [
+        "FeO",
+        "Y",
+        71.844,
+        0.0,
+        1.0,
+        2.0,
+        1.0,
+        1.0,
+        "",
+        "",
+        71.85,
+        "Y",
+        71.85,
+        "Y",
+        71.85,
+        "Y",
+        71.85,
+        "Y",
+        71.85,
+        "Y",
+    ],
+    [
+        "MnO",
+        "Y",
+        70.937,
+        0.0,
+        1.0,
+        2.0,
+        1.0,
+        1.0,
+        "",
+        "",
+        70.94,
+        "Y",
+        70.94,
+        "Y",
+        74.94,
+        "N",
+        70.94,
+        "Y",
+        71,
+        "Y",
+    ],
+    [
+        "MgO",
+        "Y",
+        40.304,
+        0.0,
+        1.0,
+        2.0,
+        1.0,
+        1.0,
+        "",
+        "",
+        40.32,
+        "Y",
+        40.32,
+        "Y",
+        40.32,
+        "Y",
+        40.31,
+        "Y",
+        40.3,
+        "Y",
+    ],
+    [
+        "CaO",
+        "Y",
+        56.077,
+        0.0,
+        1.0,
+        2.0,
+        1.0,
+        1.0,
+        "",
+        "",
+        56.06,
+        "Y",
+        56.08,
+        "Y",
+        56.08,
+        "Y",
+        56.08,
+        "Y",
+        56.1,
+        "Y",
+    ],
+    [
+        "Na2O",
+        "Y",
+        61.979,
+        0.0,
+        1.0,
+        1.0,
+        2.0,
+        1.0,
+        "",
+        "",
+        61.88,
+        "Y",
+        61.98,
+        "Y",
+        61.98,
+        "Y",
+        61.98,
+        "Y",
+        62,
+        "Y",
+    ],
+    [
+        "K2O",
+        "Y",
+        94.195,
+        0.0,
+        1.0,
+        1.0,
+        2.0,
+        1.0,
+        "",
+        "",
+        94.2,
+        "Y",
+        94.2,
+        "Y",
+        94.2,
+        "Y",
+        94.2,
+        "Y",
+        94.2,
+        "Y",
+    ],
+    [
+        "P2O5",
+        "Y",
+        141.943,
+        0.0,
+        1.0,
+        5.0,
+        2.0,
+        1.0,
+        "",
+        "",
+        141.943,
+        "N",
+        141.943,
+        "N",
+        141.943,
+        "N",
+        141.948,
+        "Y",
+        141.94,
+        "Y",
+    ],
+    [
+        "OH",
+        "",
+        17.007,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
     [
         "H2O",
         "",
@@ -6020,10 +6638,52 @@ species = [
         18.016,
         "",
         18.02,
-        ""
+        "",
     ],
-    ["H2S", "", 34.076, 0.0, 0.0, 1.0, 1.0, 1.0, 373.55, 90.0779, "", "", "", "", "", "","","","",""],
-    ["CO", "", 28.01, 0.0, 1.0, 2.0, 1.0, 1.0, 133.15, 34.9571, "", "", "", "", "", "","","","",""],
+    [
+        "H2S",
+        "",
+        34.076,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        373.55,
+        90.0779,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "CO",
+        "",
+        28.01,
+        0.0,
+        1.0,
+        2.0,
+        1.0,
+        1.0,
+        133.15,
+        34.9571,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
     [
         "CO2",
         "",
@@ -6044,19 +6704,249 @@ species = [
         44.009,
         "",
         44.009,
-        ""
+        "",
     ],
-    ["CO3", "", 60.008, -2.0, 3.0, 4.0, 1.0, 3.0, "", "", "", "", "", "", "", "","","","",""],
-    ["S2", "", 64.12, 0.0, 0.0, "", "", "", 208.15, 72.954, "", "", "", "", "", "","","","",""],
-    ["SO2", "", 64.058, 0.0, 2.0, 4.0, 1.0, 2.0, 430.95, 78.7295, "", "", "", "", "", "","","","",""],
-    ["SO3", "", 80.057, 0.0, 3.0, 6.0, 1.0, 3.0, "", "", "", "", "", "", "", "","","","",""],
-    ["SO4", "", 96.056, -2.0, 4.0, 6, "", 4.0, "", "", "", "", "", "", "", "","","","",""],
-    ["OCS", "", 60.07, 0.0, 1.0, "", "", "", 377.55, 65.8612, "", "", "", "", "", "","","","",""],
-    ["O2", "", 31.998, 0.0, 2.0, "", "", "", 154.75, 50.7638, "", "", "", "", "", "","","","",""],
-    ["H2", "", 2.016, 0.0, 0.0, "", "", "", 33.25, 12.9696, 2.016, "", 2.016, "", 2.016, "",2.016,"",2.016],
-    ["CH4", "", 16.043, 0.0, 0.0, "", "", "", 191.05, 46.4069, "", "", "", "", "", "","","","",""],
-    ["Ar", "", 39.948, "", "", "", "", "", "", "", "", "", "", "", 39.948, "","","","",""],
-    ["Ne", "", 20.1797, "", "", "", "", "", "", "", "", "", "", "", 20.1797, "","","","",""],
+    [
+        "CO3",
+        "",
+        60.008,
+        -2.0,
+        3.0,
+        4.0,
+        1.0,
+        3.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "S2",
+        "",
+        64.12,
+        0.0,
+        0.0,
+        "",
+        "",
+        "",
+        208.15,
+        72.954,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "SO2",
+        "",
+        64.058,
+        0.0,
+        2.0,
+        4.0,
+        1.0,
+        2.0,
+        430.95,
+        78.7295,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "SO3",
+        "",
+        80.057,
+        0.0,
+        3.0,
+        6.0,
+        1.0,
+        3.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "SO4",
+        "",
+        96.056,
+        -2.0,
+        4.0,
+        6,
+        "",
+        4.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "OCS",
+        "",
+        60.07,
+        0.0,
+        1.0,
+        "",
+        "",
+        "",
+        377.55,
+        65.8612,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "O2",
+        "",
+        31.998,
+        0.0,
+        2.0,
+        "",
+        "",
+        "",
+        154.75,
+        50.7638,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "H2",
+        "",
+        2.016,
+        0.0,
+        0.0,
+        "",
+        "",
+        "",
+        33.25,
+        12.9696,
+        2.016,
+        "",
+        2.016,
+        "",
+        2.016,
+        "",
+        2.016,
+        "",
+        2.016,
+    ],
+    [
+        "CH4",
+        "",
+        16.043,
+        0.0,
+        0.0,
+        "",
+        "",
+        "",
+        191.05,
+        46.4069,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "Ar",
+        "",
+        39.948,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        39.948,
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "Ne",
+        "",
+        20.1797,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        20.1797,
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
 ]
 # If a paper doesn't have a molcular mass for a certain species, the molecular mass in
 # "M" is used.
@@ -6083,7 +6973,7 @@ species = pd.DataFrame(
         "M_Thomas26",
         "majors_Thomas26",
         "M_Gorojovsky26",
-        "majors_Gorojovsky26"
+        "majors_Gorojovsky26",
     ],
 )
 species = species.set_index("species")
