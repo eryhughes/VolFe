@@ -1590,10 +1590,7 @@ def C_S(PT, melt_wf, models=default_models):
     # Eq. (10.34, 10.49) in O'Neill (2021) in "Magma Redox Geochemistry"
     # https//doi.org/10.1002/9781119473206.ch10
     if model == "ONeill21hyd":
-        # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        melt_comp = mg.melt_cation_proportion(
-            melt_wf, "no", "no", molmass="M_ONeill21", majors="majors_ONeill21"
-        )
+        # Mole fractions in the melt on cationic lattice (all Fe as FeO) no water
         melt_comp = mg.melt_cation_proportion(
             melt_wf, "water", "no", molmass="M_ONeill21", majors="majors_ONeill21"
         )
