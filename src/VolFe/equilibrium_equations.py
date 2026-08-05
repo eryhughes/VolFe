@@ -34,7 +34,8 @@ def set_system(melt_wf, models):
     wt_C = melt_wf["CT"]
     wt_S = melt_wf["ST"]
     wt_X = melt_wf["XT"]
-    if wt_H > 0.0 and wt_C == 0.0 and wt_S == 0.0 and wt_X == 0.0:
+    wt_Cl = melt_wf["ClT"]
+    if wt_H > 0.0 and wt_C == 0.0 and wt_S == 0.0 and wt_X == 0.0 and wt_Cl == 0.0:
         sys = "HOFe"
         if models.loc["solve_species", "option"] in [
             "O2-CO",
@@ -48,7 +49,7 @@ def set_system(melt_wf, models):
             models.loc["solve_species", "option"] = "auto"
         if models.loc["solve_species", "option"] == "auto":
             models.loc["solve_species", "option"] = "O2"
-    elif wt_H == 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X == 0.0:
+    elif wt_H == 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X == 0.0 and wt_Cl == 0.0:
         sys = "COFe"
         if models.loc["solve_species", "option"] in [
             "O2-CO",
@@ -62,7 +63,7 @@ def set_system(melt_wf, models):
             models.loc["solve_species", "option"] = "auto"
         if models.loc["solve_species", "option"] == "auto":
             models.loc["solve_species", "option"] = "O2"
-    elif wt_H == 0.0 and wt_C == 0.0 and wt_S > 0.0 and wt_X == 0.0:
+    elif wt_H == 0.0 and wt_C == 0.0 and wt_S > 0.0 and wt_X == 0.0 and wt_Cl == 0.0:
         sys = "SOFe"
         if models.loc["solve_species", "option"] in [
             "O2-CO",
@@ -76,7 +77,7 @@ def set_system(melt_wf, models):
             models.loc["solve_species", "option"] = "auto"
         if models.loc["solve_species", "option"] == "auto":
             models.loc["solve_species", "option"] = "O2"
-    elif wt_H > 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X == 0.0:
+    elif wt_H > 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X == 0.0 and wt_Cl == 0.0:
         sys = "CHOFe"
         if models.loc["solve_species", "option"] in [
             "O2",
@@ -89,7 +90,7 @@ def set_system(melt_wf, models):
             models.loc["solve_species", "option"] = "auto"
         if models.loc["solve_species", "option"] == "auto":
             models.loc["solve_species", "option"] = "O2-CO"
-    elif wt_H > 0.0 and wt_C == 0.0 and wt_S > 0.0 and wt_X == 0.0:
+    elif wt_H > 0.0 and wt_C == 0.0 and wt_S > 0.0 and wt_X == 0.0 and wt_Cl == 0.0:
         sys = "SHOFe"
         if models.loc["solve_species", "option"] in [
             "O2",
@@ -103,7 +104,7 @@ def set_system(melt_wf, models):
             models.loc["solve_species", "option"] = "auto"
         if models.loc["solve_species", "option"] == "auto":
             models.loc["solve_species", "option"] = "O2-H2"
-    elif wt_H == 0.0 and wt_C > 0.0 and wt_S > 0.0 and wt_X == 0.0:
+    elif wt_H == 0.0 and wt_C > 0.0 and wt_S > 0.0 and wt_X == 0.0 and wt_Cl == 0.0:
         sys = "SCOFe"
         if models.loc["solve_species", "option"] in [
             "O2",
@@ -117,7 +118,7 @@ def set_system(melt_wf, models):
             models.loc["solve_species", "option"] = "auto"
         if models.loc["solve_species", "option"] == "auto":
             models.loc["solve_species", "option"] = "O2-CO"
-    elif wt_H == 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X > 0.0:
+    elif wt_H == 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X > 0.0 and wt_Cl == 0.0:
         sys = "COXFe"
         if models.loc["solve_species", "option"] in [
             "O2",
@@ -131,7 +132,7 @@ def set_system(melt_wf, models):
             models.loc["solve_species", "option"] = "auto"
         if models.loc["solve_species", "option"] == "auto":
             models.loc["solve_species", "option"] = "O2-CO"
-    elif wt_H > 0.0 and wt_C == 0.0 and wt_S == 0.0 and wt_X > 0.0:
+    elif wt_H > 0.0 and wt_C == 0.0 and wt_S == 0.0 and wt_X > 0.0 and wt_Cl == 0.0:
         sys = "HOXFe"
         if models.loc["solve_species", "option"] in [
             "O2",
@@ -145,7 +146,7 @@ def set_system(melt_wf, models):
             models.loc["solve_species", "option"] = "auto"
         if models.loc["solve_species", "option"] == "auto":
             models.loc["solve_species", "option"] = "O2-H2"
-    elif wt_H > 0.0 and wt_C > 0.0 and wt_S > 0.0 and wt_X == 0.0:
+    elif wt_H > 0.0 and wt_C > 0.0 and wt_S > 0.0 and wt_X == 0.0 and wt_Cl == 0.0:
         sys = "SCHOFe"
         if models.loc["solve_species", "option"] in [
             "O2",
@@ -157,7 +158,7 @@ def set_system(melt_wf, models):
             models.loc["solve_species", "option"] = "auto"
         if models.loc["solve_species", "option"] == "auto":
             models.loc["solve_species", "option"] = "O2-CO-S2"
-    elif wt_H > 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X > 0.0:
+    elif wt_H > 0.0 and wt_C > 0.0 and wt_S == 0.0 and wt_X > 0.0 and wt_Cl == 0.0:
         sys = "CHOXFe"
         if models.loc["solve_species", "option"] in [
             "O2",
@@ -169,8 +170,10 @@ def set_system(melt_wf, models):
             models.loc["solve_species", "option"] = "auto"
         if models.loc["solve_species", "option"] == "auto":
             models.loc["solve_species", "option"] = "O2-CO-X"
-    elif wt_H > 0.0 and wt_C > 0.0 and wt_S > 0.0 and wt_X > 0.0:
+    elif wt_H > 0.0 and wt_C > 0.0 and wt_S > 0.0 and wt_X > 0.0 and wt_Cl == 0.0:
         sys = "SCHOXFe"
+    elif wt_H > 0.0 and wt_C > 0.0 and wt_S > 0.0 and wt_X == 0.0 and wt_Cl > 0.0:
+        sys = "SCHOClFe"
     else:
         raise ValueError(
             f"Cannot determine volatile system for composition: "
@@ -181,7 +184,7 @@ def set_system(melt_wf, models):
         )
     return sys
 
-
+# ADD Cl
 def initial_guesses(run, PT, melt_wf, setup, models, system):
     """
     Calculate initial guesses for the degassing calculation.
@@ -356,7 +359,7 @@ def initial_guesses(run, PT, melt_wf, setup, models, system):
 
     return guesses
 
-
+# ADD Cl
 def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
     """Calculates the equilibrium concentration and speciation of the melt and vapor.
 
@@ -434,6 +437,12 @@ def mg_equilibrium(PT, melt_wf, bulk_wf, models, nr_step, nr_tol, guesses):
         "SCHOFe",
     ]:  # no X
         wt_X_, xg_X_, wm_X_, wt_g_X = 0.0, 0.0, 0.0, ""
+   if system in ["COFe", "HOFe", "CHOFe", "CHOXFe", "COXFe", "HOXFe","SOFe",
+        "SHOFe",
+        "SCOFe",
+        "SCHOFe",
+        'SCHOXFe']:
+        wt_Cl_, xg_HCl_, xg_Cl2_, wm_Cl_, wt_g_Cl = 0., 0., 0., 0., 0.
     #    if system in ["COFe", "SOFe", "HOFe", "HOFe_xenia"]:  # one component
     #        guessy, guessz, guessw = "", "", ""
     #        solve_species = "O2"
@@ -1923,7 +1932,7 @@ def melt_speciation(PT, melt_wf, models, nr_step, nr_tol):
     wt_S = melt_wf["ST"]
 
     if system in ["COFe", "COXFe", "SOFe", "SCOFe"]:  # no H
-        wm_CH4_, wm_H2S_, xm_H2O_, wm_H2O_, wm_H2_, wm_H2Omol_, wm_OH_ = (
+        wm_CH4_, wm_H2S_, xm_H2O_, wm_H2O_, wm_H2_, wm_H2Omol_, wm_OH_, wm_Cl_ = (
             0.0,
             0.0,
             0.0,
@@ -1931,23 +1940,28 @@ def melt_speciation(PT, melt_wf, models, nr_step, nr_tol):
             0.0,
             0.0,
             0.0,
+            0.0
         )
     if system in ["HOFe", "HOXFe", "SOFe", "SHOFe"]:  # no C
-        wm_CH4_, xm_CO2_, wm_CO2_, wm_CO_, wm_CO2carb_, wm_CO2mol_ = (
+        wm_CH4_, xm_CO2_, wm_CO2_, wm_CO_, wm_CO2carb_, wm_CO2mol_, wm_Cl_ = (
             0.0,
             0.0,
             0.0,
             0.0,
             0.0,
             0.0,
+            0.0
         )
     if system in ["COFe", "COXFe", "HOFe", "HOXFe", "CHOFe", "CHOXFe"]:  # no S
-        wm_H2S_, wm_S2m_, wm_S6p_ = 0.0, 0.0, 0.0
-    if system in ["COFe", "SOFe", "SCOFe", "HOFe", "CHOFe", "SHOFe"]:  # no X
-        wm_X_ = 0.0
-    else:
+        wm_H2S_, wm_S2m_, wm_S6p_, wm_Cl_ = 0.0, 0.0, 0.0, 0.
+    if system in ["COFe", "SOFe", "SCOFe", "HOFe", "CHOFe", "SHOFe", 'SCHOFe']:  # no X
+        wm_X_, wm_Cl_ = 0.0, 0.
+    if system in ['COXFe','HOXFe','CHOXFe','SCHOXFe']: # with X, no Cl
         wm_X_ = melt_wf["XT"]
-
+        wm_Cl_ = 0.
+    if system in ['SCHOClFe']: # with Cl
+        wm_Cl_ = melt_wf['ClT']
+        
     if models.loc["COH_species", "option"] == "no_H2_CO_CH4_melt":
         wm_CO_, wm_CH4_, wm_H2_ = 0.0, 0.0, 0.0
     if models.loc["H2S_m", "option"] == False:
@@ -1993,7 +2007,7 @@ def melt_speciation(PT, melt_wf, models, nr_step, nr_tol):
         xm_H2O_, wm_H2O_, wm_H2_, wm_S2m_, wm_S6p_, wm_H2S_ = eq_HS_melt(
             PT, melt_wf, models, nr_step, nr_tol
         )
-    if system in ["SCHOFe", "SCHOXFe"]:
+    if system in ["SCHOFe", "SCHOXFe","SCHOClFe"]:
         guesses = {
             "guessx": mg.xm_CO2_so(melt_wf),
             "guessy": mg.xm_H2OT_so(melt_wf),
@@ -2012,6 +2026,7 @@ def melt_speciation(PT, melt_wf, models, nr_step, nr_tol):
         "SHOFe",
         "SCHOFe",
         "SCHOXFe",
+        'SCHOClFe'
     ]:  # contains H
         wm_H2Omol_, wm_OH_ = mg.wm_H2Omol_OH(PT, melt_wf, models)
     if system in [
@@ -2022,6 +2037,7 @@ def melt_speciation(PT, melt_wf, models, nr_step, nr_tol):
         "CHOXFe",
         "SCHOFe",
         "SCHOXFe",
+        'SCHOClFe'
     ]:  # contains C
         wm_CO2carb_, wm_CO2mol_ = mg.wm_CO32_CO2mol(PT, melt_wf, models)
 
@@ -2046,6 +2062,7 @@ def melt_speciation(PT, melt_wf, models, nr_step, nr_tol):
         "wm_S6p": wm_S6p_,
         "wm_SO3": wm_SO3_,
         "wm_ST": wt_S,
+        "wm_Clm": wm_Cl_,
         "Fe3FeT": Fe3FeT,
         "wm_X": wm_X_,
         "Fe3T": Fe3FeT,
