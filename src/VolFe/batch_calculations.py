@@ -557,8 +557,10 @@ def results_table_sat(sulf_sat_result, PT, melt_wf, models):
             [
                 "SCSS_ppm",
                 "sulfide saturated",
+                'S_sulfide_ppm',
                 "SCAS_ppm",
                 "anhydrite saturated",
+                'S_anhydrite_ppm',
                 "ST melt if sat",
                 "graphite saturated",
             ]
@@ -569,8 +571,10 @@ def results_table_sat(sulf_sat_result, PT, melt_wf, models):
             [
                 sulf_sat_result["SCSS"],
                 sulf_sat_result["sulfide_sat"],
+                sulf_sat_result["S_sulf"],
                 sulf_sat_result["SCAS"],
                 sulf_sat_result["sulfate_sat"],
+                sulf_sat_result["S_anh"],
                 sulf_sat_result["ST"],
                 c.graphite_saturation(PT, melt_wf, models),
             ]
@@ -1191,41 +1195,53 @@ def calc_gassing(
         raise TypeError(
             "Change 'fO2' option in models to 'Kress91A': other fO2 options are not currently supported"  # noqa
         )
-
+    
+    if models.loc["sulfur_saturation", "option"] == "True":
+        raise TypeError(
+            "Change 'sulfur_saturation' option in models to 'False': This is a work in progress"  # noqa
+        )
+    
     # set T and volatile composition of the melt
     PT = {"T": setup.loc[run, "T_C"]}
     melt_wf = mg.melt_comp(run, setup)
     melt_wf_i = mg.melt_comp(run, setup)
 
-    # Calculate saturation pressure for composition given in setup file
-    if models.loc["COH_species", "option"] == "H2O-CO2 only":
-        P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(
-            PT, melt_wf, models, psat_tol, nr_step, nr_tol
-        )
-        wm_H2Omol_, wm_OH_ = mg.wm_H2Omol_OH(PT, melt_wf, models)
-        wm_CO2carb_, wm_CO2mol_ = mg.wm_CO32_CO2mol(PT, melt_wf, models)
-        conc = {
-            "wm_H2O": P_sat_H2O_CO2_result["wm_H2O"],
-            "wm_CO2": P_sat_H2O_CO2_result["wm_CO2"],
-            "wm_OH": wm_OH_,
-            "wm_H2Omol": wm_H2Omol_,
-            "wm_CO2mol": wm_CO2mol_,
-            "wm_CO2carb": wm_CO2carb_,
-            "wm_H2": 0.0,
-            "wm_CO": 0.0,
-            "wm_CH4": 0.0,
-            "wm_H2S": 0.0,
-            "wm_S2m": 0.0,
-            "wm_S6p": 0.0,
-            "wm_SO3": 0.0,
-            "ST": 0.0,
-            "Fe3FeT": melt_wf["Fe3FeT_i"],
-        }
-        frac = c.melt_species_ratios(conc)
-    else:
-        P_sat_, conc, frac = c.P_sat(PT, melt_wf, models, psat_tol, nr_step, nr_tol)
-    PT["P"] = P_sat_
-    P_sat_initial = P_sat_
+    if models.loc['starting_P','option'] == 'Pvsat':
+        # Calculate saturation pressure for composition given in setup file
+        if models.loc["COH_species", "option"] == "H2O-CO2 only":
+            P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(
+                PT, melt_wf, models, psat_tol, nr_step, nr_tol
+            )
+            wm_H2Omol_, wm_OH_ = mg.wm_H2Omol_OH(PT, melt_wf, models)
+            wm_CO2carb_, wm_CO2mol_ = mg.wm_CO32_CO2mol(PT, melt_wf, models)
+            conc = {
+                "wm_H2O": P_sat_H2O_CO2_result["wm_H2O"],
+                "wm_CO2": P_sat_H2O_CO2_result["wm_CO2"],
+                "wm_OH": wm_OH_,
+                "wm_H2Omol": wm_H2Omol_,
+                "wm_CO2mol": wm_CO2mol_,
+                "wm_CO2carb": wm_CO2carb_,
+                "wm_H2": 0.0,
+                "wm_CO": 0.0,
+                "wm_CH4": 0.0,
+                "wm_H2S": 0.0,
+                "wm_S2m": 0.0,
+                "wm_S6p": 0.0,
+                "wm_SO3": 0.0,
+                "ST": 0.0,
+                "Fe3FeT": melt_wf["Fe3FeT_i"],
+            }
+            frac = c.melt_species_ratios(conc)
+        else:
+            P_sat_, conc, frac = c.P_sat(PT, melt_wf, models, psat_tol, nr_step, nr_tol)
+        PT["P"] = P_sat_
+        P_sat_initial = P_sat_
+    elif models.loc['starting_P','option'] == 'set':
+        PT['P'] = setup.loc[run, "P_bar"]
+        melt_wf['Fe3FeT'] = mg.Fe3FeT_i(PT, melt_wf, models)
+        conc = eq.melt_speciation(PT, melt_wf, models, nr_step, nr_tol)
+        frac = c.melt_species_ratios(conc)    
+        
     if models.loc["print status", "option"] == True:
         print("T=", PT["T"], "P=", PT["P"], datetime.datetime.now())
 
@@ -1280,12 +1296,19 @@ def calc_gassing(
     results_headers_table_melt_vol = (
         results_table_melt_vol()
     )  # "H2OT-eq_wtpc","CO2T-eq_ppmw","ST_ppmw","X_ppmw"
+
+    # this needs checking
+    if models.loc["sulfur_saturation", "option"] == "True":
+        ST = sulf_sat_result['ST']/1.e6
+    else:
+        ST = melt_wf_i['ST']
+        
     results_values_table_melt_vol = pd.DataFrame(
         [
             [
                 melt_wf_i["H2OT"] * 100.0,
                 melt_wf_i["CO2"] * 1000000.0,
-                melt_wf_i["ST"] * 1000000.0,
+                melt_wf_i["ST"] * 1000000.0, # check this shouldn't be ST * 1000000.0,
                 melt_wf_i["XT"] * 1000000.0,
             ]
         ]
@@ -1551,7 +1574,10 @@ def calc_gassing(
         # pressure ranges and options
         starting_P = models.loc["starting_P", "option"]
         if starting_P == "set":
-            initial = int(setup.loc[run, "P_bar"])
+            answer = math.floor(PT["P"] / dp_step)
+            initial = round(answer * dp_step)
+            if answer == initial:
+                initial = initial - dp_step
         else:
             if models.loc["gassing_direction", "option"] == "degas":
                 answer = math.floor(PT["P"] / dp_step)
@@ -1614,9 +1640,9 @@ def calc_gassing(
     # run over different pressures #
     number_of_step = 0.0
     if models.loc["gassing_direction", "option"] == "degas":
-        max_number_of_step = math.ceil(P_sat_initial)
+        max_number_of_step = math.ceil(PT['P'])
     elif models.loc["gassing_direction", "option"] == "regas":
-        max_number_of_step = final - math.floor(P_sat_initial)
+        max_number_of_step = final - math.floor(PT['P'])
 
     PT["P"] = initial
     last_successful_P = math.floor(PT["P"])
@@ -1678,15 +1704,65 @@ def calc_gassing(
                 T = initial - dp_step
                 PT["T"] = T
 
-            if (
-                models.loc["gassing_style", "option"] == "open"
-            ):  # check melt is still vapor-saturated
-                PT_ = {"P": PT["P"], "T": PT["T"]}
-                if models.loc["COH_species", "option"] == "H2O-CO2 only":
-                    P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(
+            #if (
+            #    models.loc["gassing_style", "option"] == "open"
+            #):  # check melt is still vapor-saturated
+            #    PT_ = {"P": PT["P"], "T": PT["T"]}
+            #    if models.loc["COH_species", "option"] == "H2O-CO2 only":
+            #        P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(
+            #            PT_, melt_wf, models, psat_tol, nr_step, nr_tol
+            #        )
+            #        conc = {
+            #            "wm_H2O": P_sat_H2O_CO2_result["wm_H2O"],
+            #            "wm_CO2": P_sat_H2O_CO2_result["wm_CO2"],
+            #            "wm_H2": 0.0,
+            #            "wm_CO": 0.0,
+            #            "wm_CH4": 0.0,
+            #            "wm_H2S": 0.0,
+            #            "wm_S2m": 0.0,
+            #            "wm_S6p": 0.0,
+            #            "ST": 0.0,
+            #        }
+            #        frac = c.melt_species_ratios(conc)
+            #    else:
+            #        P_sat_, conc, frac = c.P_sat(
+            #            PT_, melt_wf, models, psat_tol, nr_step, nr_tol
+            #        )
+            #    if models.loc["gassing_direction", "option"] == "degas":
+            #        checkingP = PT["P"]
+            #        while P_sat_ < checkingP:
+            #            checkingP = checkingP - dp_step
+            #            PT_["P"] = checkingP
+            #            if models.loc["COH_species", "option"] == "H2O-CO2 only":
+            #                P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(
+            #                    PT_, melt_wf, models, psat_tol, nr_step, nr_tol
+            #                )
+            #                conc = {
+            #                    "wm_H2O": P_sat_H2O_CO2_result["wm_H2O"],
+            #                    "wm_CO2": P_sat_H2O_CO2_result["wm_CO2"],
+            #                    "wm_H2": 0.0,
+            #                    "wm_CO": 0.0,
+            #                    "wm_CH4": 0.0,
+            #                    "wm_H2S": 0.0,
+            #                    "wm_S2m": 0.0,
+            #                    "wm_S6p": 0.0,
+            #                    "ST": 0.0,
+            #                }
+            #                frac = c.melt_species_ratios(conc)
+            #            else:
+            #                P_sat_, conc, frac = c.P_sat(
+            #                    PT_, melt_wf, models, psat_tol, nr_step, nr_tol
+            #                )
+            #        PT["P"] = checkingP
+            
+            # Check if melt is vapor-saturated
+            # CHECK CODE BELOW IS USEFUL
+            PT_ = {"P": PT["P"], "T": PT["T"]}
+            if models.loc["COH_species", "option"] == "H2O-CO2 only":
+                P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(
                         PT_, melt_wf, models, psat_tol, nr_step, nr_tol
                     )
-                    conc = {
+                conc = {
                         "wm_H2O": P_sat_H2O_CO2_result["wm_H2O"],
                         "wm_CO2": P_sat_H2O_CO2_result["wm_CO2"],
                         "wm_H2": 0.0,
@@ -1697,38 +1773,33 @@ def calc_gassing(
                         "wm_S6p": 0.0,
                         "ST": 0.0,
                     }
-                    frac = c.melt_species_ratios(conc)
-                else:
-                    P_sat_, conc, frac = c.P_sat(
+                frac = c.melt_species_ratios(conc)
+            else:
+                P_sat_, conc, frac = c.P_sat(
                         PT_, melt_wf, models, psat_tol, nr_step, nr_tol
                     )
-                if models.loc["gassing_direction", "option"] == "degas":
-                    checkingP = PT["P"]
-                    while P_sat_ < checkingP:
-                        checkingP = checkingP - dp_step
-                        PT_["P"] = checkingP
-                        if models.loc["COH_species", "option"] == "H2O-CO2 only":
-                            P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(
-                                PT_, melt_wf, models, psat_tol, nr_step, nr_tol
-                            )
-                            conc = {
-                                "wm_H2O": P_sat_H2O_CO2_result["wm_H2O"],
-                                "wm_CO2": P_sat_H2O_CO2_result["wm_CO2"],
-                                "wm_H2": 0.0,
-                                "wm_CO": 0.0,
-                                "wm_CH4": 0.0,
-                                "wm_H2S": 0.0,
-                                "wm_S2m": 0.0,
-                                "wm_S6p": 0.0,
-                                "ST": 0.0,
-                            }
-                            frac = c.melt_species_ratios(conc)
-                        else:
-                            P_sat_, conc, frac = c.P_sat(
-                                PT_, melt_wf, models, psat_tol, nr_step, nr_tol
-                            )
-                    PT["P"] = checkingP
-
+            
+            if P_sat_ < PT["P"] and models.loc["gassing_direction", "option"] == "degas":
+                conc = eq.melt_speciation(PT, melt_wf, models, nr_step, nr_tol)
+                frac = c.melt_species_ratios(conc)
+                melt_and_gas = {"wt_g":0.}
+                melt_and_gas["wt_g_O"] = 0.
+                melt_and_gas["wt_g_C"] = 0.
+                melt_and_gas["wt_g_H"] = 0.
+                melt_and_gas["wt_g_S"] = 0.
+                melt_and_gas["wt_g_X"] = 0.
+                melt_and_gas["wt_O"] = bulk_comp["wt_O"]
+                melt_and_gas["wt_C"] = bulk_comp["wt_C"]
+                melt_and_gas["wt_H"] = bulk_comp["wt_H"]
+                melt_and_gas["wt_S"] = bulk_comp["wt_S"]
+                melt_and_gas["wt_X"] = bulk_comp["wt_X"]
+                mass_balance = {"C":''}
+                mass_balance["O"] = ''
+                mass_balance["H"] = ''
+                mass_balance["S"] = ''
+                solve_species = ''
+            # CHECK CODE ABOVE IS USEFUL
+            
             if P_sat_ > PT["P"] or models.loc["gassing_direction", "option"] == "regas":
                 # work out equilibrium partitioning between melt and gas phase
                 with warnings.catch_warnings():
@@ -2039,19 +2110,22 @@ def calc_gassing(
                 }
 
             # update guesses
-            guesses = {
-                "xgO2": xg["xg_O2"],
-                "xgCO": xg["xg_CO"],
-                "xgH2": xg["xg_H2"],
-                "xgS2": xg["xg_S2"],
-                "xgCO2": xg["xg_CO2"],
-                "xgH2O": xg["xg_H2O"],
-                "xgSO2": xg["xg_SO2"],
-                "xgH2S": xg["xg_H2S"],
-                "xgCH4": xg["xg_CH4"],
-                "xgOCS": xg["xg_OCS"],
-                "xgX": xg["xg_X"],
-            }
+            if P_sat_ < PT["P"] and models.loc["gassing_direction", "option"] == "degas":
+                guesses = eq.initial_guesses(run, PT, melt_wf, setup, models, system)
+            else:
+                guesses = {
+                    "xgO2": xg["xg_O2"],
+                    "xgCO": xg["xg_CO"],
+                    "xgH2": xg["xg_H2"],
+                    "xgS2": xg["xg_S2"],
+                    "xgCO2": xg["xg_CO2"],
+                    "xgH2O": xg["xg_H2O"],
+                    "xgSO2": xg["xg_SO2"],
+                    "xgH2S": xg["xg_H2S"],
+                    "xgCH4": xg["xg_CH4"],
+                    "xgOCS": xg["xg_OCS"],
+                    "xgX": xg["xg_X"],
+                }
 
             # else: # NEEDS SORTING ###
             # conc = eq.melt_speciation(PT,melt_wf,models,nr_step,nr_tol)
@@ -2101,15 +2175,17 @@ def calc_gassing(
             melt_wf["S2-"] = conc["wm_S2m"]
             melt_wf["ST"] = conc["wm_ST"]
             melt_wf["XT"] = conc["wm_X"]
+            melt_wf['HT'] = mdv.species.loc["H2", 'M']*((conc["wm_H2O"]/mdv.species.loc["H2O", 'M'])+(conc["wm_H2"]/mdv.species.loc["H2", 'M'])+(2.*(conc["wm_CH4"]/mdv.species.loc["CH4", 'M']))+(conc["wm_H2S"]/mdv.species.loc["H2S", 'M']))
+            melt_wf['CT'] = mdv.species.loc["C", 'M']*((conc["wm_CO2"]/mdv.species.loc["CO2", 'M'])+(conc["wm_CO"]/mdv.species.loc["CO", 'M'])+(conc["wm_CH4"]/mdv.species.loc["CH4", 'M']))
             melt_wf["Fe3FeT"] = conc["Fe3T"]
             if P_sat_ < PT["P"]:
                 bulk_comp = c.bulk_composition(run, PT, melt_wf, setup, models)
 
             # check for sulfur saturation and display warning in outputs
             sulf_sat_result = c.sulfur_saturation(PT, melt_wf, models)
-            if sulf_sat_result["sulfide_sat"] == "yes":
+            if sulf_sat_result["sulfide_sat"] == "True":
                 warning = "WARNING: sulfide-saturated"
-            elif sulf_sat_result["sulfate_sat"] == "yes":
+            elif sulf_sat_result["sulfate_sat"] == "True":
                 warning = "WARNING: sulfate-saturated"
             else:
                 warning = ""
