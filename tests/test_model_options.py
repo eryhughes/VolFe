@@ -12,7 +12,7 @@ def test_model_default_options():
     assert options.loc["fO2"]["option"] == "Kress91A"
     assert options.loc["SCSS"]["option"] == "ONeill21hyd"
     assert options.loc["density"]["option"] == "DensityX"
-    assert options.loc["output csv"]["option"] == "True"
+    assert options.loc["output csv"]["option"] == True
 
 
 def test_model_options_update():

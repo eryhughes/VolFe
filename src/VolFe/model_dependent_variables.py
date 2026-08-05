@@ -33,9 +33,11 @@ def make_models_df(models):
 
     Parameters
     ----------
-    models: list of [str, str]
+    models: list of [str, value]
         Each inner list contains two elements: the model type (str) and the
-        user-specified option (str) for that model type.
+        user-specified option for that model type. Boolean options accept
+        True/False (strings "True"/"False" are also accepted for backwards
+        compatibility).
 
     Returns
     -------
@@ -45,6 +47,20 @@ def make_models_df(models):
     """
     # Create the pandas DataFrame
     models = pd.DataFrame(models, columns=["type", "option"])
+    # Coerce string booleans to real booleans for backwards compatibility
+    # lookup dict for values we want to translate from: to
+    str_to_bool = {
+        "True": True,
+        "true": True,
+        "yes": True,
+        "False": False,
+        "false": False,
+        "no": False,
+    }
+    # takes entire models["option"] column, checks every row
+    # if row is in keys of str_to_bool dict, replaces with that key's value
+    # if row is not in keys, doesn't do anything (returns itself back)
+    models["option"] = models["option"].map(lambda v: str_to_bool.get(v, v))
     models = models.set_index("type")
     return models
 
@@ -52,7 +68,7 @@ def make_models_df(models):
 # define default models
 default_models = [
     ["COH_species", "yes_H2_CO_CH4_melt"],
-    ["H2S_m", "True"],
+    ["H2S_m", True],
     ["species X", "Ar"],
     ["Hspeciation", "none"],
     ["fO2", "Kress91A"],
@@ -72,10 +88,10 @@ default_models = [
     ["Hspeccomp", "MORB_HughesIP"],
     ["SCSS", "ONeill21hyd"],
     ["SCAS", "Zajacz19_pss"],
-    ["sulfur_saturation", "False"],
-    ["sulfur_is_sat", "no"],
-    ["graphite_saturation", "False"],
-    ["ideal_gas", "False"],
+    ["sulfur_saturation", False],
+    ["sulfur_is_sat", False],
+    ["graphite_saturation", False],
+    ["ideal_gas", False],
     ["y_CO2", "Shi92"],
     ["y_SO2", "Shi92_Hughes23"],
     ["y_H2S", "Shi92_Hughes24"],
@@ -101,7 +117,7 @@ default_models = [
     ["gassing_style", "closed"],
     ["gassing_direction", "degas"],
     ["P_variation", "polybaric"],
-    ["eq_Fe", "yes"],
+    ["eq_Fe", True],
     ["solve_species", "auto"],
     ["beta_factors", "Richet77"],
     ["alpha_H_CH4v_CH4m", "no fractionation"],
@@ -118,17 +134,17 @@ default_models = [
     ["alpha_SO2_SO4", "Fiege15"],
     ["alpha_H2S_S", "Fiege15"],
     ["density", "DensityX"],
-    ["isotopes", "no"],
+    ["isotopes", False],
     ["T_variation", "isothermal"],
-    ["crystallisation", "no"],
+    ["crystallisation", False],
     ["mass_volume", "mass"],
     ["calc_sat", "fO2_melt"],
     ["bulk_O", "exc_S"],
     ["error", 0.1],
-    ["print status", "False"],
-    ["output csv", "True"],
-    ["setup", "False"],
-    ["high precision", "False"],
+    ["print status", False],
+    ["output csv", True],
+    ["setup", False],
+    ["high precision", False],
 ]
 # Create the pandas DataFrame
 default_models = pd.DataFrame(default_models, columns=["type", "option"])
@@ -779,50 +795,75 @@ def C_H2O(PT, melt_wf, models=default_models):
             C = 4.6114e-6
 
         # Approximate version of eq. (13) in Iacono-Marziano et al. (2012) GCA 97:1-23 http://dx.doi.org/10.1016/j.gca.2012.08.035
-        elif model_solubility in ['approx_IaconoMarziano12-anh','approx_IaconoMarziano12-hyd','approx_IaconoMarziano12-webapp']:
-
+        elif model_solubility in [
+            "approx_IaconoMarziano12-anh",
+            "approx_IaconoMarziano12-hyd",
+            "approx_IaconoMarziano12-webapp",
+        ]:
             # Hydrous parameters in Table 6 (Iacono-Marziano et al., 2012) - aH2O = 0.50 is assumed rather than 0.53
-            hydrous_values = {'bH2O':2.35,
-                          'CH2O':-0.02,
-                          'BH2O':-3.37,
-                          'fudge':1.07} # reduces difference given aH2O is required to equal 0.50, but equals 0.53 in IM model
-        
+            hydrous_values = {
+                "bH2O": 2.35,
+                "CH2O": -0.02,
+                "BH2O": -3.37,
+                "fudge": 1.07,
+            }  # reduces difference given aH2O is required to equal 0.50, but equals 0.53 in IM model
+
             # Anhydrous values in Table 6 (Iacono-Marziano et al., 2012) - aH2O = 0.50 is assumed rather than 0.54
-            anhydrous_values = {'bH2O':1.24,
-                          'CH2O':0.02,
-                          'BH2O':-2.95,
-                          'fudge':1.11} # reduces difference given aH2O is required to equal 0.50, but equals 0.54 in IM model
-        
+            anhydrous_values = {
+                "bH2O": 1.24,
+                "CH2O": 0.02,
+                "BH2O": -2.95,
+                "fudge": 1.11,
+            }  # reduces difference given aH2O is required to equal 0.50, but equals 0.54 in IM model
+
             # Web app values in Wieser et al. (2022) ESS 9:e2021EA001932 https://doi.org/10.1029/2021EA001932 - aH2O = 0.50 is assumed rather than 0.52096846
-            webapp_values = {'bH2O':2.11575907,
-                          'CH2O':-0.02238884, # negative as in VESIcal
-                          'BH2O':-3.24443335,
-                          'fudge':1.18} # reduces difference given aH2O is required to equal 0.50, but equals 0.52096846 in IM model
-        
-            def A(melt_comp,model):
-                if model == 'approx_IaconoMarziano12-anh':
+            webapp_values = {
+                "bH2O": 2.11575907,
+                "CH2O": -0.02238884,  # negative as in VESIcal
+                "BH2O": -3.24443335,
+                "fudge": 1.18,
+            }  # reduces difference given aH2O is required to equal 0.50, but equals 0.52096846 in IM model
+
+            def A(melt_comp, model):
+                if model == "approx_IaconoMarziano12-anh":
                     values = anhydrous_values
-                elif model == 'approx_IaconoMarziano12-hyd':
+                elif model == "approx_IaconoMarziano12-hyd":
                     values = hydrous_values
-                elif model == 'approx_IaconoMarziano12-webapp':
+                elif model == "approx_IaconoMarziano12-webapp":
                     values = webapp_values
-                NBOO = NBOO_IM12(melt_comp,model)
+                NBOO = NBOO_IM12(melt_comp, model)
                 # RHS of Eq. (13) except axLn[PH2O] term in Iacono-Marziano et al. (2012)
-                A = values['bH2O']*NBOO + values['CH2O']*(PT['P']/(PT['T']+273.15)) + values['BH2O']
-                fudge = values['fudge']
+                A = (
+                    values["bH2O"] * NBOO
+                    + values["CH2O"] * (PT["P"] / (PT["T"] + 273.15))
+                    + values["BH2O"]
+                )
+                fudge = values["fudge"]
                 return A, fudge
 
             melt_comp = mg.melt_mole_fraction(
-                melt_wf, models,"water", "no", molmass="M_IaconoMarziano12", majors="majors_IaconoMarziano12"
+                melt_wf,
+                models,
+                "water",
+                "no",
+                molmass="M_IaconoMarziano12",
+                majors="majors_IaconoMarziano12",
             )
 
-            A, fudge = A(melt_comp,model_solubility)
+            A, fudge = A(melt_comp, model_solubility)
 
             # convert ppm CO2 to mole fraction CO2 (uses H2O and CO2 from previous step in denominator)
-            molefracfactor = (melt_wf['H2OT']/species.loc["H2O", "M"]) + (melt_wf['CO2']/species.loc["CO2", "M"]) + (1.-melt_wf['H2OT']-melt_wf['CO2'])/mg.M_m_SO(melt_wf)
+            molefracfactor = (
+                (melt_wf["H2OT"] / species.loc["H2O", "M"])
+                + (melt_wf["CO2"] / species.loc["CO2", "M"])
+                + (1.0 - melt_wf["H2OT"] - melt_wf["CO2"]) / mg.M_m_SO(melt_wf)
+            )
 
             # solubility function that conforms to VolFe framework based on Iacono-Marziano et al. (2012)
-            C = (1./y_H2O(PT,models))*((fudge*math.exp(A))/(molefracfactor*100.*species.loc["H2O", "M"]))**2.
+            C = (1.0 / y_H2O(PT, models)) * (
+                (fudge * math.exp(A))
+                / (molefracfactor * 100.0 * species.loc["H2O", "M"])
+            ) ** 2.0
 
         # WORK IN PROGRESS BELOW HERE
 
@@ -850,14 +891,14 @@ def C_H2O(PT, melt_wf, models=default_models):
             A = 4.6114e-6
             T_K = PT["T"] + 273.15
             B = -((DV / (R_ * T_K)) * (PT["P"] - P0))
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 C = A * gp.exp(B)
             else:
                 C = A * math.exp(B)
 
         # for Ptot paper
         elif model_solubility == "test2":
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 C = gp.exp(-12.29)
             else:
                 C = math.exp(-12.29)
@@ -895,7 +936,7 @@ def C_H2O(PT, melt_wf, models=default_models):
         if model_solubility == "Dixon95":
             DV = 12.0
             A = 3.28e-5
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 C = A * gp.exp((-DV * (P - P0)) / (R * T0))
             else:
                 C = A * math.exp((-DV * (P - P0)) / (R * T0))
@@ -905,7 +946,7 @@ def C_H2O(PT, melt_wf, models=default_models):
         elif model_solubility == "alkali basalt":
             A = 5.71e-5  # XmH2Om0
             DV = 26.9  # VH2Om0 in cm3/mol
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 C = A * gp.exp((-DV * (P - P0)) / (R * T0))
             else:
                 C = A * math.exp((-DV * (P - P0)) / (R * T0))
@@ -914,7 +955,7 @@ def C_H2O(PT, melt_wf, models=default_models):
         elif model_solubility == "NorthArchBasalt_Dixon97":
             A = (-3.4e-5) - ((1.29e-6) * (mg.melt_comp_ox["SiO2"] * 100.0))  # XmH2Om0
             DV = 12.0  # VH2Om0 in cm3/mol
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 C = A * gp.exp((-DV * (P - P0)) / (R * T0))
             else:
                 C = A * math.exp((-DV * (P - P0)) / (R * T0))
@@ -940,14 +981,31 @@ def C_H2O(PT, melt_wf, models=default_models):
 
 
 # NBO/O from Appendix A in Iacono-Marziano et al. (2012) GCA 97:1-23 http://dx.doi.org/10.1016/j.gca.2012.08.035
-def NBOO_IM12(melt_comp,model):
-    numerator = melt_comp['K2O']+melt_comp['Na2O']+melt_comp['CaO']+melt_comp['MgO']+melt_comp['FeOT']-melt_comp['Al2O3']
-    denominator = 2.*melt_comp['SiO2']+2.*melt_comp['TiO2']+3.*melt_comp['Al2O3']+melt_comp['MgO']+melt_comp['FeOT']+melt_comp['CaO']+melt_comp['Na2O']+melt_comp['K2O']
-    if model in ['approx_IaconoMarziano12-hyd','approx_IaconoMarziano12-webapp']:
-        numerator = numerator + melt_comp['H2O']
-        denominator = denominator + melt_comp['H2O']
-    NBOO = (2*numerator)/denominator
+def NBOO_IM12(melt_comp, model):
+    numerator = (
+        melt_comp["K2O"]
+        + melt_comp["Na2O"]
+        + melt_comp["CaO"]
+        + melt_comp["MgO"]
+        + melt_comp["FeOT"]
+        - melt_comp["Al2O3"]
+    )
+    denominator = (
+        2.0 * melt_comp["SiO2"]
+        + 2.0 * melt_comp["TiO2"]
+        + 3.0 * melt_comp["Al2O3"]
+        + melt_comp["MgO"]
+        + melt_comp["FeOT"]
+        + melt_comp["CaO"]
+        + melt_comp["Na2O"]
+        + melt_comp["K2O"]
+    )
+    if model in ["approx_IaconoMarziano12-hyd", "approx_IaconoMarziano12-webapp"]:
+        numerator = numerator + melt_comp["H2O"]
+        denominator = denominator + melt_comp["H2O"]
+    NBOO = (2 * numerator) / denominator
     return NBOO
+
 
 ##############################################
 # Solubility constant for carbon dioxide #####
@@ -1030,7 +1088,7 @@ def C_CO3(PT, melt_wf, models=default_models):
         P0 = 1.0  # bar
         A = 3.8e-7
         B = (-DV * (P - P0)) / (R * T0)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1042,7 +1100,7 @@ def C_CO3(PT, melt_wf, models=default_models):
         P0 = 1.0  # bar
         A = (7.94e-7) * (PI + 0.762)
         B = (-DV * (P - P0)) / (R * T0)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1054,7 +1112,7 @@ def C_CO3(PT, melt_wf, models=default_models):
         P0 = 1.0  # bar
         A = (8.70e-6) - ((1.7e-7) * (melt_comp_ox["SiO2"] * 100.0))
         B = (-DV * (P - P0)) / (R * T0)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1063,12 +1121,12 @@ def C_CO3(PT, melt_wf, models=default_models):
     elif model == "Basalt_Lesne11":
         DV = 25  # cm3/mol ±3
         P0 = 1000.0  # bar
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(0.893 * PI - 15.247)  # Eq. (25)
         else:
             A = math.exp(0.893 * PI - 15.247)  # Eq. (25)
         B = (-DV * (P - P0)) / (R * T0)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1077,12 +1135,12 @@ def C_CO3(PT, melt_wf, models=default_models):
     elif model == "VesuviusAlkaliBasalt_Lesne11":
         DV = 31.0  # cm3/mol
         P0 = 1000.0  # bar
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(-14.10)  # ±0.03
         else:
             A = math.exp(-14.10)  # ±0.03
         B = -((DV / (R * T_K)) * (P - P0))
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1091,12 +1149,12 @@ def C_CO3(PT, melt_wf, models=default_models):
     elif model == "EtnaAlkaliBasalt_Lesne11":
         DV = 23.0  # cm3/mol
         P0 = 1000.0  # bar
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(-14.55)  # ±0.00
         else:
             A = math.exp(-14.55)  # ±0.00
         B = -((DV / (R * T_K)) * (P - P0))
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1105,12 +1163,12 @@ def C_CO3(PT, melt_wf, models=default_models):
     elif model == "StromboliAlkaliBasalt_Lense11":
         DV = 6.0  # cm3/mol
         P0 = 1000.0  # bar
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(-14.74)  # ±0.01
         else:
             A = math.exp(-14.74)  # ±0.01
         B = -((DV / (R * T_K)) * (P - P0))
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1119,7 +1177,7 @@ def C_CO3(PT, melt_wf, models=default_models):
     #    A = 1.164 # modified by converting P^A to APyCO2 but only including data up to
     # and including 400 MPa
     #    B = 6.71*PI_-1.345
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        C = A*gp.exp(B)
     #    else:
     #        C = A*math.exp(B)
@@ -1128,12 +1186,12 @@ def C_CO3(PT, melt_wf, models=default_models):
     #    R_ = 83.144621 # cm3 bar K−1 mol−1
     #    DV = 16.40 # cm3/mol
     #    P0 = 1000.0 # bar
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        A = gp.exp(-14.67)
     #    else:
     #        A = math.exp(-14.67)
     #    B = -((DV/(R_*T_K))*(P-P0))
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        C = A*gp.exp(B)
     #    else:
     #        C = A*math.exp(B)
@@ -1142,12 +1200,12 @@ def C_CO3(PT, melt_wf, models=default_models):
         R_ = 83.144621  # cm3 bar K−1 mol−1
         DV = 15.02  # cm3/mol
         P0 = 1000.0  # bar
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(-14.87)
         else:
             A = math.exp(-14.87)
         B = -((DV / (R_ * T_K)) * (P - P0))
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1156,12 +1214,12 @@ def C_CO3(PT, melt_wf, models=default_models):
     #    R_ = 83.144621 # cm3 bar K−1 mol−1
     #    DV = -14.65 # cm3/mol
     #    P0 = 1000.0 # bar
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        A = gp.exp(-14.65)
     #    else:
     #        A = math.exp(-14.65)
     #    B = -((DV/(R_*T_K))*(P-P0))
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        C = A*gp.exp(B)
     #    else:
     #        C = A*math.exp(B)
@@ -1170,12 +1228,12 @@ def C_CO3(PT, melt_wf, models=default_models):
     #    R_ = 83.144621 # cm3 bar K−1 mol−1
     #    DV = 24.42 # cm3/mol
     #    P0 = 1000.0 # bar
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        A = gp.exp(-14.04)
     #    else:
     #        A = math.exp(-14.04)
     #    B = -((DV/(R_*T_K))*(P-P0))
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        C = A*gp.exp(B)
     #    else:
     #        C = A*math.exp(B)
@@ -1184,12 +1242,12 @@ def C_CO3(PT, melt_wf, models=default_models):
     #    R_ = 83.144621 # cm3 bar K−1 mol−1
     #    DV = 21.59 # cm3/mol
     #    P0 = 1000.0 # bar
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        A = gp.exp(-14.28)
     #    else:
     #        A = math.exp(-14.28)
     #    B = -((DV/(R_*T_K))*(P-P0))
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        C = A*gp.exp(B)
     #    else:
     #        C = A*math.exp(B)
@@ -1198,12 +1256,12 @@ def C_CO3(PT, melt_wf, models=default_models):
     #   R_ = 83.144621 # cm3 bar K−1 mol−1
     #    DV = 14.93 # cm3/mol
     #    P0 = 1000.0 # bar
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        A = gp.exp(-14.68)
     #    else:
     #        A = math.exp(-14.68)
     #    B = -((DV/(R_*T_K))*(P-P0))
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        C = A*gp.exp(B)
     #    else:
     #        C = A*math.exp(B)
@@ -1215,12 +1273,12 @@ def C_CO3(PT, melt_wf, models=default_models):
         DH = -13.1  # kJmol ± 13.9
         T0 = 1200.0 + 273.15  # K
         P0 = 1000.0  # bar
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(-14.32)
         else:
             A = math.exp(-14.32)
         B = -((DV / (R_ * T0)) * (P - P0)) + (DH / R) * ((1.0 / T0) - (1.0 / T_K))
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1231,7 +1289,7 @@ def C_CO3(PT, melt_wf, models=default_models):
         T0 = 1200.0 + 273.15  # K
         P0 = 1000.0  # bar
         B = -((DV / (R_ * T0)) * (P - P0)) + (DH / R) * ((1.0 / T0) - (1.0 / T_K))
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(-13.36)
             C = A * gp.exp(B)
         else:
@@ -1244,7 +1302,7 @@ def C_CO3(PT, melt_wf, models=default_models):
     #    P0 = 1000.0 # bar
     #    A = gp.exp(-14.86)
     #    B = -((DV/(R_*T_K))*(P-P0))
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        C = A*gp.exp(B)
     #    else:
     #        C = A*math.exp(B)
@@ -1254,61 +1312,85 @@ def C_CO3(PT, melt_wf, models=default_models):
         DH = -27.2  # kJ/mole ±2.1
         P0 = 1.0  # bar
         T0 = 850.0 + 273.15  # K
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(-14.45)  # ±0.02
         else:
             A = math.exp(-14.45)  # ±0.02
         B = -((DV / (R_ * T0)) * (P - P0)) + (DH / R) * ((1.0 / T0) - (1.0 / T_K))
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
-        
+
     # Approximate version of eq. (12) Iacono-Marziano et al. (2012) GCA 97:1-23 http://dx.doi.org/10.1016/j.gca.2012.08.035
     # using description in Wieser et al. (2022) ESS 9:e2021EA001932 https://doi.org/10.1029/2021EA001932
-    elif model in ['approx_IaconoMarziano12-anh','approx_IaconoMarziano12-hyd']:
-        
+    elif model in ["approx_IaconoMarziano12-anh", "approx_IaconoMarziano12-hyd"]:
         # Hydrous parameters in Table 5 (Iacono-Marziano et al., 2012) - aCO2 = 1.00 is assumed
-        hydrous_values = {'dH2O':-16.4,
-                          'dAI':4.4,
-                          'dFeO+MgO':-17.1,
-                          'dNa2O+K2O':22.8,
-                          'bCO2':17.3,
-                          'CCO2':0.12,
-                          'BCO2':-6.}
-        
+        hydrous_values = {
+            "dH2O": -16.4,
+            "dAI": 4.4,
+            "dFeO+MgO": -17.1,
+            "dNa2O+K2O": 22.8,
+            "bCO2": 17.3,
+            "CCO2": 0.12,
+            "BCO2": -6.0,
+        }
+
         # Anhydrous values in Table 5 (Iacono-Marziano et al., 2012) - aCO2 = 1.00 is assumed
-        anhydrous_values = {'dH2O':2.3,
-                          'dAI':3.8,
-                          'dFeO+MgO':-16.3,
-                          'dNa2O+K2O':20.1,
-                          'bCO2':15.8,
-                          'CCO2':0.14,
-                          'BCO2':-5.3}
-        
-        def A(melt_comp,model):
-            if model == 'approx_IaconoMarziano12-anh':
+        anhydrous_values = {
+            "dH2O": 2.3,
+            "dAI": 3.8,
+            "dFeO+MgO": -16.3,
+            "dNa2O+K2O": 20.1,
+            "bCO2": 15.8,
+            "CCO2": 0.14,
+            "BCO2": -5.3,
+        }
+
+        def A(melt_comp, model):
+            if model == "approx_IaconoMarziano12-anh":
                 values = anhydrous_values
-            elif model == 'approx_IaconoMarziano12-hyd':
+            elif model == "approx_IaconoMarziano12-hyd":
                 values = hydrous_values
-            NBOO = NBOO_IM12(melt_comp,model)
+            NBOO = NBOO_IM12(melt_comp, model)
             # Eq. (12) in Wieser et al. (2022) ESS 9:e2021EA001932 https://doi.org/10.1029/2021EA001932
-            AI = melt_comp['Al2O3']/(melt_comp['CaO']+melt_comp['K2O']+melt_comp['Na2O'])
+            AI = melt_comp["Al2O3"] / (
+                melt_comp["CaO"] + melt_comp["K2O"] + melt_comp["Na2O"]
+            )
             # RHS of Eq. (12) except axLn[PCO2] term in Iacono-Marziano et al. (2012)
-            A = melt_comp['H2O']*values['dH2O'] + AI*values['dAI'] + (melt_comp['MgO']+melt_comp['FeOT'])*values['dFeO+MgO'] + (melt_comp['Na2O']+melt_comp['K2O'])*values['dNa2O+K2O'] + values['bCO2']*NBOO + values['CCO2']*(P/T_K) + values['BCO2']
+            A = (
+                melt_comp["H2O"] * values["dH2O"]
+                + AI * values["dAI"]
+                + (melt_comp["MgO"] + melt_comp["FeOT"]) * values["dFeO+MgO"]
+                + (melt_comp["Na2O"] + melt_comp["K2O"]) * values["dNa2O+K2O"]
+                + values["bCO2"] * NBOO
+                + values["CCO2"] * (P / T_K)
+                + values["BCO2"]
+            )
             return A
-        
+
         melt_comp = mg.melt_mole_fraction(
-            melt_wf, models, "water", "no", molmass="M_IaconoMarziano12", majors="majors_IaconoMarziano12"
+            melt_wf,
+            models,
+            "water",
+            "no",
+            molmass="M_IaconoMarziano12",
+            majors="majors_IaconoMarziano12",
         )
 
-        A = A(melt_comp,model)
+        A = A(melt_comp, model)
 
         # convert ppm CO2 to mole fraction CO2 (uses H2O and CO2 from previous step in denominator)
-        molefracfactor = (melt_wf['H2OT']/species.loc["H2O", "M"]) + (melt_wf['CO2']/species.loc["CO2", "M"]) + (1.-melt_wf['H2OT']-melt_wf['CO2'])/mg.M_m_SO(melt_wf)
+        molefracfactor = (
+            (melt_wf["H2OT"] / species.loc["H2O", "M"])
+            + (melt_wf["CO2"] / species.loc["CO2", "M"])
+            + (1.0 - melt_wf["H2OT"] - melt_wf["CO2"]) / mg.M_m_SO(melt_wf)
+        )
 
         # solubility function that conforms to VolFe framework based on Iacono-Marziano et al. (2012)
-        C = (math.exp(A))/(molefracfactor*1000000.*y_CO2(PT,models)*species.loc["CO2", "M"])
+        C = (math.exp(A)) / (
+            molefracfactor * 1000000.0 * y_CO2(PT, models) * species.loc["CO2", "M"]
+        )
 
     # WORK IN PROGRESS BELOW HERE #
     # elif model == "Phonotephrite_Allison22": # AH3 Phonotephrite in Table 2 from
@@ -1316,12 +1398,12 @@ def C_CO3(PT, melt_wf, models=default_models):
     #    R_ = 83.144621 # cm3 bar K−1 mol−1
     #    DV = 30.45 # cm3/mol
     #    P0 = 1000.0 # bar
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        A = gp.exp(-13.26)
     #    else:
     #        A = math.exp(-13.26)
     #    B = -((DV/(R_*T_K))*(P-P0))
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        C = A*gp.exp(B)
     #    else:
     #        C = A*math.exp(B)
@@ -1332,24 +1414,24 @@ def C_CO3(PT, melt_wf, models=default_models):
     # 3323.320*(Mg+Ca) + 3795.115*K + 47.004*(Na/(Na+K)) # cm/mol
     #    lnK0 = -128.365 + 114.098*Si + 92.263*(Ti+Al) + 122.644*(Fe2+Ca+Na) +
     # 111.549*Mg + 138.855*K + 2.239*(Na/(Na+K))
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        A = gp.exp(lnK0)
     #    else:
     #        A = math.exp(lnK0)
     #    B = ((-1.*DV)*(P-P0))/(R_*T_K)
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        C = A*gp.exp(B)
     #    else:
     #        C = A*math.exp(B)
     elif model == "Behrens04fit":  # Fit to Behrens et al. (2004) - tried for workshop
         DV = 41.8  # cm3/mol
         P0 = 1.0  # bar
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(-14.2)
         else:
             A = math.exp(-14.2)
         B = (-DV * (P - P0)) / (R * (1250.0 + 273.15))
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1357,12 +1439,12 @@ def C_CO3(PT, melt_wf, models=default_models):
         DV = 35.8  # cm3/mol
         P0 = 1.0  # bar
         lnC = -14.31
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(lnC)
         else:
             A = math.exp(lnC)
         B = (-DV * (P - P0)) / (R * T_K)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1370,12 +1452,12 @@ def C_CO3(PT, melt_wf, models=default_models):
         DV = 22.7  # cm3/mol
         P0 = 1.0  # bar
         lnC = -14.38
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(lnC)
         else:
             A = math.exp(lnC)
         B = (-DV * (P - P0)) / (R * T_K)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1383,12 +1465,12 @@ def C_CO3(PT, melt_wf, models=default_models):
         DV = 28.9  # cm3/mol
         P0 = 1.0  # bar
         lnC = -14.71
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = gp.exp(lnC)
         else:
             A = math.exp(lnC)
         B = (-DV * (P - P0)) / (R * T_K)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A * gp.exp(B)
         else:
             C = A * math.exp(B)
@@ -1405,12 +1487,12 @@ def C_CO3(PT, melt_wf, models=default_models):
         # C = A1*gp.exp(B1) + A2*gp.exp(B2)
         # "average"
         DV2 = 16.57  # cm3/mol
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A2 = gp.exp(-15.275)
         else:
             A2 = math.exp(-15.275)
         B2 = (-DV2 * (P - P0)) / (R * T_K)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = A2 * gp.exp(B2)
         else:
             C = A2 * math.exp(B2)
@@ -1508,10 +1590,7 @@ def C_S(PT, melt_wf, models=default_models):
     # Eq. (10.34, 10.49) in O'Neill (2021) in "Magma Redox Geochemistry"
     # https//doi.org/10.1002/9781119473206.ch10
     if model == "ONeill21hyd":
-        # Mole fractions in the melt on cationic lattice (all Fe as FeO) no volatiles
-        melt_comp = mg.melt_cation_proportion(
-            melt_wf, "no", "no", molmass="M_ONeill21", majors="majors_ONeill21"
-        )
+        # Mole fractions in the melt on cationic lattice (all Fe as FeO) no water
         melt_comp = mg.melt_cation_proportion(
             melt_wf, "water", "no", molmass="M_ONeill21", majors="majors_ONeill21"
         )
@@ -1544,12 +1623,12 @@ def C_S(PT, melt_wf, models=default_models):
             )
             / T
         )
-        C = 10.0 ** (logC)
+        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (7) (with or without effect of P from eq. 12) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in
     # silicate melts. Contrib Mineral Petrol 178, 56 (2023).
     # https://doi.org/10.1007/s00410-023-02033-9
-    if model in ["Boulliung23_eq7","Boulliung23_eq7_12"]:
+    if model in ["Boulliung23_eq7", "Boulliung23_eq7_12"]:
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe
         # speciated
         melt_comp = mg.melt_single_O(
@@ -1569,8 +1648,8 @@ def C_S(PT, melt_wf, models=default_models):
             / T
         )
         if model == "Boulliung23_eq7_12":
-            logC = logC + (((PT['P']-1)*6.2)/(8.314*2.303*T))
-        C = 10.0 ** (logC)
+            logC = logC + (((PT["P"] - 1) * 6.2) / (8.314 * 2.303 * T))
+        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
@@ -1582,8 +1661,9 @@ def C_S(PT, melt_wf, models=default_models):
         )
         logC = (
             0.405
-            + ( - 0.0573*PT['P']
-                + 24661.0 * (melt_comp["FeO"]+melt_comp["Fe2O3"]*0.667)
+            + (
+                -0.0573 * PT["P"]
+                + 24661.0 * (melt_comp["FeO"] + melt_comp["Fe2O3"] * 0.667)
                 + 5804.0 * melt_comp["CaO"]
                 + 25366.0 * melt_comp["K2O"]
                 - 1321.0 * melt_comp["SiO2"]
@@ -1592,53 +1672,76 @@ def C_S(PT, melt_wf, models=default_models):
             / T
         )
 
-        C = 10.0 ** (logC)
-    
+        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
+
     # Eq. (8) or (9) with/without (13) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
     # Earth and Planetary Science Letters 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
-    if model in ["Gorojovsky26_eq8","Gorojovsky26_eq9","Gorojovsky26_eq8_13","Gorojovsky26_eq9_13"]:
+    if model in [
+        "Gorojovsky26_eq8",
+        "Gorojovsky26_eq9",
+        "Gorojovsky26_eq8_13",
+        "Gorojovsky26_eq9_13",
+    ]:
         # Mole fractions in the melt on cationic lattice with water as a dilutent and Fe
         # speciated
 
         melt_comp = mg.melt_single_O(
-            melt_wf, "water", "no", molmass="M_Gorojovsky26", majors="majors_Gorojovsky26"
+            melt_wf,
+            "water",
+            "no",
+            molmass="M_Gorojovsky26",
+            majors="majors_Gorojovsky26",
         )
         # Not benchmarked
-        if model in ['Gorojovsky26_eq8','Gorojovsky26_eq8_13']:
+        if model in ["Gorojovsky26_eq8", "Gorojovsky26_eq8_13"]:
             logC = (
                 0.3
                 + (
-                    19298. * melt_comp["FeOT"]
-                    - 1303. * melt_comp["Na2O"]
-                    + 11423. * melt_comp["K2O"]
-                    - 2935. * melt_comp["SiO2"]
-                    - 7261.
+                    19298.0 * melt_comp["FeOT"]
+                    - 1303.0 * melt_comp["Na2O"]
+                    + 11423.0 * melt_comp["K2O"]
+                    - 2935.0 * melt_comp["SiO2"]
+                    - 7261.0
                 )
                 / T
             )
         # Only Gorojovsky26_eq9 benchmarked - used numbers in spreadsheet
-        elif model in ['Gorojovsky26_eq9','Gorojovsky26_eq9_13']:
+        elif model in ["Gorojovsky26_eq9", "Gorojovsky26_eq9_13"]:
             logC = (
                 0.646657
-                + ((
-                    -3368.52 * melt_comp["SiO2"]
-                    -1233.439 * melt_comp["Al2O3"]
-                    +1295.54 * melt_comp["CaO"]
-                    +44885.3 * melt_comp["K2O"]
-                    +10914.48 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["SiO2"]
-                    -871863.8 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["K2O"]
-                    -225569.4 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["Na2O"]
-                    +54392.37 * melt_comp["FeOT"]*(1.-melt_wf['Fe3FeT']) * melt_comp["Al2O3"]
-                    - 7585.703
+                + (
+                    (
+                        -3368.52 * melt_comp["SiO2"]
+                        - 1233.439 * melt_comp["Al2O3"]
+                        + 1295.54 * melt_comp["CaO"]
+                        + 44885.3 * melt_comp["K2O"]
+                        + 10914.48
+                        * melt_comp["FeOT"]
+                        * (1.0 - melt_wf["Fe3FeT"])
+                        * melt_comp["SiO2"]
+                        - 871863.8
+                        * melt_comp["FeOT"]
+                        * (1.0 - melt_wf["Fe3FeT"])
+                        * melt_comp["K2O"]
+                        - 225569.4
+                        * melt_comp["FeOT"]
+                        * (1.0 - melt_wf["Fe3FeT"])
+                        * melt_comp["Na2O"]
+                        + 54392.37
+                        * melt_comp["FeOT"]
+                        * (1.0 - melt_wf["Fe3FeT"])
+                        * melt_comp["Al2O3"]
+                        - 7585.703
+                    )
+                    / T
                 )
-                / T)
-                + 3.86057 * math.erf(melt_comp['FeOT']*(1.-melt_wf['Fe3FeT']))
+                + 3.86057 * math.erf(melt_comp["FeOT"] * (1.0 - melt_wf["Fe3FeT"]))
             )
         # P-term from Thomas & Wood (2026)
-        if model in ['Gorojovsky26_eq8_13','Gorojovsky26_eq9_13']:
-            logC = logC - ((PT["T"]*0.056)/T)
+        if model in ["Gorojovsky26_eq8_13", "Gorojovsky26_eq9_13"]:
+            logC = logC - ((PT["T"] * 0.056) / T)
 
-        C = 10.0 ** (logC)
+        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # elif model == "FR54-S1":
     #    lnC = math.log(((1.3e-4)*10000.))
@@ -1719,7 +1822,7 @@ def C_SO4(PT, melt_wf, models=default_models):
         if model == "Boulliung22wP":
             logCS6 = logCS6 - ((0.1 * ((10.0 * P) - 0.1)) * 1.5237) / T
         Csulfate = (10.0**logCS6) * 10000.0  # ppm S
-    elif model in ["ONeill22", "ONeill22dil"]:
+    elif model in ["ONeill22", "ONeill22dil",'ONeill22+MO05hyd']:
         # Eq. (12a) in O'Neill & Mavrogenes (2022) GCA 334:368-382
         if model == "ONeill22":
             # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3)
@@ -1729,7 +1832,7 @@ def C_SO4(PT, melt_wf, models=default_models):
             )
 
         # Eq. (12a) in O'Neill & Mavrogenes (2022) GCA 334:368-382
-        elif model == "ONeill22dil":
+        elif model in ["ONeill22dil","ONeill22+MO05hyd"]:
             # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3)
             # includes water
             melt_comp = mg.melt_cation_proportion(
@@ -1749,15 +1852,20 @@ def C_SO4(PT, melt_wf, models=default_models):
             )
             / T
         )  # CS6+ = [S6+, ppm]/fSO3
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             Csulfate = gp.exp(lnC) * KOSg2(PT, models)  # ppm S
         else:
             Csulfate = math.exp(lnC) * KOSg2(PT, models)  # ppm S
+        # H2O-term based on the Kilauean Tholeite at 1200 'C in Figure 16 of Moretti & Ottonello (2005) 
+        if model == "ONeill22+MO05hyd":
+            melt_comp = mg.melt_normalise_wf(melt_wf,'water','no')
+            logCsulfate = math.log10(Csulfate) - 0.1322*(melt_comp['H2O']*100.)
+            Csulfate = 10.**(logCsulfate)
 
     # Eq. (9) (with or without effect of P from eq. 12) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in
     # silicate melts. Contrib Mineral Petrol 178, 56 (2023).
     # https://doi.org/10.1007/s00410-023-02033-9
-    elif model in ["Boulliung23_eq9","Boulliung23_eq9_12"]:
+    elif model in ["Boulliung23_eq9", "Boulliung23_eq9_12"]:
         # Mole fractions in the melt on cationic lattice with no volatiles and Fe
         # speciated
         # Used 29244.299 instead of 292544 to match spreadsheet
@@ -1777,8 +1885,8 @@ def C_SO4(PT, melt_wf, models=default_models):
             / T
         )
         if model == "Boulliung23_eq9_12":
-            logC = logC + (((PT['P']-1)*29.2)/(8.314*2.303*T))
-        Csulfate = 10.0 ** (logC)
+            logC = logC + (((PT["P"] - 1) * 29.2) / (8.314 * 2.303 * T))
+        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (11) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in
     # silicate melts. Contrib Mineral Petrol 178, 56 (2023).
@@ -1805,7 +1913,7 @@ def C_SO4(PT, melt_wf, models=default_models):
             )
             + 55.029 * math.log10(T)
         )
-        Csulfate = 10.0 ** (logC)
+        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (21) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
@@ -1825,14 +1933,14 @@ def C_SO4(PT, melt_wf, models=default_models):
                     + 9543.0 * melt_comp["MgO"]
                     + 16158.0 * melt_comp["MnO"]
                     + 4316.0 * melt_comp["Al2O3"]
-                    - 0.165*PT['P']
+                    - 0.165 * PT["P"]
                     + 68254.0
                 )
                 / T
             )
             + 55.03 * math.log10(T)
         )
-        Csulfate = 10.0 ** (logC)
+        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (22) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
@@ -1843,71 +1951,74 @@ def C_SO4(PT, melt_wf, models=default_models):
             melt_wf, "water", "no", molmass="M_Thomas26", majors="majors_Thomas26"
         )
         # Used -213.645 instead of -213.65, 55.029 instead of 55.03 to match spreadsheet
-        logC = (
-            -13.951
-            + (
-                (
-                    - 0.1715*PT['P']
-                    + 18516.0 * melt_comp["CaO"]
-                    + 41119.0 * melt_comp["Na2O"]
-                    + 6689.0 * melt_comp["MgO"]
-                    + 4236.0 * melt_comp["MnO"]
-                    - 2791.0 * melt_comp["FeO"]
-                    + 7551.0 * melt_comp["H2O"]
-                    + 31224.0
-                )
-                / T
+        logC = -13.951 + (
+            (
+                -0.1715 * PT["P"]
+                + 18516.0 * melt_comp["CaO"]
+                + 41119.0 * melt_comp["Na2O"]
+                + 6689.0 * melt_comp["MgO"]
+                + 4236.0 * melt_comp["MnO"]
+                - 2791.0 * melt_comp["FeO"]
+                + 7551.0 * melt_comp["H2O"]
+                + 31224.0
             )
+            / T
         )
-        Csulfate = 10.0 ** (logC)
-    
+        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
+
     # Eq. (10) or (11) with/without (14) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
     # EPSL 687:120088 https://doi.org/10.31223/X5T755
-    elif model in ["Gorojovsky26_eq10","Gorojovsky26_eq11","Gorojovsky26_eq10_14","Gorojovsky26_eq11_14"]:
+    elif model in [
+        "Gorojovsky26_eq10",
+        "Gorojovsky26_eq11",
+        "Gorojovsky26_eq10_14",
+        "Gorojovsky26_eq11_14",
+    ]:
         # Mole fractions in the melt on cationic lattice with water as a dilutent and no Fe
         # speciation
         melt_comp = mg.melt_single_O(
-            melt_wf, "water", "no", molmass="M_Gorojovsky26", majors="majors_Gorojovsky26"
+            melt_wf,
+            "water",
+            "no",
+            molmass="M_Gorojovsky26",
+            majors="majors_Gorojovsky26",
         )
         # no benchmark available
-        if model in ["Gorojovsky26_eq10","Gorojovsky26_eq10_14"]:
-            logC = (
-                -11.11
-                + (
-                    (
-                        31725.0 * melt_comp["Na2O"]
-                        + 17422.0 * melt_comp["CaO"]
-                        + 5633.0 * melt_comp["MgO"]
-                        + 8989.0 * melt_comp["MnO"]
-                        + 26845.0
-                    )
-                    / T
+        if model in ["Gorojovsky26_eq10", "Gorojovsky26_eq10_14"]:
+            logC = -11.11 + (
+                (
+                    31725.0 * melt_comp["Na2O"]
+                    + 17422.0 * melt_comp["CaO"]
+                    + 5633.0 * melt_comp["MgO"]
+                    + 8989.0 * melt_comp["MnO"]
+                    + 26845.0
                 )
+                / T
             )
         # Eq. (26) benchmarked without eq. (14)
         # Numbers used in spreadsheet rather than paper
-        elif model in ["Gorojovsky26_eq11","Gorojovsky26_eq11_14"]:
+        elif model in ["Gorojovsky26_eq11", "Gorojovsky26_eq11_14"]:
             logC = (
                 195.99657
                 + (
                     (
                         -7632.6971 * melt_comp["SiO2"]
-                        -10669.7107 * melt_comp["TiO2"]
-                        -6900.9065 * melt_comp["Al2O3"]
-                        -4625.0612 * melt_comp["FeOT"]
-                        +19113.53 * melt_comp["MnO"]
-                        +11739.931 * melt_comp["CaO"]
-                        +33266.912 * melt_comp["Na2O"]
-                        -4094.9829
+                        - 10669.7107 * melt_comp["TiO2"]
+                        - 6900.9065 * melt_comp["Al2O3"]
+                        - 4625.0612 * melt_comp["FeOT"]
+                        + 19113.53 * melt_comp["MnO"]
+                        + 11739.931 * melt_comp["CaO"]
+                        + 33266.912 * melt_comp["Na2O"]
+                        - 4094.9829
                     )
                     / T
                 )
-                -57.2083* math.log10(T)
+                - 57.2083 * math.log10(T)
             )
         # Pressure-term from Thomas & Wood (2026)
-        if model in ["Gorojovsky26_eq10_14","GorojovskyPP_eq26_14"]:
-            logC = logC - ((PT['P']*0.165)/T)
-        Csulfate = 10.0 ** (logC)
+        if model in ["Gorojovsky26_eq10_14", "GorojovskyPP_eq26_14"]:
+            logC = logC - ((PT["P"] * 0.165) / T)
+        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # OLD #
     # elif model == "Nash19": # Nash et al. (2019) EPSL 507:187-198
@@ -2046,7 +2157,7 @@ def C_H2(PT, melt_wf, models=default_models):
         lnK0 = -0.1296  # for ppm H2 (fitted in excel)
         DV = 11.3  # cm3/mol
     lnK = lnK0 - (DV * (P - P0)) / (R * T)  # = ln(XH2/fH2) in ppm/bar
-    if models.loc["high precision", "option"] == "True":
+    if models.loc["high precision", "option"] == True:
         C = gp.exp(lnK)
     else:
         C = math.exp(lnK)
@@ -2100,7 +2211,7 @@ def C_CH4(PT, melt_wf, models=default_models):
         # lnK0 = -7.63 # mole fraction CH4
         DV = 26.85  # cm3/mol
         lnK = lnK0 - (DV * (P - P0)) / (R * T)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K_ = gp.exp(lnK)  # for fCH4 in GPa
         else:
             K_ = math.exp(lnK)  # for fCH4 in GPa
@@ -2154,7 +2265,7 @@ def C_CO(PT, melt_wf, models=default_models):
         lnK0 = -2.11  # ppm CO
         DV = 15.20  # cm3/mol
         lnK = lnK0 - (DV * (P - P0)) / (R * T)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K = gp.exp(lnK)  # CO(ppm)/fCO(bars)
         else:
             K = math.exp(lnK)  # CO(ppm)/fCO(bars)
@@ -2329,7 +2440,7 @@ def SCAS(PT, melt_wf, models=default_models):
     #    dX = dSi*melt_comp["SiO2"] + dCa*melt_comp["CaO"] + dMg*melt_comp["MgO"] +
     #           dFe*melt_comp["FeOT"] + dAl*melt_comp["Al2O3"] + dNa*melt_comp["Na2O"] +
     #           dK*melt_comp["K2O"]
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        lnxm_SO4 = a + b*((10.0**4.0)/T) + dX + e*wm_H2OT -
     #        f*gp.log(melt_comp["CaO"])
     #        xm_SO4 = gp.exp(lnxm_SO4)
@@ -2360,7 +2471,7 @@ def SCAS(PT, melt_wf, models=default_models):
     #    P_C = ((P_Rhyo + 251.*melt_comp["CaO"]**2. + 57.*melt_comp["MgO"]**2. +
     #   154.*melt_comp["FeOT"]**2.)/(2.*melt_comp["Al2O3"] + melt_comp["SiO2"]))/(1. +
     #   4.8*NBOT)
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        P_T = gp.exp(-7890./T)
     #        Ksm_SPAnh = gp.exp(1.226*gp.log(P_C*P_T*P_H2O) + 0.079)
     #    else:
@@ -2386,7 +2497,7 @@ def SCAS(PT, melt_wf, models=default_models):
             + 9.984 * melt_comp["CaO"]
             + melt_wf["H2OT"] * 100.0
         )
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             S6CAS = gp.exp(lnSCAS)
         else:
             S6CAS = math.exp(lnSCAS)
@@ -2502,7 +2613,7 @@ def SCSS(PT, melt_wf, models=default_models):
     ]:
         R = 8.31441
         P = (1.0e-4) * P_bar  # pressure in GPa
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             D = 137778.0 - 91.666 * T + 8.474 * T * gp.log(T)  # J/mol Eq. (10.45)
         else:
             D = 137778.0 - 91.666 * T + 8.474 * T * math.log(T)  # J/mol Eq. (10.45)
@@ -2523,7 +2634,7 @@ def SCSS(PT, melt_wf, models=default_models):
                 melt_wf, "water", "no", molmass="M_ONeill21", majors="majors_ONeill21"
             )
         Fe2 = melt_comp["FeT"] * (1.0 - Fe3FeT)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             lnaFeS = gp.log((1.0 - Fe2) * sulfide_comp)
         else:
             lnaFeS = math.log((1.0 - Fe2) * sulfide_comp)
@@ -2542,10 +2653,12 @@ def SCSS(PT, melt_wf, models=default_models):
             * (-62190.0 * melt_comp["Si"] + 31520.0 * melt_comp["Si"] ** 2.0)
         ) / (R * T)
         # lnS from Eq. (10.43)
-        if models.loc["high precision", "option"] == "True":
+        model_oneill = [["sulfide", model]]
+        model_oneill = make_models_df(model_oneill)
+        if models.loc["high precision", "option"] == True:
             lnS = (
                 D / (R * T)
-                + gp.log(C_S(PT, melt_wf, models))
+                + gp.log(C_S(PT, melt_wf, model_oneill))
                 - gp.log(Fe2)
                 - lnyFe2
                 + lnaFeS
@@ -2555,7 +2668,7 @@ def SCSS(PT, melt_wf, models=default_models):
         else:
             lnS = (
                 D / (R * T)
-                + math.log(C_S(PT, melt_wf, models))
+                + math.log(C_S(PT, melt_wf, model_oneill))
                 - math.log(Fe2)
                 - lnyFe2
                 + lnaFeS
@@ -2572,7 +2685,7 @@ def SCSS(PT, melt_wf, models=default_models):
             + melt_comp["K"]
             + 2.0 * (melt_comp["Ca"] + melt_comp["Mg"] + melt_comp["Fe2"])
         ) / (melt_comp["Si"] * (melt_comp["Al"] + melt_comp["Fe3"]))
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             lnS = (
                 11.35251
                 - (4454.6 / T)
@@ -2605,7 +2718,7 @@ def SCSS(PT, melt_wf, models=default_models):
     # 20.3934*melt_comp["H2O"] - 25.4986*melt_comp["SiO2"] - 18.3435*melt_comp["TiO2"] -
     # 27.3807*melt_comp["Al2O3"] - 17.2752*melt_comp["FeOT"] - 22.3975*melt_comp["MgO"]
     # - 20.3778*melt_comp["CaO"] - 18.9539*melt_comp["Na2O"] - 32.1944*melt_comp["K2O"]
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        SCSS = gp.exp(lnS)
     #    else:
     #        SCSS = math.exp(lnS)
@@ -2615,7 +2728,7 @@ def SCSS(PT, melt_wf, models=default_models):
     # elif model == "Liu21":
     #    XFeS = sulf_XFe
     #    H2O = melt_wf["H2OT"]*100.
-    #    if models.loc["high precision","option"] == "True":
+    #    if models.loc["high precision","option"] == True:
     #        SCSS = (XFeS*gp.exp(13.88 - (9744./T) - (328.*(0.0001*PT["P"])/T))) +
     #   104.*H2O
     #    else:
@@ -2776,7 +2889,7 @@ def KHOg(PT, models=default_models):
 
     T_K = PT["T"] + 273.15
     if model == "Ohmoto97":  # Reaction (d) in Table 1 of Ohmoto & Kerrick (1997)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K = 10.0 ** ((12510.0 / T_K) - 0.979 * (gp.log10(T_K)) + 0.483)
         else:
             K = 10.0 ** ((12510.0 / T_K) - 0.979 * (math.log10(T_K)) + 0.483)
@@ -2817,7 +2930,7 @@ def KHOSg(PT, models=default_models):
 
     T_K = PT["T"] + 273.15
     if model == "Ohmoto97":  # Reaction (h) in Table 1 of Ohmoto & Kerrick (1997)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K = 10.0 ** ((-8117.0 / T_K) + 0.188 * gp.log10(T_K) - 0.352)
         else:
             K = 10.0 ** ((-8117.0 / T_K) + 0.188 * math.log10(T_K) - 0.352)
@@ -2898,7 +3011,7 @@ def KOSg2(PT, models=default_models):
 
     T_K = PT["T"] + 273.15
     if model == "ONeill22":  # Eq (6b) in O’Neill and Mavrogenes (2022)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             lnK = (55921.0 / T_K) - 25.07 + 0.6465 * gp.log(T_K)
             K = gp.exp(lnK)
         else:
@@ -2977,7 +3090,7 @@ def KCOHg(PT, models=default_models):
 
     T_K = PT["T"] + 273.15
     if model == "Ohmoto97":  # Reaction (e) in Table 1 of Ohmoto & Kerrick (1997)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K = 10.0 ** ((41997.0 / T_K) + 0.719 * gp.log10(T_K) - 2.404)
         else:
             K = 10.0 ** ((41997.0 / T_K) + 0.719 * math.log10(T_K) - 2.404)
@@ -3032,7 +3145,7 @@ def KOCSg(PT, models=default_models):  # OCS - depends on system
         # OCS + H2O = CO2 + H2S
         # K = (fCO2*fH2S)/(fOCS*fH2O)
         if models == "EVo":
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 K = gp.exp(
                     0.482
                     + (16.166e-2 / T)
@@ -3147,7 +3260,7 @@ def KHOm(PT, melt_wf, models=default_models):
     ):  # Eq. (9) from Zhang et al. (1997) GCA 61(15):3089-3100
         a = -3110.0
         b = 1.876
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K = gp.exp((a / T_K) + b)
         else:
             K = math.exp((a / T_K) + b)
@@ -3156,7 +3269,7 @@ def KHOm(PT, melt_wf, models=default_models):
     ):  # Eq. (15) Lesne et al. (2010) CMP 162:133-151
         a = -8710.0
         b = 8.5244
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K = gp.exp((a / T_K) + b)
         else:
             K = math.exp((a / T_K) + b)
@@ -3165,7 +3278,7 @@ def KHOm(PT, melt_wf, models=default_models):
     ):  # Eq. (16) Lesne et al. (2010) CMP 162:133-151
         a = -8033.0
         b = 7.4222
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K = gp.exp((a / T_K) + b)
         else:
             K = math.exp((a / T_K) + b)
@@ -3174,7 +3287,7 @@ def KHOm(PT, melt_wf, models=default_models):
     ):  # Eq. (17) Lesne et al. (2010) CMP 162:133-151
         a = -8300.0
         b = 7.4859
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K = gp.exp((a / T_K) + b)
         else:
             K = math.exp((a / T_K) + b)
@@ -3183,7 +3296,7 @@ def KHOm(PT, melt_wf, models=default_models):
     ):  # Eq (7) from Botcharnikov et al. (2006) Chem. Geol. 229(1-3)125-143
         a = -3650.0
         b = 2.99
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K = gp.exp((a / T_K) + b)
         else:
             K = math.exp((a / T_K) + b)
@@ -3193,7 +3306,7 @@ def KHOm(PT, melt_wf, models=default_models):
     elif Hspeccomp == "MORB_HughesIP":
         a = -2204.99
         b = 1.2600
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K = gp.exp((a / T_K) + b)
         else:
             K = math.exp((a / T_K) + b)
@@ -3210,7 +3323,7 @@ def KHOm(PT, melt_wf, models=default_models):
     ):  # average of eqn-15-17 from Lesne et al. (2010) CMP 162:133-151
         a = -8348.0  # VES-9 = -8033.0, ETN-1 = -8300.0, and PST-9 = -8710.0
         b = 7.8108  # VES-9 = 7.4222, ETN-1 = 7.4859, and PEST-9 = 8.5244
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             K = gp.exp((a / T_K) + b)
         else:
             K = math.exp((a / T_K) + b)
@@ -3346,7 +3459,7 @@ def KCOm(PT, melt_wf, models=default_models):  # K =
     if Cspeccomp == "Andesite_Botcharnikov06":
         a = 8665.0
         b = -5.11
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             value = gp.exp((a / T_K) + b)
         else:
             value = math.exp((a / T_K) + b)
@@ -3356,7 +3469,7 @@ def KCOm(PT, melt_wf, models=default_models):  # K =
     elif Cspeccomp == "Dacite_Botcharnikov06":
         a = 9787.0
         b = -7.69
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             value = gp.exp((a / T_K) + b)
         else:
             value = math.exp((a / T_K) + b)
@@ -3424,7 +3537,7 @@ def y_CORK(species, PT, models):
 
     if z < B:
         value = 1.0
-    elif models.loc["high precision", "option"] == "True":
+    elif models.loc["high precision", "option"] == True:
         # Eq. (A.2)
         ln_y = z - 1.0 - gp.log(z - B) - A * gp.log(1.0 + (B / z)) + ln_y_virial
         value = gp.exp(ln_y)
@@ -3671,7 +3784,7 @@ def lny_SS(PT, Pcr, Tcr, models):
     A, B, C, D, P0, integral0 = Q_SS(PT, Tr, Pcr, models)
     Pr = P / Pcr
     P0r = P0 / Pcr
-    if models.loc["high precision", "option"] == "True":
+    if models.loc["high precision", "option"] == True:
         integral = (
             A * gp.log(Pr / P0r)
             + B * (Pr - P0r)
@@ -3722,7 +3835,7 @@ def Q_SS(PT, Tr, Pcr, models):
         B0 = 0.9827e-1 * pow(Tr, -1.0) + -0.2709 * pow(Tr, -3.0)
         C0 = -0.1030e-2 * pow(Tr, -1.5) + 0.1427e-1 * pow(Tr, -4.0)
         D0 = 0.0
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             value = (
                 A0 * gp.log(Pr_ / P0r_)
                 + B0 * (Pr_ - P0r_)
@@ -3744,7 +3857,7 @@ def Q_SS(PT, Tr, Pcr, models):
         A0 = 1.0 + -5.917e-1 * pow(Tr, -2.0)
         B0 = 9.122e-2 * pow(Tr, -1.0)
         D0 = 0.0
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C0 = -1.416e-4 * pow(Tr, -2.0) + -2.835e-6 * gp.log(Tr)
             value = (
                 A0 * gp.log(Pr_ / P0r_)
@@ -3763,7 +3876,7 @@ def Q_SS(PT, Tr, Pcr, models):
         return value
 
     if P > 5000.0:
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = 2.0614 + -2.235 * pow(Tr, -2.0) + -3.941e-1 * gp.log(Tr)
         else:
             A = 2.0614 + -2.235 * pow(Tr, -2.0) + -3.941e-1 * math.log(Tr)
@@ -3788,7 +3901,7 @@ def Q_SS(PT, Tr, Pcr, models):
     elif P > 1000.0 and P < 5000.0:
         A = 1.0 + -5.917e-1 * pow(Tr, -2.0)
         B = 9.122e-2 * pow(Tr, -1.0)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             C = -1.416e-4 * pow(Tr, -2.0) + -2.835e-6 * gp.log(Tr)
         else:
             C = -1.416e-4 * pow(Tr, -2.0) + -2.835e-6 * math.log(Tr)
@@ -3839,14 +3952,14 @@ def y_SS(gas_species, PT, models=default_models):
 
     ideal_gas = models.loc["ideal_gas", "option"]
 
-    if ideal_gas == "True":
+    if ideal_gas == True:
         return 1.0
     elif P < 1.0:  # ideal gas below 1 bar
         return 1.0
     else:
         Tcr = species.loc[gas_species, "Tcr"]
         Pcr = species.loc[gas_species, "Pcr"]
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             value = gp.exp(lny_SS(PT, Pcr, Tcr, models)) / P
         else:
             value = math.exp(lny_SS(PT, Pcr, Tcr, models)) / P
@@ -3889,13 +4002,13 @@ def y_H2(PT, models=default_models):
     ideal_gas = models.loc["ideal_gas", "option"]
     model = models.loc["y_H2", "option"]
 
-    if ideal_gas == "True" or model == "ideal":
+    if ideal_gas == True or model == "ideal":
         return 1.0
     elif P < 1.0:  # ideal gas below 1 bar
         return 1.0
     elif model == "Shaw64":  # Eq. (4) from Shaw & Wones (1964) AmJSci 262:918-929
         P_atm = 0.986923 * P
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             SW1 = gp.exp(-3.8402 * pow(T_K, 0.125) + 0.5410)
             SW2 = gp.exp(-0.1263 * pow(T_K, 0.5) - 15.980)
             # NB used a value of -0.011901 instead of -0.11901 as reported to match data
@@ -4032,7 +4145,7 @@ def y_H2(PT, models=default_models):
                 + Q5_C_LP * Tr ** (-2.0)
             )
             D0 = 0.0
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 integral0 = (
                     A0 * gp.log(Pr_ / P0r_)
                     + B0 * (Pr_ - P0r_)
@@ -4047,7 +4160,7 @@ def y_H2(PT, models=default_models):
                     + (D0 / 3.0) * (pow(Pr_, 3.0) - pow(P0r_, 3.0))
                 )
         elif P > 1000.0:
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 A = (
                     Q1_A_HP
                     + Q2_A_HP * Tr
@@ -4154,7 +4267,7 @@ def y_H2(PT, models=default_models):
                 + Q5_C_LP * Tr ** (-2.0)
             )
             D0 = 0.0
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 integral0 = (
                     A0 * gp.log(Pr_ / P0r_)
                     + B0 * (Pr_ - P0r_)
@@ -4170,7 +4283,7 @@ def y_H2(PT, models=default_models):
                 )
         P0r = P0 / Pcr
         Pr = P / Pcr
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             integral = (
                 A * gp.log(Pr / P0r)
                 + B * (Pr - P0r)
@@ -4220,7 +4333,7 @@ def y_H2O(PT, models=default_models):
 
     P = PT["P"]
 
-    if ideal_gas == "True" or model == "ideal":
+    if ideal_gas == True or model == "ideal":
         return 1.0
     elif P < 1.0:  # ideal gas below 1 bar
         return 1.0
@@ -4269,7 +4382,7 @@ def y_CO2(PT, models=default_models):
 
     P = PT["P"]
 
-    if ideal_gas == "True" or model == "ideal":
+    if ideal_gas == True or model == "ideal":
         return 1.0
     elif P < 1.0:  # ideal gas below 1 bar
         return 1.0
@@ -4537,7 +4650,7 @@ def y_SO2(PT, models=default_models):
     T_K = PT["T"] + 273.15
 
     gas_species = "SO2"
-    if ideal_gas == "True" or model == "ideal":
+    if ideal_gas == True or model == "ideal":
         return 1.0
     elif P < 1.0:  # ideal gas below 1 bar
         return 1.0
@@ -4577,7 +4690,7 @@ def y_SO2(PT, models=default_models):
             0.23154e-3,
             0.55542e-4,
         )
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             A = (
                 Q1_A
                 + Q2_A * Tr
@@ -4642,7 +4755,7 @@ def y_SO2(PT, models=default_models):
         D = 0.0
         if P >= 500.0:  # above 500 bar Shi & Saxena (1992) AmMin 77(9-10):1038-1049
             Pr = P / Pcr
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 integral = (
                     A * gp.log(Pr / P0r)
                     + B * (Pr - P0r)
@@ -4662,7 +4775,7 @@ def y_SO2(PT, models=default_models):
             models.loc["y_SO2", "option"] == "Shi92"
         ):  # Shi & Saxena (1992) AmMin 77(9-10):1038-1049
             Pr = P / Pcr
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 integral = (
                     A * gp.log(Pr / P0r)
                     + B * (Pr - P0r)
@@ -4682,7 +4795,7 @@ def y_SO2(PT, models=default_models):
             models.loc["y_SO2", "option"] == "Shi92_Hughes23"
         ):  # Fig.S1 Hughes et al. (2023) JGSL 180(3) https//doi.org/10.1144/jgs2021-12
             Pr = 500.0 / Pcr  # calculate y at 500 bar
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 integral = (
                     A * gp.log(Pr / P0r)
                     + B * (Pr - P0r)
@@ -4737,9 +4850,9 @@ def y_H2S(PT, models=default_models):
     T_K = PT["T"] + 273.15
 
     gas_species = "H2S"
-    if ideal_gas == "True" or model == "ideal":
+    if ideal_gas == True or model == "ideal":
         return 1.0
-    elif ideal_gas == "False":
+    elif ideal_gas == False:
         Tcr = species.loc[gas_species, "Tcr"]  # critical temperature in K
         Pcr = species.loc[gas_species, "Pcr"]  # critical temperature in bar
         Tr = T_K / Tcr
@@ -4809,7 +4922,7 @@ def y_H2S(PT, models=default_models):
             return 1.0  # ideal gas below 1 bar
         elif P < 500.0:
             if models.loc["y_H2S", "option"] == "Shi92":  # as is Shi and Saxena (1992)
-                if models.loc["high precision", "option"] == "True":
+                if models.loc["high precision", "option"] == True:
                     A = (
                         Q1_A_LP
                         + Q2_A_LP * Tr
@@ -4882,7 +4995,7 @@ def y_H2S(PT, models=default_models):
                 Pr_ = 500.0 / Pcr
                 P0r_ = 1.0 / Pcr
                 D0 = 0.0
-                if models.loc["high precision", "option"] == "True":
+                if models.loc["high precision", "option"] == True:
                     A0 = (
                         Q1_A_LP
                         + Q2_A_LP * Tr
@@ -4971,7 +5084,7 @@ def y_H2S(PT, models=default_models):
             Pr_ = 500.0 / Pcr
             P0r_ = 1.0 / Pcr
             D0 = 0.0
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 A0 = (
                     Q1_A_LP
                     + Q2_A_LP * Tr
@@ -5051,7 +5164,7 @@ def y_H2S(PT, models=default_models):
             Pr_ = 500.0 / Pcr
             P0r_ = 1.0 / Pcr
             D0 = 0.0
-            if models.loc["high precision", "option"] == "True":
+            if models.loc["high precision", "option"] == True:
                 A = (
                     Q1_A_HP
                     + Q2_A_HP * Tr
@@ -5187,7 +5300,7 @@ def y_H2S(PT, models=default_models):
                 )
         P0r = P0 / Pcr
         Pr = P / Pcr
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             integral = (
                 A * gp.log(Pr / P0r)
                 + B * (Pr - P0r)
@@ -5420,7 +5533,7 @@ def FefO2_KC91_EqA_terms(PT, melt_wf, models=default_models):
     P0 = 1.0e5  # Pa
     R = 8.3144598  # J/K/mol
     P_Pa = P * 1.0e5
-    if models.loc["high precision", "option"] == "True":
+    if models.loc["high precision", "option"] == True:
         KD1 = math.exp(
             (-DH / (R * T_K))
             + (DS / R)
@@ -5526,7 +5639,7 @@ def fO22Fe3FeT(fO2, PT, melt_wf, models=default_models):  # converting fO2 to Fe
     ----------
     fO2: float
         fO2 value in bar (NOT log10).
-        
+
     PT: dict
         Pressure (bars) as "P" and temperature ('C) as "T".
 
@@ -5556,7 +5669,7 @@ def fO22Fe3FeT(fO2, PT, melt_wf, models=default_models):  # converting fO2 to Fe
     # https//doi.org/10.1007/BF00307328
     if model == "Kress91":
         a, PTterm = FefO2_KC91_Eq7_terms(PT, melt_wf, models)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             lnXFe2O3XFeO = a * gp.log(fO2) + PTterm
             XFe2O3XFeO = gp.exp(lnXFe2O3XFeO)
         else:
@@ -5578,7 +5691,7 @@ def fO22Fe3FeT(fO2, PT, melt_wf, models=default_models):  # converting fO2 to Fe
     # https//doi.org/10.1016/j.epsl.2018.10.0020012-821X
     elif model == "ONeill18":
         a, B, FMQ = FefO2_ONeill18_terms(PT, melt_wf, models)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             DQFM = gp.log10(fO2) - FMQ
         else:
             DQFM = math.log10(fO2) - FMQ
@@ -5590,7 +5703,7 @@ def fO22Fe3FeT(fO2, PT, melt_wf, models=default_models):  # converting fO2 to Fe
     # https//doi.org/10.1007/s00410-018-1524-8
     elif model == "Borisov18":
         a, B = FefO2_Borisov18_terms(PT, melt_wf, models)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             Fe3Fe2 = 10.0 ** (a * gp.log10(fO2) + B)
         else:
             Fe3Fe2 = 10.0 ** (a * math.log10(fO2) + B)
@@ -5701,7 +5814,7 @@ def f_O2(PT, melt_wf, models=default_models):
     elif model == "Borisov18":
         F = mg.Fe3Fe2(melt_wf)
         a, B = FefO2_Borisov18_terms(PT, melt_wf, models)
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             fO2 = 10.0 ** ((gp.log10(F) - B) / a)
         else:
             fO2 = 10.0 ** ((math.log10(F) - B) / a)
@@ -5931,22 +6044,358 @@ def gas_molar_volume(species, PT, models):
 ########################################################################################
 
 species = [
-    ["H", "", 1.008, 1.0, 0.0, 1.0, "", "", "", "", "", "", "", "","","",1.008,"","",""],
-    ["C", "", 12.011, "", 0.0, "", "", "", "", "", "", "", "", "","","","","","",""],
-    ["O", "", 15.999, -2.0, 0.0, "", "", "", "", "", 16.0, "", "", "","","",16,"","",""],
-    ["Na", "", 22.99, "", 0.0, "", "", "", "", "", "", "", "", "","","",22.99,"","",""],
-    ["Mg", "", 24.305, "", 0.0, "", "", "", "", "", "", "", "", "","","",24.31,"","",""],
-    ["Al", "", 26.982, "", 0.0, "", "", "", "", "", "", "", "", "","","",26.98,"","",""],
-    ["Si", "", 28.085, "", 0.0, "", "", "", "", "", "", "", "", "","","",28.08,"","",""],
-    ["P", "", 30.974, "", 0.0, "", "", "", "", "", "", "", "", "","","",30.974,"","",""],
-    ["S", "", 32.06, "", 0.0, "", "", "", "", "", "", "", "", "",32.06,"","","","",""],
-    ["K", "", 39.098, "", 0.0, "", "", "", "", "", "", "", "", "","","",39.1,"","",""],
-    ["Ca", "", 40.078, "", 0.0, "", "", "", "", "", "", "", "", "","","",40.08,"","",""],
-    ["Ti", "", 47.867, "", 0.0, "", "", "", "", "", "", "", "", "","","",47.87,"","",""],
-    ["Mn", "", 54.938, "", 0.0, "", "", "", "", "", "", "", "", "","","",55.85,"","",""],
-    ["Fe", "", 55.845, "", 0.0, "", "", "", "", "", 55.85, "", 55.85, "",55.85,"",55.85,"",55.85,""],
-    ["SiO2", "Y", 60.083, 0.0, 2.0, 4.0, 1.0, 2.0, "", "", 60.0855, "Y", 60.08, "Y",60.09,"Y",60.09,"Y",60.09,"Y"],
-    ["TiO2", "Y", 79.865, 0.0, 2.0, 3.0, 1.0, 2.0, "", "", 79.867, "Y", 79.9, "Y",79.9,"Y",79.87,"Y",79.9,"Y"],
+    [
+        "H",
+        "",
+        1.008,
+        1.0,
+        0.0,
+        1.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        1.008,
+        "",
+        "",
+        "",
+    ],
+    [
+        "C",
+        "",
+        12.011,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "O",
+        "",
+        15.999,
+        -2.0,
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        16.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        16,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Na",
+        "",
+        22.99,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        22.99,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Mg",
+        "",
+        24.305,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        24.31,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Al",
+        "",
+        26.982,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        26.98,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Si",
+        "",
+        28.085,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        28.08,
+        "",
+        "",
+        "",
+    ],
+    [
+        "P",
+        "",
+        30.974,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        30.974,
+        "",
+        "",
+        "",
+    ],
+    [
+        "S",
+        "",
+        32.06,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        32.06,
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "K",
+        "",
+        39.098,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        39.1,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Ca",
+        "",
+        40.078,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        40.08,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Ti",
+        "",
+        47.867,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        47.87,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Mn",
+        "",
+        54.938,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        55.85,
+        "",
+        "",
+        "",
+    ],
+    [
+        "Fe",
+        "",
+        55.845,
+        "",
+        0.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        55.85,
+        "",
+        55.85,
+        "",
+        55.85,
+        "",
+        55.85,
+        "",
+        55.85,
+        "",
+    ],
+    [
+        "SiO2",
+        "Y",
+        60.083,
+        0.0,
+        2.0,
+        4.0,
+        1.0,
+        2.0,
+        "",
+        "",
+        60.0855,
+        "Y",
+        60.08,
+        "Y",
+        60.09,
+        "Y",
+        60.09,
+        "Y",
+        60.09,
+        "Y",
+    ],
+    [
+        "TiO2",
+        "Y",
+        79.865,
+        0.0,
+        2.0,
+        3.0,
+        1.0,
+        2.0,
+        "",
+        "",
+        79.867,
+        "Y",
+        79.9,
+        "Y",
+        79.9,
+        "Y",
+        79.87,
+        "Y",
+        79.9,
+        "Y",
+    ],
     [
         "Al2O3",
         "Y",
@@ -5967,7 +6416,7 @@ species = [
         101.96,
         "Y",
         102,
-        "Y"
+        "Y",
     ],
     [
         "Fe2O3",
@@ -5989,17 +6438,206 @@ species = [
         159.70,
         "",
         159.6,
-        ""
+        "",
     ],
-    ["FeO1.5", "", 79.8435, 0.0, 1.5, 3.0, 1.0, 1.5, "", "", "", "", "", "","","",79.85,"",71.85,""],
-    ["FeO", "Y", 71.844, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 71.85, "Y", 71.85, "Y",71.85,"Y",71.85,"Y",71.85,"Y"],
-    ["MnO", "Y", 70.937, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 70.94, "Y", 70.94, "Y",74.94,"N",70.94,"Y",71,"Y"],
-    ["MgO", "Y", 40.304, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 40.32, "Y", 40.32, "Y",40.32,"Y",40.31,"Y",40.3,"Y"],
-    ["CaO", "Y", 56.077, 0.0, 1.0, 2.0, 1.0, 1.0, "", "", 56.06, "Y", 56.08, "Y",56.08,"Y",56.08,"Y",56.1,"Y"],
-    ["Na2O", "Y", 61.979, 0.0, 1.0, 1.0, 2.0, 1.0, "", "", 61.88, "Y", 61.98, "Y",61.98,"Y",61.98,"Y",62,"Y"],
-    ["K2O", "Y", 94.195, 0.0, 1.0, 1.0, 2.0, 1.0, "", "", 94.2, "Y", 94.2, "Y",94.2,"Y",94.2,"Y",94.2,"Y"],
-    ["P2O5", "Y", 141.943, 0.0, 1.0, 5.0, 2.0, 1.0, "", "", 141.943, "N", 141.943, "N",141.943,"N",141.948,"Y",141.94,"Y"],
-    ["OH", "", 17.007, -1.0, 1.0, 1.0, 1.0, 1.0, "", "", "", "", "", "", "", "","","","",""],
+    [
+        "FeO1.5",
+        "",
+        79.8435,
+        0.0,
+        1.5,
+        3.0,
+        1.0,
+        1.5,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        79.85,
+        "",
+        71.85,
+        "",
+    ],
+    [
+        "FeO",
+        "Y",
+        71.844,
+        0.0,
+        1.0,
+        2.0,
+        1.0,
+        1.0,
+        "",
+        "",
+        71.85,
+        "Y",
+        71.85,
+        "Y",
+        71.85,
+        "Y",
+        71.85,
+        "Y",
+        71.85,
+        "Y",
+    ],
+    [
+        "MnO",
+        "Y",
+        70.937,
+        0.0,
+        1.0,
+        2.0,
+        1.0,
+        1.0,
+        "",
+        "",
+        70.94,
+        "Y",
+        70.94,
+        "Y",
+        74.94,
+        "N",
+        70.94,
+        "Y",
+        71,
+        "Y",
+    ],
+    [
+        "MgO",
+        "Y",
+        40.304,
+        0.0,
+        1.0,
+        2.0,
+        1.0,
+        1.0,
+        "",
+        "",
+        40.32,
+        "Y",
+        40.32,
+        "Y",
+        40.32,
+        "Y",
+        40.31,
+        "Y",
+        40.3,
+        "Y",
+    ],
+    [
+        "CaO",
+        "Y",
+        56.077,
+        0.0,
+        1.0,
+        2.0,
+        1.0,
+        1.0,
+        "",
+        "",
+        56.06,
+        "Y",
+        56.08,
+        "Y",
+        56.08,
+        "Y",
+        56.08,
+        "Y",
+        56.1,
+        "Y",
+    ],
+    [
+        "Na2O",
+        "Y",
+        61.979,
+        0.0,
+        1.0,
+        1.0,
+        2.0,
+        1.0,
+        "",
+        "",
+        61.88,
+        "Y",
+        61.98,
+        "Y",
+        61.98,
+        "Y",
+        61.98,
+        "Y",
+        62,
+        "Y",
+    ],
+    [
+        "K2O",
+        "Y",
+        94.195,
+        0.0,
+        1.0,
+        1.0,
+        2.0,
+        1.0,
+        "",
+        "",
+        94.2,
+        "Y",
+        94.2,
+        "Y",
+        94.2,
+        "Y",
+        94.2,
+        "Y",
+        94.2,
+        "Y",
+    ],
+    [
+        "P2O5",
+        "Y",
+        141.943,
+        0.0,
+        1.0,
+        5.0,
+        2.0,
+        1.0,
+        "",
+        "",
+        141.943,
+        "N",
+        141.943,
+        "N",
+        141.943,
+        "N",
+        141.948,
+        "Y",
+        141.94,
+        "Y",
+    ],
+    [
+        "OH",
+        "",
+        17.007,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
     [
         "H2O",
         "",
@@ -6007,7 +6645,7 @@ species = [
         0.0,
         1.0,
         1.0,
-        1.0,
+        2.0,
         1.0,
         647.25,
         221.1925,
@@ -6020,10 +6658,52 @@ species = [
         18.016,
         "",
         18.02,
-        ""
+        "",
     ],
-    ["H2S", "", 34.076, 0.0, 0.0, 1.0, 1.0, 1.0, 373.55, 90.0779, "", "", "", "", "", "","","","",""],
-    ["CO", "", 28.01, 0.0, 1.0, 2.0, 1.0, 1.0, 133.15, 34.9571, "", "", "", "", "", "","","","",""],
+    [
+        "H2S",
+        "",
+        34.076,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        373.55,
+        90.0779,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "CO",
+        "",
+        28.01,
+        0.0,
+        1.0,
+        2.0,
+        1.0,
+        1.0,
+        133.15,
+        34.9571,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
     [
         "CO2",
         "",
@@ -6044,19 +6724,249 @@ species = [
         44.009,
         "",
         44.009,
-        ""
+        "",
     ],
-    ["CO3", "", 60.008, -2.0, 3.0, 4.0, 1.0, 3.0, "", "", "", "", "", "", "", "","","","",""],
-    ["S2", "", 64.12, 0.0, 0.0, "", "", "", 208.15, 72.954, "", "", "", "", "", "","","","",""],
-    ["SO2", "", 64.058, 0.0, 2.0, 4.0, 1.0, 2.0, 430.95, 78.7295, "", "", "", "", "", "","","","",""],
-    ["SO3", "", 80.057, 0.0, 3.0, 6.0, 1.0, 3.0, "", "", "", "", "", "", "", "","","","",""],
-    ["SO4", "", 96.056, -2.0, 4.0, 6, "", 4.0, "", "", "", "", "", "", "", "","","","",""],
-    ["OCS", "", 60.07, 0.0, 1.0, "", "", "", 377.55, 65.8612, "", "", "", "", "", "","","","",""],
-    ["O2", "", 31.998, 0.0, 2.0, "", "", "", 154.75, 50.7638, "", "", "", "", "", "","","","",""],
-    ["H2", "", 2.016, 0.0, 0.0, "", "", "", 33.25, 12.9696, 2.016, "", 2.016, "", 2.016, "",2.016,"",2.016],
-    ["CH4", "", 16.043, 0.0, 0.0, "", "", "", 191.05, 46.4069, "", "", "", "", "", "","","","",""],
-    ["Ar", "", 39.948, "", "", "", "", "", "", "", "", "", "", "", 39.948, "","","","",""],
-    ["Ne", "", 20.1797, "", "", "", "", "", "", "", "", "", "", "", 20.1797, "","","","",""],
+    [
+        "CO3",
+        "",
+        60.008,
+        -2.0,
+        3.0,
+        4.0,
+        1.0,
+        3.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "S2",
+        "",
+        64.12,
+        0.0,
+        0.0,
+        "",
+        "",
+        "",
+        208.15,
+        72.954,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "SO2",
+        "",
+        64.058,
+        0.0,
+        2.0,
+        4.0,
+        1.0,
+        2.0,
+        430.95,
+        78.7295,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "SO3",
+        "",
+        80.057,
+        0.0,
+        3.0,
+        6.0,
+        1.0,
+        3.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "SO4",
+        "",
+        96.056,
+        -2.0,
+        4.0,
+        6,
+        "",
+        4.0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "OCS",
+        "",
+        60.07,
+        0.0,
+        1.0,
+        "",
+        "",
+        "",
+        377.55,
+        65.8612,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "O2",
+        "",
+        31.998,
+        0.0,
+        2.0,
+        "",
+        "",
+        "",
+        154.75,
+        50.7638,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "H2",
+        "",
+        2.016,
+        0.0,
+        0.0,
+        "",
+        "",
+        "",
+        33.25,
+        12.9696,
+        2.016,
+        "",
+        2.016,
+        "",
+        2.016,
+        "",
+        2.016,
+        "",
+        2.016,
+    ],
+    [
+        "CH4",
+        "",
+        16.043,
+        0.0,
+        0.0,
+        "",
+        "",
+        "",
+        191.05,
+        46.4069,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "Ar",
+        "",
+        39.948,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        39.948,
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
+    [
+        "Ne",
+        "",
+        20.1797,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        20.1797,
+        "",
+        "",
+        "",
+        "",
+        "",
+    ],
 ]
 # If a paper doesn't have a molcular mass for a certain species, the molecular mass in
 # "M" is used.
@@ -6083,7 +6993,7 @@ species = pd.DataFrame(
         "M_Thomas26",
         "majors_Thomas26",
         "M_Gorojovsky26",
-        "majors_Gorojovsky26"
+        "majors_Gorojovsky26",
     ],
 )
 species = species.set_index("species")
@@ -6207,7 +7117,7 @@ def alpha_S_H2Sv_S2mm(PT, comp, models):  # alpha for 32/34S between H2S(v) and 
     if model == "Fiege15":  # Fiege et al. (2015) Chemical Geology eq. 8
         T_K = PT["T"] + 273.15
         lna103 = (10.84 * ((1000.0 / T_K) ** 2)) - 2.5
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             a = gp.exp(lna103 / 1000.0)
         else:
             a = math.exp(lna103 / 1000.0)
@@ -6255,7 +7165,7 @@ def alpha_S_SO2v_S6pm(PT, comp, models):  # alpha for 32/34S between SO2(v) and 
             - (0.105 * (1000.0 / T_K))
             - 0.41
         )
-        if models.loc["high precision", "option"] == "True":
+        if models.loc["high precision", "option"] == True:
             a = gp.exp(lna103 / 1000.0)
         else:
             a = math.exp(lna103 / 1000.0)

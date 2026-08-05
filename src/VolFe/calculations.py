@@ -117,7 +117,7 @@ def P_sat(PT, melt_wf, models, Ptol, nr_step, nr_tol):
     melt_wf1["ST"] = ST
     melt_wf2["ST"] = ST
     if (
-        models.loc["sulfur_saturation", "option"] == "True"
+        models.loc["sulfur_saturation", "option"] == True
     ):  # must incorporate H2S concentration into S2- for SCSS
         sulfsat = sulfur_saturation(PT, melt_wf2, models)
         melt_wf1["ST"] = sulfsat["ST"] / 1000000.0
@@ -138,7 +138,7 @@ def P_sat(PT, melt_wf, models, Ptol, nr_step, nr_tol):
         melt_wf2["CO2"] = ms_conc["wm_CO2"]
         melt_wf1["S2-"] = ms_conc["wm_S2m"]
         melt_wf2["S2-"] = ms_conc["wm_S2m"]
-        if models.loc["sulfur_saturation", "option"] == "True":
+        if models.loc["sulfur_saturation", "option"] == True:
             sulfsat = sulfur_saturation(PT, melt_wf2, models)
             melt_wf1["ST"] = sulfsat["ST"] / 1000000.0
             melt_wf2["ST"] = ST
@@ -297,6 +297,7 @@ def bulk_composition(run, PT, melt_wf, setup, models):
     S6ST_ = mg.S6ST(PT, melt_wf, models)
     # SCSS_,sulfide_sat,SCAS_,sulfate_sat = sulfur_saturation(wm_ST/100.0,S6ST_)
     # print(P, S6ST_)
+    sulf_sat_result = sulfur_saturation(PT, melt_wf, models) # check why needed
 
     if bulk_composition == "melt-only":
         wt_g = 0.0
@@ -430,9 +431,9 @@ def bulk_composition(run, PT, melt_wf, setup, models):
     elif models.loc["mass_volume", "option"] == "volume":
         Wt = 0.0
 
-    if eq_Fe == "no":
+    if eq_Fe == False:
         wt_Fe = 0.0
-    elif eq_Fe == "yes":
+    elif eq_Fe == True:
         total_dissolved_volatiles = (
             wm_CO2
             + wm_H2O
@@ -446,8 +447,8 @@ def bulk_composition(run, PT, melt_wf, setup, models):
             ((1.0 - total_dissolved_volatiles) * mg.wm_Fe_nv(melt_wf)) / 100.0
         )  # wt fraction of Fe
 
-    if models.loc['COH_species','option'] == 'H2O-CO2 only':
-        wt_O = 0.
+    if models.loc["COH_species", "option"] == "H2O-CO2 only":
+        wt_O = 0.0
     else:
         wt_O = mdv.species.loc["O", "M"] * (
             (
@@ -479,6 +480,10 @@ def bulk_composition(run, PT, melt_wf, setup, models):
             + (wt_Fe / mdv.species.loc["Fe", "M"])
             * ((1.5 * Fe3Fe2_ + 1.0) / (Fe3Fe2_ + 1.0))
         )
+
+    # THIS NEEDS CHECKING
+    if models.loc['sulfur_saturation','option'] == 'True':
+        wt_S = wt_S + ((sulf_sat_result['S_sulf'] + sulf_sat_result['S_anh'])/1.e6)
 
     result = {
         "wt_C": wt_C,
@@ -701,18 +706,34 @@ def sulfur_saturation(PT, melt_wf, models):  # melt weight fraction of ST and S6
         sulfide_sat = "False"
         sulfate_sat = "False"
         ST = wmST * 1000000.0
+        S_sulf = 0.
+        S_anh = 0.
     elif wmS2 >= SCSS_ and wmS6 >= SCAS_:
-        sulfide_sat = "True"
-        sulfate_sat = "True"
-        ST = min(StCSS, StCAS)
+        if StCSS < StCAS:
+            sulfide_sat = "True"
+            sulfate_sat = "False"
+            ST = StCSS
+            S_sulf = (wmST*1.e6) - ST
+            S_anh = 0.
+        elif StCSS < StCAS:
+            sulfide_sat = "False"
+            sulfate_sat = "True"
+            ST = StCAS
+            S_sulf = 0.
+            S_anh = (wmST*1.e6) - ST
+        # ST = min(StCSS, StCAS)
     elif wmS2 >= SCSS_ and wmS6 < SCAS_:
         sulfide_sat = "True"
         sulfate_sat = "False"
         ST = StCSS
+        S_sulf = (wmST*1.e6) - ST
+        S_anh = 0.
     elif wmS2 < SCSS_ and wmS6 >= SCAS_:
         sulfide_sat = "False"
         sulfate_sat = "True"
         ST = StCAS
+        S_sulf = 0.
+        S_anh = (wmST*1.e6) - ST
     else:
         sulfide_sat = "nan"
         sulfate_sat = "nan"
@@ -725,6 +746,8 @@ def sulfur_saturation(PT, melt_wf, models):  # melt weight fraction of ST and S6
         "StCAS": StCAS,
         "sulfate_sat": sulfate_sat,
         "ST": ST,
+        'S_sulf':S_sulf,
+        'S_anh':S_anh
     }
     return result
 
@@ -757,9 +780,9 @@ def fO2_P_VSA(PT, melt_wf, models, nr_step, nr_tol, Ptol):
         CSO4 = mdv.C_SO4(PT, melt_wf, models) / 1000000.0
         CS = mdv.C_S(PT, melt_wf, models) / 1000000.0
 
-        if models.loc["H2S_m", "option"] == "False":
+        if models.loc["H2S_m", "option"] == False:
             W = CSO4 / CS
-        elif models.loc["H2S_m", "option"] == "True":
+        elif models.loc["H2S_m", "option"] == True:
             CH2S = mdv.C_H2S(PT, melt_wf, models) / 1000000.0
             KHS = mdv.KHOSg(PT, models)
             CH2OT = mdv.C_H2O(PT, melt_wf, models)
@@ -1690,8 +1713,8 @@ def calc_isobar_CO2H2O(PT, melt_wf, models):
     M_m_ = mg.M_m_SO(melt_wf)
 
     # calculate pure CO2
-    melt_wf['H2O'] = 0.
-    melt_wf['HT'] = 0.
+    melt_wf["H2O"] = 0.0
+    melt_wf["HT"] = 0.0
     xm_CO2_ = (
         PT["P"] * mdv.y_CO2(PT, models) * mdv.C_CO3(PT, melt_wf, models)
     )  # pure CO2
@@ -1703,22 +1726,28 @@ def calc_isobar_CO2H2O(PT, melt_wf, models):
             PT["P"] * mdv.y_H2O(PT, models) * mdv.C_H2O(PT, melt_wf, models)
         ) ** 0.5  # pure H2O
         # iterative if water is included in the solubility model...
-        if models.loc['water','option'] in ['approx_IaconoMarziano12-webapp','approx_IaconoMarziano12-hyd','approx_IaconoMarziano12-anh']:
+        if models.loc["water", "option"] in [
+            "approx_IaconoMarziano12-webapp",
+            "approx_IaconoMarziano12-hyd",
+            "approx_IaconoMarziano12-anh",
+        ]:
             xm_H2O_1 = xm_H2O_
-            diff = 1.
+            diff = 1.0
             n = 0
             while abs(diff) > 0.000002:
                 Xm_t = xm_H2O_1 * M_H2O + (1.0 - xm_H2O_1) * M_m_
                 wm_H2O_1 = (xm_H2O_1 * M_H2O) / Xm_t
-                melt_wf['H2O'] = wm_H2O_1
-                melt_wf["HT"] = (melt_wf['H2O']/mdv.species.loc['H2O','M_IaconoMarziano12'])*mdv.species.loc['H2','M']
+                melt_wf["H2O"] = wm_H2O_1
+                melt_wf["HT"] = (
+                    melt_wf["H2O"] / mdv.species.loc["H2O", "M_IaconoMarziano12"]
+                ) * mdv.species.loc["H2", "M"]
                 xm_H2O_2 = (
                     PT["P"] * mdv.y_H2O(PT, models) * mdv.C_H2O(PT, melt_wf, models)
-                    ) ** 0.5
+                ) ** 0.5
                 diff = xm_H2O_1 - xm_H2O_2
                 xm_H2O_1 = xm_H2O_2
-                n=n+1
-                if n > 100.:
+                n = n + 1
+                if n > 100.0:
                     xm_H2O_1 = 0.2
                     diff = 0.000001
             xm_H2O_ = xm_H2O_1
@@ -1726,7 +1755,7 @@ def calc_isobar_CO2H2O(PT, melt_wf, models):
         print("need to sort")
     Xm_t = xm_H2O_ * M_H2O + (1.0 - xm_H2O_) * M_m_
     wm_H2O_0 = (xm_H2O_ * M_H2O) / Xm_t
-    
+
     # 20 steps in H2O
     xm_H2O_step = xm_H2O_ / 20.0
 
@@ -1738,16 +1767,18 @@ def calc_isobar_CO2H2O(PT, melt_wf, models):
         wm_H2O_ = (xm_H2O_ * M_H2O) / Xm_t
         melt_wf["H2OT"] = wm_H2O_
         melt_wf["H2O"] = wm_H2O_
-        melt_wf["HT"] = (melt_wf['H2O']/mdv.species.loc['H2O','M_IaconoMarziano12'])*mdv.species.loc['H2','M']
+        melt_wf["HT"] = (
+            melt_wf["H2O"] / mdv.species.loc["H2O", "M_IaconoMarziano12"]
+        ) * mdv.species.loc["H2", "M"]
         melt_wf["CO2"] = 0.0
         pH2O = mg.p_H2O(PT, melt_wf, models)
-        if pH2O < PT['P']:
+        if pH2O < PT["P"]:
             pCO2 = PT["P"] - pH2O
             xm_CO2_ = pCO2 * mdv.y_CO2(PT, models) * mdv.C_CO3(PT, melt_wf, models)
             Xm_t = xm_CO2_ * M_CO2 + xm_H2O_ * M_H2O + (1.0 - xm_CO2_ - xm_H2O_) * M_m_
             wf_CO2 = (xm_CO2_ * M_CO2) / Xm_t
         else:
-            wf_CO2 = 0.
+            wf_CO2 = 0.0
         results1 = pd.DataFrame(
             [[PT["P"], melt_wf["H2OT"] * 100.0, wf_CO2 * 1000000.0]]
         )
@@ -1756,6 +1787,7 @@ def calc_isobar_CO2H2O(PT, melt_wf, models):
     results1 = pd.DataFrame([[PT["P"], wm_H2O_0 * 100.0, 0.0]])
     results = pd.concat([results, results1], ignore_index=True)
     return results
+
 
 def calc_isopleth_CO2H2O(XH2O, PT, melt_wf, models):
     """Calculates CO2-H2O isopleth at given XH2O and T, and up to a maximum P, assuming only CO2-H2O in the melt and
@@ -1775,26 +1807,26 @@ def calc_isopleth_CO2H2O(XH2O, PT, melt_wf, models):
     M_m_ = mg.M_m_SO(melt_wf)
 
     # calculate 20 steps in P:
-    P_step = PT['P'] / 20.0
-    for m in range(0,21,1):
+    P_step = PT["P"] / 20.0
+    for m in range(0, 21, 1):
         if m == 0:
-            PT['P'] = 1.
+            PT["P"] = 1.0
         else:
-            PT['P'] = P_step*m
-        pH2O = PT['P']*XH2O
-        pCO2 = PT['P']*(1.-XH2O)
+            PT["P"] = P_step * m
+        pH2O = PT["P"] * XH2O
+        pCO2 = PT["P"] * (1.0 - XH2O)
         xm_H2O_ = (pH2O * mdv.y_H2O(PT, models) * mdv.C_H2O(PT, melt_wf, models)) ** 0.5
         xm_CO2_ = pCO2 * mdv.y_CO2(PT, models) * mdv.C_CO3(PT, melt_wf, models)
         Xm_t = xm_CO2_ * M_CO2 + xm_H2O_ * M_H2O + (1.0 - xm_CO2_ - xm_H2O_) * M_m_
         wm_H2O_ = (xm_H2O_ * M_H2O) / Xm_t
         wm_CO2 = (xm_CO2_ * M_CO2) / Xm_t
-        results1 = pd.DataFrame([[XH2O,PT["P"], wm_H2O_ * 100.0, wm_CO2 * 1000000.0]])
+        results1 = pd.DataFrame([[XH2O, PT["P"], wm_H2O_ * 100.0, wm_CO2 * 1000000.0]])
         if m == 0:
             results = results1
         else:
             results = pd.concat([results, results1], ignore_index=True)
     return results
-    
+
 
 def calc_pure_solubility(PT, melt_wf, models):
     """Calculates pure solubility of H2O and CO2 at given P and T and melt composition.
