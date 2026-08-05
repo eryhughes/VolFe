@@ -336,6 +336,57 @@ def f_OCS(PT, melt_wf, models):
         else:
             return 0.0
 
+def f_Cl2(PT, melt_wf, models):
+    """
+    Calculates fugacity of Cl2 in the vapor from Cl (ppmw) in the melt and fO2.
+
+
+    Parameters
+    ----------
+    PT: dict
+        Pressure (bars) as "P" and temperature ('C) as "T".
+
+    melt_wf: dict
+        Melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    models: pandas.DataFrame
+        Model options.
+
+    Returns
+    -------
+    float
+        fCl2 in bars
+
+    """
+
+    fCl2 = ((melt_wf['Cl-']*mdv.f_O2(PT, melt_wf, models)**0.25)/(mdv.C_Cl(PT,melt_wf,models)/1e6))**2.
+    return fCl2
+
+def f_HCl(PT, melt_wf, models):
+    """
+    Calculates fugacity of HCl in the vapor from fCl2 and fH2 based on melt composition.
+
+
+    Parameters
+    ----------
+    PT: dict
+        Pressure (bars) as "P" and temperature ('C) as "T".
+
+    melt_wf: dict
+        Melt composition in weight fraction (SiO2, TiO2, etc.)
+
+    models: pandas.DataFrame
+        Model options.
+
+    Returns
+    -------
+    float
+        fHCl in bars
+
+    """
+
+    fHCl = mdv.KHClg(PT,models)*f_H2(PT,melt_wf,models)**0.5*f_Cl2(PT,melt_wf,models)**0.5
+    return fHCl
 
 def f_X(PT, melt_wf, models):
     """
@@ -766,6 +817,53 @@ def p_OCS(PT, melt_wf, models):
     """
     return f_OCS(PT, melt_wf, models) / mdv.y_OCS(PT, models)
 
+def p_Cl2(PT, melt_wf, models):
+    """
+    Converts fCl2 based on melt composition to partial pressure of Cl2 (pCl2).
+
+
+    Parameters
+    ----------
+    PT: dict
+        Pressure (bars) as "P" and temperature ('C) as "T".
+
+    melt_wf: dict
+        Melt composition in weight fraction (SiO2, TiO2, etc.).
+
+    models: pandas.DataFrame
+        Model options.
+
+    Returns
+    -------
+    float
+        pCl2 in bars
+
+    """
+    return f_Cl2(PT, melt_wf, models) / mdv.y_Cl2(PT, models)
+
+def p_HCl(PT, melt_wf, models):
+    """
+    Converts fHCl based on melt composition to partial pressure of HCl (pHCl).
+
+
+    Parameters
+    ----------
+    PT: dict
+        Pressure (bars) as "P" and temperature ('C) as "T".
+
+    melt_wf: dict
+        Melt composition in weight fraction (SiO2, TiO2, etc.).
+
+    models: pandas.DataFrame
+        Model options.
+
+    Returns
+    -------
+    float
+        pHCl in bars
+
+    """
+    return f_HCl(PT, melt_wf, models) / mdv.y_HCl(PT, models)
 
 def p_X(PT, melt_wf, models):
     """
@@ -826,6 +924,8 @@ def p_tot(PT, melt_wf, models):
         + p_CO(PT, melt_wf, models)
         + p_CH4(PT, melt_wf, models)
         + p_OCS(PT, melt_wf, models)
+        + p_Cl2(PT, melt_wf, models)
+        + p_HCl(PT, melt_wf, models)
         + p_X(PT, melt_wf, models)
     )
 
@@ -1084,6 +1184,53 @@ def xg_OCS(PT, melt_wf, models):
     """
     return p_OCS(PT, melt_wf, models) / PT["P"]
 
+def xg_Cl2(PT, melt_wf, models):
+    """
+    Converts pCl2 based on melt composition to mole fraction of Cl2 in the vapor.
+
+
+    Parameters
+    ----------
+    PT: dict
+        Pressure (bars) as "P" and temperature ('C) as "T".
+
+    melt_wf: dict
+        Melt composition in weight fraction (SiO2, TiO2, etc.).
+
+    models: pandas.DataFrame
+        Model options.
+
+    Returns
+    -------
+    float
+        mole fraction of Cl2 in the vapor
+
+    """
+    return p_Cl2(PT, melt_wf, models) / PT["P"]
+
+def xg_HCl(PT, melt_wf, models):
+    """
+    Converts pHCl based on melt composition to mole fraction of HCl in the vapor.
+
+
+    Parameters
+    ----------
+    PT: dict
+        Pressure (bars) as "P" and temperature ('C) as "T".
+
+    melt_wf: dict
+        Melt composition in weight fraction (SiO2, TiO2, etc.).
+
+    models: pandas.DataFrame
+        Model options.
+
+    Returns
+    -------
+    float
+        mole fraction of HCl in the vapor
+
+    """
+    return p_HCl(PT, melt_wf, models) / PT["P"]
 
 def xg_X(PT, melt_wf, models):
     """
@@ -1144,6 +1291,8 @@ def Xg_tot(PT, melt_wf, models):
         + xg_S2(PT, melt_wf, models) * mdv.species.loc["S2", "M"]
         + xg_H2S(PT, melt_wf, models) * mdv.species.loc["H2S", "M"]
         + xg_OCS(PT, melt_wf, models) * mdv.species.loc["OCS", "M"]
+        + xg_Cl2(PT, melt_wf, models) * mdv.species.loc["Cl2", "M"]
+        + xg_HCl(PT, melt_wf, models) * mdv.species.loc["HCl", "M"]
         + xg_X(PT, melt_wf, models) * mdv.species.loc[species_X, "M"]
     )
     return Xg_t
@@ -2223,6 +2372,8 @@ def gas_wf(gas_mf, models):
     wg_CO = (mdv.species.loc["CO", "M"] * gas_mf["CO"]) / gas_mf["Xg_t"]
     wg_CH4 = (mdv.species.loc["CH4", "M"] * gas_mf["CH4"]) / gas_mf["Xg_t"]
     wg_OCS = (mdv.species.loc["OCS", "M"] * gas_mf["OCS"]) / gas_mf["Xg_t"]
+    wg_Cl2 = (mdv.species.loc["Cl2", "M"] * gas_mf["Cl2"]) / gas_mf["Xg_t"]
+    wg_HCl = (mdv.species.loc["HCl", "M"] * gas_mf["HCl"]) / gas_mf["Xg_t"]
     species_X = models.loc["species X", "option"]
     wg_X = (mdv.species.loc[species_X, "M"] * gas_mf["X"]) / gas_mf["Xg_t"]
     result = {
@@ -2236,6 +2387,8 @@ def gas_wf(gas_mf, models):
         "wg_CO": wg_CO,
         "wg_CH4": wg_CH4,
         "wg_OCS": wg_OCS,
+        "wg_Cl2": wg_Cl2,
+        "wg_HCl": wg_HCl,
         "wg_X": wg_X,
     }
     return result
@@ -2274,6 +2427,8 @@ def gas_wft(gas_mf, models):
     wgt_CO = gaswf["wg_CO"] * gas_mf["wt_g"]
     wgt_CH4 = gaswf["wg_CH4"] * gas_mf["wt_g"]
     wgt_OCS = gaswf["wg_OCS"] * gas_mf["wt_g"]
+    wgt_Cl2 = gaswf["wg_Cl2"] * gas_mf["wt_g"]
+    wgt_HCl = gaswf["wg_HCl"] * gas_mf["wt_g"]
     wgt_X = gaswf["wg_X"] * gas_mf["wt_g"]
     result = {
         "wgt_O2": wgt_O2,
@@ -2286,6 +2441,8 @@ def gas_wft(gas_mf, models):
         "wgt_CO": wgt_CO,
         "wgt_CH4": wgt_CH4,
         "wgt_OCS": wgt_OCS,
+        "wgt_Cl2": wgt_Cl2,
+        "wgt_HCl": wgt_HCl,
         "wgt_X": wgt_X,
     }
     return result
@@ -2322,6 +2479,8 @@ def gas_weight(gas_mf, bulk_wf):
     Wg_CO = gaswft_["wgt_CO"] * bulk_wf["Wt"]
     Wg_CH4 = gaswft_["wgt_CH4"] * bulk_wf["Wt"]
     Wg_OCS = gaswft_["wgt_OCS"] * bulk_wf["Wt"]
+    Wg_Cl2 = gaswft_["wgt_Cl2"] * bulk_wf["Wt"]
+    Wg_HCl = gaswft_["wgt_HCl"] * bulk_wf["Wt"]
     Wg_X = gaswft_["wgt_X"] * bulk_wf["Wt"]
     Wg_t = gas_mf["wt_g"] * bulk_wf["Wt"]
     result = {
@@ -2335,6 +2494,8 @@ def gas_weight(gas_mf, bulk_wf):
         "Wg_CO": Wg_CO,
         "Wg_CH4": Wg_CH4,
         "Wg_OCS": Wg_OCS,
+        "Wg_Cl2": Wg_Cl2,
+        "Wg_HCl": Wg_HCl,
         "Wg_X": Wg_X,
         "Wg_t": Wg_t,
     }
@@ -2375,6 +2536,8 @@ def gas_moles(gas_mf, bulk_wf, models):
     Xg_CO = gasw["Wg_CO"] / mdv.species.loc["CO", "M"]
     Xg_CH4 = gasw["Wg_CH4"] / mdv.species.loc["CH4", "M"]
     Xg_OCS = gasw["g_OCS"] / mdv.species.loc["OCS", "M"]
+    Xg_Cl2 = gasw["g_Cl2"] / mdv.species.loc["Cl2", "M"]
+    Xg_HCl = gasw["g_HCl"] / mdv.species.loc["HCl", "M"]
     species_X = models.loc["species X", "option"]
     Xg_X = gasw["Wg_X"] / mdv.species.loc[species_X, "M"]
     Xt_g = (
@@ -2388,6 +2551,8 @@ def gas_moles(gas_mf, bulk_wf, models):
         + Xg_CO
         + Xg_CH4
         + Xg_OCS
+        + Xg_Cl2
+        + Xg_HCl
         + Xg_X
     )
     result = {
@@ -2401,6 +2566,8 @@ def gas_moles(gas_mf, bulk_wf, models):
         "Xg_CO": Xg_CO,
         "Xg_CH4": Xg_CH4,
         "Xg_OCS": Xg_OCS,
+        "Xg_Cl2": Xg_Cl2,
+        "Xg_HCl": Xg_HCl,
         "Xg_X": Xg_X,
         "Xg_t": Xt_g,
     }
@@ -2408,6 +2575,7 @@ def gas_moles(gas_mf, bulk_wf, models):
 
 
 # calculate weight fraction of elements in the gas
+# ADD Cl
 def gas_elements(gas_mf, models):
     """
     Convert gas composition in mole fraction of each species to weight fraction of each
@@ -2459,6 +2627,7 @@ def gas_elements(gas_mf, models):
 
 
 # calculate weight fraction of elements in the melt
+# ADD Cl
 def melt_elements(melt_wf, bulk_wf, gas_comp):
     """
     Convert melt composition in weight fraction of each species to weight fraction of
@@ -2529,6 +2698,7 @@ def melt_elements(melt_wf, bulk_wf, gas_comp):
 
 
 # molar volume of the gas in J/bar/mol
+# ADD Cl
 def Vm_gas(gas_mf, PT, models):
     # work in progress
     Vm = (
@@ -2547,6 +2717,7 @@ def Vm_gas(gas_mf, PT, models):
 
 
 # volume of the gas in cm3
+# ADD Cl
 def gas_volume(PT, gas_mf, bulk_wf, models):
     # work in progress
     Xg_O2, Xg_H2, Xg_H2O, Xg_H2S, Xg_S2, Xg_SO2, Xg_CO2, Xg_CO, Xg_CH4, Xg_OCS, Xt_g = (
@@ -2640,6 +2811,7 @@ def melt_comp(run, setup):
         "CO2",
         "X",
         "ST",
+        'Cl'
     ]:
         if x + "ppm" in oxides:
             value = setup.loc[run, x + "ppm"] / 1000000.0
@@ -2677,6 +2849,9 @@ def melt_comp(run, setup):
     ]
     melt_wf["CT"] = (melt_wf["CO2"] / mdv.species.loc["CO2", "M"]) * mdv.species.loc[
         "C", "M"
+    ]
+    melt_wf["ClT"] = (melt_wf["Cl"] / mdv.species.loc["Cl", "M"]) * mdv.species.loc[
+        "Cl", "M"
     ]
     melt_wf["H2"] = 0.0
 
@@ -2720,15 +2895,16 @@ def melt_normalise_wf(melt_wf, volatiles, Fe_speciation, molmass="M", majors="ma
             "CO2", molmass
         ]
         S = melt_wf["ST"]
+        Cl = melt_wf["ClT"]
         X = melt_wf["XT"]
     elif volatiles == "water":  # assumes all H is H2O
         H2O = (melt_wf["HT"] / mdv.species.loc["H2", molmass]) * mdv.species.loc[
             "H2O", molmass
         ]
-        CO2, S, X = 0.0, 0.0, 0.0
+        CO2, S, X, Cl = 0.0, 0.0, 0.0, 0.
     elif volatiles == "no":
-        H2O, CO2, S, X = 0.0, 0.0, 0.0, 0.0
-    volatiles = H2O + CO2 + S + X
+        H2O, CO2, S, X, Cl = 0.0, 0.0, 0.0, 0.0, 0.
+    volatiles = H2O + CO2 + S + X + Cl
     if Fe_speciation == "no":
         Wm_FeOT_ = Wm_FeOT(melt_wf, molmass=molmass)
         Wm_FeO_ = 0.0
@@ -2803,6 +2979,7 @@ def melt_normalise_wf(melt_wf, volatiles, Fe_speciation, molmass="M", majors="ma
     result["H2O"] = H2O
     result["CO2"] = CO2
     result["S"] = S
+    result["Cl"] = Cl
     result["X"] = X
     return result
 
@@ -3015,6 +3192,7 @@ def melt_mole_fraction(
         + (melt_comp["H2O"] / mdv.species.loc["H2O", molmass])
         + (melt_comp["CO2"] / mdv.species.loc["CO2", molmass])
         + (melt_comp["S"] / mdv.species.loc["S", molmass])
+        + (melt_comp["Cl"] / mdv.species.loc["Cl", molmass])
         + (melt_comp["X"] / mdv.species.loc[species_X, molmass])
     )
     result = {"SiO2": (melt_comp["SiO2"] / mdv.species.loc["SiO2", molmass]) / mol_tot}
@@ -3032,6 +3210,7 @@ def melt_mole_fraction(
     result["H2O"] = (melt_comp["H2O"] / mdv.species.loc["H2O", molmass]) / mol_tot
     result["CO2"] = (melt_comp["CO2"] / mdv.species.loc["CO2", molmass]) / mol_tot
     result["S"] = (melt_comp["S"] / mdv.species.loc["S", molmass]) / mol_tot
+    result["Cl"] = (melt_comp["S"] / mdv.species.loc["Cl", molmass]) / mol_tot
     result["X"] = (melt_comp["X"] / mdv.species.loc[species_X, molmass]) / mol_tot
     result["mol_tot"] = mol_tot
     return result
