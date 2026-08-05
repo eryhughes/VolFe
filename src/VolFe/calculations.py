@@ -32,6 +32,7 @@ def P_sat(PT, melt_wf, models, Ptol, nr_step, nr_tol):
         species; Ratios of melt species
     """
     ST = melt_wf["ST"]
+    ClT = melt_wf["ClT"]
     # H2OT = melt_wf["H2OT"]
     # CO2 = melt_wf["CO2"]
     # HT = melt_wf["HT"]
@@ -66,6 +67,7 @@ def P_sat(PT, melt_wf, models, Ptol, nr_step, nr_tol):
         "HT": melt_wf["HT"],
         "CT": melt_wf["CT"],
         "XT": melt_wf["XT"],
+        "ClT": melt_wf["ClT"],
     }  # to work out P_sat
     melt_wf2 = {
         "SiO2": melt_wf["SiO2"],
@@ -92,6 +94,7 @@ def P_sat(PT, melt_wf, models, Ptol, nr_step, nr_tol):
         "HT": melt_wf["HT"],
         "CT": melt_wf["CT"],
         "XT": melt_wf["XT"],
+        "ClT": melt_wf["ClT"],
     }  # to work out sulfur saturation
 
     def Pdiff(guess, melt_wf, models):
@@ -114,6 +117,8 @@ def P_sat(PT, melt_wf, models, Ptol, nr_step, nr_tol):
     melt_wf2["CO2"] = ms_conc["wm_CO2"]
     melt_wf1["S2-"] = ms_conc["wm_S2m"]
     melt_wf2["S2-"] = ms_conc["wm_S2m"]
+    melt_wf1["Cl-"] = ms_conc["wm_Clm"]
+    melt_wf2["Cl-"] = ms_conc["wm_Clm"]
     melt_wf1["ST"] = ST
     melt_wf2["ST"] = ST
     if (
@@ -138,6 +143,8 @@ def P_sat(PT, melt_wf, models, Ptol, nr_step, nr_tol):
         melt_wf2["CO2"] = ms_conc["wm_CO2"]
         melt_wf1["S2-"] = ms_conc["wm_S2m"]
         melt_wf2["S2-"] = ms_conc["wm_S2m"]
+        melt_wf1["Cl-"] = ms_conc["wm_Clm"]
+        melt_wf2["Cl-"] = ms_conc["wm_Clm"]
         if models.loc["sulfur_saturation", "option"] == True:
             sulfsat = sulfur_saturation(PT, melt_wf2, models)
             melt_wf1["ST"] = sulfsat["ST"] / 1000000.0
