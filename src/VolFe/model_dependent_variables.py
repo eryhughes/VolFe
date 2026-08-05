@@ -83,6 +83,7 @@ default_models = [
     ["hydrogen sulfide", "Basalt_Hughes24"],
     ["methane", "Basalt_Ardia13"],
     ["carbon monoxide", "Basalt_Hughes24"],
+    ["chloride","Rusiecka26_eq4"], # CHECK
     ["species X solubility", "Ar_Basalt_Hughes25"],
     ["Cspeccomp", "Basalt"],
     ["Hspeccomp", "MORB_HughesIP"],
@@ -102,6 +103,8 @@ default_models = [
     ["y_CH4", "Shi92"],
     ["y_H2O", "Holland91"],
     ["y_OCS", "Shi92"],
+    ["y_Cl2","ideal"], # CHECK
+    ["y_HCl","ideal"], # CHECK
     ["y_X", "ideal"],
     ["KHOg", "Ohmoto97"],
     ["KHOSg", "Ohmoto97"],
@@ -110,6 +113,7 @@ default_models = [
     ["KCOg", "Ohmoto97"],
     ["KCOHg", "Ohmoto97"],
     ["KOCSg", "Moussallam19"],
+    ["KHClg","Rusiecka26_eq14"], # CHECK
     ["KCOs", "Holloway92"],
     ["carbonylsulfide", "COS"],
     ["bulk_composition", "melt-only"],
@@ -228,6 +232,9 @@ def check_default_options(models):
     H2S = return_options(
         default_models_MC.loc["hydrogen sulfide", "option"], "hydrogen sulfide", models
     )
+    Cl = return_options(
+        default_models_MC.loc["chloride", "option"], "chloride", models
+    )
     X = return_options(
         default_models_MC.loc["species X solubility", "option"],
         "species X solubility",
@@ -267,6 +274,8 @@ def check_default_options(models):
     yCH4 = return_options(default_models.loc["y_CH4", "option"], "y_CH4", models)
     yH2O = return_options(default_models.loc["y_H2O", "option"], "y_H2O", models)
     yOCS = return_options(default_models.loc["y_OCS", "option"], "y_OCS", models)
+    yCl2 = return_options(default_models.loc["y_Cl2", "option"], "y_Cl2", models)
+    yHCl = return_options(default_models.loc["y_HCl", "option"], "y_HCl", models)
     yX = return_options(default_models.loc["y_X", "option"], "y_X", models)
     # equilibrium constants
     KHOg = return_options(default_models.loc["KHOg", "option"], "KHOg", models)
@@ -275,6 +284,7 @@ def check_default_options(models):
     KOSg2 = return_options(default_models.loc["KOSg2", "option"], "KOSg2", models)
     KCOg = return_options(default_models.loc["KCOg", "option"], "KCOg", models)
     KCOHg = return_options(default_models.loc["KCOHg", "option"], "KCOHg", models)
+    KHClg = return_options(default_models.loc["KHClg", "option"], "KHClg", models)
     KOCSg = return_options(default_models.loc["KOCSg", "option"], "KOCSg", models)
     KCOs = return_options(default_models.loc["KCOs", "option"], "KCOs", models)
     OCS = return_options(
@@ -392,6 +402,7 @@ def check_default_options(models):
         ["hydrogen sulfide", H2S],
         ["methane", CH4],
         ["carbon monoxide", CO],
+        ["chloride", Cl],
         ["species X solubility", X],
         ["Cspeccomp", Cspec],
         ["Hspeccomp", Hspec],
@@ -411,6 +422,8 @@ def check_default_options(models):
         ["y_CH4", yCH4],
         ["y_H2O", yH2O],
         ["y_OCS", yOCS],
+        ["y_Cl2", yCl2],
+        ["y_HCl", yHCl],
         ["y_X", yX],
         ["KHOg", KHOg],
         ["KHOSg", KHOSg],
@@ -419,6 +432,7 @@ def check_default_options(models):
         ["KCOg", KCOg],
         ["KCOHg", KCOHg],
         ["KOCSg", KOCSg],
+        ["KHClg",KHClg],
         ["KCOs", KCOs],
         ["carbonylsulfide", OCS],
         ["bulk_composition", bulk_composition],
@@ -546,7 +560,10 @@ def make_df_and_add_model_defaults(models):
 
     carbon monoxide: Model for the parameterisation of the CO solubility constant.
         See function C_CO for options.
-
+    
+    chloride: Model for the parameterisation of the Cl- solubility constant.
+        See function C_Cl for options.
+        
     species X solubility: Model for the parameterisation of the X solubility constant.
         See function C_X for options.
 
@@ -608,6 +625,12 @@ def make_df_and_add_model_defaults(models):
 
     y_OCS: Model for the parameterisation of the OCS fugacity coefficient.
         See function y_OCS for options.
+    
+    y_Cl2: Model for the parameterisation of the Cl2 fugacity coefficient.
+        See function y_Cl2 for options.
+
+    y_HCl: Model for the parameterisation of the HCl fugacity coefficient.
+        See function y_HCl for options.
 
     y_X: Model for the parameterisation of the X fugacity coefficient.
         See function y_X for options.
@@ -635,6 +658,9 @@ def make_df_and_add_model_defaults(models):
 
     KOCSg: Model for the parameterisation of the equilibiurm constant for OCS.
         See function KOCSg for options.
+        
+    KHClg: Model for the parameterisation of the equilibiurm constant for HCl.
+        See function KHClg for options.
 
     KCOs: Model for the parameterisation of the equilibiurm constant for Cgrahite + O2 ⇄ CO2.
         See function KCOs for options.
@@ -2353,24 +2379,80 @@ def C_X(PT, melt_wf, models=default_models):
 ########################
 # solubility of Cl #####
 ########################
-def C_Cl(PT, melt_wf):
-    # WORK IN PROGRESS
+# WORK IN PROGRESS #
+def C_Cl(PT, melt_wf,models=default_models):
+    """
+    Solubility constant for disolving Cl- in the melt: C_Cl = wmCl-(fCl2)**-0.5*(fO2)**0.25
+    (in ppmw and bar)
 
-    melt_comp = mg.melt_cation_proportion(melt_wf, "no", "no")
-    P = PT["P"] / 10000.0  # bar to GPa
-    T = PT["T"] + 273.15  # 'C to 'K
-    logC = (
-        1.601
-        + (
-            4470 * melt_comp["Ca"]
-            - 3430 * melt_comp["Si"]
-            + 2592 * melt_comp["FeT"]
-            - 4092 * melt_comp["K"]
-            - 894 * P
+
+    Parameters
+    ----------
+    PT: dict
+        Pressure (bars) as "P" and temperature ('C) as "T".
+
+    melt_wf: dict
+        Melt composition (SiO2, TiO2, etc.)..
+
+    models: pandas.DataFrame
+        Minimum requirement is index of "chloride
+    Returns
+    -------
+    float
+        Solubility constant for Cl-
+
+
+    Model options for chloride
+    -------------
+    - 'Rusiecka26_eq4' [default] Eq. (4) from Rusiecka & Wood (2026) CMP 181:46 https://doi.org/10.1007/s00410-026-02332-x
+    - 'Thomas23_eq12' Eq. (12) from Thomas & Wood (2023) AmMin 108(5):814-825 https://doi.org/10.2138/am-2022-8450
+    """
+
+    # TO ADD
+    # Eq. (7), (8) Rusiecka & Wood (2025) GCA 393:208-218 https://doi.org/10.1016/j.gca.2025.01.020
+    # Eq. (16), (17) Thomas & Wood (2021) GCA 294:28-42 https://doi.org/10.1016/j.gca.2020.11.018
+    # Eq. (15) Thomas & Wood (2023) AmMin 108(5):814-825 https://doi.org/10.2138/am-2022-8450
+
+    # Eq. (12) from Thomas & Wood (2023) AmMin 108(5):814-825 https://doi.org/10.2138/am-2022-8450
+    # NOT BENCHMARKED
+    if models.loc['chloride','option'] == 'Thomas23_eq12':
+        melt_comp = mg.melt_cation_proportion(melt_wf, "no", "no")
+        P = PT["P"] / 10000.0  # bar to GPa
+        T = PT["T"] + 273.15  # 'C to 'K
+        logC = (
+            1.601
+            + (
+                4470 * melt_comp["Ca"]
+                - 3430 * melt_comp["Si"]
+                + 2592 * melt_comp["FeT"]
+                - 4092 * melt_comp["K"]
+                - 894 * P
+            )
+            / T
         )
-        / T
-    )
-    C = float(10.0**logC)
+        Cwtpc = float(10.0**logC)
+        C = Cwtpc*1.e5 # ppmw
+    
+    # Eq. (4) from Rusiecka & Wood (2026) CMP 181:46 https://doi.org/10.1007/s00410-026-02332-x
+    # NOT BENCHMARKED
+    elif models.loc['chloride','option'] == 'Rusiecka26_eq4':
+        melt_comp = mg.melt_cation_proportion(melt_wf, "water", "no",molmass="M_Rusiecka26",majors='majors_Rusiecka26')
+        P = PT["P"] / 10000.0  # bar to GPa
+        T = PT["T"] + 273.15  # 'C to 'K
+        logC = (
+            1.15
+            + (
+                4359 * melt_comp["Ca"]
+                - 3055 * melt_comp["Si"]
+                + 2059 * melt_comp["FeT"]
+                - 3875 * melt_comp["K"]
+                - 163 * melt_comp["Mg"]
+                - 514 * P
+            )
+            / T
+        )
+        Cwtpc = float(10.0**logC) # wt%
+        C = Cwtpc*1.e5 # ppmw
     return C
 
 
@@ -2881,18 +2963,24 @@ def KHOg(PT, models=default_models):
     Model options for KHOg
     -------------
     - 'Ohmoto97' [default] Reaction (d) in Table 1 of Ohmoto & Kerrick (1997).
-    Only one option available currently, included for future development.
+    - 'Rusiecka26_eq13' Eq. (13) from Rusiecka & Wood (2026) CMP 181:46 https://doi.org/10.1007/s00410-026-02332-x
 
     """
 
     model = models.loc["KHOg", "option"]
 
     T_K = PT["T"] + 273.15
+    
     if model == "Ohmoto97":  # Reaction (d) in Table 1 of Ohmoto & Kerrick (1997)
         if models.loc["high precision", "option"] == True:
             K = 10.0 ** ((12510.0 / T_K) - 0.979 * (gp.log10(T_K)) + 0.483)
         else:
             K = 10.0 ** ((12510.0 / T_K) - 0.979 * (math.log10(T_K)) + 0.483)
+    
+    elif model == 'Rusiecka26_eq13': # Eq. (13) from Rusiecka & Wood (2026) CMP 181:46 https://doi.org/10.1007/s00410-026-02332-x
+        log10K = (12850./T_K) - 2.8675
+        K = 10.**log10K
+        
     return K
 
 
@@ -3163,6 +3251,44 @@ def KOCSg(PT, models=default_models):  # OCS - depends on system
                 )
             return K
 
+def KHClg(PT, models=default_models):  # HCl
+    """
+    Equilibrium constant for homogeneous vapor reaction involving HCl: 
+    K = fHCl/((fH2)**0.5*(fCl2)**0.5)
+
+
+    Parameters
+    ----------
+    PT: dict
+        Pressure (bars) as "P" and temperature ('C) as "T".
+
+    models: pandas.DataFrame
+        Minimum requirement is index of "KHClg" and column label
+        of "option".
+
+    Returns
+    -------
+    float
+        Equilibrium constant
+
+
+    Model options for KHClg
+    -------------
+    - 'Rusiecka26_eq14' Eq. (14) from Rusiecka & Wood (2026) CMP 181:46 https://doi.org/10.1007/s00410-026-02332-x
+    - 'noHCl' Stops HCl forming in the vapor.
+
+    """
+
+    model = models.loc["KHClg", "option"]
+
+    T = PT["T"] + 273.15
+
+    if model == "Rusiecka26_eq14":  # Eq. (14) from Rusiecka & Wood (2026) CMP 181:46 https://doi.org/10.1007/s00410-026-02332-x
+        log10K = (4894.6/T) + 0.3436
+        K = 10.**log10K
+    elif model == "noHCl":
+        K = 0. 
+    return K
 
 # Cgraphite + O2 = CO2
 def KCOs(PT, models=default_models):
@@ -4579,6 +4705,69 @@ def y_OCS(PT, models=default_models):
         y = 1.0
     return y
 
+def y_Cl2(PT, models=default_models):
+    """
+    Fugacity coefficient for Cl2.
+
+    Parameters
+    ----------
+    PT: dict
+        Pressure (bars) as "P" and temperature ('C) as "T".
+
+    models: pandas.DataFrame
+        Minimum requirement is index of "y_Cl2" and "ideal_gas" and column label of
+        "option".
+
+    Returns
+    -------
+    float
+        Fugacity coefficient for Cl2
+
+
+    Model options for y_Cl2
+    -----------------------
+    - 'ideal' [default] Treat as ideal gas, y = 1 at all P.
+    Note: "ideal_gas" = "True" overides chosen option.
+    """
+    model = models.loc["y_Cl2", "option"]
+
+    # Need to add Rusiecka2026
+
+    if model == "ideal":
+        y = 1.0
+    return y
+
+def y_HCl(PT, models=default_models):
+    """
+    Fugacity coefficient for HCl.
+
+    Parameters
+    ----------
+    PT: dict
+        Pressure (bars) as "P" and temperature ('C) as "T".
+
+    models: pandas.DataFrame
+        Minimum requirement is index of "y_HCl" and "ideal_gas" and column label of
+        "option".
+
+    Returns
+    -------
+    float
+        Fugacity coefficient for HCl
+
+
+    Model options for y_HCl
+    -----------------------
+    - 'ideal' [default] Treat as ideal gas, y = 1 at all P.
+    Note: "ideal_gas" = "True" overides chosen option.
+    """
+    model = models.loc["y_HCl", "option"]
+
+    # Need to add Rusiecka2026
+
+    if model == "ideal":
+        y = 1.0
+    return y
 
 def y_X(PT, models=default_models):  # species X fugacity coefficient
     """
@@ -6065,6 +6254,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "C",
@@ -6072,6 +6263,8 @@ species = [
         12.011,
         "",
         0.0,
+        "",
+        "",
         "",
         "",
         "",
@@ -6109,6 +6302,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "Na",
@@ -6128,6 +6323,8 @@ species = [
         "",
         "",
         22.99,
+        "",
+        "",
         "",
         "",
         "",
@@ -6153,6 +6350,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "Al",
@@ -6172,6 +6371,8 @@ species = [
         "",
         "",
         26.98,
+        "",
+        "",
         "",
         "",
         "",
@@ -6197,6 +6398,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "P",
@@ -6219,6 +6422,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "S",
@@ -6236,6 +6441,8 @@ species = [
         "",
         "",
         32.06,
+        "",
+        "",
         "",
         "",
         "",
@@ -6263,6 +6470,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "Ca",
@@ -6282,6 +6491,8 @@ species = [
         "",
         "",
         40.08,
+        "",
+        "",
         "",
         "",
         "",
@@ -6307,6 +6518,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "Mn",
@@ -6326,6 +6539,8 @@ species = [
         "",
         "",
         55.85,
+        "",
+        "",
         "",
         "",
         "",
@@ -6351,7 +6566,8 @@ species = [
         "",
         55.85,
         "",
-    ],
+        55.85,""],
+    ["Cl","",35.45,-1.,0.,"","","","","","", "", "", "","","","","","","",35.45,''],
     [
         "SiO2",
         "Y",
@@ -6372,8 +6588,7 @@ species = [
         60.09,
         "Y",
         60.09,
-        "Y",
-    ],
+        "Y",60.08,'Y'],
     [
         "TiO2",
         "Y",
@@ -6394,7 +6609,7 @@ species = [
         79.87,
         "Y",
         79.9,
-        "Y",
+        "Y",79.866,'Y'
     ],
     [
         "Al2O3",
@@ -6415,8 +6630,10 @@ species = [
         "Y",
         101.96,
         "Y",
-        102,
+        101.96,
         "Y",
+        101.96,
+        'Y'
     ],
     [
         "Fe2O3",
@@ -6439,6 +6656,8 @@ species = [
         "",
         159.6,
         "",
+        159.687,
+        "",
     ],
     [
         "FeO1.5",
@@ -6460,7 +6679,7 @@ species = [
         79.85,
         "",
         71.85,
-        "",
+        "",71.844,"",
     ],
     [
         "FeO",
@@ -6482,7 +6701,7 @@ species = [
         71.85,
         "Y",
         71.85,
-        "Y",
+        "Y",71.844,'Y'
     ],
     [
         "MnO",
@@ -6503,8 +6722,7 @@ species = [
         "N",
         70.94,
         "Y",
-        71,
-        "Y",
+        70.9,"Y",70.9374,'Y'
     ],
     [
         "MgO",
@@ -6525,8 +6743,7 @@ species = [
         "Y",
         40.31,
         "Y",
-        40.3,
-        "Y",
+        40.2,"Y",40.3044,'Y'
     ],
     [
         "CaO",
@@ -6548,7 +6765,7 @@ species = [
         56.08,
         "Y",
         56.1,
-        "Y",
+        "Y",56.0774,'Y'
     ],
     [
         "Na2O",
@@ -6570,7 +6787,7 @@ species = [
         61.98,
         "Y",
         62,
-        "Y",
+        "Y",61.97,'Y'
     ],
     [
         "K2O",
@@ -6592,7 +6809,7 @@ species = [
         94.2,
         "Y",
         94.2,
-        "Y",
+        "Y",94.2,'Y'
     ],
     [
         "P2O5",
@@ -6614,7 +6831,7 @@ species = [
         141.948,
         "Y",
         141.94,
-        "Y",
+        "Y",283.889,'Y'
     ],
     [
         "OH",
@@ -6637,6 +6854,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "H2O",
@@ -6645,7 +6864,7 @@ species = [
         0.0,
         1.0,
         1.0,
-        1.0,
+        2.0,
         1.0,
         647.25,
         221.1925,
@@ -6659,6 +6878,8 @@ species = [
         "",
         18.02,
         "",
+        18.01528,
+        ''
     ],
     [
         "H2S",
@@ -6671,6 +6892,8 @@ species = [
         1.0,
         373.55,
         90.0779,
+        "",
+        "",
         "",
         "",
         "",
@@ -6703,6 +6926,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "CO2",
@@ -6725,6 +6950,8 @@ species = [
         "",
         44.009,
         "",
+        44.009,
+        "",
     ],
     [
         "CO3",
@@ -6735,6 +6962,8 @@ species = [
         4.0,
         1.0,
         3.0,
+        "",
+        "",
         "",
         "",
         "",
@@ -6769,6 +6998,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "SO2",
@@ -6791,6 +7022,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "SO3",
@@ -6801,6 +7034,8 @@ species = [
         6.0,
         1.0,
         3.0,
+        "",
+        "",
         "",
         "",
         "",
@@ -6835,6 +7070,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "OCS",
@@ -6847,6 +7084,8 @@ species = [
         "",
         377.55,
         65.8612,
+        "",
+        "",
         "",
         "",
         "",
@@ -6879,6 +7118,8 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
     [
         "H2",
@@ -6900,6 +7141,8 @@ species = [
         2.016,
         "",
         2.016,
+        "",
+        2.016
     ],
     [
         "CH4",
@@ -6922,7 +7165,11 @@ species = [
         "",
         "",
         "",
+        "",
+        "",
     ],
+    ["Cl2", "", 70.9060, 0.0, 0.0, "", "", "", "", "", "", "", "", "", "", "","","","","","",""],
+    ["HCl", "", 36.4609, 0.0, 0.0, "", "", "", "", "", "", "", "", "", "", "","","","","","",""],
     [
         "Ar",
         "",
@@ -6939,6 +7186,8 @@ species = [
         "",
         "",
         39.948,
+        "",
+        "",
         "",
         "",
         "",
@@ -6961,6 +7210,8 @@ species = [
         "",
         "",
         20.1797,
+        "",
+        "",
         "",
         "",
         "",
@@ -6994,6 +7245,8 @@ species = pd.DataFrame(
         "majors_Thomas26",
         "M_Gorojovsky26",
         "majors_Gorojovsky26",
+        'M_Rusiecka26',
+        'majors_Rusiecka26'
     ],
 )
 species = species.set_index("species")
