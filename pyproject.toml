@@ -19,7 +19,7 @@ classifiers = [
 ]
 dependencies = [
     "datetime",#==5.5",
-    "densityx",'==1.2.0",
+    "densityx",#==1.2.0",
     "gmpy2",#==2.2.1",
     "numpy",#==2.2",
     "pandas",#==2.2.3",
