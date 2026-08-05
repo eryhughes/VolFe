@@ -113,6 +113,7 @@ def results_table_melt_comp_etc(PT, melt_comp, conc, frac, melt_wf):
                 "S2-_ppmw",
                 "S6+_ppmw",
                 "H2S_ppmw",
+                "Cl-_ppmw",
                 "H_H2OT/HT",
                 "H_H2/HT",
                 "H_CH4/HT",
@@ -169,6 +170,7 @@ def results_table_melt_comp_etc(PT, melt_comp, conc, frac, melt_wf):
                 conc["wm_S2m"] * 1000000.0,
                 conc["wm_S6p"] * 1000000.0,
                 conc["wm_H2S"] * 1000000.0,
+                conc["wm_Clm"] * 1000000.0,
                 frac["H2O_HT"],
                 frac["H2_HT"],
                 frac["CH4_HT"],
@@ -200,7 +202,7 @@ def results_table_melt_vol():
 
     """
     results_headers = pd.DataFrame(
-        [["H2OT-eq_wtpc", "CO2T-eq_ppmw", "ST_ppmw", "X_ppmw"]]
+        [["H2OT-eq_wtpc", "CO2T-eq_ppmw", "ST_ppmw", "Cl_ppmw", "X_ppmw"]]
     )
     return results_headers
 
@@ -241,6 +243,7 @@ def results_table_model_options(models):
                 "hydrogen sulfide opt",
                 "methane opt",
                 "carbon monoxide opt",
+                "chloride opt",
                 "species X solubility opt",
                 "Cspeccomp opt",
                 "Hspeccomp opt",
@@ -260,6 +263,8 @@ def results_table_model_options(models):
                 "y_CH4 opt",
                 "y_H2O opt",
                 "y_OCS opt",
+                "y_Cl2 opt",
+                "y_HCl opt",
                 "y_X opt",
                 "KHOg opt",
                 "KHOSg opt",
@@ -268,6 +273,7 @@ def results_table_model_options(models):
                 "KCOg opt",
                 "KCOHg opt",
                 "KOCSg opt",
+                "KHClg opt",
                 "KCOs opt",
                 "carbonylsulfide opt",
                 "density opt",
@@ -294,6 +300,7 @@ def results_table_model_options(models):
                 models.loc["hydrogen sulfide", "option"],
                 models.loc["methane", "option"],
                 models.loc["carbon monoxide", "option"],
+                models.loc["chloride", "option"],
                 models.loc["species X solubility", "option"],
                 models.loc["Cspeccomp", "option"],
                 models.loc["Hspeccomp", "option"],
@@ -313,6 +320,8 @@ def results_table_model_options(models):
                 models.loc["y_CH4", "option"],
                 models.loc["y_H2O", "option"],
                 models.loc["y_OCS", "option"],
+                models.loc["y_Cl2", "option"],
+                models.loc["y_HCl", "option"],
                 models.loc["y_X", "option"],
                 models.loc["KHOg", "option"],
                 models.loc["KHOSg", "option"],
@@ -321,6 +330,7 @@ def results_table_model_options(models):
                 models.loc["KCOg", "option"],
                 models.loc["KCOHg", "option"],
                 models.loc["KOCSg", "option"],
+                models.loc["KHClg", "option"],
                 models.loc["KCOs", "option"],
                 models.loc["carbonylsulfide", "option"],
                 models.loc["density", "option"],
@@ -372,6 +382,8 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 "fCO_bar",
                 "fCH4_bar",
                 "fOCS_bar",
+                "fCl2_bar",
+                "fHCl_bar",
                 "fX_bar",
                 "pO2_bar",
                 "pH2_bar",
@@ -383,6 +395,8 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 "pCO_bar",
                 "pCH4_bar",
                 "pOCS_bar",
+                "pCl2_bar",
+                "pHCl_bar",
                 "pX_bar",
                 "xgO2_mf",
                 "xgH2_mf",
@@ -394,6 +408,8 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 "xgCO_mf",
                 "xgCH4_mf",
                 "xgOCS_mf",
+                "xgCl2_mf",
+                "xgHCl_mf",
                 "xgX_mf",
                 "xgC_S_mf",
                 "yO2",
@@ -406,6 +422,8 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 "yCO",
                 "yCH4",
                 "yOCS",
+                "yCl2",
+                "yHCl",
                 "yX",
                 "M_m_SO",
                 "M_m_ox",
@@ -414,9 +432,10 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 "C_CO2T_mf_bar",
                 "C_CO_ppm_bar",
                 "C_CH4_ppm_bar",
-                "C_S_ppm",
+                "C_S_ppm_bar",
                 "C_SO4_ppm_bar",
                 "C_H2S_ppm_bar",
+                "C_Cl_ppm_bar",
                 "C_X_ppm_bar",
                 "KHOg",
                 "KHOSg",
@@ -425,6 +444,7 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 "KOCSg",
                 "KSOg",
                 "KSOg2",
+                "KHClg",
                 "KHOm",
                 "KCOm",
                 "KCOs",
@@ -447,6 +467,8 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 mg.f_CO(PT, melt_wf, models),
                 mg.f_CH4(PT, melt_wf, models),
                 mg.f_OCS(PT, melt_wf, models),
+                mg.f_Cl2(PT, melt_wf, models),
+                mg.f_HCl(PT, melt_wf, models),
                 mg.f_X(PT, melt_wf, models),
                 mg.p_O2(PT, melt_wf, models),
                 mg.p_H2(PT, melt_wf, models),
@@ -458,6 +480,8 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 mg.p_CO(PT, melt_wf, models),
                 mg.p_CH4(PT, melt_wf, models),
                 mg.p_OCS(PT, melt_wf, models),
+                mg.p_Cl2(PT, melt_wf, models),
+                mg.p_HCl(PT, melt_wf, models),
                 mg.p_X(PT, melt_wf, models),
                 mg.xg_O2(PT, melt_wf, models),
                 mg.xg_H2(PT, melt_wf, models),
@@ -468,6 +492,8 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 mg.xg_CO2(PT, melt_wf, models),
                 mg.xg_CO(PT, melt_wf, models),
                 mg.xg_CH4(PT, melt_wf, models),
+                mg.xg_Cl2(PT, melt_wf, models),
+                mg.xg_HCl(PT, melt_wf, models),
                 mg.xg_OCS(PT, melt_wf, models),
                 mg.xg_X(PT, melt_wf, models),
                 mg.gas_CS(PT, melt_wf, models),
@@ -481,6 +507,8 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 mdv.y_CO(PT, models),
                 mdv.y_CH4(PT, models),
                 mdv.y_OCS(PT, models),
+                mdv.y_Cl2(PT, models),
+                mdv.y_HCl(PT, models),
                 mdv.y_X(PT, models),
                 mg.M_m_SO(melt_wf),
                 mg.M_m_ox(melt_wf, models),
@@ -492,6 +520,7 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 mdv.C_S(PT, melt_wf, models),
                 mdv.C_SO4(PT, melt_wf, models),
                 mdv.C_H2S(PT, melt_wf, models),
+                mdv.C_Cl(PT, melt_wf, models),
                 mdv.C_X(PT, melt_wf, models),
                 mdv.KHOg(PT, models),
                 mdv.KHOSg(PT, models),
@@ -500,6 +529,7 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 mdv.KOCSg(PT, models),
                 mdv.KOSg(PT, models),
                 mdv.KOSg2(PT, models),
+                mdv.KHClg(PT, models),
                 mdv.KHOm(PT, melt_wf, models),
                 mdv.KCOm(PT, melt_wf, models),
                 mdv.KCOs(PT, models),
@@ -511,6 +541,7 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
 
 
 # headers for open system degassing all gas
+# ADD Cl
 def results_table_open_all_gas():
     """Creates DataFrame of headers for cumulative gas composition
 
@@ -771,6 +802,7 @@ def results_table_isotope_d(
 ###############################
 # options from setup file #####
 ###############################
+# ADD Cl
 def options_from_setup(run, models, setup):
     """
     # WORK IN PROGRESS # Allows model options to be read from the setup file rather than
@@ -1015,6 +1047,7 @@ def calc_Pvsat(
             melt_wf["H2OT"] = conc["wm_H2O"]
             melt_wf["CO2"] = conc["wm_CO2"]
             melt_wf["S2-"] = conc["wm_S2m"]
+            melt_wf["Cl-"] = conc["wm_Clm"]
             melt_wf["Fe3FeT"] = conc["Fe3FeT"]
             # if models.loc["sulfur_is_sat","option"] == "yes":
             #    melt_wf["Fe3FeT"] = frac["Fe3FeT"]
@@ -1057,6 +1090,7 @@ def calc_Pvsat(
                         melt_wf_i["CO2"] * 1000000.0,
                         melt_wf_i["ST"] * 1000000.0,
                         melt_wf_i["XT"] * 1000000.0,
+                        melt_wf_i["ClT"] * 1000000.0,
                     ]
                 ]
             )
@@ -1144,6 +1178,7 @@ def calc_Pvsat(
 ###################################
 # calcuate re/degassing paths #####
 ###################################
+# ADD Cl
 def calc_gassing(
     setup,
     models=mdv.default_models,
@@ -1255,6 +1290,7 @@ def calc_gassing(
     melt_wf["S2-"] = conc["wm_S2m"]
     melt_wf["S6+"] = conc["wm_S6p"]
     melt_wf["H2S"] = conc["wm_H2S"]
+    melt_wf['Cl-'] = 0. # can't do Cl at this point
     melt_wf["Fe3FeT"] = conc["Fe3FeT"]
     melt_wf["S6ST"] = mg.S6ST(PT, melt_wf, models)
     sulf_sat_result = c.sulfur_saturation(PT, melt_wf, models)
@@ -1309,6 +1345,7 @@ def calc_gassing(
                 melt_wf_i["H2OT"] * 100.0,
                 melt_wf_i["CO2"] * 1000000.0,
                 melt_wf_i["ST"] * 1000000.0, # check this shouldn't be ST * 1000000.0,
+                melt_wf_i["Cl"] * 1000000.0,
                 melt_wf_i["XT"] * 1000000.0,
             ]
         ]
@@ -2178,6 +2215,9 @@ def calc_gassing(
             melt_wf['HT'] = mdv.species.loc["H2", 'M']*((conc["wm_H2O"]/mdv.species.loc["H2O", 'M'])+(conc["wm_H2"]/mdv.species.loc["H2", 'M'])+(2.*(conc["wm_CH4"]/mdv.species.loc["CH4", 'M']))+(conc["wm_H2S"]/mdv.species.loc["H2S", 'M']))
             melt_wf['CT'] = mdv.species.loc["C", 'M']*((conc["wm_CO2"]/mdv.species.loc["CO2", 'M'])+(conc["wm_CO"]/mdv.species.loc["CO", 'M'])+(conc["wm_CH4"]/mdv.species.loc["CH4", 'M']))
             melt_wf["Fe3FeT"] = conc["Fe3T"]
+            # Cl not implemented yet for degassing
+            conc['wm_Clm'] = 0.
+            conc['wm_Cl'] = 0.
             if P_sat_ < PT["P"]:
                 bulk_comp = c.bulk_composition(run, PT, melt_wf, setup, models)
 
@@ -2223,6 +2263,7 @@ def calc_gassing(
                         wm_H2Oeq * 100.0,
                         wm_CO2eq * 1000000.0,
                         conc["wm_ST"] * 1000000.0,
+                        conc['wm_Cl']*1000000.0,
                         melt_wf["XT"] * 1000000.0,
                     ]
                 ]
