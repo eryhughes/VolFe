@@ -1623,7 +1623,7 @@ def C_S(PT, melt_wf, models=default_models):
             )
             / T
         )
-        C = (10.0 ** (logC))*1.e5 # convert wt% to ppmw
+        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (7) (with or without effect of P from eq. 12) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in
     # silicate melts. Contrib Mineral Petrol 178, 56 (2023).
@@ -1649,7 +1649,7 @@ def C_S(PT, melt_wf, models=default_models):
         )
         if model == "Boulliung23_eq7_12":
             logC = logC + (((PT["P"] - 1) * 6.2) / (8.314 * 2.303 * T))
-        C = (10.0 ** (logC))*1.e5 # convert wt% to ppmw
+        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
@@ -1672,7 +1672,7 @@ def C_S(PT, melt_wf, models=default_models):
             / T
         )
 
-        C = (10.0 ** (logC))*1.e5 # convert wt% to ppmw
+        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (8) or (9) with/without (13) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
     # Earth and Planetary Science Letters 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
@@ -1741,7 +1741,7 @@ def C_S(PT, melt_wf, models=default_models):
         if model in ["Gorojovsky26_eq8_13", "Gorojovsky26_eq9_13"]:
             logC = logC - ((PT["T"] * 0.056) / T)
 
-        C = (10.0 ** (logC))*1.e5 # convert wt% to ppmw
+        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # elif model == "FR54-S1":
     #    lnC = math.log(((1.3e-4)*10000.))
@@ -1881,7 +1881,7 @@ def C_SO4(PT, melt_wf, models=default_models):
         )
         if model == "Boulliung23_eq9_12":
             logC = logC + (((PT["P"] - 1) * 29.2) / (8.314 * 2.303 * T))
-        Csulfate = (10.0 ** (logC))*1.e5 # convert wt% to ppmw
+        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (11) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in
     # silicate melts. Contrib Mineral Petrol 178, 56 (2023).
@@ -1908,7 +1908,7 @@ def C_SO4(PT, melt_wf, models=default_models):
             )
             + 55.029 * math.log10(T)
         )
-        Csulfate = (10.0 ** (logC))*1.e5 # convert wt% to ppmw
+        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (21) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
@@ -1935,7 +1935,7 @@ def C_SO4(PT, melt_wf, models=default_models):
             )
             + 55.03 * math.log10(T)
         )
-        Csulfate = (10.0 ** (logC))*1.e5 # convert wt% to ppmw
+        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (22) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
@@ -1959,7 +1959,7 @@ def C_SO4(PT, melt_wf, models=default_models):
             )
             / T
         )
-        Csulfate = (10.0 ** (logC))*1.e5 # convert wt% to ppmw
+        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # Eq. (10) or (11) with/without (14) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
     # EPSL 687:120088 https://doi.org/10.31223/X5T755
@@ -2013,7 +2013,7 @@ def C_SO4(PT, melt_wf, models=default_models):
         # Pressure-term from Thomas & Wood (2026)
         if model in ["Gorojovsky26_eq10_14", "GorojovskyPP_eq26_14"]:
             logC = logC - ((PT["P"] * 0.165) / T)
-        Csulfate = (10.0 ** (logC))*1.e5 # convert wt% to ppmw
+        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
     # OLD #
     # elif model == "Nash19": # Nash et al. (2019) EPSL 507:187-198
@@ -2648,7 +2648,7 @@ def SCSS(PT, melt_wf, models=default_models):
             * (-62190.0 * melt_comp["Si"] + 31520.0 * melt_comp["Si"] ** 2.0)
         ) / (R * T)
         # lnS from Eq. (10.43)
-        model_oneill = [['sulfide',model]]
+        model_oneill = [["sulfide", model]]
         model_oneill = make_models_df(model_oneill)
         if models.loc["high precision", "option"] == True:
             lnS = (
