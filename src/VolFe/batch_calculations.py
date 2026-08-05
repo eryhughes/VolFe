@@ -414,7 +414,7 @@ def results_table_f_p_xg_y_M_C_K_d(PT, melt_wf, models):
                 "C_CO2T_mf_bar",
                 "C_CO_ppm_bar",
                 "C_CH4_ppm_bar",
-                "C_S_ppm",
+                "C_S_ppm_bar",
                 "C_SO4_ppm_bar",
                 "C_H2S_ppm_bar",
                 "C_X_ppm_bar",
