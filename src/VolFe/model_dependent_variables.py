@@ -2648,10 +2648,12 @@ def SCSS(PT, melt_wf, models=default_models):
             * (-62190.0 * melt_comp["Si"] + 31520.0 * melt_comp["Si"] ** 2.0)
         ) / (R * T)
         # lnS from Eq. (10.43)
+        model_oneill = [['sulfide',model]]
+        model_oneill = make_models_df(model_oneill)
         if models.loc["high precision", "option"] == True:
             lnS = (
                 D / (R * T)
-                + gp.log(C_S(PT, melt_wf, models))
+                + gp.log(C_S(PT, melt_wf, model_oneill))
                 - gp.log(Fe2)
                 - lnyFe2
                 + lnaFeS
@@ -2661,7 +2663,7 @@ def SCSS(PT, melt_wf, models=default_models):
         else:
             lnS = (
                 D / (R * T)
-                + math.log(C_S(PT, melt_wf, models))
+                + math.log(C_S(PT, melt_wf, model_oneill))
                 - math.log(Fe2)
                 - lnyFe2
                 + lnaFeS
