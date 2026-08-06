@@ -297,7 +297,7 @@ def bulk_composition(run, PT, melt_wf, setup, models):
     S6ST_ = mg.S6ST(PT, melt_wf, models)
     # SCSS_,sulfide_sat,SCAS_,sulfate_sat = sulfur_saturation(wm_ST/100.0,S6ST_)
     # print(P, S6ST_)
-    sulf_sat_result = sulfur_saturation(PT, melt_wf, models) # check why needed
+    sulf_sat_result = sulfur_saturation(PT, melt_wf, models)  # check why needed
 
     if bulk_composition == "melt-only":
         wt_g = 0.0
@@ -482,8 +482,8 @@ def bulk_composition(run, PT, melt_wf, setup, models):
         )
 
     # THIS NEEDS CHECKING
-    if models.loc['sulfur_saturation','option'] == 'True':
-        wt_S = wt_S + ((sulf_sat_result['S_sulf'] + sulf_sat_result['S_anh'])/1.e6)
+    if models.loc["sulfur_saturation", "option"] == "True":
+        wt_S = wt_S + ((sulf_sat_result["S_sulf"] + sulf_sat_result["S_anh"]) / 1.0e6)
 
     result = {
         "wt_C": wt_C,
@@ -706,40 +706,40 @@ def sulfur_saturation(PT, melt_wf, models):  # melt weight fraction of ST and S6
         sulfide_sat = "False"
         sulfate_sat = "False"
         ST = wmST * 1000000.0
-        S_sulf = 0.
-        S_anh = 0.
+        S_sulf = 0.0
+        S_anh = 0.0
     elif wmS2 >= SCSS_ and wmS6 >= SCAS_:
         if StCSS < StCAS:
             sulfide_sat = "True"
             sulfate_sat = "False"
             ST = StCSS
-            S_sulf = (wmST*1.e6) - ST
-            S_anh = 0.
+            S_sulf = (wmST * 1.0e6) - ST
+            S_anh = 0.0
         elif StCSS < StCAS:
             sulfide_sat = "False"
             sulfate_sat = "True"
             ST = StCAS
-            S_sulf = 0.
-            S_anh = (wmST*1.e6) - ST
+            S_sulf = 0.0
+            S_anh = (wmST * 1.0e6) - ST
         # ST = min(StCSS, StCAS)
     elif wmS2 >= SCSS_ and wmS6 < SCAS_:
         sulfide_sat = "True"
         sulfate_sat = "False"
         ST = StCSS
-        S_sulf = (wmST*1.e6) - ST
-        S_anh = 0.
+        S_sulf = (wmST * 1.0e6) - ST
+        S_anh = 0.0
     elif wmS2 < SCSS_ and wmS6 >= SCAS_:
         sulfide_sat = "False"
         sulfate_sat = "True"
         ST = StCAS
-        S_sulf = 0.
-        S_anh = (wmST*1.e6) - ST
+        S_sulf = 0.0
+        S_anh = (wmST * 1.0e6) - ST
     else:
         sulfide_sat = "nan"
         sulfate_sat = "nan"
         ST = wmST * 1000000.0
-        S_sulf = 'nan'
-        S_anh = 'nan'
+        S_sulf = "nan"
+        S_anh = "nan"
     result = {
         "SCSS": SCSS_,
         "StCSS": StCSS,
@@ -748,8 +748,8 @@ def sulfur_saturation(PT, melt_wf, models):  # melt weight fraction of ST and S6
         "StCAS": StCAS,
         "sulfate_sat": sulfate_sat,
         "ST": ST,
-        'S_sulf':S_sulf,
-        'S_anh':S_anh
+        "S_sulf": S_sulf,
+        "S_anh": S_anh,
     }
     return result
 

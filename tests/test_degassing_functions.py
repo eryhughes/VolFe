@@ -29,7 +29,7 @@ def test_degas_df_default():
         "Na2O": 2.14,  # wt%
         "K2O": 0.63,  # wt%
         "P2O5": 0.17,  # wt%
-        "H2O": 1.,  # wt%
+        "H2O": 1.0,  # wt%
         "CO2ppm": 100.0,  # ppm
         "STppm": 1000.0,  # ppm
         "Fe3FeT": 0.177,
@@ -71,7 +71,7 @@ def test_degas_df_sat_sulf():
         "Na2O": 2.14,  # wt%
         "K2O": 0.63,  # wt%
         "P2O5": 0.17,  # wt%
-        "H2O": 1.,  # wt%
+        "H2O": 1.0,  # wt%
         "CO2ppm": 100.0,  # ppm
         "STppm": 1000.0,  # ppm
         "Fe3FeT": 0.177,
@@ -121,7 +121,7 @@ def test_degas_df_closed_CO2i():
         "Na2O": 2.14,  # wt%
         "K2O": 0.63,  # wt%
         "P2O5": 0.17,  # wt%
-        "H2O": 1.,  # wt%
+        "H2O": 1.0,  # wt%
         "CO2ppm": 100.0,  # ppm
         "STppm": 1000.0,  # ppm
         "Fe3FeT": 0.177,
@@ -171,7 +171,7 @@ def test_degas_df_closed_wtg():
         "Na2O": 2.14,  # wt%
         "K2O": 0.63,  # wt%
         "P2O5": 0.17,  # wt%
-        "H2O": 1.,  # wt%
+        "H2O": 1.0,  # wt%
         "CO2ppm": 100.0,  # ppm
         "STppm": 1000.0,  # ppm
         "Fe3FeT": 0.177,
@@ -290,10 +290,14 @@ def test_regas_df_closed():
     assert result.loc[0, "P_bar"] == pytest.approx(3869.8535236453786, rel=1e-3)
     assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.4734120855770545, rel=1e-3)
     assert result.loc[0, "CO2T_ppmw"] == pytest.approx(1472.4157582963953, rel=1e-3)
-    assert result.loc[0, "xgS2_mf"] == pytest.approx( 0.0006611502479165442, rel=1e-3)
+    assert result.loc[0, "xgS2_mf"] == pytest.approx(0.0006611502479165442, rel=1e-3)
     assert result.loc[len(result) - 1, "P_bar"] == 4100.0
-    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.47225372640648366, rel=1e-3)
-    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(1619.0205394465231, rel=1e-3)
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(
+        0.47225372640648366, rel=1e-3
+    )
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(
+        1619.0205394465231, rel=1e-3
+    )
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(
         0.0006938672105624531, rel=1e-3
     )
@@ -343,9 +347,15 @@ def test_regas_df_open():
     assert result.loc[0, "CO2T_ppmw"] == pytest.approx(1472.4157582963953, rel=1e-3)
     assert result.loc[0, "xgS2_mf"] == pytest.approx(0.0006611502479165442, rel=1e-3)
     assert result.loc[len(result) - 1, "P_bar"] == 3901.0
-    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(0.47296926980278187, rel=1e-3)
-    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(1494.1277819055208, rel=1e-3)
-    assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(0.0006551773560027822, rel=1e-3)
+    assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(
+        0.47296926980278187, rel=1e-3
+    )
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(
+        1494.1277819055208, rel=1e-3
+    )
+    assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(
+        0.0006551773560027822, rel=1e-3
+    )
 
 
 def test_degas_df_CHOAr_basalt():
@@ -383,9 +393,7 @@ def test_degas_df_CHOAr_basalt():
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(
         0.0020680645692377525
     )
-    assert result.loc[len(result) - 1, "xgX_mf"] == pytest.approx(
-        5.060650006392194e-05
-    )
+    assert result.loc[len(result) - 1, "xgX_mf"] == pytest.approx(5.060650006392194e-05)
 
 
 def test_degas_df_HSO():
@@ -421,9 +429,7 @@ def test_degas_df_HSO():
     assert result.loc[len(result) - 1, "P_bar"] == 1.0
     assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(-0.4892544872641871)
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == 0.0
-    assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(
-        0.000726801036520788
-    )
+    assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(0.000726801036520788)
 
 
 def test_degas_df_CSO():
