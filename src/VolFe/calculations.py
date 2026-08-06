@@ -738,6 +738,8 @@ def sulfur_saturation(PT, melt_wf, models):  # melt weight fraction of ST and S6
         sulfide_sat = "nan"
         sulfate_sat = "nan"
         ST = wmST * 1000000.0
+        S_sulf = 'nan'
+        S_anh = 'nan'
     result = {
         "SCSS": SCSS_,
         "StCSS": StCSS,
