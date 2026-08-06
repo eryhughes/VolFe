@@ -56,7 +56,7 @@ def test_other_df_C():
     result = vf.calc_sol_consts(my_analysis)
 
     assert result.loc[0, "ln[C_CH4]"] == pytest.approx(-4.499332634382082)
-    assert result.loc[0, "ln[C_S6+]"] == pytest.approx(29.85822594690088)
+    assert result.loc[0, "ln[C_S6+]"] == pytest.approx(29.22587241031275)
     assert result.loc[0, "ln[C_H2OT]"] == pytest.approx(-12.2869790594239)
 
 

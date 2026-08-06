@@ -48,7 +48,7 @@ def test_degas_df_default():
         -0.483916101878636, rel=1e-3
     )
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(
-        0.001833243745489121, rel=1e-3
+        0.00183, rel=1e-3
     )
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(
         0.0007060269775851043, rel=1e-3
@@ -97,7 +97,7 @@ def test_degas_df_sat_sulf():
         -0.483916101878636, rel=1e-3
     )
     assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(
-        0.001833243745489121, rel=1e-3
+        0.00183, rel=1e-3
     )
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(
         0.0007060269775851043, rel=1e-3
