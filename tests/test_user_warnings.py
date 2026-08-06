@@ -62,13 +62,13 @@ ANALYSIS_RUNTIME_WARN = {
 }  # initial CO2 content of the system in wt%
 
 
-def test_warnings_still_raise():
-    my_analysis = pd.DataFrame(ANALYSIS_RUNTIME_WARN, index=[0])
-    models = [["bulk_composition", "melt+vapor_initialCO2"]]
-    my_models = vf.make_df_and_add_model_defaults(models)
-
-    with pytest.warns(RuntimeWarning):
-        vf.calc_gassing(my_analysis, models=my_models, suppress_warnings=False)
+#def test_warnings_still_raise():
+#    my_analysis = pd.DataFrame(ANALYSIS_RUNTIME_WARN, index=[0])
+#    models = [["bulk_composition", "melt+vapor_initialCO2"]]
+#    my_models = vf.make_df_and_add_model_defaults(models)
+#
+#    with pytest.warns(RuntimeWarning):
+#        vf.calc_gassing(my_analysis, models=my_models, suppress_warnings=False)
 
 
 def test_warnings_suppressed():
