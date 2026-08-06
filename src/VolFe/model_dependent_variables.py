@@ -493,10 +493,7 @@ def make_df_and_add_model_defaults(models):
         - 'yes_H2_CO_CH4_melt' [default] Include H2mol (if H present), COmol (if C present), and/or CH4mol (if H and C present) as dissolved melt species.
         - 'no_H2_CO_CH4_melt' H2, CO, and/or CH4 are insoluble in the melt but they are still present in the vapor (H2 in the vapor if H present, CO in the vapor if C present, CH4 in the vapor if both H and C present).
         - 'H2O-CO2 only' The only species present in the vapor are H2O and CO2 and in the melt are H2OT and CO2T (i.e., no CO, H2, and/or CH4 in the melt or vapor).
-
-    H2S_m: Is H2S a dissolved melt species.
-        - 'True' [default] Include H2Smol as a dissolved melt species.
-        - 'False' H2Smol is insoluble in the melt.
+        Note: H2, CO, and CH4 can be individually set to insoluble by specifying 'insoluble' for their solubility functions, which overides this option.
 
     species X: Chemical identity of species X, which defines its atomic mass.
         - 'Ar' [default] Species X is argon (i.e., atomic mass of ~40).
@@ -771,9 +768,7 @@ def C_H2O(PT, melt_wf, models=default_models):
     ------------------------
     - 'Basalt_Hughes24' [default] Fig.S2 from Hughes et al. (2024) AmMin 109(3):422-438 https://doi.org/10.2138/am-2023-8739
     - 'Rhyolite_Hughes25' Eq. (S1) from Hughes et al. (2025) Volcanica 8(2):457-481 https://doi.org/10.30909/vol/imvc1781 based on data in Fig. 3 of Blank et al. (1993)
-    - 'approx_IaconoMarziano12-anh' Approximate version of eq. (13) using anhydrous parameters from Iacono-Marziano et al. (2012) GCA 97:1-23 http://dx.doi.org/10.1016/j.gca.2012.08.035
-    - 'approx_IaconoMarziano12-hyd' Approximate version of eq. (13) using hydrous parameters from Iacono-Marziano et al. (2012) GCA 97:1-23 http://dx.doi.org/10.1016/j.gca.2012.08.035
-    - 'approx_IaconoMarziano12-webapp' Approximate version of eq. (13) using webapp parameters (Wieser et al., 2022) from Iacono-Marziano et al. (2012) GCA 97:1-23 http://dx.doi.org/10.1016/j.gca.2012.08.035
+
     """
     model_speciation = models.loc["Hspeciation", "option"]
     model_solubility = models.loc["water", "option"]
@@ -1046,8 +1041,6 @@ def C_CO3(PT, melt_wf, models=default_models):
     - 'Basanite_Holloway94' Basanite in Table 5 from Holloway and Blank (1994) RiMG 30:187-230 https://doi.org/10.1515/9781501509674-012
     - 'Leucitite_Thibault94' Leucitite from Thibault & Holloway (1994) CMP 116:216-224 https://doi.org/10.1007/BF00310701
     - 'Rhyolite_Blank93' Fig.2 caption from Blank et al. (1993) EPSL 119:27-36 https://doi.org/10.1016/0012-821X(93)90004-S
-    - 'approx_IaconoMarziano12-anh' Approximate version of eq. (12) using anhydrous parameters from Iacono-Marziano et al. (2012) GCA 97:1-23 http://dx.doi.org/10.1016/j.gca.2012.08.035
-    - 'approx_IaconoMarziano12-hyd' Approximate version of eq. (12) using hydrous parameters from Iacono-Marziano et al. (2012) GCA 97:1-23 http://dx.doi.org/10.1016/j.gca.2012.08.035
 
     """
 
@@ -2086,6 +2079,7 @@ def C_H2S(PT, melt_wf, models=default_models):
     -------------
     - 'Basalt_Hughes24' [default] Fig.S6 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011).
     - 'BasalticAndesite_Hughes24' Fig.S6 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011).
+    - 'insoluble' H2Smol is insoluble in the melt.
 
     """
 
@@ -2098,6 +2092,8 @@ def C_H2S(PT, melt_wf, models=default_models):
     # ChemGeol 418:104–116
     elif model == "BasalticAndesite_Hughes24":
         K = 6.82
+    elif model == 'insoluble':
+        K = 0.
     return K
 
 
@@ -2132,6 +2128,7 @@ def C_H2(PT, melt_wf, models=default_models):
     -------------
     - 'Basalt_Hughes24' [default] Basalt in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data from Hirschmann et al. (2012).
     - 'Andesite_Hughes24' Andesite in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data from Hirschmann et al. (2012).
+    - 'insoluble' H2mol is insoluble in the melt.
 
     """
 
@@ -2145,22 +2142,26 @@ def C_H2(PT, melt_wf, models=default_models):
 
     # Basalt in Table S4 from Hughes et al. (2024) based on experimetnal data from
     # Hirschmann et al. (2012)
-    if model == "Basalt_Hughes24":
-        # lnK0 = -11.4 # T0 = 1400 'C, P0 = 100 kPa for mole fraction H2
-        lnK0 = -0.9624  # for ppm H2 (fitted in excel)
-        DV = 10.6  # cm3/mol
+    if model in ['Basalt_Hughes24','Andesite_Hughes24']:
+        if model == "Basalt_Hughes24":
+            # lnK0 = -11.4 # T0 = 1400 'C, P0 = 100 kPa for mole fraction H2
+            lnK0 = -0.9624  # for ppm H2 (fitted in excel)
+            DV = 10.6  # cm3/mol
 
-    # Andesite in Table S4 from Hughes et al. (2024) based on experimental data from
-    # Hirschmann et al. (2012)
-    elif model == "Andesite_Hughes24":
-        # lnK0 = -10.6 # T0 = 1400 'C, P0 = 100 kPa for mole fraction H2
-        lnK0 = -0.1296  # for ppm H2 (fitted in excel)
-        DV = 11.3  # cm3/mol
-    lnK = lnK0 - (DV * (P - P0)) / (R * T)  # = ln(XH2/fH2) in ppm/bar
-    if models.loc["high precision", "option"] == True:
-        C = gp.exp(lnK)
-    else:
-        C = math.exp(lnK)
+        # Andesite in Table S4 from Hughes et al. (2024) based on experimental data from
+        # Hirschmann et al. (2012)
+        elif model == "Andesite_Hughes24":
+            # lnK0 = -10.6 # T0 = 1400 'C, P0 = 100 kPa for mole fraction H2
+            lnK0 = -0.1296  # for ppm H2 (fitted in excel)
+            DV = 11.3  # cm3/mol
+        lnK = lnK0 - (DV * (P - P0)) / (R * T)  # = ln(XH2/fH2) in ppm/bar
+        if models.loc["high precision", "option"] == True:
+            C = gp.exp(lnK)
+        else:
+            C = math.exp(lnK)
+    elif model == 'insoluble':
+        C = 0.
+    
     return C
 
 
@@ -2194,7 +2195,7 @@ def C_CH4(PT, melt_wf, models=default_models):
     Model options for "methane"
     -------------
     - 'Basalt_Ardia13' [default] Eq. (7a) from Ardia et al. (2013) GCA 114:52-71 https://doi.org/10.1016/j.gca.2013.03.028
-    Only one option available currently, included for future development.
+    - 'insoluble' CH4mol is insoluble in the melt.
 
     """
 
@@ -2216,6 +2217,8 @@ def C_CH4(PT, melt_wf, models=default_models):
         else:
             K_ = math.exp(lnK)  # for fCH4 in GPa
         K = 0.0001 * K_  # for fCH4 in bars
+    elif model == 'insoluble':
+        K = 0.
     return K
 
 
@@ -2249,8 +2252,8 @@ def C_CO(PT, melt_wf, models=default_models):
     Model options for 'carbon monoxide'
     -------------
     - 'Basalt_Hughes24' [default] CO in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on data from Armstrong et al. (2015), Stanley et al. (2014), and Wetzel et al. (2013).
-    Only one option available currently, included for future development.
-
+    - 'insoluble' COmol is insoluble in the melt.
+    
     """
 
     model = models.loc["carbon monoxide", "option"]
@@ -2269,6 +2272,8 @@ def C_CO(PT, melt_wf, models=default_models):
             K = gp.exp(lnK)  # CO(ppm)/fCO(bars)
         else:
             K = math.exp(lnK)  # CO(ppm)/fCO(bars)
+    elif model == 'insoluble':
+        K = 0.
     return K
 
 
