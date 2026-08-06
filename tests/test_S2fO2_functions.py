@@ -33,7 +33,9 @@ def test_S2fO2_df_pvsat():
     result1 = vf.calc_melt_S_oxybarometer(my_analysis)
 
     assert result1.loc[0, "P_bar_sulf"] == pytest.approx(3230.7350883331824, rel=1e-3)
-    assert result1.loc[0, "fO2_DFMQ_sulf"] == pytest.approx(0.7795276978567323, rel=1e-3)
+    assert result1.loc[0, "fO2_DFMQ_sulf"] == pytest.approx(
+        0.7795276978567323, rel=1e-3
+    )
     assert result1.loc[0, "P_bar_anh"] == ""
     assert result1.loc[0, "fO2_DFMQ_anh"] == ""
 
@@ -131,7 +133,7 @@ def test_S2fO2_df_useropt():
         "P2O5": 0.07,  # wt%
         "H2O": 3.83,  # wt%
         "CO2ppm": 1109.0,  # ppm
-        "STppm": 3000.,  # ppm
+        "STppm": 3000.0,  # ppm
         "sulf_XFe": 0.8,
         "sulf_XCu": 0.15,
         "sulf_XNi": 0.05,

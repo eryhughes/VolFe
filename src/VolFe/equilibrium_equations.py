@@ -329,7 +329,7 @@ def initial_guesses(run, PT, melt_wf, setup, models, system):
 
     guesses = {}
     # CHECK WHY REMOVED
-    #if starting_P == "set":
+    # if starting_P == "set":
     #    guesses["xgO2"] = setup.loc[run, "xg_O2"]
     #    guesses["xgCO"] = setup.loc[run, "xg_CO"]
     #    guesses["xgH2"] = setup.loc[run, "xg_H2"]
@@ -341,7 +341,7 @@ def initial_guesses(run, PT, melt_wf, setup, models, system):
     #    guesses["xgOCS"] = setup.loc[run, "xg_OCS"]
     #    guesses["xgCH4"] = setup.loc[run, "xg_CH4"]
     #    guesses["xgX"] = setup.loc[run, "xg_X"]
-    #else:
+    # else:
     guesses["xgO2"] = mg.xg_O2(PT, melt_wf, models)
     guesses["xgCO"] = mg.xg_CO(PT, melt_wf, models)
     guesses["xgH2"] = mg.xg_H2(PT, melt_wf, models)
@@ -5380,7 +5380,10 @@ def eq_CHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spe
     if xg_O2_ == 1.0:
         if solve_species == "O2-CO":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO to O2-H2 (first time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO to O2-H2 (first time)",
+                )
             solve_species = "O2-H2"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgH2"]
@@ -5392,7 +5395,10 @@ def eq_CHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spe
             )
         elif solve_species == "O2-H2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-H2 to O2-CO (first time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-H2 to O2-CO (first time)",
+                )
             solve_species = "O2-CO"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgCO"]
@@ -5406,7 +5412,10 @@ def eq_CHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spe
     if xg_O2_ == 1.0:
         if solve_species == "O2-CO":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO to O2-H2 (back to original)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO to O2-H2 (back to original)",
+                )
             solve_species = "O2-H2"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgH2"]
@@ -5418,7 +5427,10 @@ def eq_CHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spe
             )
         elif solve_species == "O2-H2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-H2 to O2-CO (back to original)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-H2 to O2-CO (back to original)",
+                )
             solve_species = "O2-CO"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgCO"]
@@ -5981,7 +5993,10 @@ def eq_CHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
     if xg_O2_ == 1.0:  # switch solve species once
         if solve_species == "O2-CO-X":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-X to O2-CO-H2 (first time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-X to O2-CO-H2 (first time)",
+                )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
             guessz = guesses["xgH2"]
@@ -5993,7 +6008,10 @@ def eq_CHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
             )
         elif solve_species == "O2-H2-X":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-H-X to O2-CO-X (first time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-H-X to O2-CO-X (first time)",
+                )
             solve_species = "O2-CO-X"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgCO"]
@@ -6005,7 +6023,10 @@ def eq_CHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
             )
         elif solve_species == "O2-CO-H2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-X (first time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-H2 to O2-H2-X (first time)",
+                )
             solve_species = "O2-H2-X"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgH2"]
@@ -6021,7 +6042,10 @@ def eq_CHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
     if xg_O2_ == 1.0:  # switch solve species second time
         if solve_species == "O2-CO-X":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-X to O2-CO-H2 (second time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-X to O2-CO-H2 (second time)",
+                )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
             guessz = guesses["xgH2"]
@@ -6033,7 +6057,10 @@ def eq_CHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
             )
         elif solve_species == "O2-H2-X":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-H2-X to O2-CO-X (second time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-H2-X to O2-CO-X (second time)",
+                )
             solve_species = "O2-CO-X"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgCO"]
@@ -6045,7 +6072,10 @@ def eq_CHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
             )
         elif solve_species == "O2-CO-H2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-X (second time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-H2 to O2-H2-X (second time)",
+                )
             solve_species = "O2-H2-X"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgH2"]
@@ -6062,17 +6092,26 @@ def eq_CHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spec
     if xg_O2_ == 1.0:  # go to original solve species
         if solve_species == "O2-CO-X":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-X to O2-CO-H2 (back to original)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-X to O2-CO-H2 (back to original)",
+                )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
         elif solve_species == "O2-H2-X":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-H2-X to O2-CO-X (back to original)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-H2-X to O2-CO-X (back to original)",
+                )
             solve_species = "O2-CO-X"
             models.loc["solve_species", "option"] = solve_species
         elif solve_species == "O2-CO-H2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-X (back to original)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-H2 to O2-H2-X (back to original)",
+                )
             solve_species = "O2-H2-X"
             models.loc["solve_species", "option"] = solve_species
 
@@ -7525,7 +7564,10 @@ def eq_SCHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
     if xg_O2_ == 1.0:  # switch solve species once
         if solve_species == "O2-CO-S2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-S2 to O2-CO-H2 (first time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-S2 to O2-CO-H2 (first time)",
+                )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
             guessz = guesses["xgH2"]
@@ -7537,7 +7579,10 @@ def eq_SCHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
             )
         elif solve_species == "O2-H2-S2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-H2-S2 to O2-CO-S2 (first time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-H2-S2 to O2-CO-S2 (first time)",
+                )
             solve_species = "O2-CO-S2"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgCO"]
@@ -7549,7 +7594,10 @@ def eq_SCHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
             )
         elif solve_species == "O2-CO-H2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-S2 (first time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-H2 to O2-H2-S2 (first time)",
+                )
             solve_species = "O2-H2-S2"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgH2"]
@@ -7566,7 +7614,10 @@ def eq_SCHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
     if xg_O2_ == 1.0:  # switch solve species second time
         if solve_species == "O2-CO-S2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-S2 to O2-CO-H2 (second time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-S2 to O2-CO-H2 (second time)",
+                )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
             guessz = guesses["xgH2"]
@@ -7578,7 +7629,10 @@ def eq_SCHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
             )
         elif solve_species == "O2-H2-S2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-H2-S2 to O2-CO-S2 (second time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-H2-S2 to O2-CO-S2 (second time)",
+                )
             solve_species = "O2-CO-S2"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgCO"]
@@ -7590,7 +7644,10 @@ def eq_SCHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
             )
         elif solve_species == "O2-CO-H2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-S2 (second time)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-H2 to O2-H2-S2 (second time)",
+                )
             solve_species = "O2-H2-S2"
             models.loc["solve_species", "option"] = solve_species
             guessy = guesses["xgH2"]
@@ -7607,17 +7664,26 @@ def eq_SCHOFe_2(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_sp
     if xg_O2_ == 1.0:  # go to original solve species
         if solve_species == "O2-CO-S2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-S2 to O2-CO-H2 (back to original)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-S2 to O2-CO-H2 (back to original)",
+                )
             solve_species = "O2-CO-H2"
             models.loc["solve_species", "option"] = solve_species
         elif solve_species == "O2-H2-S2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-H2-S2 to O2-CO-S2 (back to original)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-H2-S2 to O2-CO-S2 (back to original)",
+                )
             solve_species = "O2-CO-S2"
             models.loc["solve_species", "option"] = solve_species
         elif solve_species == "O2-CO-H2":
             if models.loc["print status", "option"] == "True":
-                print(PT["P"], ": Switching solve species from O2-CO-H2 to O2-H2-S2 (back to original)")
+                print(
+                    PT["P"],
+                    ": Switching solve species from O2-CO-H2 to O2-H2-S2 (back to original)",
+                )
             solve_species = "O2-H2-S2"
             models.loc["solve_species", "option"] = solve_species
 

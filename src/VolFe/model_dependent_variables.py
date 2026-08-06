@@ -1822,7 +1822,7 @@ def C_SO4(PT, melt_wf, models=default_models):
         if model == "Boulliung22wP":
             logCS6 = logCS6 - ((0.1 * ((10.0 * P) - 0.1)) * 1.5237) / T
         Csulfate = (10.0**logCS6) * 10000.0  # ppm S
-    elif model in ["ONeill22", "ONeill22dil",'ONeill22+MO05hyd']:
+    elif model in ["ONeill22", "ONeill22dil", "ONeill22+MO05hyd"]:
         # Eq. (12a) in O'Neill & Mavrogenes (2022) GCA 334:368-382
         if model == "ONeill22":
             # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3)
@@ -1832,7 +1832,7 @@ def C_SO4(PT, melt_wf, models=default_models):
             )
 
         # Eq. (12a) in O'Neill & Mavrogenes (2022) GCA 334:368-382
-        elif model in ["ONeill22dil","ONeill22+MO05hyd"]:
+        elif model in ["ONeill22dil", "ONeill22+MO05hyd"]:
             # Mole fractions in the melt on cationic lattice (Fe as Fe2 and Fe3)
             # includes water
             melt_comp = mg.melt_cation_proportion(
@@ -1856,11 +1856,11 @@ def C_SO4(PT, melt_wf, models=default_models):
             Csulfate = gp.exp(lnC) * KOSg2(PT, models)  # ppm S
         else:
             Csulfate = math.exp(lnC) * KOSg2(PT, models)  # ppm S
-        # H2O-term based on the Kilauean Tholeite at 1200 'C in Figure 16 of Moretti & Ottonello (2005) 
+        # H2O-term based on the Kilauean Tholeite at 1200 'C in Figure 16 of Moretti & Ottonello (2005)
         if model == "ONeill22+MO05hyd":
-            melt_comp = mg.melt_normalise_wf(melt_wf,'water','no')
-            logCsulfate = math.log10(Csulfate) - 0.1322*(melt_comp['H2O']*100.)
-            Csulfate = 10.**(logCsulfate)
+            melt_comp = mg.melt_normalise_wf(melt_wf, "water", "no")
+            logCsulfate = math.log10(Csulfate) - 0.1322 * (melt_comp["H2O"] * 100.0)
+            Csulfate = 10.0 ** (logCsulfate)
 
     # Eq. (9) (with or without effect of P from eq. 12) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in
     # silicate melts. Contrib Mineral Petrol 178, 56 (2023).
