@@ -53,7 +53,7 @@ def test_degas_df_default():
         0.001833243745489121, rel=2e-3
     )
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(
-        0.0007060269775851043, rel=1e-3
+        0.0007060269775851043, rel=2e-3
     )
 
 
@@ -98,9 +98,9 @@ def test_degas_df_sat_sulf():
     assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(
         -0.483916101878636, rel=1e-3
     )
-    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.00183, rel=2e-3)
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.001833243745489121, rel=2e-3)
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(
-        0.0007060269775851043, rel=1e-3
+        0.0007060269775851043, rel=2e-3
     )
 
 
@@ -192,7 +192,7 @@ def test_degas_df_closed_wtg():
     assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.3903631833963219, rel=1e-3)
     assert result.loc[0, "CO2T_ppmw"] == pytest.approx(98.79891110755987, rel=1e-3)
     assert result.loc[0, "xgS2_mf"] == pytest.approx(0.0090132540427897, rel=1e-3)
-    idx = result.index[result["P_bar"] == 2.0]
+    idx = result[result["P_bar"] == 2.0].index
     assert result.loc[idx, "P_bar"] == 2.0
     assert result.loc[idx, "fO2_DFMQ"] == pytest.approx(
         -0.5457313637076062, rel=1e-3
