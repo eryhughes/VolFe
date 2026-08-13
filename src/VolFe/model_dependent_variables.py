@@ -2867,6 +2867,31 @@ def SCSS(PT, melt_wf, models=default_models):
             H2O_Liq=float(100.0 * melt_wf["H2OT"]),
         )
         SCSS = float(output["SCSS2_ppm_ideal_Smythe2017"].iloc[0])
+
+
+    # Eq. (29) from Thomas & Wood (2026) https://doi.org/10.1016/j.gca.2026.02.003
+    # includes eq. (15) from Thomas & Wood (2026) for CS2-
+    # aFeOsil using eq. (4) Wood & Wade (2013) https://doi.org/10.1007/s00410-013-0896-z
+    elif model == 'Thomas26_eq15_29_Wood13_eq4':
+
+        logaFeSsulf = math.log(sulf_XFe)
+
+        # Eq. (15) Thomas & Wood (2026)
+        model_thomas = [["sulfide", "Thomas26_eq15"]]
+        model_thomas = make_models_df(model_thomas)
+        CS2 = C_S(PT, melt_wf, model_thomas)
+        logCS2 = math.log10(CS2/1.e5)
+
+        # Eq. (4) Wood & Wade (2013)
+        melt_comp = mg.melt_cation_proportion(
+            melt_wf, "water", "yes", molmass="M_Thomas26", majors="majors_Thomas26"
+        )
+        RTlnyFeO = -18994. + 99579.*melt_comp['Na'] + 192553.*melt_comp['Al']*melt_comp['Si'] + 282789.*melt_comp['Ca']*melt_comp['Mg'] + 79492.*melt_comp['Ca']**2. + 120972.*(melt_comp['Fe2']+melt_comp['Fe3'])**2.
+        logaFeOsil = (RTlnyFeO/(2.303*8.3145*T)) + math.log10(melt_comp['Fe2'])
+
+        # Eq. (29) Thomas & Wood (2026)
+        SCSS = (10.**(-4.1925 + 1.019*math.log10(T) + (6380./T) + logCS2 + logaFeSsulf - logaFeOsil + ((PT['P']*0.0455)/T)))*10000.
+
     return SCSS
 
 
