@@ -39,6 +39,9 @@ def test_degas_df_default():
 
     result = vf.calc_gassing(my_analysis, models=options)
 
+    print("rows:", len(result))
+    print(result[["P_bar", "CO2T_ppmw"]].tail(20))
+
     assert result.loc[0, "P_bar"] == pytest.approx(337.8, rel=1e-3)
     assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.3903631833963219)
     assert result.loc[0, "CO2T_ppmw"] == pytest.approx(98.79891110755987)
@@ -185,6 +188,9 @@ def test_degas_df_closed_wtg():
     my_models = vf.make_df_and_add_model_defaults(my_models)
 
     result = vf.calc_gassing(my_analysis, models=my_models)
+
+    print("rows:", len(result))
+    print(result[["P_bar", "CO2T_ppmw"]].tail(20))
 
     assert result.loc[0, "P_bar"] == pytest.approx(337.8089065669246, rel=1e-3)
     assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.3903631833963219, rel=1e-3)
