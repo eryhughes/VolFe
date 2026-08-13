@@ -1532,12 +1532,12 @@ def C_S(PT, melt_wf, models=default_models):
     - 'Thomas26_eq15' Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
     - 'Gorojovsky26_eq9' Eq. (9) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
     - 'Gorojovsky26_eq9_Thomas26_eq14' Eq. (9) from Gorojovsky & Wood (2026) combined with P-term using eq. (14) from Thomas & Wood (2026). Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088. Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
-    
+
     The following models are available but not recommended by the authors (e.g., they exist in the paper, but other eq. in the same papers are recommended)
     -------------
     - 'Gorojovsky26_eq8' Eq. (8) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
     - 'Gorojovsky26_eq8_Thomas26_eq14' Eq. (8) from Gorojovsky & Wood (2026) combined with P-term using eq. (14) from Thomas & Wood (2026). Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088. Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
-    
+
     """
     model = models.loc["sulfide", "option"]
 
@@ -1738,7 +1738,10 @@ def C_S(PT, melt_wf, models=default_models):
             )
         # P-term using Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
         # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
-        if model in ["Gorojovsky26_eq8_Thomas26_eq14", "Gorojovsky26_eq9_Thomas26_eq14"]:
+        if model in [
+            "Gorojovsky26_eq8_Thomas26_eq14",
+            "Gorojovsky26_eq9_Thomas26_eq14",
+        ]:
             logC = logC - ((PT["T"] * 0.056) / T)
 
         C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
@@ -1789,12 +1792,12 @@ def C_SO4(PT, melt_wf, models=default_models):
     - 'Thomas26_eq22' Eq. (22) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
     - 'Gorojovsky26_eq11' Eq. (11) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
     - 'Gorojovsky26_eq11_Thomas26_eq20' Eq. (11) from Gorojovsky & Wood (2026) combined with P-term using eq. (20) from Thomas & Wood (2026). Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088. Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
-    
+
     The following models are available but not recommended by the authors (e.g., they exist in the paper, but other eq. in the same papers are recommended)
     -------------
     - 'Gorojovsky26_eq10' Eq. (10) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
     - 'Gorojovsky26_eq10_Thomas26_eq20' Eq. (10) from Gorojovsky & Wood (2026) combined with P-term using eq. (20) from Thomas & Wood (2026). Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.1016/j.epsl.2026.120088. Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
-    
+
     """
 
     model = models.loc["sulfate", "option"]
@@ -2103,8 +2106,8 @@ def C_H2S(PT, melt_wf, models=default_models):
     # ChemGeol 418:104–116
     elif model == "BasalticAndesite_Hughes24":
         K = 6.82
-    elif model == 'insoluble':
-        K = 0.
+    elif model == "insoluble":
+        K = 0.0
     return K
 
 
@@ -2153,7 +2156,7 @@ def C_H2(PT, melt_wf, models=default_models):
 
     # Basalt in Table S4 from Hughes et al. (2024) based on experimetnal data from
     # Hirschmann et al. (2012)
-    if model in ['Basalt_Hughes24','Andesite_Hughes24']:
+    if model in ["Basalt_Hughes24", "Andesite_Hughes24"]:
         if model == "Basalt_Hughes24":
             # lnK0 = -11.4 # T0 = 1400 'C, P0 = 100 kPa for mole fraction H2
             lnK0 = -0.9624  # for ppm H2 (fitted in excel)
@@ -2170,9 +2173,9 @@ def C_H2(PT, melt_wf, models=default_models):
             C = gp.exp(lnK)
         else:
             C = math.exp(lnK)
-    elif model == 'insoluble':
-        C = 0.
-    
+    elif model == "insoluble":
+        C = 0.0
+
     return C
 
 
@@ -2228,8 +2231,8 @@ def C_CH4(PT, melt_wf, models=default_models):
         else:
             K_ = math.exp(lnK)  # for fCH4 in GPa
         K = 0.0001 * K_  # for fCH4 in bars
-    elif model == 'insoluble':
-        K = 0.
+    elif model == "insoluble":
+        K = 0.0
     return K
 
 
@@ -2264,7 +2267,7 @@ def C_CO(PT, melt_wf, models=default_models):
     -------------
     - 'Basalt_Hughes24' [default] CO in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on data from Armstrong et al. (2015), Stanley et al. (2014), and Wetzel et al. (2013).
     - 'insoluble' COmol is insoluble in the melt.
-    
+
     """
 
     model = models.loc["carbon monoxide", "option"]
@@ -2283,8 +2286,8 @@ def C_CO(PT, melt_wf, models=default_models):
             K = gp.exp(lnK)  # CO(ppm)/fCO(bars)
         else:
             K = math.exp(lnK)  # CO(ppm)/fCO(bars)
-    elif model == 'insoluble':
-        K = 0.
+    elif model == "insoluble":
+        K = 0.0
     return K
 
 
