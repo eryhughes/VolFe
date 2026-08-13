@@ -2601,6 +2601,7 @@ def SCSS(PT, melt_wf, models=default_models):
     - 'Li22_pss' Eq. (19) from Li and Zhang (2022) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 https://doi.org/10.30909/vol.06.01.107127
     - 'Blanchard21_eq11_pss' Eq. (11) from Blanchard et al. (2021) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 https://doi.org/10.30909/vol.06.01.107127
     - 'Blanchard21_eq12_pss' Eq. (12) from Blanchard et al. (2021) using PySulfSat by Wieser and Gleeson (2023) Volcanica 6(1):107-127 https://doi.org/10.30909/vol.06.01.107127
+    - 'Thomas26_eq15_29_Wood13_eq4' Eq. (29, 4) from Thomas & Wood (2026) and eq. (4) from Wood & Wade (2013) https://doi.org/10.1016/j.gca.2026.02.003 https://doi.org/10.1007/s00410-013-0896-z
 
     """
 
