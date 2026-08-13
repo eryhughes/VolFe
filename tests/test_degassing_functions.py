@@ -3,6 +3,8 @@
 import VolFe as vf
 import pandas as pd
 import pytest
+import platform
+import numpy as np
 
 
 # tests to complete
@@ -39,8 +41,12 @@ def test_degas_df_default():
 
     result = vf.calc_gassing(my_analysis, models=options)
 
-    print("rows:", len(result))
-    print(result[["P_bar", "CO2T_ppmw"]].tail(20))
+    print(platform.platform())
+
+    print(platform.machine())
+    print(np.__version__)
+
+    print(result.iloc[-1])
 
     assert result.loc[0, "P_bar"] == pytest.approx(337.8, rel=1e-3)
     assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.3903631833963219)
@@ -189,8 +195,8 @@ def test_degas_df_closed_wtg():
 
     result = vf.calc_gassing(my_analysis, models=my_models)
 
-    print("rows:", len(result))
-    print(result[["P_bar", "CO2T_ppmw"]].tail(20))
+    print(result.iloc[-2:])
+    print(result.iloc[-1:])
 
     assert result.loc[0, "P_bar"] == pytest.approx(337.8089065669246, rel=1e-3)
     assert result.loc[0, "fO2_DFMQ"] == pytest.approx(0.3903631833963219, rel=1e-3)
