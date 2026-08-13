@@ -3,8 +3,6 @@
 import VolFe as vf
 import pandas as pd
 import pytest
-import platform
-import numpy as np
 
 
 # tests to complete
@@ -98,7 +96,9 @@ def test_degas_df_sat_sulf():
     assert result.loc[len(result) - 1, "fO2_DFMQ"] == pytest.approx(
         -0.483916101878636, rel=1e-3
     )
-    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(0.001833243745489121, rel=2e-3)
+    assert result.loc[len(result) - 1, "CO2T_ppmw"] == pytest.approx(
+        0.001833243745489121, rel=2e-3
+    )
     assert result.loc[len(result) - 1, "xgS2_mf"] == pytest.approx(
         0.0007060269775851043, rel=2e-3
     )
@@ -194,15 +194,9 @@ def test_degas_df_closed_wtg():
     assert result.loc[0, "xgS2_mf"] == pytest.approx(0.0090132540427897, rel=1e-3)
     idx = result[result["P_bar"] == 2.0].index[0]
     assert result.loc[idx, "P_bar"] == 2.0
-    assert result.loc[idx, "fO2_DFMQ"] == pytest.approx(
-        -0.5457313637076062, rel=1e-3
-    )
-    assert result.loc[idx, "CO2T_ppmw"] == pytest.approx(
-        0.32690414099985654, rel=1e-3
-    )
-    assert result.loc[idx, "xgS2_mf"] == pytest.approx(
-        0.004065465875554149, rel=1e-3
-    )
+    assert result.loc[idx, "fO2_DFMQ"] == pytest.approx(-0.5457313637076062, rel=1e-3)
+    assert result.loc[idx, "CO2T_ppmw"] == pytest.approx(0.32690414099985654, rel=1e-3)
+    assert result.loc[idx, "xgS2_mf"] == pytest.approx(0.004065465875554149, rel=1e-3)
 
 
 def test_degas_df_open():
