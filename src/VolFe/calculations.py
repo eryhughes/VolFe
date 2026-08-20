@@ -715,7 +715,7 @@ def sulfur_saturation(PT, melt_wf, models):  # melt weight fraction of ST and S6
             ST = StCSS
             S_sulf = (wmST * 1.0e6) - ST
             S_anh = 0.0
-        elif StCSS < StCAS:
+        elif StCSS > StCAS:
             sulfide_sat = "False"
             sulfate_sat = "True"
             ST = StCAS
@@ -1676,7 +1676,7 @@ def compositions_within_error(run, setup):
                 sd = setup.loc[run, x + "_sd"]
             else:
                 sd = 0.0
-            value = float(np.random.normal(setup.loc[run, x], sd, 1))
+            value = float(np.random.normal(setup.loc[run, x], sd))
 
             if x in ["Fe3FeT", "S6ST"]:
                 if value < 0.001:

@@ -1973,13 +1973,14 @@ def C_SO4(PT, melt_wf, models=default_models):
         )
         Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
-    # Eq. (10) or (11) with/without (14) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
-    # EPSL 687:120088 https://doi.org/10.31223/X5T755
+    # Eq. (10) or (11) from Gorojovsky & Wood (2026) with/without eq. (20) for P-term from Thomas & Wood (2026)
+    # Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.31223/X5T755
+    # Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. GCA 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
     elif model in [
         "Gorojovsky26_eq10",
         "Gorojovsky26_eq11",
-        "Gorojovsky26_eq10_14",
-        "Gorojovsky26_eq11_14",
+        "Gorojovsky26_eq10_Thomas26_eq20",
+        "Gorojovsky26_eq11_Thomas26_eq20",
     ]:
         # Mole fractions in the melt on cationic lattice with water as a dilutent and no Fe
         # speciation
@@ -1991,7 +1992,7 @@ def C_SO4(PT, melt_wf, models=default_models):
             majors="majors_Gorojovsky26",
         )
         # no benchmark available
-        if model in ["Gorojovsky26_eq10", "Gorojovsky26_eq10_14"]:
+        if model in ["Gorojovsky26_eq10", "Gorojovsky26_eq10_Thomas26_eq20"]:
             logC = -11.11 + (
                 (
                     31725.0 * melt_comp["Na2O"]
@@ -2002,9 +2003,8 @@ def C_SO4(PT, melt_wf, models=default_models):
                 )
                 / T
             )
-        # Eq. (26) benchmarked without eq. (14)
-        # Numbers used in spreadsheet rather than paper
-        elif model in ["Gorojovsky26_eq11", "Gorojovsky26_eq11_14"]:
+        # Eq. (26) benchmarked without eq. (20)
+        elif model in ["Gorojovsky26_eq11", "Gorojovsky26_eq11_Thomas26_eq20"]:
             logC = (
                 195.99657
                 + (
@@ -2022,8 +2022,8 @@ def C_SO4(PT, melt_wf, models=default_models):
                 )
                 - 57.2083 * math.log10(T)
             )
-        # Pressure-term from Thomas & Wood (2026)
-        if model in ["Gorojovsky26_eq10_14", "GorojovskyPP_eq26_14"]:
+        # Pressure-term using eq. (20) from Thomas & Wood (2026)
+        if model in ["Gorojovsky26_eq10_Thomas26_eq20", "GorojovskyPP_eq26_Thomas26_eq20"]:
             logC = logC - ((PT["P"] * 0.165) / T)
         Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
