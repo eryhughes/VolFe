@@ -1,10 +1,11 @@
 # isotopes.py
 
-import pandas as pd
 import math
 
-import VolFe.melt_gas as mg
+import pandas as pd
+
 import VolFe.calculations as c
+import VolFe.melt_gas as mg
 import VolFe.model_dependent_variables as mdv
 
 # this file contains functions for

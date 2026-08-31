@@ -1,15 +1,15 @@
 # equilibrium_equations.py
 
-import pandas as pd
-import numpy as np
 import math
 
+import numpy as np
+import pandas as pd
+from scipy import optimize
+
+import VolFe.calculations as c
 import VolFe.differential_equations as de
 import VolFe.melt_gas as mg
 import VolFe.model_dependent_variables as mdv
-import VolFe.calculations as c
-
-from scipy import optimize
 
 
 def set_system(melt_wf, models):
@@ -3055,7 +3055,7 @@ def eq_HOFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses):
     def mb_HOFe(xg_O2_):
         xg_H2O_, xg_H2_, xm_H2O_, Xm_t, Xg_t, Fe32, Fe3T, wm_H2O_, wm_H2_ = mg_HOFe(
             xg_O2_
-        )  # noqa
+        )
         diff, wt_g_O, wt_g_H = f_HOFe(xg_O2_)  # noqa
         wt_g = (wt_g_O + wt_g_H) / 2
         wt_H_ = (
@@ -3080,7 +3080,7 @@ def eq_HOFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses):
     def f_HOFe(xg_O2_):
         xg_H2O_, xg_H2_, xm_H2O_, Xm_t, Xg_t, Fe32, Fe3T, wm_H2O_, wm_H2_ = mg_HOFe(
             xg_O2_
-        )  # noqa
+        )
         wt_g_H = ((wt_H / (2.0 * M_H)) - (xm_H2O_ / Xm_t) - (wm_H2_ / M_H2)) / (
             ((xg_H2O_ + xg_H2_) / Xg_t) - (xm_H2O_ / Xm_t) - (wm_H2_ / M_H2)
         )
@@ -8540,7 +8540,7 @@ def eq_SCHOXFe(PT, bulk_wf, melt_wf, models, nr_step, nr_tol, guesses, solve_spe
         CO, CH, CS, CX, C = solvers(guesses)
         return [float(CO), float(CH), float(CS), float(CX)]
 
-    newguess = optimize.fsolve(  # noqa
+    newguess = optimize.fsolve(
         solve_system, [float(guessx), float(guessy), float(guessz), float(guessw)]
     )
     (
