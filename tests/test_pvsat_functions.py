@@ -1,8 +1,9 @@
 # Tests the calc_pvsat function works as expected
 
-import VolFe as vf
 import pandas as pd
 import pytest
+
+import VolFe as vf
 
 
 def test_pvsat_df_FeOT_Fe3FeT():

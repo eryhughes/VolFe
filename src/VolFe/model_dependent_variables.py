@@ -1,10 +1,11 @@
 # model_dependent_variables.py
 
-import pandas as pd
-import numpy as np
-import gmpy2 as gp
 import math
+
 import densityx as dx
+import gmpy2 as gp
+import numpy as np
+import pandas as pd
 import PySulfSat as ss
 
 import VolFe.melt_gas as mg
@@ -959,12 +960,7 @@ def C_H2O(PT, melt_wf, models=default_models):
 
         # Fitted to ETN-1 and VES-9 Xm_H2Omol calculated at 1200 'C data from Lesne et
         # al. (2011) 162:133-151
-        elif model_solubility == "ETN-1":
-            C = 3.3989655e-6
-
-        # Fitted to ETN-1 and VES-9 Xm_H2Omol calculated at 1200 'C data from Lesne et
-        # al. (2011) 162:133-151
-        elif model_solubility == "VES-9":
+        elif model_solubility == "ETN-1" or model_solubility == "VES-9":
             C = 3.3989655e-6
 
         # Fitted to PST-9 Xm_H2Omol calculated at 1200 'C data from Lesne et al. (2011)
@@ -2023,7 +2019,10 @@ def C_SO4(PT, melt_wf, models=default_models):
                 - 57.2083 * math.log10(T)
             )
         # Pressure-term using eq. (20) from Thomas & Wood (2026)
-        if model in ["Gorojovsky26_eq10_Thomas26_eq20", "GorojovskyPP_eq26_Thomas26_eq20"]:
+        if model in [
+            "Gorojovsky26_eq10_Thomas26_eq20",
+            "GorojovskyPP_eq26_Thomas26_eq20",
+        ]:
             logC = logC - ((PT["P"] * 0.165) / T)
         Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
 
@@ -2643,12 +2642,9 @@ def SCSS(PT, melt_wf, models=default_models):
             melt_comp = mg.melt_cation_proportion(
                 melt_wf, "no", "no", molmass="M_ONeill21", majors="majors_ONeill21"
             )
-        elif model == "ONeill21dil":  # Eq. (10.34, 10.43, 10.45, 10.46)
-            # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) and water
-            melt_comp = mg.melt_cation_proportion(
-                melt_wf, "water", "no", molmass="M_ONeill21", majors="majors_ONeill21"
-            )
-        elif model == "ONeill21hyd":  # Eq. (10.34, 10.43, 10.45, 10.46, 10.49)
+        elif (
+            model == "ONeill21dil" or model == "ONeill21hyd"
+        ):  # Eq. (10.34, 10.43, 10.45, 10.46)
             # Mole fractions in the melt on cationic lattice (Fe2 and Fe3) and water
             melt_comp = mg.melt_cation_proportion(
                 melt_wf, "water", "no", molmass="M_ONeill21", majors="majors_ONeill21"
@@ -4013,9 +4009,7 @@ def y_SS(gas_species, PT, models=default_models):
 
     ideal_gas = models.loc["ideal_gas", "option"]
 
-    if ideal_gas == True:
-        return 1.0
-    elif P < 1.0:  # ideal gas below 1 bar
+    if ideal_gas == True or P < 1.0:
         return 1.0
     else:
         Tcr = species.loc[gas_species, "Tcr"]
@@ -4063,9 +4057,7 @@ def y_H2(PT, models=default_models):
     ideal_gas = models.loc["ideal_gas", "option"]
     model = models.loc["y_H2", "option"]
 
-    if ideal_gas == True or model == "ideal":
-        return 1.0
-    elif P < 1.0:  # ideal gas below 1 bar
+    if ideal_gas == True or model == "ideal" or P < 1.0:
         return 1.0
     elif model == "Shaw64":  # Eq. (4) from Shaw & Wones (1964) AmJSci 262:918-929
         P_atm = 0.986923 * P
@@ -4394,9 +4386,7 @@ def y_H2O(PT, models=default_models):
 
     P = PT["P"]
 
-    if ideal_gas == True or model == "ideal":
-        return 1.0
-    elif P < 1.0:  # ideal gas below 1 bar
+    if ideal_gas == True or model == "ideal" or P < 1.0:
         return 1.0
     else:
         # Eq. (4,6,A1-3) and Table 1 (T > 673 K only) from Holland & Powell (1991) CMP
@@ -4443,19 +4433,14 @@ def y_CO2(PT, models=default_models):
 
     P = PT["P"]
 
-    if ideal_gas == True or model == "ideal":
-        return 1.0
-    elif P < 1.0:  # ideal gas below 1 bar
+    if ideal_gas == True or model == "ideal" or P < 1.0:
         return 1.0
     else:
         # Eq. (4,A1-3) and Table 1 from Holland & Powell (1991) CMP 109:265-273
         if model == "Holland91_eq4,A1-3_tab1":
             y = y_CORK("CO2", PT, models)  # Eq. (4,A1-3)
         # Eq. (8,9) and Table 2 from Holland & Powell (1991) CMP 109:265-273
-        elif model == "Holland91_eq8,9_tab2":
-            y = y_sCORK("CO2", PT, models)  # Eq. (8)
-        # Eq. (8) and Table 1 from Holland & Powell (1991) CMP 109:265-273
-        elif model == "Holland91_eq8_tab1":
+        elif model == "Holland91_eq8,9_tab2" or model == "Holland91_eq8_tab1":
             y = y_sCORK("CO2", PT, models)  # Eq. (8)
         # Shi & Saxena (1992) AmMin 77(9-10):1038-1049
         elif model == "Shi92":
@@ -4711,9 +4696,7 @@ def y_SO2(PT, models=default_models):
     T_K = PT["T"] + 273.15
 
     gas_species = "SO2"
-    if ideal_gas == True or model == "ideal":
-        return 1.0
-    elif P < 1.0:  # ideal gas below 1 bar
+    if ideal_gas == True or model == "ideal" or P < 1.0:
         return 1.0
     else:  # 1-10000 bar
         Tcr = species.loc[gas_species, "Tcr"]  # critical temperature in K
@@ -6080,9 +6063,7 @@ def gas_molar_volume(species, PT, models):
         model = models.loc["y_CO2", "option"]
         if model == "Holland91_eq4,A1-3_tab1":
             V = vol_CORK(species, PT, models)
-        elif model == "Holland91_eq8,9_tab2":
-            V = vol_sCORK(species, PT, models)
-        elif model == "Holland91_eq8_tab1":
+        elif model == "Holland91_eq8,9_tab2" or model == "Holland91_eq8_tab1":
             V = vol_sCORK(species, PT, models)
     if species in "CH4":
         model = models.loc["y_CH4", "option"]
@@ -7266,7 +7247,7 @@ def alpha_S_H2Sv_H2Sm(PT, comp, models):  # alpha for 32/34S between H2S(v) and 
     """
 
     model = models.loc["alpha_S_H2Sv_H2Sm", "option"]
-    if model == "no fractionation":  #
+    if model == "no fractionation":
         a = 1.0
     return a
 
@@ -7349,9 +7330,7 @@ def alpha_C_CO2v_CO2m(
     """
 
     model = models.loc["alpha_C_CO2v_CO2m", "option"]
-    if model == "Blank93":
-        a = 1.0
-    elif model == "no fractionation":
+    if model == "Blank93" or model == "no fractionation":
         a = 1.0
     return a
 
@@ -7623,6 +7602,6 @@ def alpha_H_H2Sv_H2Sm(PT, comp, models):  # alpha for D/H between H2S(v) and H2S
 
     """
     model = models.loc["alpha_H_H2Sv_H2Sm", "option"]
-    if model == "no fractionation":  #
+    if model == "no fractionation":
         a = 1.0
     return a
