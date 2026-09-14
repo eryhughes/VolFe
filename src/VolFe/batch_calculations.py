@@ -1,16 +1,17 @@
 # batch_calculations.py
 
-import pandas as pd
 import datetime
 import math as math
 import warnings
+
+import pandas as pd
 import tqdm
 
-import VolFe.melt_gas as mg
+import VolFe.calculations as c
 import VolFe.equilibrium_equations as eq
 import VolFe.isotopes as iso
+import VolFe.melt_gas as mg
 import VolFe.model_dependent_variables as mdv
-import VolFe.calculations as c
 
 ################
 # Contents #####
@@ -736,7 +737,7 @@ def results_table_isotope_d(
                 iso.ratio2delta("VCDT", 34, "S", R_all_species_S["E"]),
                 iso.ratio2delta("VCDT", 34, "S", R_all_species_S["F"]),
                 iso.ratio2delta("VCDT", 34, "S", R_all_species_S["G"]),
-                iso.alpha2Delta((R_m_g_S["R_g"] / R_m_g_S["R_m"])),
+                iso.alpha2Delta(R_m_g_S["R_g"] / R_m_g_S["R_m"]),
                 iso.ratio2delta("VPDB", 13, "C", R["C"]),
                 iso.ratio2delta("VPDB", 13, "C", R_m_g_C["R_m"]),
                 iso.ratio2delta("VPDB", 13, "C", R_m_g_C["R_g"]),
@@ -748,7 +749,7 @@ def results_table_isotope_d(
                 iso.ratio2delta("VPDB", 13, "C", R_all_species_C["F"]),
                 iso.ratio2delta("VPDB", 13, "C", R_all_species_C["G"]),
                 iso.ratio2delta("VPDB", 13, "C", R_all_species_C["H"]),
-                iso.alpha2Delta((R_m_g_C["R_g"] / R_m_g_C["R_m"])),
+                iso.alpha2Delta(R_m_g_C["R_g"] / R_m_g_C["R_m"]),
                 iso.ratio2delta("VSMOW", 2, "H", R["H"]),
                 iso.ratio2delta("VSMOW", 2, "H", R_m_g_H["R_m"]),
                 iso.ratio2delta("VSMOW", 2, "H", R_m_g_H["R_g"]),
@@ -761,7 +762,7 @@ def results_table_isotope_d(
                 iso.ratio2delta("VSMOW", 2, "H", R_all_species_H["G"]),
                 iso.ratio2delta("VSMOW", 2, "H", R_all_species_H["H"]),
                 iso.ratio2delta("VSMOW", 2, "H", R_all_species_H["I"]),
-                iso.alpha2Delta((R_m_g_H["R_g"] / R_m_g_H["R_m"])),
+                iso.alpha2Delta(R_m_g_H["R_g"] / R_m_g_H["R_m"]),
             ]
         ]
     )
@@ -1193,12 +1194,12 @@ def calc_gassing(
 
     if models.loc["fO2", "option"] != "Kress91A":
         raise TypeError(
-            "Change 'fO2' option in models to 'Kress91A': other fO2 options are not currently supported"  # noqa
+            "Change 'fO2' option in models to 'Kress91A': other fO2 options are not currently supported"
         )
 
     if models.loc["sulfur_saturation", "option"] == "True":
         raise TypeError(
-            "Change 'sulfur_saturation' option in models to 'False': This is a work in progress"  # noqa
+            "Change 'sulfur_saturation' option in models to 'False': This is a work in progress"
         )
 
     # set T and volatile composition of the melt
@@ -1599,10 +1600,10 @@ def calc_gassing(
     ):  # temperature ranges and options
         PT["P"] = setup.loc[run, "P_bar"]
         final = int(setup.loc[run, "final_T"])
-        if setup.loc[run, "final_T"] > setup.loc[run, "T_C"]:
-            initial = int(round(PT["T"]))
-            # step = int(dp_step) # temperature step in 'C
-        elif setup.loc[run, "final_T"] < setup.loc[run, "T_C"]:
+        if (
+            setup.loc[run, "final_T"] > setup.loc[run, "T_C"]
+            or setup.loc[run, "final_T"] < setup.loc[run, "T_C"]
+        ):
             initial = int(round(PT["T"]))
             # step = int(-1.*dp_step) # temperature step in 'C
 
@@ -1926,8 +1927,7 @@ def calc_gassing(
                                 )
                             dp_step = dp_step / 10.0
                         newP = last_successful_P - dp_step
-                        if newP < 1.0:
-                            newP = 1.0
+                        newP = max(newP, 1.0)
                         PT["P"] = newP
                         guesses = {
                             "xgO2": original_guesses["xgO2"],

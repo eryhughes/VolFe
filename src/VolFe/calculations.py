@@ -1,13 +1,12 @@
 # calculations.py
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-import VolFe.melt_gas as mg
 import VolFe.equilibrium_equations as eq
 import VolFe.isotopes as iso
+import VolFe.melt_gas as mg
 import VolFe.model_dependent_variables as mdv
-
 
 ###########################
 # saturation pressure #####
@@ -142,10 +141,9 @@ def P_sat(PT, melt_wf, models, Ptol, nr_step, nr_tol):
             sulfsat = sulfur_saturation(PT, melt_wf2, models)
             melt_wf1["ST"] = sulfsat["ST"] / 1000000.0
             melt_wf2["ST"] = ST
-    else:
-        P_sat = guess0
-        ms_conc = eq.melt_speciation(PT, melt_wf1, models, nr_step, nr_tol)
-        ms_frac = melt_species_ratios(ms_conc)
+    P_sat = guess0
+    ms_conc = eq.melt_speciation(PT, melt_wf1, models, nr_step, nr_tol)
+    ms_frac = melt_species_ratios(ms_conc)
 
     melt_wf["ST"] = ST
     return P_sat, ms_conc, ms_frac
@@ -203,24 +201,23 @@ def P_sat_H2O_CO2(
             # if guess0 > 1.0e7:
             #    guess0 = 1.0
             PT["P"] = guess0
-        else:
-            P_sat = guess0
-            xg_H2O_ = mg.xg_H2O(PT, melt_wf, models)
-            xg_CO2_ = mg.xg_CO2(PT, melt_wf, models)
-            p_H2O_ = mg.p_H2O(PT, melt_wf, models)
-            p_CO2_ = mg.p_CO2(PT, melt_wf, models)
-            f_H2O_ = mg.f_H2O(PT, melt_wf, models)
-            f_CO2_ = mg.f_CO2(PT, melt_wf, models)
-            xm_H2O_ = (mdv.C_H2O(PT, melt_wf, models) * f_H2O_) ** 0.5
-            xm_CO2_ = mdv.C_CO3(PT, melt_wf, models) * f_CO2_
-            M_m_ = mg.M_m_SO(melt_wf)
-            Xm_t = (
-                xm_CO2_ * mdv.species.loc["CO2", "M"]
-                + xm_H2O_ * mdv.species.loc["H2O", "M"]
-                + (1.0 - xm_CO2_ - xm_H2O_) * M_m_
-            )
-            wm_H2O_ = (xm_H2O_ * mdv.species.loc["H2O", "M"]) / Xm_t
-            wm_CO2_ = (xm_CO2_ * mdv.species.loc["CO2", "M"]) / Xm_t
+        P_sat = guess0
+        xg_H2O_ = mg.xg_H2O(PT, melt_wf, models)
+        xg_CO2_ = mg.xg_CO2(PT, melt_wf, models)
+        p_H2O_ = mg.p_H2O(PT, melt_wf, models)
+        p_CO2_ = mg.p_CO2(PT, melt_wf, models)
+        f_H2O_ = mg.f_H2O(PT, melt_wf, models)
+        f_CO2_ = mg.f_CO2(PT, melt_wf, models)
+        xm_H2O_ = (mdv.C_H2O(PT, melt_wf, models) * f_H2O_) ** 0.5
+        xm_CO2_ = mdv.C_CO3(PT, melt_wf, models) * f_CO2_
+        M_m_ = mg.M_m_SO(melt_wf)
+        Xm_t = (
+            xm_CO2_ * mdv.species.loc["CO2", "M"]
+            + xm_H2O_ * mdv.species.loc["H2O", "M"]
+            + (1.0 - xm_CO2_ - xm_H2O_) * M_m_
+        )
+        wm_H2O_ = (xm_H2O_ * mdv.species.loc["H2O", "M"]) / Xm_t
+        wm_CO2_ = (xm_CO2_ * mdv.species.loc["CO2", "M"]) / Xm_t
 
         result = {
             "xg_H2O": xg_H2O_,
@@ -255,8 +252,7 @@ def P_sat_fO2_fS2(PT, melt_wf, models, Ptol):
         guess0 = result_fO2fS2["P_tot"]
         guess0 = float(guess0)
         PT["P"] = guess0
-    else:
-        result = eq.p_tot_fO2_fS2(PT, melt_wf, models)
+    result = eq.p_tot_fO2_fS2(PT, melt_wf, models)
 
     return result
 
@@ -819,12 +815,11 @@ def fO2_P_VSA(PT, melt_wf, models, nr_step, nr_tol, Ptol):
         melt_wf["H2OT"] = ms_conc["wm_H2O"]
         melt_wf["CO2"] = ms_conc["wm_CO2"]
         melt_wf["S2-"] = ms_conc["wm_S2m"]
-    else:
-        P_sat = guess0
-        ms_conc = eq.melt_speciation(PT, melt_wf, models, nr_step, nr_tol)
-        ms_frac = melt_species_ratios(ms_conc)
-        fO2_, ST_ = fO2_S(PT, melt_wf, models)
-        Fe3_FT = mdv.fO22Fe3FeT(fO2_, PT, melt_wf, models)
+    P_sat = guess0
+    ms_conc = eq.melt_speciation(PT, melt_wf, models, nr_step, nr_tol)
+    ms_frac = melt_species_ratios(ms_conc)
+    fO2_, ST_ = fO2_S(PT, melt_wf, models)
+    Fe3_FT = mdv.fO22Fe3FeT(fO2_, PT, melt_wf, models)
 
     ms_frac["Fe3_FT"] = Fe3_FT
 
@@ -893,11 +888,10 @@ def P_VSA(PT, melt_wf, models, nr_step, nr_tol, Ptol):
         melt_wf["H2OT"] = ms_conc["wm_H2O"]
         melt_wf["CO2"] = ms_conc["wm_CO2"]
         melt_wf["S2-"] = ms_conc["wm_S2m"]
-    else:
-        P_sat = guess0
-        melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT, melt_wf, models)
-        ms_conc = eq.melt_speciation(PT, melt_wf, models, nr_step, nr_tol)
-        ms_frac = melt_species_ratios(ms_conc)
+    P_sat = guess0
+    melt_wf["Fe3FeT"] = mg.Fe3FeT_i(PT, melt_wf, models)
+    ms_conc = eq.melt_speciation(PT, melt_wf, models, nr_step, nr_tol)
+    ms_frac = melt_species_ratios(ms_conc)
 
     return P_sat, ms_conc, ms_frac
 
@@ -982,14 +976,13 @@ def P_sat_sulf_anh(PT, melt_wf, models, Ptol, nr_step, nr_tol):
                     melt_wf["H2OT"] = ms_conc["wm_H2O"]
                     melt_wf["CO2"] = ms_conc["wm_CO2"]
                     melt_wf["S2-"] = ms_conc["wm_S2m"]
+            if is_sat == "False":
+                P_sat = ""
             else:
-                if is_sat == "False":
-                    P_sat = ""
-                else:
-                    P_sat = guess0
-                    is_sat, Fe3T, fO2, S6T, DFMQ, Ssat = S62_2_Fe3T(
-                        PT, melt_wf, models, phase
-                    )
+                P_sat = guess0
+                is_sat, Fe3T, fO2, S6T, DFMQ, Ssat = S62_2_Fe3T(
+                    PT, melt_wf, models, phase
+                )
         if phase == "sulf":
             P_sat_sulf = P_sat
             SCSS_ = Ssat
@@ -1679,13 +1672,10 @@ def compositions_within_error(run, setup):
             value = float(np.random.normal(setup.loc[run, x], sd))
 
             if x in ["Fe3FeT", "S6ST"]:
-                if value < 0.001:
-                    value = 0.001
-                if value > 0.999:
-                    value = 0.999
+                value = max(value, 0.001)
+                value = min(value, 0.999)
             if (x != "DFMQ") is True and (x != "DNNO") is True:
-                if value < 0.0:
-                    value = 0.0
+                value = max(value, 0.0)
             if x == "STppm":
                 if value == 0.0:
                     if "S6ST" in setup:
@@ -1878,7 +1868,7 @@ def calc_isotopes(PT, comp, R, models, nr_step, nr_tol, run=0.0):
     Returns:
         tuple(dict,dict,dict,dict,dict,dict): Isotope ratios for all species in S, C, and H. Isotope ratios for melt and vapor in S, C, and H.
     """
-    comp_ = comp[run : run + 1]  # noqa
+    comp_ = comp[run : run + 1]
     R_all_species_C, R_m_g_C = iso.i2s9("C", PT, comp_, R, models, nr_step, nr_tol)
     R_all_species_S, R_m_g_S = iso.i2s9("S", PT, comp_, R, models, nr_step, nr_tol)
     R_all_species_H, R_m_g_H = iso.i2s9("H", PT, comp_, R, models, nr_step, nr_tol)
