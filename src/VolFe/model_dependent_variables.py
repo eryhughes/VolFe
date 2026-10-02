@@ -1620,7 +1620,7 @@ def C_S(PT, melt_wf, models=default_models):
             )
             / T
         )
-        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
+        C = (10.0 ** (logC)) * 1.0e4  # convert wt% to ppmw
 
     # Eq. (7) (with or without effect of P from eq. 12) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in
     # silicate melts. Contrib Mineral Petrol 178, 56 (2023).
@@ -1646,7 +1646,7 @@ def C_S(PT, melt_wf, models=default_models):
         )
         if model == "Boulliung23_eq7_12":
             logC = logC + (((PT["P"] - 1) * 6.2) / (8.314 * 2.303 * T))
-        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
+        C = (10.0 ** (logC)) * 1.0e4  # convert wt% to ppmw
 
     # Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
@@ -1669,11 +1669,11 @@ def C_S(PT, melt_wf, models=default_models):
             / T
         )
 
-        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
+        C = (10.0 ** (logC)) * 1.0e4  # convert wt% to ppmw
 
     # Eq. (8) or (9) from Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions.
     # Earth and Planetary Science Letters 687:120088 https://doi.org/10.1016/j.epsl.2026.120088
-    # with/without Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
+    # with/without Eq. (14) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
     if model in [
         "Gorojovsky26_eq8",
@@ -1736,7 +1736,7 @@ def C_S(PT, melt_wf, models=default_models):
                 )
                 + 3.86057 * math.erf(melt_comp["FeOT"] * (1.0 - melt_wf["Fe3FeT"]))
             )
-        # P-term using Eq. (15) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
+        # P-term using Eq. (14) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
         # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
         if model in [
             "Gorojovsky26_eq8_Thomas26_eq14",
@@ -1744,7 +1744,7 @@ def C_S(PT, melt_wf, models=default_models):
         ]:
             logC = logC - ((PT["T"] * 0.056) / T)
 
-        C = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
+        C = (10.0 ** (logC)) * 1.0e4  # convert wt% to ppmw
 
     # elif model == "FR54-S1":
     #    lnC = math.log(((1.3e-4)*10000.))
@@ -1893,7 +1893,7 @@ def C_SO4(PT, melt_wf, models=default_models):
         )
         if model == "Boulliung23_eq9_12":
             logC = logC + (((PT["P"] - 1) * 29.2) / (8.314 * 2.303 * T))
-        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
+        Csulfate = (10.0 ** (logC)) * 1.0e4  # convert wt% to ppmw
 
     # Eq. (11) from Boulliung, J., Wood, B.J. Sulfur oxidation state and solubility in
     # silicate melts. Contrib Mineral Petrol 178, 56 (2023).
@@ -1920,7 +1920,7 @@ def C_SO4(PT, melt_wf, models=default_models):
             )
             + 55.029 * math.log10(T)
         )
-        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
+        Csulfate = (10.0 ** (logC)) * 1.0e4  # convert wt% to ppmw
 
     # Eq. (21) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
@@ -1947,7 +1947,7 @@ def C_SO4(PT, melt_wf, models=default_models):
             )
             + 55.03 * math.log10(T)
         )
-        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
+        Csulfate = (10.0 ** (logC)) * 1.0e4  # convert wt% to ppmw
 
     # Eq. (22) from Thomas, R.W. and Wood, B.J., 2026. Sulfur speciation in silicate melts at high pressure. Geochimica et Cosmochimica Acta.
     # 417:37-51 https://doi.org/10.1016/j.gca.2026.02.003
@@ -1971,7 +1971,7 @@ def C_SO4(PT, melt_wf, models=default_models):
             )
             / T
         )
-        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
+        Csulfate = (10.0 ** (logC)) * 1.0e4  # convert wt% to ppmw
 
     # Eq. (10) or (11) from Gorojovsky & Wood (2026) with/without eq. (20) for P-term from Thomas & Wood (2026)
     # Gorojovsky, L.R. and Wood, B.J., (2026). Solubility and speciation of sulfur in silicate melts under crustal conditions. EPSL 687:120088 https://doi.org/10.31223/X5T755
@@ -2003,7 +2003,7 @@ def C_SO4(PT, melt_wf, models=default_models):
                 )
                 / T
             )
-        # Eq. (26) benchmarked without eq. (20)
+        # Eq. (11) benchmarked without eq. (20)
         elif model in ["Gorojovsky26_eq11", "Gorojovsky26_eq11_Thomas26_eq20"]:
             logC = (
                 195.99657
@@ -2023,9 +2023,9 @@ def C_SO4(PT, melt_wf, models=default_models):
                 - 57.2083 * math.log10(T)
             )
         # Pressure-term using eq. (20) from Thomas & Wood (2026)
-        if model in ["Gorojovsky26_eq10_Thomas26_eq20", "GorojovskyPP_eq26_Thomas26_eq20"]:
+        if model in ["Gorojovsky26_eq10_Thomas26_eq20", "Gorojovsky26_eq11_Thomas26_eq20"]:
             logC = logC - ((PT["P"] * 0.165) / T)
-        Csulfate = (10.0 ** (logC)) * 1.0e5  # convert wt% to ppmw
+        Csulfate = (10.0 ** (logC)) * 1.0e4  # convert wt% to ppmw
 
     # OLD #
     # elif model == "Nash19": # Nash et al. (2019) EPSL 507:187-198
