@@ -1757,6 +1757,28 @@ def calc_gassing(
 
             # Check if melt is vapor-saturated
             # CHECK CODE BELOW IS USEFUL
+
+            if number_of_step > 1.:
+                if xg["xg_O2"] < 0. or xg["xg_CO"] < 0. or xg["xg_S2"] < 0. or xg["xg_CO2"] < 0. or xg["xg_H2O"] < 0. or xg["xg_H2"] < 0. or xg["xg_CH4"] < 0. or xg["xg_SO2"] < 0. or xg["xg_H2S"] < 0. or xg["xg_OCS"] < 0. or xg['xg_X'] < 0.:
+                    results.columns = results.iloc[0]
+                    results = results[1:]
+                    length = len(results)
+                    results = results[:(length-1)]
+                    results.reset_index(drop=True, inplace=True)
+                    if models.loc["output csv", "option"] == True:
+                        results.to_csv(
+                            "results_gassing_chemistry.csv",
+                            index=False,
+                            header=True,
+                        )
+                    if models.loc["print status", "option"] == "True":
+                        print(
+                            "vapor composition contains negative mole fraction, calculation aborted at P = ",
+                            last_successful_P,
+                            datetime.datetime.now(),
+                            )
+                    return results
+
             PT_ = {"P": PT["P"], "T": PT["T"]}
             if models.loc["COH_species", "option"] == "H2O-CO2 only":
                 P_sat_, P_sat_H2O_CO2_result = c.P_sat_H2O_CO2(
@@ -2095,6 +2117,7 @@ def calc_gassing(
                     )
                     return results
 
+
                 # gas composition
                 gas_mf = {
                     "O2": xg["xg_O2"],
@@ -2110,7 +2133,7 @@ def calc_gassing(
                     "X": xg["xg_X"],
                     "Xg_t": xg["Xg_t"],
                     "wt_g": melt_and_gas["wt_g"],
-                }
+                } 
 
             # update guesses
             if (
