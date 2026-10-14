@@ -2023,7 +2023,10 @@ def C_SO4(PT, melt_wf, models=default_models):
                 - 57.2083 * math.log10(T)
             )
         # Pressure-term using eq. (20) from Thomas & Wood (2026)
-        if model in ["Gorojovsky26_eq10_Thomas26_eq20", "Gorojovsky26_eq11_Thomas26_eq20"]:
+        if model in [
+            "Gorojovsky26_eq10_Thomas26_eq20",
+            "Gorojovsky26_eq11_Thomas26_eq20",
+        ]:
             logC = logC - ((PT["P"] * 0.165) / T)
         Csulfate = (10.0 ** (logC)) * 1.0e4  # convert wt% to ppmw
 
