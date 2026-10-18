@@ -4,7 +4,9 @@ Introduction and citation
 
 This is VolFe: an open-source Python package for calculating melt-vapor equilibra in the CHOS+ system, including concentration, speciation, and isotope ratios.
 
-VolFe can be installed using pip from `PyPI <https://pypi.org/project/VolFe/>`_ or from `GitHub <https://github.com/eryhughes/VolFe>`_. Please install VolFe in its own environment because it will rewrite all your package versions.
+VolFe can be installed using pip from `PyPI <https://pypi.org/project/VolFe/>`_ or from `GitHub <https://github.com/eryhughes/VolFe>`_. Please install VolFe in its own environment because it will rewrite all your package versions. 
+
+VolFe is also available to use through the `VICTOR <https://victor.ldeo.columbia.edu/about>`_ platform `(Lev et al., 2025) <https://doi.org/10.30909/vol/ikoj4933>`_ , where you can use VolFe (and a bunch for other volcanology code) without downloading anything onto your computer! You'll need to sign up to VICTOR and then you'll have access to their JupyterHub platform in the cloud.
 
 VolFe is a work in progress. If you see any problems or have any feedback, super keen to hear it! Drop Ery an email at ery[dot]hughes[at]ucl[dot]ac[dot]uk.
 

@@ -27,6 +27,7 @@ This is the VolFe documentation
    worked_example_other
    worked_example_realdata
    add_your_own
+   worked_example_comparisons
    worked_example_literature
 
 .. toctree::
