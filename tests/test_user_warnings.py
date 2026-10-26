@@ -1,10 +1,12 @@
 # Tests that the correct warnings are raised when the user tries to do
 # something suspicious.
 
-import pytest
-import VolFe as vf
-import pandas as pd
 import warnings
+
+import pandas as pd
+import pytest
+
+import VolFe as vf
 
 ANALYSIS_ERROR = {
     "Sample": "TN273-01D-01-01",
