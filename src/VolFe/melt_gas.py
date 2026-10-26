@@ -1,12 +1,14 @@
 # melt_gas.py
 
-import pandas as pd
 import math
 import warnings as w
 
+import pandas as pd
+
+import VolFe.equilibrium_equations as eq
+
 # import model_dependent_variables as mdv
 import VolFe.model_dependent_variables as mdv
-import VolFe.equilibrium_equations as eq
 
 ########################################################################################
 # Contents #############################################################################
@@ -499,8 +501,7 @@ def S6S2_2_fO2(S62, melt_wf, PT, models):
         melt_wf["H2OT"] = conc["wm_H2O"]
         melt_wf["CO2"] = conc["wm_CO2"]
         delta2 = abs(xmH2O - xm_H2OT_so(melt_wf))
-    else:
-        fO2, xmH2O = calc_fO2(S62, melt_wf, PT, models)
+    fO2, xmH2O = calc_fO2(S62, melt_wf, PT, models)
 
     # S6p = melt_wf["ST"]*(S62/(1.+S62))
     # S2mT = melt_wf["ST"] - S6p
@@ -2021,7 +2022,7 @@ def Fe3FeT_i(PT, melt_wf, models):
                 or pd.isnull(melt_wf["FeO"]) is False
             ):
                 w.warn(
-                    "you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered Fe3+/FeT"  # noqa E501
+                    "you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered Fe3+/FeT"
                 )
             return melt_wf["Fe3FeT_i"]
         elif pd.isnull(melt_wf["logfO2_i"]) is False:
@@ -2033,7 +2034,7 @@ def Fe3FeT_i(PT, melt_wf, models):
                 or pd.isnull(melt_wf["FeO"]) is False
             ):
                 w.warn(
-                    "you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered log(fO2)"  # noqa E501
+                    "you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered log(fO2)"
                 )
             fO2 = 10.0 ** (melt_wf["logfO2_i"])
             return mdv.fO22Fe3FeT(fO2, PT, melt_wf, models)
@@ -2045,7 +2046,7 @@ def Fe3FeT_i(PT, melt_wf, models):
                 or pd.isnull(melt_wf["FeO"]) is False
             ):
                 w.warn(
-                    "you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered DNNO"  # noqa E501
+                    "you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered DNNO"
                 )
             D = melt_wf["DNNO"]
             fO2 = Dbuffer2fO2(PT, D, "NNO", models)
@@ -2057,7 +2058,7 @@ def Fe3FeT_i(PT, melt_wf, models):
                 or pd.isnull(melt_wf["FeO"]) is False
             ):
                 w.warn(
-                    "you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered DFMQ"  # noqa E501
+                    "you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered DFMQ"
                 )
             D = melt_wf["DFMQ"]
             fO2 = Dbuffer2fO2(PT, D, "FMQ", models)
@@ -2068,7 +2069,7 @@ def Fe3FeT_i(PT, melt_wf, models):
                 or pd.isnull(melt_wf["FeO"]) is False
             ):
                 w.warn(
-                    "you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered S6+/ST"  # noqa E501
+                    "you entered more than one way to infer iron speciation, note that this calcualtion is only considering the entered S6+/ST"
                 )
             S6T = melt_wf["S6ST_i"]
             S62 = overtotal2ratio(S6T)
