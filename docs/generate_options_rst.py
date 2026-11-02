@@ -13,9 +13,9 @@ Kayla Iacovino with function mapping by Claude.
 """
 
 import inspect
+import os
 import re
 import sys
-import os
 
 # Ensure the VolFe package is importable
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
