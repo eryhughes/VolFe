@@ -1,9 +1,9 @@
 # Tests the degassing function works as expected
 
-import VolFe as vf
 import pandas as pd
 import pytest
 
+import VolFe as vf
 
 # tests to complete
 # 2d closed regas
