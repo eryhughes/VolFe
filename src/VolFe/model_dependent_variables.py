@@ -766,7 +766,7 @@ def C_H2O(PT, melt_wf, models=default_models):
 
     Model options for water
     ------------------------
-    - 'Basalt_Hughes24' [default] Fig.S2 from Hughes et al. (2024) AmMin 109(3):422-438 https://doi.org/10.2138/am-2023-8739
+    - 'Basalt_Hughes24' [default] Fig.S2 from Hughes et al. (2024) AmMin 109(3):422-438 https://doi.org/10.2138/am-2022-8739
     - 'Rhyolite_Hughes25' Eq. (S1) from Hughes et al. (2025) Volcanica 8(2):457-481 https://doi.org/10.30909/vol/imvc1781 based on data in Fig. 3 of Blank et al. (1993)
 
     """
@@ -2023,7 +2023,10 @@ def C_SO4(PT, melt_wf, models=default_models):
                 - 57.2083 * math.log10(T)
             )
         # Pressure-term using eq. (20) from Thomas & Wood (2026)
-        if model in ["Gorojovsky26_eq10_Thomas26_eq20", "Gorojovsky26_eq11_Thomas26_eq20"]:
+        if model in [
+            "Gorojovsky26_eq10_Thomas26_eq20",
+            "Gorojovsky26_eq11_Thomas26_eq20",
+        ]:
             logC = logC - ((PT["P"] * 0.165) / T)
         Csulfate = (10.0 ** (logC)) * 1.0e4  # convert wt% to ppmw
 
@@ -2091,8 +2094,8 @@ def C_H2S(PT, melt_wf, models=default_models):
 
     Model options for hydrogen sulfide
     -------------
-    - 'Basalt_Hughes24' [default] Fig.S6 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011).
-    - 'BasalticAndesite_Hughes24' Fig.S6 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011).
+    - 'Basalt_Hughes24' [default] Fig.S6 from Hughes et al. (2024) https://doi.org/10.2138/am-2022-8739, based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011).
+    - 'BasalticAndesite_Hughes24' Fig.S6 from Hughes et al. (2024) https://doi.org/10.2138/am-2022-8739, based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011).
     - 'insoluble' H2Smol is insoluble in the melt.
 
     """
@@ -2140,8 +2143,8 @@ def C_H2(PT, melt_wf, models=default_models):
 
     Model options for hydrogen
     -------------
-    - 'Basalt_Hughes24' [default] Basalt in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data from Hirschmann et al. (2012).
-    - 'Andesite_Hughes24' Andesite in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data from Hirschmann et al. (2012).
+    - 'Basalt_Hughes24' [default] Basalt in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2022-8739, based on experimental data from Hirschmann et al. (2012).
+    - 'Andesite_Hughes24' Andesite in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2022-8739, based on experimental data from Hirschmann et al. (2012).
     - 'insoluble' H2mol is insoluble in the melt.
 
     """
@@ -2265,7 +2268,7 @@ def C_CO(PT, melt_wf, models=default_models):
 
     Model options for 'carbon monoxide'
     -------------
-    - 'Basalt_Hughes24' [default] CO in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on data from Armstrong et al. (2015), Stanley et al. (2014), and Wetzel et al. (2013).
+    - 'Basalt_Hughes24' [default] CO in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2022-8739, based on data from Armstrong et al. (2015), Stanley et al. (2014), and Wetzel et al. (2013).
     - 'insoluble' COmol is insoluble in the melt.
 
     """
@@ -4899,7 +4902,7 @@ def y_H2S(PT, models=default_models):
 
     Model options for y_H2S
     -----------------------
-    - 'Shi92_Hughes23' [default] Fig.S1 modified from Shi & Saxena (1992) Hughes et al. (2024) AmMin 109(3):422-438 https://doi.org/10.2138/am-2023-8739
+    - 'Shi92_Hughes23' [default] Fig.S1 modified from Shi & Saxena (1992) Hughes et al. (2024) AmMin 109(3):422-438 https://doi.org/10.2138/am-2022-8739
     - 'Shi92' Shi & Saxena (1992) AmMin 77(9-10):1038-1049
     - 'ideal' Treat as ideal gas, y = 1 at all P.
     Note: "ideal_gas" = "True" overides chosen option.
@@ -5050,7 +5053,7 @@ def y_H2S(PT, models=default_models):
                 integral0 = 0.0
 
             # Fig.S1 modified from Shi & Saxena (1992) Hughes et al. (2024)
-            # AmMin 109(3):422-438 https//doi.org/10.2138/am-2023-8739
+            # AmMin 109(3):422-438 https//doi.org/10.2138/am-2022-8739
             elif models.loc["y_H2S", "option"] == "Shi92_Hughes24":
                 P0 = 500.0  # calculate y at 500 bars
                 Pr_ = 500.0 / Pcr

@@ -129,14 +129,14 @@ Solubility constants
 **water** *(default: Basalt_Hughes24)*
    Model for the parameterisation for the H2O solubility constant. See :func:`~VolFe.model_dependent_variables.C_H2O`.
 
-   - ``'Basalt_Hughes24'`` — Fig.S2 from Hughes et al. (2024) AmMin 109(3):422-438 https://doi.org/10.2138/am-2023-8739
+   - ``'Basalt_Hughes24'`` — Fig.S2 from Hughes et al. (2024) AmMin 109(3):422-438 https://doi.org/10.2138/am-2022-8739
    - ``'Rhyolite_HughesIP'`` — Fig.SX from Hughes et al. (in prep) based on data in Fig. 3 of Blank et al. (1993)
 
 **hydrogen** *(default: Basalt_Hughes24)*
    Model for the parameterisation of the H2 solubility constant. See :func:`~VolFe.model_dependent_variables.C_H2`.
 
-   - ``'Basalt_Hughes24'`` — Basalt in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data from Hirschmann et al. (2012).
-   - ``'Andesite_Hughes24'`` — Andesite in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data from Hirschmann et al. (2012).
+   - ``'Basalt_Hughes24'`` — Basalt in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2022-8739, based on experimental data from Hirschmann et al. (2012).
+   - ``'Andesite_Hughes24'`` — Andesite in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2022-8739, based on experimental data from Hirschmann et al. (2012).
 
 **sulfide** *(default: ONeill21dil)*
    Model for the parameterisation for the \*S2- solubility constant. See :func:`~VolFe.model_dependent_variables.C_S`.
@@ -160,8 +160,8 @@ Solubility constants
 **hydrogen sulfide** *(default: Basalt_Hughes24)*
    Model for the parameterisation for the H2S solubility constant. See :func:`~VolFe.model_dependent_variables.C_H2S`.
 
-   - ``'Basalt_Hughes24'`` — Fig.S6 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011).
-   - ``'BasalticAndesite_Hughes24'`` — Fig.S6 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011).
+   - ``'Basalt_Hughes24'`` — Fig.S6 from Hughes et al. (2024) https://doi.org/10.2138/am-2022-8739, based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011).
+   - ``'BasalticAndesite_Hughes24'`` — Fig.S6 from Hughes et al. (2024) https://doi.org/10.2138/am-2022-8739, based on experimental data Moune et al. (2009) and calculations in Lesne et al. (2011).
 
 **methane** *(default: Basalt_Ardia13)*
    Model for the parameterisation of the CH4 solubility constant. See :func:`~VolFe.model_dependent_variables.C_CH4`.
@@ -171,7 +171,7 @@ Solubility constants
 **carbon monoxide** *(default: Basalt_Hughes24)*
    Model for the parameterisation of the CO solubility constant. See :func:`~VolFe.model_dependent_variables.C_CO`.
 
-   - ``'Basalt_Hughes24'`` — CO in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2023-8739, based on data from Armstrong et al. (2015), Stanley et al. (2014), and Wetzel et al. (2013).
+   - ``'Basalt_Hughes24'`` — CO in Table S4 from Hughes et al. (2024) https://doi.org/10.2138/am-2022-8739, based on data from Armstrong et al. (2015), Stanley et al. (2014), and Wetzel et al. (2013).
 
 **species X solubility** *(default: Ar_Basalt_HughesIP)*
    Model for the parameterisation of the X solubility constant. See :func:`~VolFe.model_dependent_variables.C_X`.
@@ -268,7 +268,7 @@ Fugacity coefficients
 **y_H2S** *(default: Shi92_Hughes24)*
    Model for the parameterisation of the H2S fugacity coefficient. See :func:`~VolFe.model_dependent_variables.y_H2S`.
 
-   - ``'Shi92_Hughes23'`` — Fig.S1 modified from Shi & Saxena (1992) Hughes et al. (2024) AmMin 109(3):422-438 https://doi.org/10.2138/am-2023-8739
+   - ``'Shi92_Hughes23'`` — Fig.S1 modified from Shi & Saxena (1992) Hughes et al. (2024) AmMin 109(3):422-438 https://doi.org/10.2138/am-2022-8739
    - ``'Shi92'`` — Shi & Saxena (1992) AmMin 77(9-10):1038-1049
    - ``'ideal'`` — Treat as ideal gas, y = 1 at all P.
 
